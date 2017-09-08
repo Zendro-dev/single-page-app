@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png">
-    <my-vuetable></my-vuetable>
+    <users></users>
   </div>
 </template>
 
 <script>
-import MyVuetable from './components/MyVuetable'
+import Users from './components/Users'
 
 export default {
   name: 'app',
   components: {
-    MyVuetable
+    Users
   }
 }
 </script>
