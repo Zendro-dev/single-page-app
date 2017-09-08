@@ -2,7 +2,7 @@
   <div class="ui container">
     <filter-bar></filter-bar>
     <vuetable ref="vuetable"
-      api-url="/users/vue_table"
+      api-url="http://localhost:3000/users/vue_table"
       :fields="fields"
       pagination-path=""
       :per-page="20"
