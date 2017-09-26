@@ -49,7 +49,7 @@ export default {
   props: [ 'taxon', 'errors' ],
         computed: {
     taxonInitialLabel: function () {
-      var x = this.taxon.taxon
+      var x = this.taxon.parent
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {
