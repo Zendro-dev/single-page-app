@@ -29,7 +29,6 @@ import soil_samples from '@/components/soil_samples'
 import soil_sampleCreate from '@/components/soil_sampleCreateForm'
 import soil_sampleEdit from '@/components/soil_sampleEditForm'
 
-
 Vue.use(Router)
 
 var routes = [
