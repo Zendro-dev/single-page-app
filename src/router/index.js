@@ -4,11 +4,12 @@ import Hello from '@/components/Hello'
 import Users from '@/components/users'
 import UserCreate from '@/components/UserCreateForm'
 import UserEdit from '@/components/UserEditForm'
+const glob = require('glob')
+const fs = require('fs')
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
+var routes = [
     {
       path: '/',
       name: 'Hello',
@@ -29,5 +30,18 @@ export default new Router({
       name: 'UserCreate',
       component: UserCreate,
     }
-  ]
+  ];
+
+
+// Include model specific routes:
+glob.sync(__dirname + '/*Routes.js').forEach(function(file) {
+    console.log('Requiring model specific routes from \'%s\'', file);
+    eval(fs.readFileSync(path.resolve(file)))
+});
+
+console.log("Routes are:")
+console.log(routes)
+
+export default new Router({
+  routes: routes
 })

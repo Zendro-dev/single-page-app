@@ -1,0 +1,132 @@
+<template>
+  <div id="individual-form-elemns-div">
+
+  <input type="hidden" v-model="individual.id"/>
+  
+  
+    <div id="individual-name-div" class="form-group">
+      <label>name</label>
+      <input type="text" v-model="individual.name" class="form-control"/>
+      <div id="individual-name-err" v-if="typeof validationError('name') !== 'undefined'">
+        {{validationError('name').message}}
+      </div>
+    </div>
+
+  
+    <div id="individual-sowing_date-div" class="form-group">
+      <label>sowing_date</label>
+      <input type="text" v-model="individual.sowing_date" class="form-control"/>
+      <div id="individual-sowing_date-err" v-if="typeof validationError('sowing_date') !== 'undefined'">
+        {{validationError('sowing_date').message}}
+      </div>
+    </div>
+
+  
+    <div id="individual-harvest_date-div" class="form-group">
+      <label>harvest_date</label>
+      <input type="text" v-model="individual.harvest_date" class="form-control"/>
+      <div id="individual-harvest_date-err" v-if="typeof validationError('harvest_date') !== 'undefined'">
+        {{validationError('harvest_date').message}}
+      </div>
+    </div>
+
+  
+      
+    <div id="individual-cultivar-div" class="form-group">
+      <label>cultivar</label>
+      <foreign-key-form-element
+        searchUrl="http://localhost:3000/cultivars"
+        v-model:foreignKey="individual.cultivar_id"
+        label="genotype"
+                subLabel="description"
+                valueKey="id"
+        v-bind:initialInput="cultivarInitialLabel">
+      </foreign-key-form-element>
+    </div>
+
+      
+    <div id="individual-ﬁeld_plot-div" class="form-group">
+      <label>ﬁeld_plot</label>
+      <foreign-key-form-element
+        searchUrl="http://localhost:3000/ﬁeld_plots"
+        v-model:foreignKey="individual.ﬁeld_plot_id"
+        label="ﬁeld_name"
+                subLabel="location_code"
+                valueKey="id"
+        v-bind:initialInput="ﬁeld_plotInitialLabel">
+      </foreign-key-form-element>
+    </div>
+
+      
+    <div id="individual-pot-div" class="form-group">
+      <label>pot</label>
+      <foreign-key-form-element
+        searchUrl="http://localhost:3000/pots"
+        v-model:foreignKey="individual.pot_id"
+        label="pot"
+                subLabel="greenhouse"
+                valueKey="id"
+        v-bind:initialInput="potInitialLabel">
+      </foreign-key-form-element>
+    </div>
+
+    
+  </div>
+</template>
+
+<script>
+import Vue from 'vue'
+import foreignKeyFormElement from './foreignKeyFormElement.vue'
+
+Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
+export default {
+  props: [ 'individual', 'errors' ],
+        computed: {
+    cultivarInitialLabel: function () {
+      var x = this.individual.cultivar
+      if (x !== null && typeof x === 'object' &&
+          x['genotype'] !== null &&
+          typeof x['genotype'] !== 'undefined') {
+        return x['genotype']
+      } else {
+        return ''
+      }
+    }
+        ,
+      },
+        computed: {
+    ﬁeld_plotInitialLabel: function () {
+      var x = this.individual.ﬁeld_plot
+      if (x !== null && typeof x === 'object' &&
+          x['ﬁeld_name'] !== null &&
+          typeof x['ﬁeld_name'] !== 'undefined') {
+        return x['ﬁeld_name']
+      } else {
+        return ''
+      }
+    }
+        ,
+      },
+        computed: {
+    potInitialLabel: function () {
+      var x = this.individual.pot
+      if (x !== null && typeof x === 'object' &&
+          x['pot'] !== null &&
+          typeof x['pot'] !== 'undefined') {
+        return x['pot']
+      } else {
+        return ''
+      }
+    }
+      },
+    methods: {
+    validationError(modelField) {
+      if (this.errors == null) return false;
+      return this.errors.find(function (el) {
+        return el.path === modelField
+      })
+    }
+  }
+}
+</script>

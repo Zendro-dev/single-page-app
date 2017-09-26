@@ -1,0 +1,8 @@
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name taxon --attributes 'name:string, taxonomic_level:string' --belongsTos 'taxon:parent_id:id:name:taxonomic_level'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name field_plot --attributes 'field_name:string, latitude:double, longitude:double, location_code:string, soil_treatment:string'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name pot --attributes 'pot:string, greenhouse:string, climate_chamber:string, conditions:string'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name cultivar --attributes 'description:string, genotype:string' --belongsTos 'taxon:taxon_id:id:name:taxonomic_level'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name individual --attributes 'name:string, sowing_date:date, harvest_date:date' --belongsTos ' cultivar:cultivar_id:id:genotype:description, ﬁeld_plot:ﬁeld_plot_id:id:ﬁeld_name:location_code, pot:pot_id:id:pot:greenhouse'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name microbiome_sample --attributes 'name:string, material:string, life_cycle_phas:string, barcode_tag:string, description:string, harvest_date:date' --belongsTos 'individual:individual_id:id:name:sowing_date,ﬁeld_plot:ﬁeld_plot_id:id:ﬁeld_name:location_code,pot:pot_id:id:pot:greenhouse'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name microbiome_profile --attributes 'count:integer' --belongsTos 'taxon:taxon_id:id:name:taxonomic_level,microbiome_sample:microbiome_sample_id:id:name:description'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name soil_sample --attributes 'name:string, harvest_date:date' --belongsTos 'ﬁeld_plot:ﬁeld_plot_id:id:ﬁeld_name:location_code,pot:pot_id:id:pot:greenhouse'
