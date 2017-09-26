@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'soil_sample'"><button class="ui primary button">Add soil_sample</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/soil_samples/vue_table"
       :fields="fields"

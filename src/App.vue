@@ -14,6 +14,7 @@
           <li><a href="#/microbiome_samples">Microbiome-Samples</a></li>
           <li><a href="#/pots">Pots</a></li>
           <li><a href="#/soil_samples">Soil-Samples</a></li>
+          <li><a href="#/field_plots">Field-plot</a></li>
         </ul>
       </div>
     </nav>
