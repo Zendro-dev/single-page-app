@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      individual: null,
+      individual: {},
       error: null,
       errors: null,
     }

@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      cultivar: null,
+      cultivar: {},
       error: null,
       errors: null,
     }

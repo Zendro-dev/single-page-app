@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      soil_sample: null,
+      soil_sample: {},
       error: null,
       errors: null,
     }

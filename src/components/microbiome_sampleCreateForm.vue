@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      microbiome_sample: null,
+      microbiome_sample: {},
       error: null,
       errors: null,
     }

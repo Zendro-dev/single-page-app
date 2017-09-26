@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      field_plot: null,
+      field_plot: {},
       error: null,
       errors: null,
     }

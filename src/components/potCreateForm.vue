@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       loading: false,
-      pot: null,
+      pot: {},
       error: null,
       errors: null,
     }

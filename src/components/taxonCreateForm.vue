@@ -22,15 +22,15 @@ export default {
   data() {
     return {
       loading: false,
-      taxon: null,
-      error: null,
+      taxon: {},
+      error: {},
       errors: null,
     }
   },
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/taxon'
+      var url = 'http://localhost:3000/taxons'
       axios.post(url, t.taxon).then(function (response) {
         t.$router.push('/taxons')
       }).catch( function (error) {
