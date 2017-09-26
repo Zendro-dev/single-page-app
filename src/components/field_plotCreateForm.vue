@@ -30,7 +30,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/field_plot'
+      var url = 'http://localhost:3000/field_plots'
       axios.post(url, t.field_plot).then(function (response) {
         t.$router.push('/field_plots')
       }).catch( function (error) {

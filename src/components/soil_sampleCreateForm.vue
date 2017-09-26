@@ -30,7 +30,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/soil_sample'
+      var url = 'http://localhost:3000/soil_samples'
       axios.post(url, t.soil_sample).then(function (response) {
         t.$router.push('/soil_samples')
       }).catch( function (error) {

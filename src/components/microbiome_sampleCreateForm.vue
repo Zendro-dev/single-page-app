@@ -30,7 +30,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/microbiome_sample'
+      var url = 'http://localhost:3000/microbiome_samples'
       axios.post(url, t.microbiome_sample).then(function (response) {
         t.$router.push('/microbiome_samples')
       }).catch( function (error) {
