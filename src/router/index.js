@@ -4,8 +4,8 @@ import Hello from '@/components/Hello'
 import Users from '@/components/users'
 import UserCreate from '@/components/UserCreateForm'
 import UserEdit from '@/components/UserEditForm'
-const glob = require('glob')
-const fs = require('fs')
+import glob from 'glob-fs'
+import fs from 'fs-extra'
 
 Vue.use(Router)
 

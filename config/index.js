@@ -34,5 +34,9 @@ module.exports = {
     // In our experience, they generally work as expected,
     // just be aware of this issue when enabling this option.
     cssSourceMap: false
+  },
+  node: {
+    // https://github.com/aspnet/JavaScriptServices/issues/587
+    fs: "empty"
   }
 }
