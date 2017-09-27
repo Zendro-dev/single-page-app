@@ -72,15 +72,15 @@
     </div>
 
       
-    <div id="microbiome_sample-ﬁeld_plot-div" class="form-group">
-      <label>ﬁeld_plot</label>
+    <div id="microbiome_sample-field_plot-div" class="form-group">
+      <label>field_plot</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/ﬁeld_plots"
-        v-model:foreignKey="microbiome_sample.ﬁeld_plot_id"
-        label="ﬁeld_name"
+        searchUrl="http://localhost:3000/field_plots"
+        v-model:foreignKey="microbiome_sample.field_plot_id"
+        label="field_name"
                 subLabel="location_code"
                 valueKey="id"
-        v-bind:initialInput="ﬁeld_plotInitialLabel">
+        v-bind:initialInput="field_plotInitialLabel">
       </foreign-key-form-element>
     </div>
 
@@ -123,12 +123,12 @@ export default {
         ,
       },
         computed: {
-    ﬁeld_plotInitialLabel: function () {
-      var x = this.microbiome_sample.ﬁeld_plot
+    field_plotInitialLabel: function () {
+      var x = this.microbiome_sample.field_plot
       if (x !== null && typeof x === 'object' &&
-          x['ﬁeld_name'] !== null &&
-          typeof x['ﬁeld_name'] !== 'undefined') {
-        return x['ﬁeld_name']
+          x['field_name'] !== null &&
+          typeof x['field_name'] !== 'undefined') {
+        return x['field_name']
       } else {
         return ''
       }
