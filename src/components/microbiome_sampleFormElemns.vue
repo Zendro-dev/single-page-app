@@ -108,49 +108,43 @@ import foreignKeyFormElement from './foreignKeyFormElement.vue'
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 export default {
-  props: [ 'microbiome_sample', 'errors' ],
-        computed: {
-    individualInitialLabel: function () {
+  props: ['microbiome_sample', 'errors'],
+  computed: {
+    individualInitialLabel: function() {
       var x = this.microbiome_sample.individual
       if (x !== null && typeof x === 'object' &&
-          x['name'] !== null &&
-          typeof x['name'] !== 'undefined') {
+        x['name'] !== null &&
+        typeof x['name'] !== 'undefined') {
         return x['name']
       } else {
         return ''
       }
-    }
-        ,
-      },
-        computed: {
-    field_plotInitialLabel: function () {
+    },
+    field_plotInitialLabel: function() {
       var x = this.microbiome_sample.field_plot
       if (x !== null && typeof x === 'object' &&
-          x['field_name'] !== null &&
-          typeof x['field_name'] !== 'undefined') {
+        x['field_name'] !== null &&
+        typeof x['field_name'] !== 'undefined') {
         return x['field_name']
       } else {
         return ''
       }
-    }
-        ,
-      },
-        computed: {
-    potInitialLabel: function () {
+    },
+    potInitialLabel: function() {
       var x = this.microbiome_sample.pot
       if (x !== null && typeof x === 'object' &&
-          x['pot'] !== null &&
-          typeof x['pot'] !== 'undefined') {
+        x['pot'] !== null &&
+        typeof x['pot'] !== 'undefined') {
         return x['pot']
       } else {
         return ''
       }
     }
-      },
-    methods: {
+  },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
-      return this.errors.find(function (el) {
+      return this.errors.find(function(el) {
         return el.path === modelField
       })
     }

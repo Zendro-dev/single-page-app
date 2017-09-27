@@ -50,36 +50,33 @@ import foreignKeyFormElement from './foreignKeyFormElement.vue'
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 export default {
-  props: [ 'microbiome_profile', 'errors' ],
-        computed: {
-    taxonInitialLabel: function () {
+  props: ['microbiome_profile', 'errors'],
+  computed: {
+    taxonInitialLabel: function() {
       var x = this.microbiome_profile.taxon
       if (x !== null && typeof x === 'object' &&
-          x['name'] !== null &&
-          typeof x['name'] !== 'undefined') {
+        x['name'] !== null &&
+        typeof x['name'] !== 'undefined') {
         return x['name']
       } else {
         return ''
       }
-    }
-        ,
-      },
-        computed: {
-    microbiome_sampleInitialLabel: function () {
+    },
+    microbiome_sampleInitialLabel: function() {
       var x = this.microbiome_profile.microbiome_sample
       if (x !== null && typeof x === 'object' &&
-          x['name'] !== null &&
-          typeof x['name'] !== 'undefined') {
+        x['name'] !== null &&
+        typeof x['name'] !== 'undefined') {
         return x['name']
       } else {
         return ''
       }
     }
-      },
-    methods: {
+  },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
-      return this.errors.find(function (el) {
+      return this.errors.find(function(el) {
         return el.path === modelField
       })
     }

@@ -81,49 +81,45 @@ import foreignKeyFormElement from './foreignKeyFormElement.vue'
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 export default {
-  props: [ 'individual', 'errors' ],
-        computed: {
-    cultivarInitialLabel: function () {
+  props: ['individual', 'errors'],
+  computed: {
+    cultivarInitialLabel: function() {
       var x = this.individual.cultivar
+      console.log("Cultivar:")
+      console.log(x);
       if (x !== null && typeof x === 'object' &&
-          x['genotype'] !== null &&
-          typeof x['genotype'] !== 'undefined') {
+        x['genotype'] !== null &&
+        typeof x['genotype'] !== 'undefined') {
         return x['genotype']
       } else {
         return ''
       }
-    }
-        ,
-      },
-        computed: {
-    field_plotInitialLabel: function () {
+    },
+    field_plotInitialLabel: function() {
       var x = this.individual.field_plot
       if (x !== null && typeof x === 'object' &&
-          x['field_name'] !== null &&
-          typeof x['field_name'] !== 'undefined') {
+        x['field_name'] !== null &&
+        typeof x['field_name'] !== 'undefined') {
         return x['field_name']
       } else {
         return ''
       }
-    }
-        ,
-      },
-        computed: {
-    potInitialLabel: function () {
+    },
+    potInitialLabel: function() {
       var x = this.individual.pot
       if (x !== null && typeof x === 'object' &&
-          x['pot'] !== null &&
-          typeof x['pot'] !== 'undefined') {
+        x['pot'] !== null &&
+        typeof x['pot'] !== 'undefined') {
         return x['pot']
       } else {
         return ''
       }
     }
-      },
-    methods: {
+  },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
-      return this.errors.find(function (el) {
+      return this.errors.find(function(el) {
         return el.path === modelField
       })
     }
