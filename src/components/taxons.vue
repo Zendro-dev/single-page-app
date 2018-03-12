@@ -1,9 +1,6 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'taxon'"><button class="ui primary button">Add taxon</button></router-link>
-    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/taxons/vue_table"
       :fields="fields"
@@ -67,6 +64,10 @@ export default {
                   {
             name: 'taxonomic_level',
             sortField: 'taxonomic_level'
+          },
+                  {
+            name: 'parent_id',
+            sortField: 'parent_id'
           },
                 {
           name: '__component:taxon-custom-actions',

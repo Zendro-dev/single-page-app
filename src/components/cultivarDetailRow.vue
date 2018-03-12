@@ -12,6 +12,10 @@
         <label>genotype:</label>
         <span>{{rowData.genotype}}</span>
       </div>
+          <div class="inline field">
+        <label>taxon_id:</label>
+        <span>{{rowData.taxon_id}}</span>
+      </div>
       </div>
 </template>
 

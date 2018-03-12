@@ -1,9 +1,9 @@
 <template>
-  <div id="microbiome_sample-div">
-    <div v-if="microbiome_sample" class="content">
-      <form id="microbiome_sample-form" v-on:submit.prevent="onSubmit">
+  <div id="reference_sequence-div">
+    <div v-if="reference_sequence" class="content">
+      <form id="reference_sequence-form" v-on:submit.prevent="onSubmit">
 
-        <microbiome_sample-form-elemns v-bind:errors="errors" v-bind:microbiome_sample="microbiome_sample"></microbiome_sample-form-elemns>
+        <reference_sequence-form-elemns v-bind:errors="errors" v-bind:reference_sequence="reference_sequence"></reference_sequence-form-elemns>
 
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -14,15 +14,15 @@
 <script>
 import Vue from 'vue'
 import axios from 'axios'
-import microbiome_sampleFormElemns from './microbiome_sampleFormElemns.vue'
+import reference_sequenceFormElemns from './reference_sequenceFormElemns.vue'
 
-Vue.component('microbiome_sample-form-elemns', microbiome_sampleFormElemns)
+Vue.component('reference_sequence-form-elemns', reference_sequenceFormElemns)
 
 export default {
   data() {
     return {
       loading: false,
-      microbiome_sample: null,
+      reference_sequence: null,
       error: null,
       errors: null,
     }
@@ -38,9 +38,9 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/microbiome_sample/' +
+        axios.get('http://localhost:3000/reference_sequence/' +
           this.$route.params.id).then(function (response) {
-            t.microbiome_sample = response.data
+            t.reference_sequence = response.data
           }, function (err) {
             t.parent.error = err
           })
@@ -48,12 +48,12 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/microbiome_sample'
+      var url = 'http://localhost:3000/reference_sequence'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }
-      axios.put(url, t.microbiome_sample).then(function (response) {
-        t.$router.push('/microbiome_samples')
+      axios.put(url, t.reference_sequence).then(function (response) {
+        t.$router.push('/reference_sequences')
       }).catch( function (error) {
         if ( error.response && error.response.data && error.response.data.errors )
           t.errors = error.response.data.errors

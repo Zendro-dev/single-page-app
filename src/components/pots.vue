@@ -1,9 +1,6 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'pot'"><button class="ui primary button">Add pot</button></router-link>
-    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/pots/vue_table"
       :fields="fields"
@@ -31,7 +28,6 @@ import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePagination
 import potCustomActions from './potCustomActions.vue'
 import potDetailRow from './potDetailRow.vue'
 import FilterBar from './FilterBar.vue'
-import AddEntityBar from './AddNewEntityButton.vue'
 
 import Vue from 'vue'
 import VueEvents from 'vue-events'
@@ -40,7 +36,6 @@ Vue.use(VueEvents)
 Vue.component('pot-custom-actions', potCustomActions)
 Vue.component('pot-detail-row', potDetailRow)
 Vue.component('filter-bar', FilterBar)
-Vue.component('add-entity-bar', AddEntityBar)
 
 export default {
   components: {

@@ -1,9 +1,6 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'cultivar'"><button class="ui primary button">Add cultivar</button></router-link>
-    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/cultivars/vue_table"
       :fields="fields"
@@ -67,6 +64,10 @@ export default {
                   {
             name: 'genotype',
             sortField: 'genotype'
+          },
+                  {
+            name: 'taxon_id',
+            sortField: 'taxon_id'
           },
                 {
           name: '__component:cultivar-custom-actions',

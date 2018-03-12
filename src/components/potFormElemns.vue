@@ -48,7 +48,9 @@
 
 export default {
   props: [ 'pot', 'errors' ],
-    methods: {
+  computed: {
+    },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
       return this.errors.find(function (el) {

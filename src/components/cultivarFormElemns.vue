@@ -22,6 +22,15 @@
     </div>
 
   
+    <div id="cultivar-taxon_id-div" class="form-group">
+      <label>taxon_id</label>
+      <input type="text" v-model="cultivar.taxon_id" class="form-control"/>
+      <div id="cultivar-taxon_id-err" v-if="typeof validationError('taxon_id') !== 'undefined'">
+        {{validationError('taxon_id').message}}
+      </div>
+    </div>
+
+  
       
     <div id="cultivar-taxon-div" class="form-group">
       <label>taxon</label>
@@ -47,8 +56,8 @@ Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 export default {
   props: [ 'cultivar', 'errors' ],
-        computed: {
-    taxonInitialLabel: function () {
+  computed: {
+          taxonInitialLabel: function () {
       var x = this.cultivar.taxon
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
@@ -58,8 +67,8 @@ export default {
         return ''
       }
     }
-      },
-    methods: {
+        },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
       return this.errors.find(function (el) {

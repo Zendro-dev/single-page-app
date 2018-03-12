@@ -9,12 +9,24 @@
         <span>{{rowData.name}}</span>
       </div>
           <div class="inline field">
-        <label>taxonomic_level:</label>
-        <span>{{rowData.taxonomic_level}}</span>
+        <label>material:</label>
+        <span>{{rowData.material}}</span>
       </div>
           <div class="inline field">
-        <label>parent_id:</label>
-        <span>{{rowData.parent_id}}</span>
+        <label>life_cycle_phase:</label>
+        <span>{{rowData.life_cycle_phase}}</span>
+      </div>
+          <div class="inline field">
+        <label>barcode_tag:</label>
+        <span>{{rowData.barcode_tag}}</span>
+      </div>
+          <div class="inline field">
+        <label>description:</label>
+        <span>{{rowData.description}}</span>
+      </div>
+          <div class="inline field">
+        <label>harvest_date:</label>
+        <span>{{rowData.harvest_date}}</span>
       </div>
       </div>
 </template>

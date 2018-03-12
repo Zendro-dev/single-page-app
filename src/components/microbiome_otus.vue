@@ -1,15 +1,12 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'user'"><button class="ui primary button">Add user</button></router-link>
-    </div>
     <vuetable ref="vuetable"
-      api-url="http://localhost:3000/users/vue_table"
+      api-url="http://localhost:3000/microbiome_otus/vue_table"
       :fields="fields"
       pagination-path=""
       :per-page="20"
-      detail-row-component="user-detail-row"
+      detail-row-component="microbiome_otu-detail-row"
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
@@ -28,16 +25,16 @@
 import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
-import UserCustomActions from './UserCustomActions.vue'
-import UserDetailRow from './UserDetailRow.vue'
+import microbiome_otuCustomActions from './microbiome_otuCustomActions.vue'
+import microbiome_otuDetailRow from './microbiome_otuDetailRow.vue'
 import FilterBar from './FilterBar.vue'
 
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 Vue.use(VueEvents)
 
-Vue.component('user-custom-actions', UserCustomActions)
-Vue.component('user-detail-row', UserDetailRow)
+Vue.component('microbiome_otu-custom-actions', microbiome_otuCustomActions)
+Vue.component('microbiome_otu-detail-row', microbiome_otuDetailRow)
 Vue.component('filter-bar', FilterBar)
 
 export default {
@@ -45,7 +42,7 @@ export default {
     Vuetable,
     VuetablePagination,
     VuetablePaginationInfo,
-    UserDetailRow
+    microbiome_otuDetailRow
   },
   data() {
     return {
@@ -61,11 +58,39 @@ export default {
           dataClass: 'center aligned'
         },
                   {
-            name: 'email',
-            sortField: 'email'
+            name: 'reference_sequence_id',
+            sortField: 'reference_sequence_id'
+          },
+                  {
+            name: 'otu_id',
+            sortField: 'otu_id'
+          },
+                  {
+            name: 'sample_id',
+            sortField: 'sample_id'
+          },
+                  {
+            name: 'sample_desc',
+            sortField: 'sample_desc'
+          },
+                  {
+            name: 'count',
+            sortField: 'count'
+          },
+                  {
+            name: 'experiment',
+            sortField: 'experiment'
+          },
+                  {
+            name: 'version',
+            sortField: 'version'
+          },
+                  {
+            name: 'kingdom',
+            sortField: 'kingdom'
           },
                 {
-          name: '__component:user-custom-actions',
+          name: '__component:microbiome_otu-custom-actions',
           title: 'Actions',
           titleClass: 'center aligned',
           dataClass: 'center aligned'

@@ -1,9 +1,9 @@
 <template>
-  <div id="user-div">
-    <div v-if="user" class="content">
-      <form id="user-form" v-on:submit.prevent="onSubmit">
+  <div id="microbiome_otu-div">
+    <div v-if="microbiome_otu" class="content">
+      <form id="microbiome_otu-form" v-on:submit.prevent="onSubmit">
 
-        <user-form-elemns v-bind:errors="errors" v-bind:user="user"></user-form-elemns>
+        <microbiome_otu-form-elemns v-bind:errors="errors" v-bind:microbiome_otu="microbiome_otu"></microbiome_otu-form-elemns>
 
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -14,15 +14,15 @@
 <script>
 import Vue from 'vue'
 import axios from 'axios'
-import UserFormElemns from './UserFormElemns.vue'
+import microbiome_otuFormElemns from './microbiome_otuFormElemns.vue'
 
-Vue.component('user-form-elemns', UserFormElemns)
+Vue.component('microbiome_otu-form-elemns', microbiome_otuFormElemns)
 
 export default {
   data() {
     return {
       loading: false,
-      user: null,
+      microbiome_otu: null,
       error: null,
       errors: null,
     }
@@ -38,9 +38,9 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('/user/' +
+        axios.get('http://localhost:3000/microbiome_otu/' +
           this.$route.params.id).then(function (response) {
-            t.user = response.data
+            t.microbiome_otu = response.data
           }, function (err) {
             t.parent.error = err
           })
@@ -48,12 +48,12 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = '/user'
+      var url = 'http://localhost:3000/microbiome_otu'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }
-      axios.put(url, t.user).then(function (response) {
-        t.$router.push('/users')
+      axios.put(url, t.microbiome_otu).then(function (response) {
+        t.$router.push('/microbiome_otus')
       }).catch( function (error) {
         if ( error.response && error.response.data && error.response.data.errors )
           t.errors = error.response.data.errors

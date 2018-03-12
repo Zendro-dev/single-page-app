@@ -1,15 +1,12 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'microbiome_sample'"><button class="ui primary button">Add microbiome_sample</button></router-link>
-    </div>
     <vuetable ref="vuetable"
-      api-url="http://localhost:3000/microbiome_samples/vue_table"
+      api-url="http://localhost:3000/reference_sequences/vue_table"
       :fields="fields"
       pagination-path=""
       :per-page="20"
-      detail-row-component="microbiome_sample-detail-row"
+      detail-row-component="reference_sequence-detail-row"
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
@@ -28,16 +25,16 @@
 import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
-import microbiome_sampleCustomActions from './microbiome_sampleCustomActions.vue'
-import microbiome_sampleDetailRow from './microbiome_sampleDetailRow.vue'
+import reference_sequenceCustomActions from './reference_sequenceCustomActions.vue'
+import reference_sequenceDetailRow from './reference_sequenceDetailRow.vue'
 import FilterBar from './FilterBar.vue'
 
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 Vue.use(VueEvents)
 
-Vue.component('microbiome_sample-custom-actions', microbiome_sampleCustomActions)
-Vue.component('microbiome_sample-detail-row', microbiome_sampleDetailRow)
+Vue.component('reference_sequence-custom-actions', reference_sequenceCustomActions)
+Vue.component('reference_sequence-detail-row', reference_sequenceDetailRow)
 Vue.component('filter-bar', FilterBar)
 
 export default {
@@ -45,7 +42,7 @@ export default {
     Vuetable,
     VuetablePagination,
     VuetablePaginationInfo,
-    microbiome_sampleDetailRow
+    reference_sequenceDetailRow
   },
   data() {
     return {
@@ -61,31 +58,19 @@ export default {
           dataClass: 'center aligned'
         },
                   {
-            name: 'name',
-            sortField: 'name'
+            name: 'sequence',
+            sortField: 'sequence'
           },
                   {
-            name: 'material',
-            sortField: 'material'
+            name: 'taxon_id',
+            sortField: 'taxon_id'
           },
                   {
-            name: 'life_cycle_phas',
-            sortField: 'life_cycle_phas'
-          },
-                  {
-            name: 'barcode_tag',
-            sortField: 'barcode_tag'
-          },
-                  {
-            name: 'description',
-            sortField: 'description'
-          },
-                  {
-            name: 'harvest_date',
-            sortField: 'harvest_date'
+            name: 'microbiome_otu_id',
+            sortField: 'microbiome_otu_id'
           },
                 {
-          name: '__component:microbiome_sample-custom-actions',
+          name: '__component:reference_sequence-custom-actions',
           title: 'Actions',
           titleClass: 'center aligned',
           dataClass: 'center aligned'

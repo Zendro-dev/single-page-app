@@ -1,15 +1,12 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'microbiome_profile'"><button class="ui primary button">Add microbiome_profile</button></router-link>
-    </div>
     <vuetable ref="vuetable"
-      api-url="http://localhost:3000/microbiome_profiles/vue_table"
+      api-url="http://localhost:3000/samples/vue_table"
       :fields="fields"
       pagination-path=""
       :per-page="20"
-      detail-row-component="microbiome_profile-detail-row"
+      detail-row-component="sample-detail-row"
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
@@ -28,16 +25,16 @@
 import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
-import microbiome_profileCustomActions from './microbiome_profileCustomActions.vue'
-import microbiome_profileDetailRow from './microbiome_profileDetailRow.vue'
+import sampleCustomActions from './sampleCustomActions.vue'
+import sampleDetailRow from './sampleDetailRow.vue'
 import FilterBar from './FilterBar.vue'
 
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 Vue.use(VueEvents)
 
-Vue.component('microbiome_profile-custom-actions', microbiome_profileCustomActions)
-Vue.component('microbiome_profile-detail-row', microbiome_profileDetailRow)
+Vue.component('sample-custom-actions', sampleCustomActions)
+Vue.component('sample-detail-row', sampleDetailRow)
 Vue.component('filter-bar', FilterBar)
 
 export default {
@@ -45,7 +42,7 @@ export default {
     Vuetable,
     VuetablePagination,
     VuetablePaginationInfo,
-    microbiome_profileDetailRow
+    sampleDetailRow
   },
   data() {
     return {
@@ -61,11 +58,31 @@ export default {
           dataClass: 'center aligned'
         },
                   {
-            name: 'count',
-            sortField: 'count'
+            name: 'name',
+            sortField: 'name'
+          },
+                  {
+            name: 'material',
+            sortField: 'material'
+          },
+                  {
+            name: 'life_cycle_phase',
+            sortField: 'life_cycle_phase'
+          },
+                  {
+            name: 'barcode_tag',
+            sortField: 'barcode_tag'
+          },
+                  {
+            name: 'description',
+            sortField: 'description'
+          },
+                  {
+            name: 'harvest_date',
+            sortField: 'harvest_date'
           },
                 {
-          name: '__component:microbiome_profile-custom-actions',
+          name: '__component:sample-custom-actions',
           title: 'Actions',
           titleClass: 'center aligned',
           dataClass: 'center aligned'

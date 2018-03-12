@@ -1,7 +1,7 @@
 <template>
   <div class="custom-actions">
     <button v-on:click="detailsToggle()" class="ui basic button"><i class="zoom icon"></i></button>
-    <router-link v-bind:to="'microbiome_sample/' + rowData.id"><button class="ui basic button"><i class="edit icon"></i></button></router-link>
+    <router-link v-bind:to="'sample/' + rowData.id"><button class="ui basic button"><i class="edit icon"></i></button></router-link>
     <button v-on:click="confirmDelete()" class="ui basic button"><i class="delete icon"></i></button>
   </div>	
 </template>
@@ -24,14 +24,14 @@ export default {
       this.$parent.toggleDetailRow(this.rowData.id)
     },
     confirmDelete () {
-      if (window.confirm("Do you really want to delete microbiome_sample of id '" + this.rowData
+      if (window.confirm("Do you really want to delete sample of id '" + this.rowData
           .id + "'?")) {
         this.deleteInstance()
       }
     },
     deleteInstance () {
       var t = this;
-      var url = 'http://localhost:3000/microbiome_sample/' + this.rowData.id
+      var url = 'http://localhost:3000/sample/' + this.rowData.id
       axios.delete(url).then(function (response) {
         t.$parent.reload()
       }).catch(function (error) {

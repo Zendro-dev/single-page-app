@@ -22,6 +22,15 @@
     </div>
 
   
+    <div id="taxon-parent_id-div" class="form-group">
+      <label>parent_id</label>
+      <input type="text" v-model="taxon.parent_id" class="form-control"/>
+      <div id="taxon-parent_id-err" v-if="typeof validationError('parent_id') !== 'undefined'">
+        {{validationError('parent_id').message}}
+      </div>
+    </div>
+
+  
       
     <div id="taxon-taxon-div" class="form-group">
       <label>taxon</label>
@@ -47,9 +56,9 @@ Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 export default {
   props: [ 'taxon', 'errors' ],
-        computed: {
-    taxonInitialLabel: function () {
-      var x = this.taxon.parent
+  computed: {
+          taxonInitialLabel: function () {
+      var x = this.taxon.taxon
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {
@@ -58,8 +67,8 @@ export default {
         return ''
       }
     }
-      },
-    methods: {
+        },
+  methods: {
     validationError(modelField) {
       if (this.errors == null) return false;
       return this.errors.find(function (el) {

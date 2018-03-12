@@ -16,6 +16,18 @@
         <label>harvest_date:</label>
         <span>{{rowData.harvest_date}}</span>
       </div>
+          <div class="inline field">
+        <label>cultivar_id:</label>
+        <span>{{rowData.cultivar_id}}</span>
+      </div>
+          <div class="inline field">
+        <label>field_plot_id:</label>
+        <span>{{rowData.field_plot_id}}</span>
+      </div>
+          <div class="inline field">
+        <label>pot_id:</label>
+        <span>{{rowData.pot_id}}</span>
+      </div>
       </div>
 </template>
 

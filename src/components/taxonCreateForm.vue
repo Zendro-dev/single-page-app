@@ -23,14 +23,14 @@ export default {
     return {
       loading: false,
       taxon: {},
-      error: {},
+      error: null,
       errors: null,
     }
   },
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/taxons'
+      var url = 'http://localhost:3000/taxon'
       axios.post(url, t.taxon).then(function (response) {
         t.$router.push('/taxons')
       }).catch( function (error) {

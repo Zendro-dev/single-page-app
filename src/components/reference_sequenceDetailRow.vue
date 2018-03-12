@@ -5,12 +5,16 @@
       <span>{{rowData.id}}</span>
     </div>
           <div class="inline field">
-        <label>name:</label>
-        <span>{{rowData.name}}</span>
+        <label>sequence:</label>
+        <span>{{rowData.sequence}}</span>
       </div>
           <div class="inline field">
-        <label>harvest_date:</label>
-        <span>{{rowData.harvest_date}}</span>
+        <label>taxon_id:</label>
+        <span>{{rowData.taxon_id}}</span>
+      </div>
+          <div class="inline field">
+        <label>microbiome_otu_id:</label>
+        <span>{{rowData.microbiome_otu_id}}</span>
       </div>
       </div>
 </template>

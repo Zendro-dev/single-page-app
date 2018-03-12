@@ -1,9 +1,6 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
-    <div class="inline field pull-left">
-      <router-link v-bind:to="'individual'"><button class="ui primary button">Add individual</button></router-link>
-    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/individuals/vue_table"
       :fields="fields"
@@ -71,6 +68,18 @@ export default {
                   {
             name: 'harvest_date',
             sortField: 'harvest_date'
+          },
+                  {
+            name: 'cultivar_id',
+            sortField: 'cultivar_id'
+          },
+                  {
+            name: 'field_plot_id',
+            sortField: 'field_plot_id'
+          },
+                  {
+            name: 'pot_id',
+            sortField: 'pot_id'
           },
                 {
           name: '__component:individual-custom-actions',

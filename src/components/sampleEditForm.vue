@@ -1,9 +1,9 @@
 <template>
-  <div id="soil_sample-div">
-    <div v-if="soil_sample" class="content">
-      <form id="soil_sample-form" v-on:submit.prevent="onSubmit">
+  <div id="sample-div">
+    <div v-if="sample" class="content">
+      <form id="sample-form" v-on:submit.prevent="onSubmit">
 
-        <soil_sample-form-elemns v-bind:errors="errors" v-bind:soil_sample="soil_sample"></soil_sample-form-elemns>
+        <sample-form-elemns v-bind:errors="errors" v-bind:sample="sample"></sample-form-elemns>
 
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -14,15 +14,15 @@
 <script>
 import Vue from 'vue'
 import axios from 'axios'
-import soil_sampleFormElemns from './soil_sampleFormElemns.vue'
+import sampleFormElemns from './sampleFormElemns.vue'
 
-Vue.component('soil_sample-form-elemns', soil_sampleFormElemns)
+Vue.component('sample-form-elemns', sampleFormElemns)
 
 export default {
   data() {
     return {
       loading: false,
-      soil_sample: null,
+      sample: null,
       error: null,
       errors: null,
     }
@@ -38,9 +38,9 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/soil_sample/' +
+        axios.get('http://localhost:3000/sample/' +
           this.$route.params.id).then(function (response) {
-            t.soil_sample = response.data
+            t.sample = response.data
           }, function (err) {
             t.parent.error = err
           })
@@ -48,12 +48,12 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/soil_sample'
+      var url = 'http://localhost:3000/sample'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }
-      axios.put(url, t.soil_sample).then(function (response) {
-        t.$router.push('/soil_samples')
+      axios.put(url, t.sample).then(function (response) {
+        t.$router.push('/samples')
       }).catch( function (error) {
         if ( error.response && error.response.data && error.response.data.errors )
           t.errors = error.response.data.errors

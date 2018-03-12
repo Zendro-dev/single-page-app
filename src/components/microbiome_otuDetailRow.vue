@@ -5,28 +5,36 @@
       <span>{{rowData.id}}</span>
     </div>
           <div class="inline field">
-        <label>name:</label>
-        <span>{{rowData.name}}</span>
+        <label>reference_sequence_id:</label>
+        <span>{{rowData.reference_sequence_id}}</span>
       </div>
           <div class="inline field">
-        <label>material:</label>
-        <span>{{rowData.material}}</span>
+        <label>otu_id:</label>
+        <span>{{rowData.otu_id}}</span>
       </div>
           <div class="inline field">
-        <label>life_cycle_phas:</label>
-        <span>{{rowData.life_cycle_phas}}</span>
+        <label>sample_id:</label>
+        <span>{{rowData.sample_id}}</span>
       </div>
           <div class="inline field">
-        <label>barcode_tag:</label>
-        <span>{{rowData.barcode_tag}}</span>
+        <label>sample_desc:</label>
+        <span>{{rowData.sample_desc}}</span>
       </div>
           <div class="inline field">
-        <label>description:</label>
-        <span>{{rowData.description}}</span>
+        <label>count:</label>
+        <span>{{rowData.count}}</span>
       </div>
           <div class="inline field">
-        <label>harvest_date:</label>
-        <span>{{rowData.harvest_date}}</span>
+        <label>experiment:</label>
+        <span>{{rowData.experiment}}</span>
+      </div>
+          <div class="inline field">
+        <label>version:</label>
+        <span>{{rowData.version}}</span>
+      </div>
+          <div class="inline field">
+        <label>kingdom:</label>
+        <span>{{rowData.kingdom}}</span>
       </div>
       </div>
 </template>
