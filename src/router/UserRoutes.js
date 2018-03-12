@@ -1,4 +1,4 @@
-import users from '@/components/users'
+import Users from '@/components/users'
 import UserCreate from '@/components/UserCreateForm'
 import UserEdit from '@/components/UserEditForm'
 
