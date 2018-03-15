@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'field_plot'"><button class="ui primary button">Add Field-Plot</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/field_plots/vue_table"
       :fields="fields"

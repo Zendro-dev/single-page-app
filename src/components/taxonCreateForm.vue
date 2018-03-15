@@ -30,10 +30,13 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/taxon'
+      console.log("Here: " + JSON.stringify(t.taxon));
+      var url = 'http://localhost:3000/taxons'
       axios.post(url, t.taxon).then(function (response) {
+        console.log("Success")
         t.$router.push('/taxons')
       }).catch( function (error) {
+        console.log("Error " + error);
         if ( error.response && error.response.data && error.response.data.errors )
           t.errors = error.response.data.errors
       })

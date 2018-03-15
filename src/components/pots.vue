@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'pot'"><button class="ui primary button">Add Pot</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/pots/vue_table"
       :fields="fields"

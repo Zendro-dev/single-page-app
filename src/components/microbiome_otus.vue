@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'microbiome_otu'"><button class="ui primary button">Add Microbiome-Otu</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/microbiome_otus/vue_table"
       :fields="fields"

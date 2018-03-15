@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'User'"><button class="ui primary button">Add User</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/users/vue_table"
       :fields="fields"

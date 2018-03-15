@@ -1,6 +1,9 @@
 <template>
   <div class="ui container">
     <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'reference_sequence'"><button class="ui primary button">Add Reference-Sequence</button></router-link>
+    </div>
     <vuetable ref="vuetable"
       api-url="http://localhost:3000/reference_sequences/vue_table"
       :fields="fields"
