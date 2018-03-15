@@ -3,6 +3,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router/index.js'
+import router from './router'
+import ScienceDbGlobals from './sciencedb-globals'
+
+Vue.use(ScienceDbGlobals);
 
 Vue.config.productionTip = false
 
