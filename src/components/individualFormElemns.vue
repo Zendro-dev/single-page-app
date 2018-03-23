@@ -31,38 +31,11 @@
     </div>
 
   
-    <div id="individual-cultivar_id-div" class="form-group">
-      <label>cultivar_id</label>
-      <input type="text" v-model="individual.cultivar_id" class="form-control"/>
-      <div id="individual-cultivar_id-err" v-if="typeof validationError('cultivar_id') !== 'undefined'">
-        {{validationError('cultivar_id').message}}
-      </div>
-    </div>
-
-  
-    <div id="individual-field_plot_id-div" class="form-group">
-      <label>field_plot_id</label>
-      <input type="text" v-model="individual.field_plot_id" class="form-control"/>
-      <div id="individual-field_plot_id-err" v-if="typeof validationError('field_plot_id') !== 'undefined'">
-        {{validationError('field_plot_id').message}}
-      </div>
-    </div>
-
-  
-    <div id="individual-pot_id-div" class="form-group">
-      <label>pot_id</label>
-      <input type="text" v-model="individual.pot_id" class="form-control"/>
-      <div id="individual-pot_id-err" v-if="typeof validationError('pot_id') !== 'undefined'">
-        {{validationError('pot_id').message}}
-      </div>
-    </div>
-
-  
       
     <div id="individual-cultivar-div" class="form-group">
       <label>cultivar</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/cultivars"
+        :searchUrl = "this.$baseUrl() + '/cultivars'"
         v-model:foreignKey="individual.cultivar_id"
         label="genotype"
                 subLabel="description"
@@ -75,7 +48,7 @@
     <div id="individual-field_plot-div" class="form-group">
       <label>field_plot</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/field_plots"
+        :searchUrl = "this.$baseUrl() + '/field_plots'"
         v-model:foreignKey="individual.field_plot_id"
         label="field_name"
                 subLabel="location_code"
@@ -88,7 +61,7 @@
     <div id="individual-pot-div" class="form-group">
       <label>pot</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/pots"
+        :searchUrl = "this.$baseUrl() + '/pots'"
         v-model:foreignKey="individual.pot_id"
         label="pot"
                 subLabel="greenhouse"

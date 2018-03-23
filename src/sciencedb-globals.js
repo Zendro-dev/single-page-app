@@ -1,7 +1,8 @@
 const ScienceDbGlobals = {
   install(Vue, options) {
     Vue.prototype.$baseUrl = function() {
-      return 'http://localhost:3000'
+      return "http://localhost:3000"
+    }
   }
 };
 

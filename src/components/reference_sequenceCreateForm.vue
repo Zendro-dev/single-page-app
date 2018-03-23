@@ -1,12 +1,15 @@
 <template>
-  <div id="reference_sequence-div">
-    <div v-if="reference_sequence" class="content">
-      <form id="reference_sequence-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New reference_sequence</h4>
+    <div id="reference_sequence-div">
+      <div v-if="reference_sequence" class="content">
+        <form id="reference_sequence-form" v-on:submit.prevent="onSubmit">
 
-        <reference_sequence-form-elemns v-bind:errors="errors" v-bind:reference_sequence="reference_sequence"></reference_sequence-form-elemns>
+          <reference_sequence-form-elemns v-bind:errors="errors" v-bind:reference_sequence="reference_sequence"></reference_sequence-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/reference_sequence'
+      var url = this.$baseUrl() + '/reference_sequences'
       axios.post(url, t.reference_sequence).then(function (response) {
         t.$router.push('/reference_sequences')
       }).catch( function (error) {

@@ -22,20 +22,11 @@
     </div>
 
   
-    <div id="cultivar-taxon_id-div" class="form-group">
-      <label>taxon_id</label>
-      <input type="text" v-model="cultivar.taxon_id" class="form-control"/>
-      <div id="cultivar-taxon_id-err" v-if="typeof validationError('taxon_id') !== 'undefined'">
-        {{validationError('taxon_id').message}}
-      </div>
-    </div>
-
-  
       
     <div id="cultivar-taxon-div" class="form-group">
       <label>taxon</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/taxons"
+        :searchUrl = "this.$baseUrl() + '/taxons'"
         v-model:foreignKey="cultivar.taxon_id"
         label="name"
                 subLabel="taxonomic_level"

@@ -1,12 +1,15 @@
 <template>
-  <div id="field_plot-div">
-    <div v-if="field_plot" class="content">
-      <form id="field_plot-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>Edit field_plot</h4>
+    <div id="field_plot-div">
+      <div v-if="field_plot" class="content">
+        <form id="field_plot-form" v-on:submit.prevent="onSubmit">
 
-        <field_plot-form-elemns v-bind:errors="errors" v-bind:field_plot="field_plot"></field_plot-form-elemns>
+          <field_plot-form-elemns v-bind:errors="errors" v-bind:field_plot="field_plot"></field_plot-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/field_plot/' +
+        axios.get(this.$baseUrl() + '/field_plot/' +
           this.$route.params.id).then(function (response) {
             t.field_plot = response.data
           }, function (err) {
@@ -48,7 +51,7 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/field_plot'
+      var url = this.$baseUrl() + '/field_plot'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }

@@ -1,12 +1,15 @@
 <template>
-  <div id="cultivar-div">
-    <div v-if="cultivar" class="content">
-      <form id="cultivar-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New cultivar</h4>
+    <div id="cultivar-div">
+      <div v-if="cultivar" class="content">
+        <form id="cultivar-form" v-on:submit.prevent="onSubmit">
 
-        <cultivar-form-elemns v-bind:errors="errors" v-bind:cultivar="cultivar"></cultivar-form-elemns>
+          <cultivar-form-elemns v-bind:errors="errors" v-bind:cultivar="cultivar"></cultivar-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/cultivar'
+      var url = this.$baseUrl() + '/cultivars'
       axios.post(url, t.cultivar).then(function (response) {
         t.$router.push('/cultivars')
       }).catch( function (error) {

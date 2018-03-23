@@ -1,12 +1,15 @@
 <template>
-  <div id="reference_sequence-div">
-    <div v-if="reference_sequence" class="content">
-      <form id="reference_sequence-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>Edit reference_sequence</h4>
+    <div id="reference_sequence-div">
+      <div v-if="reference_sequence" class="content">
+        <form id="reference_sequence-form" v-on:submit.prevent="onSubmit">
 
-        <reference_sequence-form-elemns v-bind:errors="errors" v-bind:reference_sequence="reference_sequence"></reference_sequence-form-elemns>
+          <reference_sequence-form-elemns v-bind:errors="errors" v-bind:reference_sequence="reference_sequence"></reference_sequence-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/reference_sequence/' +
+        axios.get(this.$baseUrl() + '/reference_sequence/' +
           this.$route.params.id).then(function (response) {
             t.reference_sequence = response.data
           }, function (err) {
@@ -48,7 +51,7 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/reference_sequence'
+      var url = this.$baseUrl() + '/reference_sequence'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }

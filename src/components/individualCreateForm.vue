@@ -1,12 +1,15 @@
 <template>
-  <div id="individual-div">
-    <div v-if="individual" class="content">
-      <form id="individual-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New individual</h4>
+    <div id="individual-div">
+      <div v-if="individual" class="content">
+        <form id="individual-form" v-on:submit.prevent="onSubmit">
 
-        <individual-form-elemns v-bind:errors="errors" v-bind:individual="individual"></individual-form-elemns>
+          <individual-form-elemns v-bind:errors="errors" v-bind:individual="individual"></individual-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/individual'
+      var url = this.$baseUrl() + '/individuals'
       axios.post(url, t.individual).then(function (response) {
         t.$router.push('/individuals')
       }).catch( function (error) {

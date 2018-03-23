@@ -1,6 +1,7 @@
 import cultivars from '@/components/cultivars'
 import cultivarCreate from '@/components/cultivarCreateForm'
 import cultivarEdit from '@/components/cultivarEditForm'
+import cultivarUploadCsv from '@/components/cultivarUploadCsvForm'
 
 routes = routes.concat(
   [
@@ -18,6 +19,11 @@ routes = routes.concat(
       path: '/cultivar',
       name: 'cultivarCreate',
       component: cultivarCreate,
+    },
+    {
+      path: '/cultivars/upload_csv',
+      name: 'cultivarUploadCsv',
+      component: cultivarUploadCsv
     }
   ]
 )

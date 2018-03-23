@@ -24,7 +24,10 @@
         <label>soil_treatment:</label>
         <span>{{rowData.soil_treatment}}</span>
       </div>
-      </div>
+    
+  
+  
+  </div>
 </template>
 
 <script>
@@ -38,6 +41,8 @@ export default {
       type: Number
     }
   },
+  computed: {
+    },
   methods: {
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)

@@ -31,7 +31,7 @@ export default {
     },
     deleteInstance () {
       var t = this;
-      var url = 'http://localhost:3000/field_plot/' + this.rowData.id
+      var url = this.$baseUrl() + '/field_plot/' + this.rowData.id
       axios.delete(url).then(function (response) {
         t.$parent.reload()
       }).catch(function (error) {

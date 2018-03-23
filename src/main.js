@@ -2,9 +2,10 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
+import path from 'path'
+import fs from 'fs'
 import router from './router/index.js'
-import router from './router'
-import ScienceDbGlobals from './sciencedb-globals'
+import ScienceDbGlobals from './sciencedb-globals.js'
 
 Vue.use(ScienceDbGlobals);
 

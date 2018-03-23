@@ -1,12 +1,15 @@
 <template>
-  <div id="taxon-div">
-    <div v-if="taxon" class="content">
-      <form id="taxon-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>Edit taxon</h4>
+    <div id="taxon-div">
+      <div v-if="taxon" class="content">
+        <form id="taxon-form" v-on:submit.prevent="onSubmit">
 
-        <taxon-form-elemns v-bind:errors="errors" v-bind:taxon="taxon"></taxon-form-elemns>
+          <taxon-form-elemns v-bind:errors="errors" v-bind:taxon="taxon"></taxon-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/taxon/' +
+        axios.get(this.$baseUrl() + '/taxon/' +
           this.$route.params.id).then(function (response) {
             t.taxon = response.data
           }, function (err) {
@@ -48,7 +51,7 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/taxon'
+      var url = this.$baseUrl() + '/taxon'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }

@@ -12,11 +12,18 @@
         <label>taxonomic_level:</label>
         <span>{{rowData.taxonomic_level}}</span>
       </div>
-          <div class="inline field">
-        <label>parent_id:</label>
-        <span>{{rowData.parent_id}}</span>
+    
+      
+    <div id="taxon-taxon-div">
+      <div class="inline field">
+        <label>parent:</label>
+        <span>{{taxonInitialLabel}}</span>
       </div>
-      </div>
+    </div>
+
+  
+  
+  </div>
 </template>
 
 <script>
@@ -30,6 +37,18 @@ export default {
       type: Number
     }
   },
+  computed: {
+          taxonInitialLabel: function () {
+      var x = this.rowData.parent
+      if (x !== null && typeof x === 'object' &&
+          x['name'] !== null &&
+          typeof x['name'] !== 'undefined') {
+        return x['name']
+      } else {
+        return ''
+      }
+    }
+        },
   methods: {
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)

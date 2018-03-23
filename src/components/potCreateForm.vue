@@ -1,12 +1,15 @@
 <template>
-  <div id="pot-div">
-    <div v-if="pot" class="content">
-      <form id="pot-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New pot</h4>
+    <div id="pot-div">
+      <div v-if="pot" class="content">
+        <form id="pot-form" v-on:submit.prevent="onSubmit">
 
-        <pot-form-elemns v-bind:errors="errors" v-bind:pot="pot"></pot-form-elemns>
+          <pot-form-elemns v-bind:errors="errors" v-bind:pot="pot"></pot-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/pot'
+      var url = this.$baseUrl() + '/pots'
       axios.post(url, t.pot).then(function (response) {
         t.$router.push('/pots')
       }).catch( function (error) {

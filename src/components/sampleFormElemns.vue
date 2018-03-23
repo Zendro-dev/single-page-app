@@ -62,7 +62,7 @@
     <div id="sample-individual-div" class="form-group">
       <label>individual</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/individuals"
+        :searchUrl = "this.$baseUrl() + '/individuals'"
         v-model:foreignKey="sample.individual_id"
         label="name"
                 subLabel="harvest_date"
@@ -75,7 +75,7 @@
     <div id="sample-field_plot-div" class="form-group">
       <label>field_plot</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/field_plots"
+        :searchUrl = "this.$baseUrl() + '/field_plots'"
         v-model:foreignKey="sample.field_plot_id"
         label="field_name"
                 subLabel="location_code"
@@ -88,7 +88,7 @@
     <div id="sample-pot-div" class="form-group">
       <label>pot</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/pots"
+        :searchUrl = "this.$baseUrl() + '/pots'"
         v-model:foreignKey="sample.pot_id"
         label="pot"
                 subLabel="greenhouse"
@@ -101,7 +101,7 @@
     <div id="sample-parent-div" class="form-group">
       <label>parent</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/parents"
+        :searchUrl = "this.$baseUrl() + '/parents'"
         v-model:foreignKey="sample.parent_id"
         label="name"
                 subLabel="material"

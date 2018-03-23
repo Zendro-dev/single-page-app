@@ -1,0 +1,157 @@
+<template>
+  <div class="ui container">
+    <filter-bar></filter-bar>
+    <div class="inline field pull-left">
+      <router-link v-bind:to="'metabolite_measurement'"><button class="ui primary button">Add metabolite_measurement</button></router-link>
+      <a :href="this.$baseUrl() + '/metabolite_measurements/example_csv'"><button class="ui primary button">CSV Example Table</button></a>
+      <router-link v-bind:to="'/metabolite_measurements/upload_csv'"><button class="ui primary button">CSV Upload</button></router-link>
+    </div>
+    <vuetable ref="vuetable"
+      :api-url="this.$baseUrl() + '/metabolite_measurements/vue_table'"
+      :fields="fields"
+      pagination-path=""
+      :per-page="20"
+      detail-row-component="metabolite_measurement-detail-row"
+      :appendParams="moreParams"
+      @vuetable:pagination-data="onPaginationData"
+      @vuetable:cell-clicked="onCellClicked"
+    ></vuetable>
+    <div class="vuetable-pagination ui basic segment grid">
+      <vuetable-pagination-info ref="paginationInfo"
+      ></vuetable-pagination-info>
+      <vuetable-pagination ref="pagination"
+        @vuetable-pagination:change-page="onChangePage"
+      ></vuetable-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
+import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
+import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
+import metabolite_measurementCustomActions from './metabolite_measurementCustomActions.vue'
+import metabolite_measurementDetailRow from './metabolite_measurementDetailRow.vue'
+import FilterBar from './FilterBar.vue'
+
+import axios from 'axios'
+
+import Vue from 'vue'
+import VueEvents from 'vue-events'
+Vue.use(VueEvents)
+
+Vue.component('metabolite_measurement-custom-actions', metabolite_measurementCustomActions)
+Vue.component('metabolite_measurement-detail-row', metabolite_measurementDetailRow)
+Vue.component('filter-bar', FilterBar)
+
+export default {
+  components: {
+    Vuetable,
+    VuetablePagination,
+    VuetablePaginationInfo,
+    metabolite_measurementDetailRow
+  },
+  data() {
+    return {
+      fields: [{
+          name: 'id',
+          title: 'ID',
+          titleClass: 'center aligned',
+          dataClass: 'right aligned'
+        },
+        // For now, we do not render checkboxes, as we yet have to provide
+        // functions for selected rows.
+        //{
+        //  name: '__checkbox',
+        //  titleClass: 'center aligned',
+        //  dataClass: 'center aligned'
+        //},
+                  {
+            name: 'metabolite',
+            sortField: 'metabolite'
+          },
+                  {
+            name: 'sample_id',
+            sortField: 'sample_id'
+          },
+                  {
+            name: 'amount',
+            sortField: 'amount'
+          },
+                  {
+            name: 'unit',
+            sortField: 'unit'
+          },
+                  {
+            name: 'is_average',
+            sortField: 'is_average'
+          },
+                {
+          name: '__component:metabolite_measurement-custom-actions',
+          title: 'Actions',
+          titleClass: 'center aligned',
+          dataClass: 'center aligned'
+        }
+      ],
+      moreParams: {}
+    }
+  },
+  methods: {
+    onPaginationData(paginationData) {
+      this.$refs.pagination.setPaginationData(paginationData)
+      this.$refs.paginationInfo.setPaginationData(paginationData)
+    },
+    onChangePage(page) {
+      this.$refs.vuetable.changePage(page)
+    },
+    onCellClicked(data, field, event) {
+      console.log('cellClicked: ', field.name)
+      this.$refs.vuetable.toggleDetailRow(data.id)
+    },
+    onFilterSet(filterText) {
+      this.moreParams = {
+        'filter': filterText.trim()
+      }
+      Vue.nextTick(() => this.$refs.vuetable.refresh())
+    },
+    onFilterReset() {
+      this.moreParams = {}
+      Vue.nextTick(() => this.$refs.vuetable.refresh())
+    },
+    onDelete () {
+      if (window.confirm("Do you really want to delete metabolite_measurements of ids '" + this.$refs.vuetable.selectedTo.join("; ") + "'?")) {
+        var t = this;
+        var url = this.$baseUrl()() + '/metabolite_measurement/' + this.$refs.vuetable.selectedTo.join("/")
+        axios.delete(url).then(function (response) {
+          t.$refs.vuetable.refresh()
+        }).catch(function (error) {
+          t.error = error
+        })
+      }
+    },
+    onCsvExport () {
+      var t = this;
+      var url = this.$baseUrl()() + '/metabolite_measurements/example_csv' + '?array=[' + this.$refs.vuetable.selectedTo.join(",") + ']'
+      
+      axios.get(url).then(function (response) {
+
+        var a = document.createElement("a");        
+        document.body.appendChild(a);
+        a.style = "display: none";
+        var blob = new Blob([response.data], {type: "octet/stream"});
+        var url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = 'metabolite_measurement' + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }).catch(function (error) {
+        t.error = error
+      })
+    }
+  },
+  mounted() {
+    this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
+    this.$events.$on('filter-reset', e => this.onFilterReset())
+  }
+}
+</script>

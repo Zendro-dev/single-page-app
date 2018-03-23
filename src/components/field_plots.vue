@@ -2,10 +2,12 @@
   <div class="ui container">
     <filter-bar></filter-bar>
     <div class="inline field pull-left">
-      <router-link v-bind:to="'field_plot'"><button class="ui primary button">Add Field-Plot</button></router-link>
+      <router-link v-bind:to="'field_plot'"><button class="ui primary button">Add field_plot</button></router-link>
+      <a :href="this.$baseUrl() + '/field_plots/example_csv'"><button class="ui primary button">CSV Example Table</button></a>
+      <router-link v-bind:to="'/field_plots/upload_csv'"><button class="ui primary button">CSV Upload</button></router-link>
     </div>
     <vuetable ref="vuetable"
-      api-url="http://localhost:3000/field_plots/vue_table"
+      :api-url="this.$baseUrl() + '/field_plots/vue_table'"
       :fields="fields"
       pagination-path=""
       :per-page="20"
@@ -32,6 +34,8 @@ import field_plotCustomActions from './field_plotCustomActions.vue'
 import field_plotDetailRow from './field_plotDetailRow.vue'
 import FilterBar from './FilterBar.vue'
 
+import axios from 'axios'
+
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 Vue.use(VueEvents)
@@ -50,16 +54,18 @@ export default {
   data() {
     return {
       fields: [{
-          name: '__sequence',
-          title: '#',
+          name: 'id',
+          title: 'ID',
           titleClass: 'center aligned',
           dataClass: 'right aligned'
         },
-        {
-          name: '__checkbox',
-          titleClass: 'center aligned',
-          dataClass: 'center aligned'
-        },
+        // For now, we do not render checkboxes, as we yet have to provide
+        // functions for selected rows.
+        //{
+        //  name: '__checkbox',
+        //  titleClass: 'center aligned',
+        //  dataClass: 'center aligned'
+        //},
                   {
             name: 'field_name',
             sortField: 'field_name'
@@ -111,6 +117,36 @@ export default {
     onFilterReset() {
       this.moreParams = {}
       Vue.nextTick(() => this.$refs.vuetable.refresh())
+    },
+    onDelete () {
+      if (window.confirm("Do you really want to delete field_plots of ids '" + this.$refs.vuetable.selectedTo.join("; ") + "'?")) {
+        var t = this;
+        var url = this.$baseUrl()() + '/field_plot/' + this.$refs.vuetable.selectedTo.join("/")
+        axios.delete(url).then(function (response) {
+          t.$refs.vuetable.refresh()
+        }).catch(function (error) {
+          t.error = error
+        })
+      }
+    },
+    onCsvExport () {
+      var t = this;
+      var url = this.$baseUrl()() + '/field_plots/example_csv' + '?array=[' + this.$refs.vuetable.selectedTo.join(",") + ']'
+      
+      axios.get(url).then(function (response) {
+
+        var a = document.createElement("a");        
+        document.body.appendChild(a);
+        a.style = "display: none";
+        var blob = new Blob([response.data], {type: "octet/stream"});
+        var url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = 'field_plot' + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }).catch(function (error) {
+        t.error = error
+      })
     }
   },
   mounted() {

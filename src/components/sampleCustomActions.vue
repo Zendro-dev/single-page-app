@@ -31,7 +31,7 @@ export default {
     },
     deleteInstance () {
       var t = this;
-      var url = 'http://localhost:3000/sample/' + this.rowData.id
+      var url = this.$baseUrl() + '/sample/' + this.rowData.id
       axios.delete(url).then(function (response) {
         t.$parent.reload()
       }).catch(function (error) {

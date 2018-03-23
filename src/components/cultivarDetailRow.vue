@@ -12,11 +12,18 @@
         <label>genotype:</label>
         <span>{{rowData.genotype}}</span>
       </div>
-          <div class="inline field">
-        <label>taxon_id:</label>
-        <span>{{rowData.taxon_id}}</span>
+    
+      
+    <div id="cultivar-taxon-div">
+      <div class="inline field">
+        <label>taxon:</label>
+        <span>{{taxonInitialLabel}}</span>
       </div>
-      </div>
+    </div>
+
+  
+  
+  </div>
 </template>
 
 <script>
@@ -30,6 +37,18 @@ export default {
       type: Number
     }
   },
+  computed: {
+          taxonInitialLabel: function () {
+      var x = this.rowData.taxon
+      if (x !== null && typeof x === 'object' &&
+          x['name'] !== null &&
+          typeof x['name'] !== 'undefined') {
+        return x['name']
+      } else {
+        return ''
+      }
+    }
+        },
   methods: {
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)

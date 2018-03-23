@@ -1,12 +1,15 @@
 <template>
-  <div id="field_plot-div">
-    <div v-if="field_plot" class="content">
-      <form id="field_plot-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New field_plot</h4>
+    <div id="field_plot-div">
+      <div v-if="field_plot" class="content">
+        <form id="field_plot-form" v-on:submit.prevent="onSubmit">
 
-        <field_plot-form-elemns v-bind:errors="errors" v-bind:field_plot="field_plot"></field_plot-form-elemns>
+          <field_plot-form-elemns v-bind:errors="errors" v-bind:field_plot="field_plot"></field_plot-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/field_plot'
+      var url = this.$baseUrl() + '/field_plots'
       axios.post(url, t.field_plot).then(function (response) {
         t.$router.push('/field_plots')
       }).catch( function (error) {

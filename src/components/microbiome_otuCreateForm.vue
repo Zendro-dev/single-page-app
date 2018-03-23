@@ -1,12 +1,15 @@
 <template>
-  <div id="microbiome_otu-div">
-    <div v-if="microbiome_otu" class="content">
-      <form id="microbiome_otu-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New microbiome_otu</h4>
+    <div id="microbiome_otu-div">
+      <div v-if="microbiome_otu" class="content">
+        <form id="microbiome_otu-form" v-on:submit.prevent="onSubmit">
 
-        <microbiome_otu-form-elemns v-bind:errors="errors" v-bind:microbiome_otu="microbiome_otu"></microbiome_otu-form-elemns>
+          <microbiome_otu-form-elemns v-bind:errors="errors" v-bind:microbiome_otu="microbiome_otu"></microbiome_otu-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,7 +33,7 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/microbiome_otu'
+      var url = this.$baseUrl() + '/microbiome_otus'
       axios.post(url, t.microbiome_otu).then(function (response) {
         t.$router.push('/microbiome_otus')
       }).catch( function (error) {

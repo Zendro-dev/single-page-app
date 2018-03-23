@@ -1,12 +1,15 @@
 <template>
-  <div id="taxon-div">
-    <div v-if="taxon" class="content">
-      <form id="taxon-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>New taxon</h4>
+    <div id="taxon-div">
+      <div v-if="taxon" class="content">
+        <form id="taxon-form" v-on:submit.prevent="onSubmit">
 
-        <taxon-form-elemns v-bind:errors="errors" v-bind:taxon="taxon"></taxon-form-elemns>
+          <taxon-form-elemns v-bind:errors="errors" v-bind:taxon="taxon"></taxon-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Create</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,13 +33,10 @@ export default {
   methods: {
     onSubmit() {
       var t = this;
-      console.log("Here: " + JSON.stringify(t.taxon));
-      var url = 'http://localhost:3000/taxons'
+      var url = this.$baseUrl() + '/taxons'
       axios.post(url, t.taxon).then(function (response) {
-        console.log("Success")
         t.$router.push('/taxons')
       }).catch( function (error) {
-        console.log("Error " + error);
         if ( error.response && error.response.data && error.response.data.errors )
           t.errors = error.response.data.errors
       })

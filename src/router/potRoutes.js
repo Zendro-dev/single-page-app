@@ -1,6 +1,7 @@
 import pots from '@/components/pots'
 import potCreate from '@/components/potCreateForm'
 import potEdit from '@/components/potEditForm'
+import potUploadCsv from '@/components/potUploadCsvForm'
 
 routes = routes.concat(
   [
@@ -18,6 +19,11 @@ routes = routes.concat(
       path: '/pot',
       name: 'potCreate',
       component: potCreate,
+    },
+    {
+      path: '/pots/upload_csv',
+      name: 'potUploadCsv',
+      component: potUploadCsv
     }
   ]
 )

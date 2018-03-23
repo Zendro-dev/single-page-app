@@ -1,12 +1,15 @@
 <template>
-  <div id="cultivar-div">
-    <div v-if="cultivar" class="content">
-      <form id="cultivar-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>Edit cultivar</h4>
+    <div id="cultivar-div">
+      <div v-if="cultivar" class="content">
+        <form id="cultivar-form" v-on:submit.prevent="onSubmit">
 
-        <cultivar-form-elemns v-bind:errors="errors" v-bind:cultivar="cultivar"></cultivar-form-elemns>
+          <cultivar-form-elemns v-bind:errors="errors" v-bind:cultivar="cultivar"></cultivar-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/cultivar/' +
+        axios.get(this.$baseUrl() + '/cultivar/' +
           this.$route.params.id).then(function (response) {
             t.cultivar = response.data
           }, function (err) {
@@ -48,7 +51,7 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/cultivar'
+      var url = this.$baseUrl() + '/cultivar'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }

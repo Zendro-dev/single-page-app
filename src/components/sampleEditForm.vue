@@ -1,12 +1,15 @@
 <template>
-  <div id="sample-div">
-    <div v-if="sample" class="content">
-      <form id="sample-form" v-on:submit.prevent="onSubmit">
+  <div class="col-xs-5">
+    <h4>Edit sample</h4>
+    <div id="sample-div">
+      <div v-if="sample" class="content">
+        <form id="sample-form" v-on:submit.prevent="onSubmit">
 
-        <sample-form-elemns v-bind:errors="errors" v-bind:sample="sample"></sample-form-elemns>
+          <sample-form-elemns v-bind:errors="errors" v-bind:sample="sample"></sample-form-elemns>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -38,7 +41,7 @@ export default {
       var t = this
       t.error = null
       if (this.$route.params.id) {
-        axios.get('http://localhost:3000/sample/' +
+        axios.get(this.$baseUrl() + '/sample/' +
           this.$route.params.id).then(function (response) {
             t.sample = response.data
           }, function (err) {
@@ -48,7 +51,7 @@ export default {
     },
     onSubmit() {
       var t = this;
-      var url = 'http://localhost:3000/sample'
+      var url = this.$baseUrl() + '/sample'
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }

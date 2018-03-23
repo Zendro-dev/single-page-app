@@ -22,20 +22,11 @@
     </div>
 
   
-    <div id="taxon-parent_id-div" class="form-group">
-      <label>parent_id</label>
-      <input type="text" v-model="taxon.parent_id" class="form-control"/>
-      <div id="taxon-parent_id-err" v-if="typeof validationError('parent_id') !== 'undefined'">
-        {{validationError('parent_id').message}}
-      </div>
-    </div>
-
-  
       
     <div id="taxon-taxon-div" class="form-group">
-      <label>taxon</label>
+      <label>parent</label>
       <foreign-key-form-element
-        searchUrl="http://localhost:3000/taxons"
+        :searchUrl = "this.$baseUrl() + '/taxons'"
         v-model:foreignKey="taxon.parent_id"
         label="name"
                 subLabel="taxonomic_level"
@@ -58,7 +49,7 @@ export default {
   props: [ 'taxon', 'errors' ],
   computed: {
           taxonInitialLabel: function () {
-      var x = this.taxon.taxon
+      var x = this.taxon.parent
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {
