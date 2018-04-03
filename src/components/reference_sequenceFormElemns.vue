@@ -5,8 +5,11 @@
   
   
     <div id="reference_sequence-sequence-div" class="form-group">
-      <label>sequence</label>
-      <input type="text" v-model="reference_sequence.sequence" class="form-control"/>
+            <label>sequence</label>
+      
+  <input type="text" v-model="reference_sequence.sequence" class="form-control"/>
+
+
       <div id="reference_sequence-sequence-err" v-if="typeof validationError('sequence') !== 'undefined'">
         {{validationError('sequence').message}}
       </div>
@@ -14,8 +17,11 @@
 
   
     <div id="reference_sequence-taxon_id-div" class="form-group">
-      <label>taxon_id</label>
-      <input type="text" v-model="reference_sequence.taxon_id" class="form-control"/>
+            <label>taxon_id</label>
+      
+  <input type="text" v-model="reference_sequence.taxon_id" class="form-control"/>
+
+
       <div id="reference_sequence-taxon_id-err" v-if="typeof validationError('taxon_id') !== 'undefined'">
         {{validationError('taxon_id').message}}
       </div>
@@ -23,19 +29,27 @@
 
   
     <div id="reference_sequence-microbiome_otu_id-div" class="form-group">
-      <label>microbiome_otu_id</label>
-      <input type="text" v-model="reference_sequence.microbiome_otu_id" class="form-control"/>
+            <label>microbiome_otu_id</label>
+      
+  <input type="text" v-model="reference_sequence.microbiome_otu_id" class="form-control"/>
+
+
       <div id="reference_sequence-microbiome_otu_id-err" v-if="typeof validationError('microbiome_otu_id') !== 'undefined'">
         {{validationError('microbiome_otu_id').message}}
       </div>
     </div>
 
   
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
+
+
 
 export default {
   props: [ 'reference_sequence', 'errors' ],
@@ -48,6 +62,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>

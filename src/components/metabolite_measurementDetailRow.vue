@@ -9,10 +9,6 @@
         <span>{{rowData.metabolite}}</span>
       </div>
           <div class="inline field">
-        <label>sample_id:</label>
-        <span>{{rowData.sample_id}}</span>
-      </div>
-          <div class="inline field">
         <label>amount:</label>
         <span>{{rowData.amount}}</span>
       </div>
@@ -27,16 +23,15 @@
     
   
       
-    <div id="metabolite_measurement-samples-div" v-if="rowData.samples">
-      <div class="inline field">
+    <div id="metabolite_measurement-samples-div" v-if="rowData.samples" class="row w-100">
+      <div class="col">
         <label>samples:</label>
-        <div style="height: 20%; width: auto; overflow: auto">
-          <ul>
-            <li v-for="x in rowData.samples">
-              {{x.name}}
-            </li>
-          </ul>
-        </div>
+        <ul class="list-group">
+          <li v-for="x in rowData.samples" class="list-group-item">
+            {{x.name}}
+                            {{x.material}}
+                      </li>
+        </ul>
       </div>
     </div>
 

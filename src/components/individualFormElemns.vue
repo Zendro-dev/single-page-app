@@ -5,8 +5,11 @@
   
   
     <div id="individual-name-div" class="form-group">
-      <label>name</label>
-      <input type="text" v-model="individual.name" class="form-control"/>
+            <label>name</label>
+      
+  <input type="text" v-model="individual.name" class="form-control"/>
+
+
       <div id="individual-name-err" v-if="typeof validationError('name') !== 'undefined'">
         {{validationError('name').message}}
       </div>
@@ -14,8 +17,11 @@
 
   
     <div id="individual-sowing_date-div" class="form-group">
-      <label>sowing_date</label>
-      <input type="text" v-model="individual.sowing_date" class="form-control"/>
+            <label>sowing_date</label>
+      
+  <input v-model="individual.sowing_date" class="datepicker" />
+
+
       <div id="individual-sowing_date-err" v-if="typeof validationError('sowing_date') !== 'undefined'">
         {{validationError('sowing_date').message}}
       </div>
@@ -23,8 +29,11 @@
 
   
     <div id="individual-harvest_date-div" class="form-group">
-      <label>harvest_date</label>
-      <input type="text" v-model="individual.harvest_date" class="form-control"/>
+            <label>harvest_date</label>
+      
+  <input v-model="individual.harvest_date" class="datepicker" />
+
+
       <div id="individual-harvest_date-err" v-if="typeof validationError('harvest_date') !== 'undefined'">
         {{validationError('harvest_date').message}}
       </div>
@@ -70,15 +79,20 @@
       </foreign-key-form-element>
     </div>
 
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
+
 import foreignKeyFormElement from './foreignKeyFormElement.vue'
 
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
 
 export default {
   props: [ 'individual', 'errors' ],
@@ -123,6 +137,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>

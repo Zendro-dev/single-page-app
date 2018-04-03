@@ -5,8 +5,11 @@
   
   
     <div id="microbiome_otu-sample_desc-div" class="form-group">
-      <label>sample_desc</label>
-      <input type="text" v-model="microbiome_otu.sample_desc" class="form-control"/>
+            <label>sample_desc</label>
+      
+  <input type="text" v-model="microbiome_otu.sample_desc" class="form-control"/>
+
+
       <div id="microbiome_otu-sample_desc-err" v-if="typeof validationError('sample_desc') !== 'undefined'">
         {{validationError('sample_desc').message}}
       </div>
@@ -14,8 +17,11 @@
 
   
     <div id="microbiome_otu-count-div" class="form-group">
-      <label>count</label>
-      <input type="text" v-model="microbiome_otu.count" class="form-control"/>
+            <label>count</label>
+      
+  <input type="text" v-model="microbiome_otu.count" class="form-control"/>
+
+
       <div id="microbiome_otu-count-err" v-if="typeof validationError('count') !== 'undefined'">
         {{validationError('count').message}}
       </div>
@@ -23,8 +29,11 @@
 
   
     <div id="microbiome_otu-experiment-div" class="form-group">
-      <label>experiment</label>
-      <input type="text" v-model="microbiome_otu.experiment" class="form-control"/>
+            <label>experiment</label>
+      
+  <input type="text" v-model="microbiome_otu.experiment" class="form-control"/>
+
+
       <div id="microbiome_otu-experiment-err" v-if="typeof validationError('experiment') !== 'undefined'">
         {{validationError('experiment').message}}
       </div>
@@ -32,8 +41,11 @@
 
   
     <div id="microbiome_otu-version-div" class="form-group">
-      <label>version</label>
-      <input type="text" v-model="microbiome_otu.version" class="form-control"/>
+            <label>version</label>
+      
+  <input type="text" v-model="microbiome_otu.version" class="form-control"/>
+
+
       <div id="microbiome_otu-version-err" v-if="typeof validationError('version') !== 'undefined'">
         {{validationError('version').message}}
       </div>
@@ -41,8 +53,11 @@
 
   
     <div id="microbiome_otu-kingdom-div" class="form-group">
-      <label>kingdom</label>
-      <input type="text" v-model="microbiome_otu.kingdom" class="form-control"/>
+            <label>kingdom</label>
+      
+  <input type="text" v-model="microbiome_otu.kingdom" class="form-control"/>
+
+
       <div id="microbiome_otu-kingdom-err" v-if="typeof validationError('kingdom') !== 'undefined'">
         {{validationError('kingdom').message}}
       </div>
@@ -88,15 +103,20 @@
       </foreign-key-form-element>
     </div>
 
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
+
 import foreignKeyFormElement from './foreignKeyFormElement.vue'
 
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
 
 export default {
   props: [ 'microbiome_otu', 'errors' ],
@@ -141,6 +161,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>

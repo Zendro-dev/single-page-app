@@ -14,6 +14,6 @@ admin_gui_gen . --baseUrl 'http://localhost:3000' --name reference_sequence --at
 
 admin_gui_gen . --baseUrl 'http://localhost:3000' --name microbiome_otu --attributes 'sample_desc:string, count:integer, experiment:string, version:integer, kingdom:string' --belongsTos 'reference_sequence:reference_sequence_id:id:id:id, parent:otu_id:id:sample_desc:experiment, sample:sample_id:id:name:material'
 
-admin_gui_gen . --baseUrl 'http://localhost:3000' --name metabolite_measurement --attributes 'metabolite:string, sample_id:integer, amount:double, unit:string, is_average:boolean' --hasManys 'samples:name:material'
+admin_gui_gen . --baseUrl 'http://localhost:3000' --name metabolite_measurement --attributes 'metabolite:string, amount:double, unit:string, is_average:boolean' --hasManys 'samples:sample:name:material'
 
 admin_gui_gen . --baseUrl 'http://localhost:3000' --name sample_to_metabolite_measurement --belongsTos 'sample:sample_id:id:name:material, metabolite_measurement:metabolite_measurement_id:id:metabolite:amount'

@@ -5,8 +5,11 @@
   
   
     <div id="sample-name-div" class="form-group">
-      <label>name</label>
-      <input type="text" v-model="sample.name" class="form-control"/>
+            <label>name</label>
+      
+  <input type="text" v-model="sample.name" class="form-control"/>
+
+
       <div id="sample-name-err" v-if="typeof validationError('name') !== 'undefined'">
         {{validationError('name').message}}
       </div>
@@ -14,8 +17,11 @@
 
   
     <div id="sample-material-div" class="form-group">
-      <label>material</label>
-      <input type="text" v-model="sample.material" class="form-control"/>
+            <label>material</label>
+      
+  <input type="text" v-model="sample.material" class="form-control"/>
+
+
       <div id="sample-material-err" v-if="typeof validationError('material') !== 'undefined'">
         {{validationError('material').message}}
       </div>
@@ -23,8 +29,11 @@
 
   
     <div id="sample-life_cycle_phase-div" class="form-group">
-      <label>life_cycle_phase</label>
-      <input type="text" v-model="sample.life_cycle_phase" class="form-control"/>
+            <label>life_cycle_phase</label>
+      
+  <input type="text" v-model="sample.life_cycle_phase" class="form-control"/>
+
+
       <div id="sample-life_cycle_phase-err" v-if="typeof validationError('life_cycle_phase') !== 'undefined'">
         {{validationError('life_cycle_phase').message}}
       </div>
@@ -32,8 +41,11 @@
 
   
     <div id="sample-barcode_tag-div" class="form-group">
-      <label>barcode_tag</label>
-      <input type="text" v-model="sample.barcode_tag" class="form-control"/>
+            <label>barcode_tag</label>
+      
+  <input type="text" v-model="sample.barcode_tag" class="form-control"/>
+
+
       <div id="sample-barcode_tag-err" v-if="typeof validationError('barcode_tag') !== 'undefined'">
         {{validationError('barcode_tag').message}}
       </div>
@@ -41,8 +53,11 @@
 
   
     <div id="sample-description-div" class="form-group">
-      <label>description</label>
-      <input type="text" v-model="sample.description" class="form-control"/>
+            <label>description</label>
+      
+  <input type="text" v-model="sample.description" class="form-control"/>
+
+
       <div id="sample-description-err" v-if="typeof validationError('description') !== 'undefined'">
         {{validationError('description').message}}
       </div>
@@ -50,8 +65,11 @@
 
   
     <div id="sample-harvest_date-div" class="form-group">
-      <label>harvest_date</label>
-      <input type="text" v-model="sample.harvest_date" class="form-control"/>
+            <label>harvest_date</label>
+      
+  <input v-model="sample.harvest_date" class="datepicker" />
+
+
       <div id="sample-harvest_date-err" v-if="typeof validationError('harvest_date') !== 'undefined'">
         {{validationError('harvest_date').message}}
       </div>
@@ -110,15 +128,20 @@
       </foreign-key-form-element>
     </div>
 
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
+
 import foreignKeyFormElement from './foreignKeyFormElement.vue'
 
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
 
 export default {
   props: [ 'sample', 'errors' ],
@@ -174,6 +197,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>

@@ -5,8 +5,11 @@
   
   
     <div id="cultivar-description-div" class="form-group">
-      <label>description</label>
-      <input type="text" v-model="cultivar.description" class="form-control"/>
+            <label>description</label>
+      
+  <input type="text" v-model="cultivar.description" class="form-control"/>
+
+
       <div id="cultivar-description-err" v-if="typeof validationError('description') !== 'undefined'">
         {{validationError('description').message}}
       </div>
@@ -14,8 +17,11 @@
 
   
     <div id="cultivar-genotype-div" class="form-group">
-      <label>genotype</label>
-      <input type="text" v-model="cultivar.genotype" class="form-control"/>
+            <label>genotype</label>
+      
+  <input type="text" v-model="cultivar.genotype" class="form-control"/>
+
+
       <div id="cultivar-genotype-err" v-if="typeof validationError('genotype') !== 'undefined'">
         {{validationError('genotype').message}}
       </div>
@@ -35,15 +41,20 @@
       </foreign-key-form-element>
     </div>
 
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
+
 import foreignKeyFormElement from './foreignKeyFormElement.vue'
 
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
 
 export default {
   props: [ 'cultivar', 'errors' ],
@@ -66,6 +77,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>

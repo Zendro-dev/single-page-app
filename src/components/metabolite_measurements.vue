@@ -71,10 +71,6 @@ export default {
             sortField: 'metabolite'
           },
                   {
-            name: 'sample_id',
-            sortField: 'sample_id'
-          },
-                  {
             name: 'amount',
             sortField: 'amount'
           },

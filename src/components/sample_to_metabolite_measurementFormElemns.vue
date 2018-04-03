@@ -30,15 +30,20 @@
       </foreign-key-form-element>
     </div>
 
-    
+  
+
+  
+  
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
+
 import foreignKeyFormElement from './foreignKeyFormElement.vue'
 
 Vue.component('foreign-key-form-element', foreignKeyFormElement)
+
 
 export default {
   props: [ 'sample_to_metabolite_measurement', 'errors' ],
@@ -72,6 +77,15 @@ export default {
         return el.path === modelField
       })
     }
-  }
+  },
+	mounted: function() {
+    let el = this;
+    $(document).ready(function(){
+      $('.datepicker').datepicker({
+        format: el.$defaultDateFormat(),
+        dateFormat: el.$defaultDateFormat()
+      })
+    })
+	}
 }
 </script>
