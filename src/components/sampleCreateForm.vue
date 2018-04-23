@@ -34,10 +34,15 @@ export default {
     onSubmit() {
       var t = this;
       var url = this.$baseUrl() + '/samples'
-      axios.post(url, t.sample).then(function (response) {
+      axios.post(url, t.sample, {
+        headers: {
+          'authorization': `${t.$getAuthToken()}`,
+          'Accept': 'application/json'
+        }
+      }).then(function(response) {
         t.$router.push('/samples')
-      }).catch( function (error) {
-        if ( error.response && error.response.data && error.response.data.errors )
+      }).catch(function(error) {
+        if (error.response && error.response.data && error.response.data.errors)
           t.errors = error.response.data.errors
       })
     }

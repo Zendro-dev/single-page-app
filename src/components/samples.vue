@@ -15,6 +15,7 @@
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
+      :http-options="{ headers: {Authorization: `bearer ${this.$getAuthToken()}`} }"
     ></vuetable>
     <div class="vuetable-pagination ui basic segment grid">
       <vuetable-pagination-info ref="paginationInfo"

@@ -1,27 +1,52 @@
 <template>
   <div id="app">
-    <div class="sidenav">
-      <a href="#">HOME</a>
-      <a href="#/taxons">Taxons</a>
-      <a href="#/cultivars">Cultivars</a>
-      <a href="#/individuals">Individuals</a>
-      <a href="#/microbiome_otus">Microbiome-OTUs</a>
-      <a href="#/reference_sequences">Reference-Sequences</a>
-      <a href="#/pots">Pots</a>
-      <a href="#/samples">Samples</a>
-      <a href="#/field_plots">Field-Plots</a>
-      <a href="#/metabolite_measurements">Metabolite-Measurements</a>
-      <a href="#/sample_to_metabolite_measurements">Samples-Metabolite-Measurements</a>
+    <div v-if="loggedIn">
+      <div class="sidenav">
+        <a href="#/home">HOME</a>
+        <a href="#/taxons">Taxons</a>
+        <a href="#/cultivars">Cultivars</a>
+        <a href="#/individuals">Individuals</a>
+        <a href="#/microbiome_otus">Microbiome-OTUs</a>
+        <a href="#/reference_sequences">Reference-Sequences</a>
+        <a href="#/pots">Pots</a>
+        <a href="#/samples">Samples</a>
+        <a href="#/field_plots">Field-Plots</a>
+        <a href="#/metabolite_measurements">Metabolite-Measurements</a>
+        <a href="#/sample_to_metabolite_measurements">Samples-Metabolite-Measurements</a>
+        <a href="#/" v-on:click="logout">Logout</a>
+      </div>
+      <div class="main">
+        <router-view></router-view>
+      </div>
     </div>
-    <div class="main">
-    <router-view></router-view>
+    <div v-else>
+      <login :loggedIn.sync="loggedIn"></login>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
+import login from './components/Login.vue'
+
+Vue.component('login', login)
+
 export default {
-  name: 'app'
+  name: 'app',
+  data: function() {
+    return {
+      loggedIn: this.$loggedIn()
+    }
+  },
+  methods: {
+    logout: function() {
+      this.$logout()
+      this.loggedIn = false
+      console.log(
+        `Logged out. Token now is ${this.$getAuthToken()} (${localStorage.getItem('token')})`
+      )
+    }
+  }
 }
 </script>
 
