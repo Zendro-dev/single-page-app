@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Login from '@/components/Login'
+import Home from '@/components/Home'
 import cultivars from '@/components/cultivars'
 import cultivarCreate from '@/components/cultivarCreateForm'
 import cultivarEdit from '@/components/cultivarEditForm'
@@ -43,218 +45,227 @@ import sample_to_metabolite_measurementUploadCsv from '@/components/sample_to_me
 
 Vue.use(Router)
 
-var routes = [
-        {
-      path: '/cultivars',
-      name: 'cultivars',
-      component: cultivars,
-    },
-    {
-      path: '/cultivar/:id',
-      name: 'cultivarEdit',
-      component: cultivarEdit,
-    },
-    {
-      path: '/cultivars/upload_csv',
-      name: 'cultivarUploadCsv',
-      component: cultivarUploadCsv
-    },
-    {
-      path: '/cultivar',
-      name: 'cultivarCreate',
-      component: cultivarCreate,
-        },
-        
-        {
-      path: '/field_plots',
-      name: 'field_plots',
-      component: field_plots,
-    },
-    {
-      path: '/field_plot/:id',
-      name: 'field_plotEdit',
-      component: field_plotEdit,
-    },
-    {
-      path: '/field_plots/upload_csv',
-      name: 'field_plotUploadCsv',
-      component: field_plotUploadCsv
-    },
-    {
-      path: '/field_plot',
-      name: 'field_plotCreate',
-      component: field_plotCreate,
-        },
-        
-        {
-      path: '/individuals',
-      name: 'individuals',
-      component: individuals,
-    },
-    {
-      path: '/individual/:id',
-      name: 'individualEdit',
-      component: individualEdit,
-    },
-    {
-      path: '/individuals/upload_csv',
-      name: 'individualUploadCsv',
-      component: individualUploadCsv
-    },
-    {
-      path: '/individual',
-      name: 'individualCreate',
-      component: individualCreate,
-        },
-        
-        {
-      path: '/metabolite_measurements',
-      name: 'metabolite_measurements',
-      component: metabolite_measurements,
-    },
-    {
-      path: '/metabolite_measurement/:id',
-      name: 'metabolite_measurementEdit',
-      component: metabolite_measurementEdit,
-    },
-    {
-      path: '/metabolite_measurements/upload_csv',
-      name: 'metabolite_measurementUploadCsv',
-      component: metabolite_measurementUploadCsv
-    },
-    {
-      path: '/metabolite_measurement',
-      name: 'metabolite_measurementCreate',
-      component: metabolite_measurementCreate,
-        },
-        
-        {
-      path: '/microbiome_otus',
-      name: 'microbiome_otus',
-      component: microbiome_otus,
-    },
-    {
-      path: '/microbiome_otu/:id',
-      name: 'microbiome_otuEdit',
-      component: microbiome_otuEdit,
-    },
-    {
-      path: '/microbiome_otus/upload_csv',
-      name: 'microbiome_otuUploadCsv',
-      component: microbiome_otuUploadCsv
-    },
-    {
-      path: '/microbiome_otu',
-      name: 'microbiome_otuCreate',
-      component: microbiome_otuCreate,
-        },
-        
-        {
-      path: '/pots',
-      name: 'pots',
-      component: pots,
-    },
-    {
-      path: '/pot/:id',
-      name: 'potEdit',
-      component: potEdit,
-    },
-    {
-      path: '/pots/upload_csv',
-      name: 'potUploadCsv',
-      component: potUploadCsv
-    },
-    {
-      path: '/pot',
-      name: 'potCreate',
-      component: potCreate,
-        },
-        
-        {
-      path: '/reference_sequences',
-      name: 'reference_sequences',
-      component: reference_sequences,
-    },
-    {
-      path: '/reference_sequence/:id',
-      name: 'reference_sequenceEdit',
-      component: reference_sequenceEdit,
-    },
-    {
-      path: '/reference_sequences/upload_csv',
-      name: 'reference_sequenceUploadCsv',
-      component: reference_sequenceUploadCsv
-    },
-    {
-      path: '/reference_sequence',
-      name: 'reference_sequenceCreate',
-      component: reference_sequenceCreate,
-        },
-        
-        {
-      path: '/samples',
-      name: 'samples',
-      component: samples,
-    },
-    {
-      path: '/sample/:id',
-      name: 'sampleEdit',
-      component: sampleEdit,
-    },
-    {
-      path: '/samples/upload_csv',
-      name: 'sampleUploadCsv',
-      component: sampleUploadCsv
-    },
-    {
-      path: '/sample',
-      name: 'sampleCreate',
-      component: sampleCreate,
-        },
-        
-        {
-      path: '/taxons',
-      name: 'taxons',
-      component: taxons,
-    },
-    {
-      path: '/taxon/:id',
-      name: 'taxonEdit',
-      component: taxonEdit,
-    },
-    {
-      path: '/taxons/upload_csv',
-      name: 'taxonUploadCsv',
-      component: taxonUploadCsv
-    },
-    {
-      path: '/taxon',
-      name: 'taxonCreate',
-      component: taxonCreate,
-        },
-        
-        {
-      path: '/sample_to_metabolite_measurements',
-      name: 'sample_to_metabolite_measurements',
-      component: sample_to_metabolite_measurements,
-    },
-    {
-      path: '/sample_to_metabolite_measurement/:id',
-      name: 'sample_to_metabolite_measurementEdit',
-      component: sample_to_metabolite_measurementEdit,
-    },
-    {
-      path: '/sample_to_metabolite_measurements/upload_csv',
-      name: 'sample_to_metabolite_measurementUploadCsv',
-      component: sample_to_metabolite_measurementUploadCsv
-    },
-    {
-      path: '/sample_to_metabolite_measurement',
-      name: 'sample_to_metabolite_measurementCreate',
-      component: sample_to_metabolite_measurementCreate,
-        }
-        
-      ];
+var routes = [{
+    path: '/login',
+    name: 'login',
+    component: Login,
+  },
+  {
+    path: '/home',
+    name: 'home',
+    component: Home,
+  },
+  {
+    path: '/cultivars',
+    name: 'cultivars',
+    component: cultivars,
+  },
+  {
+    path: '/cultivar/:id',
+    name: 'cultivarEdit',
+    component: cultivarEdit,
+  },
+  {
+    path: '/cultivars/upload_csv',
+    name: 'cultivarUploadCsv',
+    component: cultivarUploadCsv
+  },
+  {
+    path: '/cultivar',
+    name: 'cultivarCreate',
+    component: cultivarCreate,
+  },
+
+  {
+    path: '/field_plots',
+    name: 'field_plots',
+    component: field_plots,
+  },
+  {
+    path: '/field_plot/:id',
+    name: 'field_plotEdit',
+    component: field_plotEdit,
+  },
+  {
+    path: '/field_plots/upload_csv',
+    name: 'field_plotUploadCsv',
+    component: field_plotUploadCsv
+  },
+  {
+    path: '/field_plot',
+    name: 'field_plotCreate',
+    component: field_plotCreate,
+  },
+
+  {
+    path: '/individuals',
+    name: 'individuals',
+    component: individuals,
+  },
+  {
+    path: '/individual/:id',
+    name: 'individualEdit',
+    component: individualEdit,
+  },
+  {
+    path: '/individuals/upload_csv',
+    name: 'individualUploadCsv',
+    component: individualUploadCsv
+  },
+  {
+    path: '/individual',
+    name: 'individualCreate',
+    component: individualCreate,
+  },
+
+  {
+    path: '/metabolite_measurements',
+    name: 'metabolite_measurements',
+    component: metabolite_measurements,
+  },
+  {
+    path: '/metabolite_measurement/:id',
+    name: 'metabolite_measurementEdit',
+    component: metabolite_measurementEdit,
+  },
+  {
+    path: '/metabolite_measurements/upload_csv',
+    name: 'metabolite_measurementUploadCsv',
+    component: metabolite_measurementUploadCsv
+  },
+  {
+    path: '/metabolite_measurement',
+    name: 'metabolite_measurementCreate',
+    component: metabolite_measurementCreate,
+  },
+
+  {
+    path: '/microbiome_otus',
+    name: 'microbiome_otus',
+    component: microbiome_otus,
+  },
+  {
+    path: '/microbiome_otu/:id',
+    name: 'microbiome_otuEdit',
+    component: microbiome_otuEdit,
+  },
+  {
+    path: '/microbiome_otus/upload_csv',
+    name: 'microbiome_otuUploadCsv',
+    component: microbiome_otuUploadCsv
+  },
+  {
+    path: '/microbiome_otu',
+    name: 'microbiome_otuCreate',
+    component: microbiome_otuCreate,
+  },
+
+  {
+    path: '/pots',
+    name: 'pots',
+    component: pots,
+  },
+  {
+    path: '/pot/:id',
+    name: 'potEdit',
+    component: potEdit,
+  },
+  {
+    path: '/pots/upload_csv',
+    name: 'potUploadCsv',
+    component: potUploadCsv
+  },
+  {
+    path: '/pot',
+    name: 'potCreate',
+    component: potCreate,
+  },
+
+  {
+    path: '/reference_sequences',
+    name: 'reference_sequences',
+    component: reference_sequences,
+  },
+  {
+    path: '/reference_sequence/:id',
+    name: 'reference_sequenceEdit',
+    component: reference_sequenceEdit,
+  },
+  {
+    path: '/reference_sequences/upload_csv',
+    name: 'reference_sequenceUploadCsv',
+    component: reference_sequenceUploadCsv
+  },
+  {
+    path: '/reference_sequence',
+    name: 'reference_sequenceCreate',
+    component: reference_sequenceCreate,
+  },
+
+  {
+    path: '/samples',
+    name: 'samples',
+    component: samples,
+  },
+  {
+    path: '/sample/:id',
+    name: 'sampleEdit',
+    component: sampleEdit,
+  },
+  {
+    path: '/samples/upload_csv',
+    name: 'sampleUploadCsv',
+    component: sampleUploadCsv
+  },
+  {
+    path: '/sample',
+    name: 'sampleCreate',
+    component: sampleCreate,
+  },
+
+  {
+    path: '/taxons',
+    name: 'taxons',
+    component: taxons,
+  },
+  {
+    path: '/taxon/:id',
+    name: 'taxonEdit',
+    component: taxonEdit,
+  },
+  {
+    path: '/taxons/upload_csv',
+    name: 'taxonUploadCsv',
+    component: taxonUploadCsv
+  },
+  {
+    path: '/taxon',
+    name: 'taxonCreate',
+    component: taxonCreate,
+  },
+
+  {
+    path: '/sample_to_metabolite_measurements',
+    name: 'sample_to_metabolite_measurements',
+    component: sample_to_metabolite_measurements,
+  },
+  {
+    path: '/sample_to_metabolite_measurement/:id',
+    name: 'sample_to_metabolite_measurementEdit',
+    component: sample_to_metabolite_measurementEdit,
+  },
+  {
+    path: '/sample_to_metabolite_measurements/upload_csv',
+    name: 'sample_to_metabolite_measurementUploadCsv',
+    component: sample_to_metabolite_measurementUploadCsv
+  },
+  {
+    path: '/sample_to_metabolite_measurement',
+    name: 'sample_to_metabolite_measurementCreate',
+    component: sample_to_metabolite_measurementCreate,
+  }
+
+];
 
 export default new Router({
   routes: routes
