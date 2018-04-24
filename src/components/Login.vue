@@ -1,9 +1,6 @@
 <template>
 	<div class="col-sm-4 col-sm-offset-4">
 		<h2>Sign in</h2>
-		<div class="alert alert-danger" v-if="error">
-			<p>{{ error }}</p>
-		</div>
 		<form id="login-form" v-on:submit.prevent="onSubmit">
 			<div class="form-group">
 				<input
@@ -49,15 +46,14 @@ export default {
           password: t.$refs.password.value
         }).then(function(res) {
           t.$login(res.data.token)
-          console.log('LOGGED IN');
-          console.log(
-            `In Login.vue, token in local Strage is: ${t.$getAuthToken()}`
-          )
           t.$emit('update:loggedIn', true)
+          t.$emit('update:error', null)
           t.$router.push('/home')
         }).catch(res => {
           t.$emit('update:loggedIn', false)
           t.error = res.response.data.message
+          this.$root.$emit('globalError', t.error)
+          this.$router.push('/')
         })
       } else {
         t.error = 'Please provide email and password.'

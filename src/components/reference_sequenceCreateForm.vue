@@ -34,11 +34,23 @@ export default {
     onSubmit() {
       var t = this;
       var url = this.$baseUrl() + '/reference_sequences'
-      axios.post(url, t.reference_sequence).then(function (response) {
+      axios.post(url, t.reference_sequence, {
+          headers: {
+            'authorization': `Bearer ${t.$getAuthToken()}`,
+            'Accept': 'application/json'
+          }
+        }).then(function(response) {
         t.$router.push('/reference_sequences')
-      }).catch( function (error) {
-        if ( error.response && error.response.data && error.response.data.errors )
-          t.errors = error.response.data.errors
+      }).catch(function(res) {
+        if (res.response && res.response.data && res.response.data.errors) {
+          t.errors = res.response.data.errors
+        } else {
+          var err = (res && res.response && res.response.data && res.response
+            .data.message ?
+            res.response.data.message : res)
+          t.$root.$emit('globalError', err)
+          t.$router.push('/')
+        }
       })
     }
   }

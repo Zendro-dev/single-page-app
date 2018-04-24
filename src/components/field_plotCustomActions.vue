@@ -32,7 +32,12 @@ export default {
     deleteInstance () {
       var t = this;
       var url = this.$baseUrl() + '/field_plot/' + this.rowData.id
-      axios.delete(url).then(function (response) {
+      axios.delete(url, {
+        headers: {
+          'authorization': `Bearer ${t.$getAuthToken()}`,
+          'Accept': 'application/json'
+        }
+      }).then(function (response) {
         t.$parent.reload()
       }).catch(function (error) {
         t.error = error

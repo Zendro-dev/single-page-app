@@ -10,7 +10,7 @@
   <input type="text" v-model="field_plot.field_name" class="form-control"/>
 
 
-      <div id="field_plot-field_name-err" v-if="typeof validationError('field_name') !== 'undefined'">
+      <div id="field_plot-field_name-err" v-if="validationError('field_name')" class="alert alert-danger">
         {{validationError('field_name').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="field_plot.latitude" class="form-control"/>
 
 
-      <div id="field_plot-latitude-err" v-if="typeof validationError('latitude') !== 'undefined'">
+      <div id="field_plot-latitude-err" v-if="validationError('latitude')" class="alert alert-danger">
         {{validationError('latitude').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="field_plot.longitude" class="form-control"/>
 
 
-      <div id="field_plot-longitude-err" v-if="typeof validationError('longitude') !== 'undefined'">
+      <div id="field_plot-longitude-err" v-if="validationError('longitude')" class="alert alert-danger">
         {{validationError('longitude').message}}
       </div>
     </div>
@@ -46,7 +46,7 @@
   <input type="text" v-model="field_plot.location_code" class="form-control"/>
 
 
-      <div id="field_plot-location_code-err" v-if="typeof validationError('location_code') !== 'undefined'">
+      <div id="field_plot-location_code-err" v-if="validationError('location_code')" class="alert alert-danger">
         {{validationError('location_code').message}}
       </div>
     </div>
@@ -58,7 +58,7 @@
   <input type="text" v-model="field_plot.soil_treatment" class="form-control"/>
 
 
-      <div id="field_plot-soil_treatment-err" v-if="typeof validationError('soil_treatment') !== 'undefined'">
+      <div id="field_plot-soil_treatment-err" v-if="validationError('soil_treatment')" class="alert alert-danger">
         {{validationError('soil_treatment').message}}
       </div>
     </div>

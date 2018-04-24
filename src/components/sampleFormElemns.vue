@@ -10,7 +10,7 @@
   <input type="text" v-model="sample.name" class="form-control"/>
 
 
-      <div id="sample-name-err" v-if="typeof validationError('name') !== 'undefined'">
+      <div id="sample-name-err" v-if="validationError('name')" class="alert alert-danger">
         {{validationError('name').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="sample.material" class="form-control"/>
 
 
-      <div id="sample-material-err" v-if="typeof validationError('material') !== 'undefined'">
+      <div id="sample-material-err" v-if="validationError('material')" class="alert alert-danger">
         {{validationError('material').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="sample.life_cycle_phase" class="form-control"/>
 
 
-      <div id="sample-life_cycle_phase-err" v-if="typeof validationError('life_cycle_phase') !== 'undefined'">
+      <div id="sample-life_cycle_phase-err" v-if="validationError('life_cycle_phase')" class="alert alert-danger">
         {{validationError('life_cycle_phase').message}}
       </div>
     </div>
@@ -46,7 +46,7 @@
   <input type="text" v-model="sample.barcode_tag" class="form-control"/>
 
 
-      <div id="sample-barcode_tag-err" v-if="typeof validationError('barcode_tag') !== 'undefined'">
+      <div id="sample-barcode_tag-err" v-if="validationError('barcode_tag')" class="alert alert-danger">
         {{validationError('barcode_tag').message}}
       </div>
     </div>
@@ -58,7 +58,7 @@
   <input type="text" v-model="sample.description" class="form-control"/>
 
 
-      <div id="sample-description-err" v-if="typeof validationError('description') !== 'undefined'">
+      <div id="sample-description-err" v-if="validationError('description')" class="alert alert-danger">
         {{validationError('description').message}}
       </div>
     </div>
@@ -70,7 +70,7 @@
   <input v-model="sample.harvest_date" class="datepicker" />
 
 
-      <div id="sample-harvest_date-err" v-if="typeof validationError('harvest_date') !== 'undefined'">
+      <div id="sample-harvest_date-err" v-if="validationError('harvest_date')" class="alert alert-danger">
         {{validationError('harvest_date').message}}
       </div>
     </div>

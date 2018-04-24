@@ -35,15 +35,22 @@ export default {
       var t = this;
       var url = this.$baseUrl() + '/samples'
       axios.post(url, t.sample, {
-        headers: {
-          'authorization': `${t.$getAuthToken()}`,
-          'Accept': 'application/json'
-        }
-      }).then(function(response) {
+          headers: {
+            'authorization': `Bearer ${t.$getAuthToken()}`,
+            'Accept': 'application/json'
+          }
+        }).then(function(response) {
         t.$router.push('/samples')
-      }).catch(function(error) {
-        if (error.response && error.response.data && error.response.data.errors)
-          t.errors = error.response.data.errors
+      }).catch(function(res) {
+        if (res.response && res.response.data && res.response.data.errors) {
+          t.errors = res.response.data.errors
+        } else {
+          var err = (res && res.response && res.response.data && res.response
+            .data.message ?
+            res.response.data.message : res)
+          t.$root.$emit('globalError', err)
+          t.$router.push('/')
+        }
       })
     }
   }

@@ -42,7 +42,12 @@ export default {
       t.error = null
       if (this.$route.params.id) {
         axios.get(this.$baseUrl() + '/cultivar/' +
-          this.$route.params.id).then(function (response) {
+          this.$route.params.id, {
+          headers: {
+            'authorization': `Bearer ${t.$getAuthToken()}`,
+            'Accept': 'application/json'
+          }
+        }).then(function (response) {
             t.cultivar = response.data
           }, function (err) {
             t.parent.error = err
@@ -55,11 +60,23 @@ export default {
       if (t.$route.params.id) { 
         url += '/' + t.$route.params.id
       }
-      axios.put(url, t.cultivar).then(function (response) {
+      axios.put(url, t.cultivar, {
+        headers: {
+          'authorization': `Bearer ${t.$getAuthToken()}`,
+          'Accept': 'application/json'
+        }
+      }).then(function (response) {
         t.$router.push('/cultivars')
-      }).catch( function (error) {
-        if ( error.response && error.response.data && error.response.data.errors )
-          t.errors = error.response.data.errors
+      }).catch( function (res) {
+        if (res.response && res.response.data && res.response.data.errors) {
+          t.errors = res.response.data.errors
+        } else {
+          var err = (res && res.response && res.response.data && res.response
+            .data.message ?
+            res.response.data.message : res)
+          t.$root.$emit('globalError', err)
+          t.$router.push('/')
+        }
       })
     }
   }

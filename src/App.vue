@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div v-if="loggedIn">
+    <div v-if="loggedIn && !error">
       <div class="sidenav">
         <a href="#/home">HOME</a>
         <a href="#/taxons">Taxons</a>
@@ -20,7 +20,10 @@
       </div>
     </div>
     <div v-else>
-      <login :loggedIn.sync="loggedIn"></login>
+      <div v-if="error" class="alert alert-danger">
+         {{error}}
+      </div>
+      <login :loggedIn.sync="loggedIn" :error.sync="error"></login>
     </div>
   </div>
 </template>
@@ -35,7 +38,8 @@ export default {
   name: 'app',
   data: function() {
     return {
-      loggedIn: this.$loggedIn()
+      loggedIn: this.$loggedIn(),
+      error: null
     }
   },
   methods: {
@@ -46,6 +50,12 @@ export default {
         `Logged out. Token now is ${this.$getAuthToken()} (${localStorage.getItem('token')})`
       )
     }
+  },
+  mounted() {
+    this.$root.$on('globalError', eventData => {
+      console.log(`Listened to event 'globalError' and received eventData ${eventData}`);
+      this.error = eventData
+    })
   }
 }
 </script>

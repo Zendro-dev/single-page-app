@@ -10,7 +10,7 @@
   <input type="text" v-model="cultivar.description" class="form-control"/>
 
 
-      <div id="cultivar-description-err" v-if="typeof validationError('description') !== 'undefined'">
+      <div id="cultivar-description-err" v-if="validationError('description')" class="alert alert-danger">
         {{validationError('description').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="cultivar.genotype" class="form-control"/>
 
 
-      <div id="cultivar-genotype-err" v-if="typeof validationError('genotype') !== 'undefined'">
+      <div id="cultivar-genotype-err" v-if="validationError('genotype')" class="alert alert-danger">
         {{validationError('genotype').message}}
       </div>
     </div>

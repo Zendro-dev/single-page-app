@@ -10,7 +10,7 @@
   <input type="text" v-model="reference_sequence.sequence" class="form-control"/>
 
 
-      <div id="reference_sequence-sequence-err" v-if="typeof validationError('sequence') !== 'undefined'">
+      <div id="reference_sequence-sequence-err" v-if="validationError('sequence')" class="alert alert-danger">
         {{validationError('sequence').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="reference_sequence.taxon_id" class="form-control"/>
 
 
-      <div id="reference_sequence-taxon_id-err" v-if="typeof validationError('taxon_id') !== 'undefined'">
+      <div id="reference_sequence-taxon_id-err" v-if="validationError('taxon_id')" class="alert alert-danger">
         {{validationError('taxon_id').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="reference_sequence.microbiome_otu_id" class="form-control"/>
 
 
-      <div id="reference_sequence-microbiome_otu_id-err" v-if="typeof validationError('microbiome_otu_id') !== 'undefined'">
+      <div id="reference_sequence-microbiome_otu_id-err" v-if="validationError('microbiome_otu_id')" class="alert alert-danger">
         {{validationError('microbiome_otu_id').message}}
       </div>
     </div>

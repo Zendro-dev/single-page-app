@@ -10,7 +10,7 @@
   <input type="text" v-model="pot.pot" class="form-control"/>
 
 
-      <div id="pot-pot-err" v-if="typeof validationError('pot') !== 'undefined'">
+      <div id="pot-pot-err" v-if="validationError('pot')" class="alert alert-danger">
         {{validationError('pot').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="pot.greenhouse" class="form-control"/>
 
 
-      <div id="pot-greenhouse-err" v-if="typeof validationError('greenhouse') !== 'undefined'">
+      <div id="pot-greenhouse-err" v-if="validationError('greenhouse')" class="alert alert-danger">
         {{validationError('greenhouse').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="pot.climate_chamber" class="form-control"/>
 
 
-      <div id="pot-climate_chamber-err" v-if="typeof validationError('climate_chamber') !== 'undefined'">
+      <div id="pot-climate_chamber-err" v-if="validationError('climate_chamber')" class="alert alert-danger">
         {{validationError('climate_chamber').message}}
       </div>
     </div>
@@ -46,7 +46,7 @@
   <input type="text" v-model="pot.conditions" class="form-control"/>
 
 
-      <div id="pot-conditions-err" v-if="typeof validationError('conditions') !== 'undefined'">
+      <div id="pot-conditions-err" v-if="validationError('conditions')" class="alert alert-danger">
         {{validationError('conditions').message}}
       </div>
     </div>

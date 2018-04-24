@@ -10,7 +10,7 @@
   <input type="text" v-model="metabolite_measurement.metabolite" class="form-control"/>
 
 
-      <div id="metabolite_measurement-metabolite-err" v-if="typeof validationError('metabolite') !== 'undefined'">
+      <div id="metabolite_measurement-metabolite-err" v-if="validationError('metabolite')" class="alert alert-danger">
         {{validationError('metabolite').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="metabolite_measurement.amount" class="form-control"/>
 
 
-      <div id="metabolite_measurement-amount-err" v-if="typeof validationError('amount') !== 'undefined'">
+      <div id="metabolite_measurement-amount-err" v-if="validationError('amount')" class="alert alert-danger">
         {{validationError('amount').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="metabolite_measurement.unit" class="form-control"/>
 
 
-      <div id="metabolite_measurement-unit-err" v-if="typeof validationError('unit') !== 'undefined'">
+      <div id="metabolite_measurement-unit-err" v-if="validationError('unit')" class="alert alert-danger">
         {{validationError('unit').message}}
       </div>
     </div>
@@ -46,7 +46,7 @@
   <input type="checkbox" v-model="metabolite_measurement.is_average" class="form-control"/>
 
 
-      <div id="metabolite_measurement-is_average-err" v-if="typeof validationError('is_average') !== 'undefined'">
+      <div id="metabolite_measurement-is_average-err" v-if="validationError('is_average')" class="alert alert-danger">
         {{validationError('is_average').message}}
       </div>
     </div>

@@ -10,7 +10,7 @@
   <input type="text" v-model="taxon.name" class="form-control"/>
 
 
-      <div id="taxon-name-err" v-if="typeof validationError('name') !== 'undefined'">
+      <div id="taxon-name-err" v-if="validationError('name')" class="alert alert-danger">
         {{validationError('name').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="taxon.taxonomic_level" class="form-control"/>
 
 
-      <div id="taxon-taxonomic_level-err" v-if="typeof validationError('taxonomic_level') !== 'undefined'">
+      <div id="taxon-taxonomic_level-err" v-if="validationError('taxonomic_level')" class="alert alert-danger">
         {{validationError('taxonomic_level').message}}
       </div>
     </div>

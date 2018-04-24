@@ -10,7 +10,7 @@
   <input type="text" v-model="individual.name" class="form-control"/>
 
 
-      <div id="individual-name-err" v-if="typeof validationError('name') !== 'undefined'">
+      <div id="individual-name-err" v-if="validationError('name')" class="alert alert-danger">
         {{validationError('name').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input v-model="individual.sowing_date" class="datepicker" />
 
 
-      <div id="individual-sowing_date-err" v-if="typeof validationError('sowing_date') !== 'undefined'">
+      <div id="individual-sowing_date-err" v-if="validationError('sowing_date')" class="alert alert-danger">
         {{validationError('sowing_date').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input v-model="individual.harvest_date" class="datepicker" />
 
 
-      <div id="individual-harvest_date-err" v-if="typeof validationError('harvest_date') !== 'undefined'">
+      <div id="individual-harvest_date-err" v-if="validationError('harvest_date')" class="alert alert-danger">
         {{validationError('harvest_date').message}}
       </div>
     </div>

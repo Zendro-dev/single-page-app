@@ -1,5 +1,15 @@
 <template>
   <div class="col-xs-5 content">
+    <ul v-for="record in errors" v-if="errors" class="list-group">
+      <li class="list-group-item">
+        <div class="alert alert-danger">
+          <h4>Errors for field_plot {{record.record}}</h4> 
+          <ul>
+            <li>{{record.errors.message}}</li>
+          </ul>
+        </div>
+      </li>
+    </ul>
     <h4>Upload field_plots</h4>
       <form id="field_plot-form" enctype="multipart/form-data" novalidate v-on:submit.prevent="onSubmit">
 
@@ -39,13 +49,23 @@ export default {
       formData.append(formElm, tableFile.files[0]);
       axios.post(url, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'authorization': `Bearer ${t.$getAuthToken()}`,
+          'Accept': 'application/json'
         }
       }).then(function(response) {
         t.$router.push('/field_plots')
-      }).catch(function(error) {
-        if (error.response && error.response.data && error.response.data.errors)
-          t.errors = error.response.data.errors
+      }).catch(function(res) {
+        if (res.response && res.response.data && res.response.data && Array
+          .isArray(res.response.data)) {
+          t.errors = res.response.data
+        } else {
+          var err = (res && res.response && res.response.data && res.response
+            .data.message ?
+            res.response.data.message : res)
+          t.$root.$emit('globalError', err)
+          t.$router.push('/')
+        }
       })
     }
   }

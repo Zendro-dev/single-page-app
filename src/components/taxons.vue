@@ -3,7 +3,7 @@
     <filter-bar></filter-bar>
     <div class="inline field pull-left">
       <router-link v-bind:to="'taxon'"><button class="ui primary button">Add taxon</button></router-link>
-      <a :href="this.$baseUrl() + '/taxons/example_csv'"><button class="ui primary button">CSV Example Table</button></a>
+      <button class="ui primary button" @click="downloadExampleCsv">CSV Example Table</button>
       <router-link v-bind:to="'/taxons/upload_csv'"><button class="ui primary button">CSV Upload</button></router-link>
     </div>
     <vuetable ref="vuetable"
@@ -15,6 +15,8 @@
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
+      :http-options="{ headers: {Authorization: `bearer ${this.$getAuthToken()}`} }"
+      @vuetable:load-error="onError"
     ></vuetable>
     <div class="vuetable-pagination ui basic segment grid">
       <vuetable-pagination-info ref="paginationInfo"
@@ -110,7 +112,12 @@ export default {
       if (window.confirm("Do you really want to delete taxons of ids '" + this.$refs.vuetable.selectedTo.join("; ") + "'?")) {
         var t = this;
         var url = this.$baseUrl()() + '/taxon/' + this.$refs.vuetable.selectedTo.join("/")
-        axios.delete(url).then(function (response) {
+        axios.delete(url, {
+          headers: {
+            'authorization': `Bearer ${t.$getAuthToken()}`,
+            'Accept': 'application/json'
+          }
+        }).then(function (response) {
           t.$refs.vuetable.refresh()
         }).catch(function (error) {
           t.error = error
@@ -121,7 +128,12 @@ export default {
       var t = this;
       var url = this.$baseUrl()() + '/taxons/example_csv' + '?array=[' + this.$refs.vuetable.selectedTo.join(",") + ']'
       
-      axios.get(url).then(function (response) {
+      axios.get(url, {
+        headers: {
+          'authorization': `Bearer ${t.$getAuthToken()}`,
+          'Accept': 'application/json'
+        }
+      }).then(function (response) {
 
         var a = document.createElement("a");        
         document.body.appendChild(a);
@@ -135,6 +147,35 @@ export default {
       }).catch(function (error) {
         t.error = error
       })
+    },
+    downloadExampleCsv: function() {
+      var t = this
+      axios.get(t.$baseUrl() + '/taxons/example_csv', {
+        headers: {
+          'authorization': `Bearer ${t.$getAuthToken()}`,
+          'Accept': 'application/json'
+        },
+        responseType: 'blob'
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'taxons.csv');
+        document.body.appendChild(link);
+        link.click();
+      }).catch(res => {
+        var err = (res && res.response && res.response.data && res.response
+          .data.message ?
+          res.response.data.message : res)
+        t.$root.$emit('globalError', err)
+        t.$router.push('/')
+      })
+    },
+    onError: function(res) {
+      var err = (res && res.response && res.response.data && res.response.data.message ?
+        res.response.data.message : res)
+      this.$root.$emit('globalError', err)
+      this.$router.push('/')
     }
   },
   mounted() {

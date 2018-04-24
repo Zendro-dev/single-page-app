@@ -10,7 +10,7 @@
   <input type="text" v-model="microbiome_otu.sample_desc" class="form-control"/>
 
 
-      <div id="microbiome_otu-sample_desc-err" v-if="typeof validationError('sample_desc') !== 'undefined'">
+      <div id="microbiome_otu-sample_desc-err" v-if="validationError('sample_desc')" class="alert alert-danger">
         {{validationError('sample_desc').message}}
       </div>
     </div>
@@ -22,7 +22,7 @@
   <input type="text" v-model="microbiome_otu.count" class="form-control"/>
 
 
-      <div id="microbiome_otu-count-err" v-if="typeof validationError('count') !== 'undefined'">
+      <div id="microbiome_otu-count-err" v-if="validationError('count')" class="alert alert-danger">
         {{validationError('count').message}}
       </div>
     </div>
@@ -34,7 +34,7 @@
   <input type="text" v-model="microbiome_otu.experiment" class="form-control"/>
 
 
-      <div id="microbiome_otu-experiment-err" v-if="typeof validationError('experiment') !== 'undefined'">
+      <div id="microbiome_otu-experiment-err" v-if="validationError('experiment')" class="alert alert-danger">
         {{validationError('experiment').message}}
       </div>
     </div>
@@ -46,7 +46,7 @@
   <input type="text" v-model="microbiome_otu.version" class="form-control"/>
 
 
-      <div id="microbiome_otu-version-err" v-if="typeof validationError('version') !== 'undefined'">
+      <div id="microbiome_otu-version-err" v-if="validationError('version')" class="alert alert-danger">
         {{validationError('version').message}}
       </div>
     </div>
@@ -58,7 +58,7 @@
   <input type="text" v-model="microbiome_otu.kingdom" class="form-control"/>
 
 
-      <div id="microbiome_otu-kingdom-err" v-if="typeof validationError('kingdom') !== 'undefined'">
+      <div id="microbiome_otu-kingdom-err" v-if="validationError('kingdom')" class="alert alert-danger">
         {{validationError('kingdom').message}}
       </div>
     </div>
