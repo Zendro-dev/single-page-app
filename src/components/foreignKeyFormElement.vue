@@ -8,7 +8,9 @@
     v-bind:anchor="label"
     v-bind:label="subLabel"
     :on-select="setForeignKey"
-    :onInput="onUserInput">
+    :onInput="onUserInput"
+    :customHeaders="{ Authorization: `Bearer ${this.$getAuthToken()}` }"
+  >
   </autocomplete>
     
   </div>
