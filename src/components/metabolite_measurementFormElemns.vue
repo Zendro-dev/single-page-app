@@ -59,7 +59,7 @@
       <label>samples</label>
       <has-many-form-element
         :associatedElements.sync="metabolite_measurement.samples"
-        :searchUrl="this.$baseUrl() + 'samples'"
+        :searchUrl="this.$baseUrl() + '/samples'"
         label="name"
         subLabel="material"
         valueKey="id">

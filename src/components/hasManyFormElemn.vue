@@ -9,7 +9,9 @@
         v-bind:anchor="label"
         v-bind:label="subLabel"
         :on-select="addElement"
-        :onInput="onUserInput">
+        :onInput="onUserInput"
+        :customHeaders="{ Authorization: `Bearer ${this.$getAuthToken()}` }"
+      >
       </autocomplete>
     </div>
 
@@ -18,7 +20,7 @@
         <li v-on:click="removeElement(rel)" class="list-group-item">
           <i class="delete icon"></i>
           {{rel[label]}}
-          {{(this.subLabel !== undefined && this.subLabel !== null && this.subLabel !== '') ? rel[[subLabel]] : ''}}
+          {{subLabel ? rel[subLabel] : ''}}
         </li>
       </ul>
     </div>
