@@ -46,15 +46,13 @@ export default {
     logout: function() {
       this.$logout()
       this.loggedIn = false
-      console.log(
-        `Logged out. Token now is ${this.$getAuthToken()} (${localStorage.getItem('token')})`
-      )
     }
   },
   mounted() {
     this.$root.$on('globalError', eventData => {
-      console.log(`Listened to event 'globalError' and received eventData ${eventData}`);
       this.error = eventData
+      this.$logout()
+      this.loggedIn = false
     })
   }
 }
