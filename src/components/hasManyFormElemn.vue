@@ -3,11 +3,13 @@
 
     <div class="col-sm-3">
       <autocomplete
+        ref="autocomplete"
         v-bind:url="searchUrl"
-        params="filter"
+        param="filter"
         init-value=""
         v-bind:anchor="label"
         v-bind:label="subLabel"
+        :classes="{ wrapper: 'form-wrapper', input: 'form-control', list: 'data-list', item: 'data-list-item' }"
         :on-select="addElement"
         :onInput="onUserInput"
         :customHeaders="{ Authorization: `Bearer ${this.$getAuthToken()}` }"
@@ -43,9 +45,11 @@ export default {
   },
   methods: {
     addElement(data) {
-      let modList = _.uniq(_.clone(this.associatedElements))
+      let modList = this.associatedElements ? _.clone(this.associatedElements) : []
       modList.push(data)
+      modList = _.uniqBy(modList, 'id')
       this.$emit('update:associatedElements', modList)
+      this.$refs.autocomplete.setValue(null)
     },
     removeElement(data) {
       let relId = this.valueKey;

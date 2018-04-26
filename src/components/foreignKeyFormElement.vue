@@ -3,10 +3,11 @@
 
   <autocomplete
     v-bind:url="searchUrl"
-    params="filter"
+    param="filter"
     v-bind:init-value="initialInput"
     v-bind:anchor="label"
     v-bind:label="subLabel"
+    :classes="{ wrapper: 'form-wrapper', input: 'form-control', list: 'data-list', item: 'data-list-item' }"
     :on-select="setForeignKey"
     :onInput="onUserInput"
     :customHeaders="{ Authorization: `Bearer ${this.$getAuthToken()}` }"
@@ -30,9 +31,6 @@ export default {
   },
   methods: {
     setForeignKey(data) {
-      console.log("t.subLabel=" + this.subLabel + ", this="+this);
-      console.log("setForeignKey(): t.valueKey=" + this.valueKey + ", data[t.valueKey]="
-          + data[this.valueKey] + ", data.id=" + data.id );
       this.$emit('input', data[this.valueKey])
     },
 
