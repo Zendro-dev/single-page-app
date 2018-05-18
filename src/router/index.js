@@ -26,22 +26,18 @@ import pots from '@/components/pots'
 import potCreate from '@/components/potCreateForm'
 import potEdit from '@/components/potEditForm'
 import potUploadCsv from '@/components/potUploadCsvForm'
-import reference_sequences from '@/components/reference_sequences'
-import reference_sequenceCreate from '@/components/reference_sequenceCreateForm'
-import reference_sequenceEdit from '@/components/reference_sequenceEditForm'
-import reference_sequenceUploadCsv from '@/components/reference_sequenceUploadCsvForm'
-import samples from '@/components/samples'
-import sampleCreate from '@/components/sampleCreateForm'
-import sampleEdit from '@/components/sampleEditForm'
-import sampleUploadCsv from '@/components/sampleUploadCsvForm'
-import taxons from '@/components/taxons'
-import taxonCreate from '@/components/taxonCreateForm'
-import taxonEdit from '@/components/taxonEditForm'
-import taxonUploadCsv from '@/components/taxonUploadCsvForm'
 import sample_to_metabolite_measurements from '@/components/sample_to_metabolite_measurements'
 import sample_to_metabolite_measurementCreate from '@/components/sample_to_metabolite_measurementCreateForm'
 import sample_to_metabolite_measurementEdit from '@/components/sample_to_metabolite_measurementEditForm'
 import sample_to_metabolite_measurementUploadCsv from '@/components/sample_to_metabolite_measurementUploadCsvForm'
+import taxons from '@/components/taxons'
+import taxonCreate from '@/components/taxonCreateForm'
+import taxonEdit from '@/components/taxonEditForm'
+import taxonUploadCsv from '@/components/taxonUploadCsvForm'
+import samples from '@/components/samples'
+import sampleCreate from '@/components/sampleCreateForm'
+import sampleEdit from '@/components/sampleEditForm'
+import sampleUploadCsv from '@/components/sampleUploadCsvForm'
 
 Vue.use(Router)
 
@@ -75,7 +71,6 @@ var routes = [{
     name: 'cultivarCreate',
     component: cultivarCreate,
   },
-
   {
     path: '/field_plots',
     name: 'field_plots',
@@ -96,7 +91,6 @@ var routes = [{
     name: 'field_plotCreate',
     component: field_plotCreate,
   },
-
   {
     path: '/individuals',
     name: 'individuals',
@@ -117,7 +111,6 @@ var routes = [{
     name: 'individualCreate',
     component: individualCreate,
   },
-
   {
     path: '/metabolite_measurements',
     name: 'metabolite_measurements',
@@ -138,7 +131,6 @@ var routes = [{
     name: 'metabolite_measurementCreate',
     component: metabolite_measurementCreate,
   },
-
   {
     path: '/microbiome_otus',
     name: 'microbiome_otus',
@@ -159,7 +151,6 @@ var routes = [{
     name: 'microbiome_otuCreate',
     component: microbiome_otuCreate,
   },
-
   {
     path: '/pots',
     name: 'pots',
@@ -180,49 +171,26 @@ var routes = [{
     name: 'potCreate',
     component: potCreate,
   },
-
   {
-    path: '/reference_sequences',
-    name: 'reference_sequences',
-    component: reference_sequences,
+    path: '/sample_to_metabolite_measurements',
+    name: 'sample_to_metabolite_measurements',
+    component: sample_to_metabolite_measurements,
   },
   {
-    path: '/reference_sequence/:id',
-    name: 'reference_sequenceEdit',
-    component: reference_sequenceEdit,
+    path: '/sample_to_metabolite_measurement/:id',
+    name: 'sample_to_metabolite_measurementEdit',
+    component: sample_to_metabolite_measurementEdit,
   },
   {
-    path: '/reference_sequences/upload_csv',
-    name: 'reference_sequenceUploadCsv',
-    component: reference_sequenceUploadCsv
+    path: '/sample_to_metabolite_measurements/upload_csv',
+    name: 'sample_to_metabolite_measurementUploadCsv',
+    component: sample_to_metabolite_measurementUploadCsv
   },
   {
-    path: '/reference_sequence',
-    name: 'reference_sequenceCreate',
-    component: reference_sequenceCreate,
+    path: '/sample_to_metabolite_measurement',
+    name: 'sample_to_metabolite_measurementCreate',
+    component: sample_to_metabolite_measurementCreate,
   },
-
-  {
-    path: '/samples',
-    name: 'samples',
-    component: samples,
-  },
-  {
-    path: '/sample/:id',
-    name: 'sampleEdit',
-    component: sampleEdit,
-  },
-  {
-    path: '/samples/upload_csv',
-    name: 'sampleUploadCsv',
-    component: sampleUploadCsv
-  },
-  {
-    path: '/sample',
-    name: 'sampleCreate',
-    component: sampleCreate,
-  },
-
   {
     path: '/taxons',
     name: 'taxons',
@@ -243,28 +211,26 @@ var routes = [{
     name: 'taxonCreate',
     component: taxonCreate,
   },
-
   {
-    path: '/sample_to_metabolite_measurements',
-    name: 'sample_to_metabolite_measurements',
-    component: sample_to_metabolite_measurements,
+    path: '/samples',
+    name: 'samples',
+    component: samples,
   },
   {
-    path: '/sample_to_metabolite_measurement/:id',
-    name: 'sample_to_metabolite_measurementEdit',
-    component: sample_to_metabolite_measurementEdit,
+    path: '/sample/:id',
+    name: 'sampleEdit',
+    component: sampleEdit,
   },
   {
-    path: '/sample_to_metabolite_measurements/upload_csv',
-    name: 'sample_to_metabolite_measurementUploadCsv',
-    component: sample_to_metabolite_measurementUploadCsv
+    path: '/samples/upload_csv',
+    name: 'sampleUploadCsv',
+    component: sampleUploadCsv
   },
   {
-    path: '/sample_to_metabolite_measurement',
-    name: 'sample_to_metabolite_measurementCreate',
-    component: sample_to_metabolite_measurementCreate,
+    path: '/sample',
+    name: 'sampleCreate',
+    component: sampleCreate,
   }
-
 ];
 
 export default new Router({

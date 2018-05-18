@@ -7,7 +7,6 @@
         <a href="#/cultivars">Cultivars</a>
         <a href="#/individuals">Individuals</a>
         <a href="#/microbiome_otus">Microbiome-OTUs</a>
-        <a href="#/reference_sequences">Reference-Sequences</a>
         <a href="#/pots">Pots</a>
         <a href="#/samples">Samples</a>
         <a href="#/field_plots">Field-Plots</a>

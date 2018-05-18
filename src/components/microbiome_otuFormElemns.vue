@@ -4,6 +4,18 @@
   <input type="hidden" v-model="microbiome_otu.id"/>
   
   
+    <div id="microbiome_otu-otu_id-div" class="form-group">
+            <label>otu_id</label>
+      
+  <input type="text" v-model="microbiome_otu.otu_id" class="form-control"/>
+
+
+      <div id="microbiome_otu-otu_id-err" v-if="validationError('otu_id')" class="alert alert-danger">
+        {{validationError('otu_id').message}}
+      </div>
+    </div>
+
+  
     <div id="microbiome_otu-sample_desc-div" class="form-group">
             <label>sample_desc</label>
       
@@ -64,25 +76,48 @@
     </div>
 
   
+    <div id="microbiome_otu-createdAt-div" class="form-group">
+            <label>createdAt</label>
       
-    <div id="microbiome_otu-reference_sequence-div" class="form-group">
-      <label>reference_sequence</label>
-      <foreign-key-form-element
-        :searchUrl = "this.$baseUrl() + '/reference_sequences'"
-        v-model:foreignKey="microbiome_otu.reference_sequence_id"
-        label="id"
-                subLabel="id"
-                valueKey="id"
-        v-bind:initialInput="reference_sequenceInitialLabel">
-      </foreign-key-form-element>
+  <input v-model="microbiome_otu.createdAt" class="datepicker" />
+
+
+      <div id="microbiome_otu-createdAt-err" v-if="validationError('createdAt')" class="alert alert-danger">
+        {{validationError('createdAt').message}}
+      </div>
     </div>
 
+  
+    <div id="microbiome_otu-updatedAt-div" class="form-group">
+            <label>updatedAt</label>
+      
+  <input v-model="microbiome_otu.updatedAt" class="datepicker" />
+
+
+      <div id="microbiome_otu-updatedAt-err" v-if="validationError('updatedAt')" class="alert alert-danger">
+        {{validationError('updatedAt').message}}
+      </div>
+    </div>
+
+  
+    <div id="microbiome_otu-reference_sequence-div" class="form-group">
+            <label>reference_sequence</label>
+      
+  <input type="text" v-model="microbiome_otu.reference_sequence" class="form-control"/>
+
+
+      <div id="microbiome_otu-reference_sequence-err" v-if="validationError('reference_sequence')" class="alert alert-danger">
+        {{validationError('reference_sequence').message}}
+      </div>
+    </div>
+
+  
       
     <div id="microbiome_otu-parent-div" class="form-group">
       <label>parent</label>
       <foreign-key-form-element
         :searchUrl = "this.$baseUrl() + '/parents'"
-        v-model:foreignKey="microbiome_otu.otu_id"
+        v-model:foreignKey="microbiome_otu.parent_id"
         label="sample_desc"
                 subLabel="experiment"
                 valueKey="id"
@@ -100,6 +135,19 @@
                 subLabel="material"
                 valueKey="id"
         v-bind:initialInput="sampleInitialLabel">
+      </foreign-key-form-element>
+    </div>
+
+      
+    <div id="microbiome_otu-taxon-div" class="form-group">
+      <label>taxon</label>
+      <foreign-key-form-element
+        :searchUrl = "this.$baseUrl() + '/taxons'"
+        v-model:foreignKey="microbiome_otu.taxon_id"
+        label="name"
+                subLabel="taxonomic_level"
+                valueKey="id"
+        v-bind:initialInput="taxonInitialLabel">
       </foreign-key-form-element>
     </div>
 
@@ -121,18 +169,7 @@ Vue.component('foreign-key-form-element', foreignKeyFormElement)
 export default {
   props: [ 'microbiome_otu', 'errors' ],
   computed: {
-          reference_sequenceInitialLabel: function () {
-      var x = this.microbiome_otu.reference_sequence
-      if (x !== null && typeof x === 'object' &&
-          x['id'] !== null &&
-          typeof x['id'] !== 'undefined') {
-        return x['id']
-      } else {
-        return ''
-      }
-    }
-        ,
-              parentInitialLabel: function () {
+          parentInitialLabel: function () {
       var x = this.microbiome_otu.parent
       if (x !== null && typeof x === 'object' &&
           x['sample_desc'] !== null &&
@@ -145,6 +182,17 @@ export default {
         ,
               sampleInitialLabel: function () {
       var x = this.microbiome_otu.sample
+      if (x !== null && typeof x === 'object' &&
+          x['name'] !== null &&
+          typeof x['name'] !== 'undefined') {
+        return x['name']
+      } else {
+        return ''
+      }
+    }
+        ,
+              taxonInitialLabel: function () {
+      var x = this.microbiome_otu.taxon
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {

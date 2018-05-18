@@ -5,6 +5,10 @@
       <span>{{rowData.id}}</span>
     </div>
           <div class="inline field">
+        <label>otu_id:</label>
+        <span>{{rowData.otu_id}}</span>
+      </div>
+          <div class="inline field">
         <label>sample_desc:</label>
         <span>{{rowData.sample_desc}}</span>
       </div>
@@ -24,15 +28,19 @@
         <label>kingdom:</label>
         <span>{{rowData.kingdom}}</span>
       </div>
-    
-      
-    <div id="microbiome_otu-reference_sequence-div">
-      <div class="inline field">
-        <label>reference_sequence:</label>
-        <span>{{reference_sequenceInitialLabel}}</span>
+          <div class="inline field">
+        <label>createdAt:</label>
+        <span>{{rowData.createdAt}}</span>
       </div>
-    </div>
-
+          <div class="inline field">
+        <label>updatedAt:</label>
+        <span>{{rowData.updatedAt}}</span>
+      </div>
+          <div class="inline field">
+        <label>reference_sequence:</label>
+        <span>{{rowData.reference_sequence}}</span>
+      </div>
+    
       
     <div id="microbiome_otu-parent-div">
       <div class="inline field">
@@ -46,6 +54,14 @@
       <div class="inline field">
         <label>sample:</label>
         <span>{{sampleInitialLabel}}</span>
+      </div>
+    </div>
+
+      
+    <div id="microbiome_otu-taxon-div">
+      <div class="inline field">
+        <label>taxon:</label>
+        <span>{{taxonInitialLabel}}</span>
       </div>
     </div>
 
@@ -66,18 +82,7 @@ export default {
     }
   },
   computed: {
-          reference_sequenceInitialLabel: function () {
-      var x = this.rowData.reference_sequence
-      if (x !== null && typeof x === 'object' &&
-          x['id'] !== null &&
-          typeof x['id'] !== 'undefined') {
-        return x['id']
-      } else {
-        return ''
-      }
-    }
-        ,
-              parentInitialLabel: function () {
+          parentInitialLabel: function () {
       var x = this.rowData.parent
       if (x !== null && typeof x === 'object' &&
           x['sample_desc'] !== null &&
@@ -90,6 +95,17 @@ export default {
         ,
               sampleInitialLabel: function () {
       var x = this.rowData.sample
+      if (x !== null && typeof x === 'object' &&
+          x['name'] !== null &&
+          typeof x['name'] !== 'undefined') {
+        return x['name']
+      } else {
+        return ''
+      }
+    }
+        ,
+              taxonInitialLabel: function () {
+      var x = this.rowData.taxon
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {

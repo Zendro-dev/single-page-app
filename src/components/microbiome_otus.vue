@@ -69,6 +69,10 @@ export default {
         //  dataClass: 'center aligned'
         //},
                   {
+            name: 'otu_id',
+            sortField: 'otu_id'
+          },
+                  {
             name: 'sample_desc',
             sortField: 'sample_desc'
           },
@@ -87,6 +91,18 @@ export default {
                   {
             name: 'kingdom',
             sortField: 'kingdom'
+          },
+                  {
+            name: 'createdAt',
+            sortField: 'createdAt'
+          },
+                  {
+            name: 'updatedAt',
+            sortField: 'updatedAt'
+          },
+                  {
+            name: 'reference_sequence',
+            sortField: 'reference_sequence'
           },
                 {
           name: '__component:microbiome_otu-custom-actions',

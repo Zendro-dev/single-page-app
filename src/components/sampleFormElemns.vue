@@ -40,18 +40,6 @@
     </div>
 
   
-    <div id="sample-barcode_tag-div" class="form-group">
-            <label>barcode_tag</label>
-      
-  <input type="text" v-model="sample.barcode_tag" class="form-control"/>
-
-
-      <div id="sample-barcode_tag-err" v-if="validationError('barcode_tag')" class="alert alert-danger">
-        {{validationError('barcode_tag').message}}
-      </div>
-    </div>
-
-  
     <div id="sample-description-div" class="form-group">
             <label>description</label>
       
@@ -72,6 +60,42 @@
 
       <div id="sample-harvest_date-err" v-if="validationError('harvest_date')" class="alert alert-danger">
         {{validationError('harvest_date').message}}
+      </div>
+    </div>
+
+  
+    <div id="sample-library-div" class="form-group">
+            <label>library</label>
+      
+  <input type="text" v-model="sample.library" class="form-control"/>
+
+
+      <div id="sample-library-err" v-if="validationError('library')" class="alert alert-danger">
+        {{validationError('library').message}}
+      </div>
+    </div>
+
+  
+    <div id="sample-barcode_number-div" class="form-group">
+            <label>barcode_number</label>
+      
+  <input type="text" v-model="sample.barcode_number" class="form-control"/>
+
+
+      <div id="sample-barcode_number-err" v-if="validationError('barcode_number')" class="alert alert-danger">
+        {{validationError('barcode_number').message}}
+      </div>
+    </div>
+
+  
+    <div id="sample-barcode_sequence-div" class="form-group">
+            <label>barcode_sequence</label>
+      
+  <input type="text" v-model="sample.barcode_sequence" class="form-control"/>
+
+
+      <div id="sample-barcode_sequence-err" v-if="validationError('barcode_sequence')" class="alert alert-danger">
+        {{validationError('barcode_sequence').message}}
       </div>
     </div>
 

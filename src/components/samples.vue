@@ -81,16 +81,24 @@ export default {
             sortField: 'life_cycle_phase'
           },
                   {
-            name: 'barcode_tag',
-            sortField: 'barcode_tag'
-          },
-                  {
             name: 'description',
             sortField: 'description'
           },
                   {
             name: 'harvest_date',
             sortField: 'harvest_date'
+          },
+                  {
+            name: 'library',
+            sortField: 'library'
+          },
+                  {
+            name: 'barcode_number',
+            sortField: 'barcode_number'
+          },
+                  {
+            name: 'barcode_sequence',
+            sortField: 'barcode_sequence'
           },
                 {
           name: '__component:sample-custom-actions',

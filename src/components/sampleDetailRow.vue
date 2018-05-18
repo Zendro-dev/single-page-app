@@ -17,16 +17,24 @@
         <span>{{rowData.life_cycle_phase}}</span>
       </div>
           <div class="inline field">
-        <label>barcode_tag:</label>
-        <span>{{rowData.barcode_tag}}</span>
-      </div>
-          <div class="inline field">
         <label>description:</label>
         <span>{{rowData.description}}</span>
       </div>
           <div class="inline field">
         <label>harvest_date:</label>
         <span>{{rowData.harvest_date}}</span>
+      </div>
+          <div class="inline field">
+        <label>library:</label>
+        <span>{{rowData.library}}</span>
+      </div>
+          <div class="inline field">
+        <label>barcode_number:</label>
+        <span>{{rowData.barcode_number}}</span>
+      </div>
+          <div class="inline field">
+        <label>barcode_sequence:</label>
+        <span>{{rowData.barcode_sequence}}</span>
       </div>
     
       
