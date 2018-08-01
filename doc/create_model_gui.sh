@@ -15,3 +15,7 @@ admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name microbiome_otu --a
 admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name metabolite_measurement --attributes 'metabolite:string, amount:double, unit:string, is_average:boolean' --hasManys 'samples:sample:name:material'
 
 admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name sample_to_metabolite_measurement --belongsTos 'sample:sample_id:id:name:material, metabolite_measurement:metabolite_measurement_id:id:metabolite:amount'
+
+admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name plant_measurement --belongsTos 'individual:individual_id:id:name:sowing_date' --attributes 'variable:string, value:numeric, unit:string'
+
+admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name transcript_count --attributes 'gene:string, variable:string, count:numeric, tissue_or_condition:string'

@@ -11,6 +11,8 @@
         <a href="#/samples">Samples</a>
         <a href="#/field_plots">Field-Plots</a>
         <a href="#/metabolite_measurements">Metabolite-Measurements</a>
+        <a href="#/plant_measurements">Plant-Measurements</a>
+        <a href="#/transcript_counts">Transcript-Counts</a>
         <a href="#/sample_to_metabolite_measurements">Samples-Metabolite-Measurements</a>
         <a href="#/" v-on:click="logout">Logout</a>
       </div>
@@ -94,6 +96,7 @@ export default {
 
 .main {
     margin-left: 280px; /* Same as the width of the sidenav */
+    overflow: scroll;
 }
 
 @media screen and (max-height: 450px) {

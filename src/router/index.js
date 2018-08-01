@@ -22,10 +22,18 @@ import microbiome_otus from '@/components/microbiome_otus'
 import microbiome_otuCreate from '@/components/microbiome_otuCreateForm'
 import microbiome_otuEdit from '@/components/microbiome_otuEditForm'
 import microbiome_otuUploadCsv from '@/components/microbiome_otuUploadCsvForm'
+import plant_measurements from '@/components/plant_measurements'
+import plant_measurementCreate from '@/components/plant_measurementCreateForm'
+import plant_measurementEdit from '@/components/plant_measurementEditForm'
+import plant_measurementUploadCsv from '@/components/plant_measurementUploadCsvForm'
 import pots from '@/components/pots'
 import potCreate from '@/components/potCreateForm'
 import potEdit from '@/components/potEditForm'
 import potUploadCsv from '@/components/potUploadCsvForm'
+import samples from '@/components/samples'
+import sampleCreate from '@/components/sampleCreateForm'
+import sampleEdit from '@/components/sampleEditForm'
+import sampleUploadCsv from '@/components/sampleUploadCsvForm'
 import sample_to_metabolite_measurements from '@/components/sample_to_metabolite_measurements'
 import sample_to_metabolite_measurementCreate from '@/components/sample_to_metabolite_measurementCreateForm'
 import sample_to_metabolite_measurementEdit from '@/components/sample_to_metabolite_measurementEditForm'
@@ -34,10 +42,10 @@ import taxons from '@/components/taxons'
 import taxonCreate from '@/components/taxonCreateForm'
 import taxonEdit from '@/components/taxonEditForm'
 import taxonUploadCsv from '@/components/taxonUploadCsvForm'
-import samples from '@/components/samples'
-import sampleCreate from '@/components/sampleCreateForm'
-import sampleEdit from '@/components/sampleEditForm'
-import sampleUploadCsv from '@/components/sampleUploadCsvForm'
+import transcript_counts from '@/components/transcript_counts'
+import transcript_countCreate from '@/components/transcript_countCreateForm'
+import transcript_countEdit from '@/components/transcript_countEditForm'
+import transcript_countUploadCsv from '@/components/transcript_countUploadCsvForm'
 
 Vue.use(Router)
 
@@ -152,6 +160,26 @@ var routes = [{
     component: microbiome_otuCreate,
   },
   {
+    path: '/plant_measurements',
+    name: 'plant_measurements',
+    component: plant_measurements,
+  },
+  {
+    path: '/plant_measurement/:id',
+    name: 'plant_measurementEdit',
+    component: plant_measurementEdit,
+  },
+  {
+    path: '/plant_measurements/upload_csv',
+    name: 'plant_measurementUploadCsv',
+    component: plant_measurementUploadCsv
+  },
+  {
+    path: '/plant_measurement',
+    name: 'plant_measurementCreate',
+    component: plant_measurementCreate,
+  },
+  {
     path: '/pots',
     name: 'pots',
     component: pots,
@@ -170,6 +198,26 @@ var routes = [{
     path: '/pot',
     name: 'potCreate',
     component: potCreate,
+  },
+  {
+    path: '/samples',
+    name: 'samples',
+    component: samples,
+  },
+  {
+    path: '/sample/:id',
+    name: 'sampleEdit',
+    component: sampleEdit,
+  },
+  {
+    path: '/samples/upload_csv',
+    name: 'sampleUploadCsv',
+    component: sampleUploadCsv
+  },
+  {
+    path: '/sample',
+    name: 'sampleCreate',
+    component: sampleCreate,
   },
   {
     path: '/sample_to_metabolite_measurements',
@@ -212,24 +260,24 @@ var routes = [{
     component: taxonCreate,
   },
   {
-    path: '/samples',
-    name: 'samples',
-    component: samples,
+    path: '/transcript_counts',
+    name: 'transcript_counts',
+    component: transcript_counts,
   },
   {
-    path: '/sample/:id',
-    name: 'sampleEdit',
-    component: sampleEdit,
+    path: '/transcript_count/:id',
+    name: 'transcript_countEdit',
+    component: transcript_countEdit,
   },
   {
-    path: '/samples/upload_csv',
-    name: 'sampleUploadCsv',
-    component: sampleUploadCsv
+    path: '/transcript_counts/upload_csv',
+    name: 'transcript_countUploadCsv',
+    component: transcript_countUploadCsv
   },
   {
-    path: '/sample',
-    name: 'sampleCreate',
-    component: sampleCreate,
+    path: '/transcript_count',
+    name: 'transcript_countCreate',
+    component: transcript_countCreate,
   }
 ];
 
