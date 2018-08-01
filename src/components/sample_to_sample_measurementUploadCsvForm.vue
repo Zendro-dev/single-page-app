@@ -3,15 +3,15 @@
     <ul v-for="record in errors" v-if="errors" class="list-group">
       <li class="list-group-item">
         <div class="alert alert-danger">
-          <h4>Errors for metabolite_measurement {{record.record}}</h4> 
+          <h4>Errors for sample_to_sample_measurement {{record.record}}</h4> 
           <ul>
             <li>{{record.errors.message}}</li>
           </ul>
         </div>
       </li>
     </ul>
-    <h4>Upload metabolite_measurements</h4>
-      <form id="metabolite_measurement-form" enctype="multipart/form-data" novalidate v-on:submit.prevent="onSubmit">
+    <h4>Upload sample_to_sample_measurements</h4>
+      <form id="sample_to_sample_measurement-form" enctype="multipart/form-data" novalidate v-on:submit.prevent="onSubmit">
 
         <div class="form-group">
           <input type="file" id="uploadTableFile" ref="uploadTable" class="form-control">
@@ -38,10 +38,10 @@ export default {
     onSubmit() {
       var t = this;
       if (t.$refs.uploadTable.value.indexOf('.xlsx') > 0) {
-        var url = this.$baseUrl() + '/metabolite_measurements/upload_xlsx'
+        var url = this.$baseUrl() + '/sample_to_sample_measurements/upload_xlsx'
         var formElm = "xlsx_file"
       } else {
-        var url = this.$baseUrl() + '/metabolite_measurements/upload_csv'
+        var url = this.$baseUrl() + '/sample_to_sample_measurements/upload_csv'
         var formElm = "csv_file"
       } 
       var formData = new FormData();
@@ -54,7 +54,7 @@ export default {
           'Accept': 'application/json'
         }
       }).then(function(response) {
-        t.$router.push('/metabolite_measurements')
+        t.$router.push('/sample_to_sample_measurements')
       }).catch(function(res) {
         if (res.response && res.response.data && res.response.data && Array
           .isArray(res.response.data)) {

@@ -6,7 +6,7 @@
     </div>
     
       
-    <div id="sample_to_metabolite_measurement-sample-div">
+    <div id="sample_to_sample_measurement-sample-div">
       <div class="inline field">
         <label>sample:</label>
         <span>{{sampleInitialLabel}}</span>
@@ -14,10 +14,10 @@
     </div>
 
       
-    <div id="sample_to_metabolite_measurement-metabolite_measurement-div">
+    <div id="sample_to_sample_measurement-sample_measurement-div">
       <div class="inline field">
-        <label>metabolite_measurement:</label>
-        <span>{{metabolite_measurementInitialLabel}}</span>
+        <label>sample_measurement:</label>
+        <span>{{sample_measurementInitialLabel}}</span>
       </div>
     </div>
 
@@ -49,12 +49,12 @@ export default {
       }
     }
         ,
-              metabolite_measurementInitialLabel: function () {
-      var x = this.rowData.metabolite_measurement
+              sample_measurementInitialLabel: function () {
+      var x = this.rowData.sample_measurement
       if (x !== null && typeof x === 'object' &&
-          x['metabolite'] !== null &&
-          typeof x['metabolite'] !== 'undefined') {
-        return x['metabolite']
+          x['variable'] !== null &&
+          typeof x['variable'] !== 'undefined') {
+        return x['variable']
       } else {
         return ''
       }

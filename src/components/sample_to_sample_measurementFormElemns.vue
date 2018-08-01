@@ -1,15 +1,15 @@
 <template>
-  <div id="sample_to_metabolite_measurement-form-elemns-div">
+  <div id="sample_to_sample_measurement-form-elemns-div">
 
-  <input type="hidden" v-model="sample_to_metabolite_measurement.id"/>
+  <input type="hidden" v-model="sample_to_sample_measurement.id"/>
   
   
       
-    <div id="sample_to_metabolite_measurement-sample-div" class="form-group">
+    <div id="sample_to_sample_measurement-sample-div" class="form-group">
       <label>sample</label>
       <foreign-key-form-element
         :searchUrl = "this.$baseUrl() + '/samples'"
-        v-model:foreignKey="sample_to_metabolite_measurement.sample_id"
+        v-model:foreignKey="sample_to_sample_measurement.sample_id"
         label="name"
                 subLabel="material"
                 valueKey="id"
@@ -18,15 +18,15 @@
     </div>
 
       
-    <div id="sample_to_metabolite_measurement-metabolite_measurement-div" class="form-group">
-      <label>metabolite_measurement</label>
+    <div id="sample_to_sample_measurement-sample_measurement-div" class="form-group">
+      <label>sample_measurement</label>
       <foreign-key-form-element
-        :searchUrl = "this.$baseUrl() + '/metabolite_measurements'"
-        v-model:foreignKey="sample_to_metabolite_measurement.metabolite_measurement_id"
-        label="metabolite"
-                subLabel="amount"
+        :searchUrl = "this.$baseUrl() + '/sample_measurements'"
+        v-model:foreignKey="sample_to_sample_measurement.sample_measurement_id"
+        label="variable"
+                subLabel="value"
                 valueKey="id"
-        v-bind:initialInput="metabolite_measurementInitialLabel">
+        v-bind:initialInput="sample_measurementInitialLabel">
       </foreign-key-form-element>
     </div>
 
@@ -46,10 +46,10 @@ Vue.component('foreign-key-form-element', foreignKeyFormElement)
 
 
 export default {
-  props: [ 'sample_to_metabolite_measurement', 'errors' ],
+  props: [ 'sample_to_sample_measurement', 'errors' ],
   computed: {
           sampleInitialLabel: function () {
-      var x = this.sample_to_metabolite_measurement.sample
+      var x = this.sample_to_sample_measurement.sample
       if (x !== null && typeof x === 'object' &&
           x['name'] !== null &&
           typeof x['name'] !== 'undefined') {
@@ -59,12 +59,12 @@ export default {
       }
     }
         ,
-              metabolite_measurementInitialLabel: function () {
-      var x = this.sample_to_metabolite_measurement.metabolite_measurement
+              sample_measurementInitialLabel: function () {
+      var x = this.sample_to_sample_measurement.sample_measurement
       if (x !== null && typeof x === 'object' &&
-          x['metabolite'] !== null &&
-          typeof x['metabolite'] !== 'undefined') {
-        return x['metabolite']
+          x['variable'] !== null &&
+          typeof x['variable'] !== 'undefined') {
+        return x['variable']
       } else {
         return ''
       }

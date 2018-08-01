@@ -5,12 +5,12 @@
       <span>{{rowData.id}}</span>
     </div>
           <div class="inline field">
-        <label>metabolite:</label>
-        <span>{{rowData.metabolite}}</span>
+        <label>variable:</label>
+        <span>{{rowData.variable}}</span>
       </div>
           <div class="inline field">
-        <label>amount:</label>
-        <span>{{rowData.amount}}</span>
+        <label>value:</label>
+        <span>{{rowData.value}}</span>
       </div>
           <div class="inline field">
         <label>unit:</label>
@@ -23,7 +23,7 @@
     
   
       
-    <div id="metabolite_measurement-samples-div" v-if="rowData.samples" class="row w-100">
+    <div id="sample_measurement-samples-div" v-if="rowData.samples" class="row w-100">
       <div class="col">
         <label>samples:</label>
         <ul class="list-group">

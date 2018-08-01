@@ -5,15 +5,15 @@
         <a href="#/home">HOME</a>
         <a href="#/taxons">Taxons</a>
         <a href="#/cultivars">Cultivars</a>
-        <a href="#/individuals">Individuals</a>
-        <a href="#/microbiome_otus">Microbiome-OTUs</a>
-        <a href="#/pots">Pots</a>
-        <a href="#/samples">Samples</a>
         <a href="#/field_plots">Field-Plots</a>
-        <a href="#/metabolite_measurements">Metabolite-Measurements</a>
+        <a href="#/pots">Pots</a>
+        <a href="#/individuals">Individuals</a>
+        <a href="#/samples">Samples</a>
         <a href="#/plant_measurements">Plant-Measurements</a>
+        <a href="#/sample_measurements">Sample-Measurements</a>
         <a href="#/transcript_counts">Transcript-Counts</a>
-        <a href="#/sample_to_metabolite_measurements">Samples-Metabolite-Measurements</a>
+        <a href="#/sample_to_sample_measurements">Samples-Measurements-Associations</a>
+        <a href="#/microbiome_otus">Microbiome-OTUs</a>
         <a href="#/" v-on:click="logout">Logout</a>
       </div>
       <div class="main">

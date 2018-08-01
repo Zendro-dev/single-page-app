@@ -12,9 +12,9 @@ admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name sample --attribute
 
 admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name microbiome_otu --attributes 'otu_id:string, sample_desc:string, count:integer, experiment:string, version:integer, kingdom:string, createdAt:date, updatedAt:date, reference_sequence:string' --belongsTos 'parent:parent_id:id:sample_desc:experiment, sample:sample_id:id:name:material, taxon:taxon_id:id:name:taxonomic_level'
 
-admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name metabolite_measurement --attributes 'metabolite:string, amount:double, unit:string, is_average:boolean' --hasManys 'samples:sample:name:material'
+admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name sample_measurement --attributes 'variable:string, value:numeric, unit:string, is_average:boolean' --hasManys 'samples:sample:name:material'
 
-admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name sample_to_metabolite_measurement --belongsTos 'sample:sample_id:id:name:material, metabolite_measurement:metabolite_measurement_id:id:metabolite:amount'
+admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name sample_to_sample_measurement --belongsTos 'sample:sample_id:id:name:material, sample_measurement:sample_measurement_id:id:variable:value'
 
 admin_gui_gen . --baseUrl 'http://213.136.88.239:3000' --name plant_measurement --belongsTos 'individual:individual_id:id:name:sowing_date' --attributes 'variable:string, value:numeric, unit:string'
 

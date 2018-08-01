@@ -1,7 +1,7 @@
 <template>
   <div class="custom-actions">
     <button v-on:click="detailsToggle()" class="ui basic button"><i class="zoom icon"></i></button>
-    <router-link v-bind:to="'sample_to_metabolite_measurement/' + rowData.id"><button class="ui basic button"><i class="edit icon"></i></button></router-link>
+    <router-link v-bind:to="'sample_to_sample_measurement/' + rowData.id"><button class="ui basic button"><i class="edit icon"></i></button></router-link>
     <button v-on:click="confirmDelete()" class="ui basic button"><i class="delete icon"></i></button>
   </div>	
 </template>
@@ -24,14 +24,14 @@ export default {
       this.$parent.toggleDetailRow(this.rowData.id)
     },
     confirmDelete () {
-      if (window.confirm("Do you really want to delete sample_to_metabolite_measurement of id '" + this.rowData
+      if (window.confirm("Do you really want to delete sample_to_sample_measurement of id '" + this.rowData
           .id + "'?")) {
         this.deleteInstance()
       }
     },
     deleteInstance () {
       var t = this;
-      var url = this.$baseUrl() + '/sample_to_metabolite_measurement/' + this.rowData.id
+      var url = this.$baseUrl() + '/sample_to_sample_measurement/' + this.rowData.id
       axios.delete(url, {
         headers: {
           'authorization': `Bearer ${t.$getAuthToken()}`,

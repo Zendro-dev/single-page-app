@@ -2,16 +2,16 @@
   <div class="ui container">
     <filter-bar></filter-bar>
     <div class="inline field pull-left">
-      <router-link v-bind:to="'metabolite_measurement'"><button class="ui primary button">Add metabolite_measurement</button></router-link>
+      <router-link v-bind:to="'sample_measurement'"><button class="ui primary button">Add sample_measurement</button></router-link>
       <button class="ui primary button" @click="downloadExampleCsv">CSV Example Table</button>
-      <router-link v-bind:to="'/metabolite_measurements/upload_csv'"><button class="ui primary button">CSV Upload</button></router-link>
+      <router-link v-bind:to="'/sample_measurements/upload_csv'"><button class="ui primary button">CSV Upload</button></router-link>
     </div>
     <vuetable ref="vuetable"
-      :api-url="this.$baseUrl() + '/metabolite_measurements/vue_table'"
+      :api-url="this.$baseUrl() + '/sample_measurements/vue_table'"
       :fields="fields"
       pagination-path=""
       :per-page="20"
-      detail-row-component="metabolite_measurement-detail-row"
+      detail-row-component="sample_measurement-detail-row"
       :appendParams="moreParams"
       @vuetable:pagination-data="onPaginationData"
       @vuetable:cell-clicked="onCellClicked"
@@ -32,8 +32,8 @@
 import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
-import metabolite_measurementCustomActions from './metabolite_measurementCustomActions.vue'
-import metabolite_measurementDetailRow from './metabolite_measurementDetailRow.vue'
+import sample_measurementCustomActions from './sample_measurementCustomActions.vue'
+import sample_measurementDetailRow from './sample_measurementDetailRow.vue'
 import FilterBar from './FilterBar.vue'
 
 import axios from 'axios'
@@ -42,8 +42,8 @@ import Vue from 'vue'
 import VueEvents from 'vue-events'
 Vue.use(VueEvents)
 
-Vue.component('metabolite_measurement-custom-actions', metabolite_measurementCustomActions)
-Vue.component('metabolite_measurement-detail-row', metabolite_measurementDetailRow)
+Vue.component('sample_measurement-custom-actions', sample_measurementCustomActions)
+Vue.component('sample_measurement-detail-row', sample_measurementDetailRow)
 Vue.component('filter-bar', FilterBar)
 
 export default {
@@ -51,7 +51,7 @@ export default {
     Vuetable,
     VuetablePagination,
     VuetablePaginationInfo,
-    metabolite_measurementDetailRow
+    sample_measurementDetailRow
   },
   data() {
     return {
@@ -69,12 +69,12 @@ export default {
         //  dataClass: 'center aligned'
         //},
                   {
-            name: 'metabolite',
-            sortField: 'metabolite'
+            name: 'variable',
+            sortField: 'variable'
           },
                   {
-            name: 'amount',
-            sortField: 'amount'
+            name: 'value',
+            sortField: 'value'
           },
                   {
             name: 'unit',
@@ -85,7 +85,7 @@ export default {
             sortField: 'is_average'
           },
                 {
-          name: '__component:metabolite_measurement-custom-actions',
+          name: '__component:sample_measurement-custom-actions',
           title: 'Actions',
           titleClass: 'center aligned',
           dataClass: 'center aligned'
@@ -117,9 +117,9 @@ export default {
       Vue.nextTick(() => this.$refs.vuetable.refresh())
     },
     onDelete () {
-      if (window.confirm("Do you really want to delete metabolite_measurements of ids '" + this.$refs.vuetable.selectedTo.join("; ") + "'?")) {
+      if (window.confirm("Do you really want to delete sample_measurements of ids '" + this.$refs.vuetable.selectedTo.join("; ") + "'?")) {
         var t = this;
-        var url = this.$baseUrl()() + '/metabolite_measurement/' + this.$refs.vuetable.selectedTo.join("/")
+        var url = this.$baseUrl()() + '/sample_measurement/' + this.$refs.vuetable.selectedTo.join("/")
         axios.delete(url, {
           headers: {
             'authorization': `Bearer ${t.$getAuthToken()}`,
@@ -134,7 +134,7 @@ export default {
     },
     onCsvExport () {
       var t = this;
-      var url = this.$baseUrl()() + '/metabolite_measurements/example_csv' + '?array=[' + this.$refs.vuetable.selectedTo.join(",") + ']'
+      var url = this.$baseUrl()() + '/sample_measurements/example_csv' + '?array=[' + this.$refs.vuetable.selectedTo.join(",") + ']'
       
       axios.get(url, {
         headers: {
@@ -149,7 +149,7 @@ export default {
         var blob = new Blob([response.data], {type: "octet/stream"});
         var url = window.URL.createObjectURL(blob);
         a.href = url;
-        a.download = 'metabolite_measurement' + '.csv';
+        a.download = 'sample_measurement' + '.csv';
         a.click();
         window.URL.revokeObjectURL(url);
       }).catch(function (error) {
@@ -158,7 +158,7 @@ export default {
     },
     downloadExampleCsv: function() {
       var t = this
-      axios.get(t.$baseUrl() + '/metabolite_measurements/example_csv', {
+      axios.get(t.$baseUrl() + '/sample_measurements/example_csv', {
         headers: {
           'authorization': `Bearer ${t.$getAuthToken()}`,
           'Accept': 'application/json'
@@ -168,7 +168,7 @@ export default {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'metabolite_measurements.csv');
+        link.setAttribute('download', 'sample_measurements.csv');
         document.body.appendChild(link);
         link.click();
       }).catch(res => {

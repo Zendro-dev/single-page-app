@@ -14,10 +14,6 @@ import individuals from '@/components/individuals'
 import individualCreate from '@/components/individualCreateForm'
 import individualEdit from '@/components/individualEditForm'
 import individualUploadCsv from '@/components/individualUploadCsvForm'
-import metabolite_measurements from '@/components/metabolite_measurements'
-import metabolite_measurementCreate from '@/components/metabolite_measurementCreateForm'
-import metabolite_measurementEdit from '@/components/metabolite_measurementEditForm'
-import metabolite_measurementUploadCsv from '@/components/metabolite_measurementUploadCsvForm'
 import microbiome_otus from '@/components/microbiome_otus'
 import microbiome_otuCreate from '@/components/microbiome_otuCreateForm'
 import microbiome_otuEdit from '@/components/microbiome_otuEditForm'
@@ -34,10 +30,10 @@ import samples from '@/components/samples'
 import sampleCreate from '@/components/sampleCreateForm'
 import sampleEdit from '@/components/sampleEditForm'
 import sampleUploadCsv from '@/components/sampleUploadCsvForm'
-import sample_to_metabolite_measurements from '@/components/sample_to_metabolite_measurements'
-import sample_to_metabolite_measurementCreate from '@/components/sample_to_metabolite_measurementCreateForm'
-import sample_to_metabolite_measurementEdit from '@/components/sample_to_metabolite_measurementEditForm'
-import sample_to_metabolite_measurementUploadCsv from '@/components/sample_to_metabolite_measurementUploadCsvForm'
+import sample_measurements from '@/components/sample_measurements'
+import sample_measurementCreate from '@/components/sample_measurementCreateForm'
+import sample_measurementEdit from '@/components/sample_measurementEditForm'
+import sample_measurementUploadCsv from '@/components/sample_measurementUploadCsvForm'
 import taxons from '@/components/taxons'
 import taxonCreate from '@/components/taxonCreateForm'
 import taxonEdit from '@/components/taxonEditForm'
@@ -46,6 +42,10 @@ import transcript_counts from '@/components/transcript_counts'
 import transcript_countCreate from '@/components/transcript_countCreateForm'
 import transcript_countEdit from '@/components/transcript_countEditForm'
 import transcript_countUploadCsv from '@/components/transcript_countUploadCsvForm'
+import sample_to_sample_measurements from '@/components/sample_to_sample_measurements'
+import sample_to_sample_measurementCreate from '@/components/sample_to_sample_measurementCreateForm'
+import sample_to_sample_measurementEdit from '@/components/sample_to_sample_measurementEditForm'
+import sample_to_sample_measurementUploadCsv from '@/components/sample_to_sample_measurementUploadCsvForm'
 
 Vue.use(Router)
 
@@ -118,26 +118,6 @@ var routes = [{
     path: '/individual',
     name: 'individualCreate',
     component: individualCreate,
-  },
-  {
-    path: '/metabolite_measurements',
-    name: 'metabolite_measurements',
-    component: metabolite_measurements,
-  },
-  {
-    path: '/metabolite_measurement/:id',
-    name: 'metabolite_measurementEdit',
-    component: metabolite_measurementEdit,
-  },
-  {
-    path: '/metabolite_measurements/upload_csv',
-    name: 'metabolite_measurementUploadCsv',
-    component: metabolite_measurementUploadCsv
-  },
-  {
-    path: '/metabolite_measurement',
-    name: 'metabolite_measurementCreate',
-    component: metabolite_measurementCreate,
   },
   {
     path: '/microbiome_otus',
@@ -220,24 +200,24 @@ var routes = [{
     component: sampleCreate,
   },
   {
-    path: '/sample_to_metabolite_measurements',
-    name: 'sample_to_metabolite_measurements',
-    component: sample_to_metabolite_measurements,
+    path: '/sample_measurements',
+    name: 'sample_measurements',
+    component: sample_measurements,
   },
   {
-    path: '/sample_to_metabolite_measurement/:id',
-    name: 'sample_to_metabolite_measurementEdit',
-    component: sample_to_metabolite_measurementEdit,
+    path: '/sample_measurement/:id',
+    name: 'sample_measurementEdit',
+    component: sample_measurementEdit,
   },
   {
-    path: '/sample_to_metabolite_measurements/upload_csv',
-    name: 'sample_to_metabolite_measurementUploadCsv',
-    component: sample_to_metabolite_measurementUploadCsv
+    path: '/sample_measurements/upload_csv',
+    name: 'sample_measurementUploadCsv',
+    component: sample_measurementUploadCsv
   },
   {
-    path: '/sample_to_metabolite_measurement',
-    name: 'sample_to_metabolite_measurementCreate',
-    component: sample_to_metabolite_measurementCreate,
+    path: '/sample_measurement',
+    name: 'sample_measurementCreate',
+    component: sample_measurementCreate,
   },
   {
     path: '/taxons',
@@ -278,6 +258,26 @@ var routes = [{
     path: '/transcript_count',
     name: 'transcript_countCreate',
     component: transcript_countCreate,
+  },
+  {
+    path: '/sample_to_sample_measurements',
+    name: 'sample_to_sample_measurements',
+    component: sample_to_sample_measurements,
+  },
+  {
+    path: '/sample_to_sample_measurement/:id',
+    name: 'sample_to_sample_measurementEdit',
+    component: sample_to_sample_measurementEdit,
+  },
+  {
+    path: '/sample_to_sample_measurements/upload_csv',
+    name: 'sample_to_sample_measurementUploadCsv',
+    component: sample_to_sample_measurementUploadCsv
+  },
+  {
+    path: '/sample_to_sample_measurement',
+    name: 'sample_to_sample_measurementCreate',
+    component: sample_to_sample_measurementCreate,
   }
 ];
 
