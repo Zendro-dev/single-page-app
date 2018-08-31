@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <side-nav> </side-nav>
+    <app-nav></app-nav>
+      <div v-if="isLoggedIn()">
+        <side-nav> </side-nav>
+      </div>
       <div class="main">
         <router-view></router-view>
       </div>
@@ -9,10 +12,20 @@
 
 <script>
 import sideNav from '@/components/SideNav'
+import appNav from '@/components/AppNav'
+
+import { isLoggedIn } from './auth'
+
 export default {
   name: 'app',
   components: {
-    sideNav
+    sideNav,
+    appNav
+  },
+  methods: {
+    isLoggedIn () {
+      return isLoggedIn()
+    }
   }
 }
 </script>
@@ -31,7 +44,7 @@ export default {
 
 .main {
     margin-left: 280px; /* Same as the width of the sidenav */
-    overflow: scroll;
+    overflow: auto;
 }
 
 
