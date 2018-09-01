@@ -1,16 +1,29 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import childPaths from './routes_index'
 import Home from '@/components/Home'
 import Callback from '@/components/callback'
+import Login from '@/components/Login'
+import { requireAuth } from '../auth'
 
 Vue.use(Router)
 
-var routes = [
+childPaths.push(
   {
     path: '/home',
-    name: 'home',
-    component: Home,
+    name: 'Home',
+    component: Home
+  }
+)
+
+var routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    beforeEnter: requireAuth,
+    component: Login,
+    children : childPaths
   },
   {
     path: '/callback',
