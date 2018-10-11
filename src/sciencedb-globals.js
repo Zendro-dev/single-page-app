@@ -1,6 +1,8 @@
 module.exports.install = function(Vue, options) {
   Vue.prototype.$baseUrl = function() {
-    return "http://213.136.88.239:3000"
+    console.log(process.env.AUTH0_CLIENT_ID);
+    console.log(process.env.MY_SERVER_URL);
+    return process.env.MY_SERVER_URL;
   }
   Vue.prototype.$defaultDateFormat = function() {
     return "yy-mm-dd"
