@@ -1,4 +1,4 @@
-# science_db_gui
+# Single Page App (skeleton)
 
 > A Vue.js project
 
@@ -11,7 +11,7 @@ MY_SERVER_URL
 ```
 First three variables will be the ones provided by your auth0 configuration. For more details on how to cofigure your app with auth0 see [HERE](https://auth0.com/docs/quickstart/spa/vuejs#configure-auth0)
 
-`MY_SERVER_URL` is the url where your backend server will be running. For more details on how to generate the code for the server see [HERE](https://github.com/ScienceDb/server-graphql-sequelize).
+`MY_SERVER_URL` is the url where your backend server will be running. For more details on how to generate the code for the server see [HERE](https://github.com/ScienceDb/graphql-server).
 
 
 ## Build Setup
