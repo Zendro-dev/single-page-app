@@ -1,10 +1,21 @@
 <template>
   <div id="app">
-    <app-nav></app-nav>
-      <div v-if="isLoggedIn()">
-        <side-nav> </side-nav>
+  <!--  <app-nav></app-nav>
+      <div v-if="!isLoggedIn">
+        <login-vuex> </login-vuex>
       </div>
-      <div class="main">
+-->
+      <div v-if="isLoggedIn">
+          <button class="logout" v-on:click="logout">Logout</button>
+      </div>
+
+
+      <div v-if="isLoggedIn">
+        <side-nav> </side-nav>
+
+      </div>
+
+      <div  class="main">
         <router-view></router-view>
       </div>
   </div>
@@ -12,21 +23,31 @@
 
 <script>
 import sideNav from '@/components/SideNav'
-import appNav from '@/components/AppNav'
+//import appNav from '@/components/AppNav'
+import loginVuex from '@/components/LoginVuex'
 
-import { isLoggedIn } from './auth'
+import store from './store'
 
 export default {
   name: 'app',
   components: {
     sideNav,
-    appNav
+    //appNav,
+    loginVuex
+  },
+  computed : {
+    isLoggedIn : function(){
+      return this.$store.getters.isLoggedIn;
+    }
   },
   methods: {
-    isLoggedIn () {
-      return isLoggedIn()
-    }
+  logout: function() {
+    this.$store.dispatch('auth_logout')
+    .then(() => {
+      this.$router.push('/')
+    })
   }
+}
 }
 </script>
 
@@ -47,5 +68,10 @@ export default {
     overflow: auto;
 }
 
+.logout{
+  position: absolute;
+  top: 20px;
+  right : 20px;
+}
 
 </style>

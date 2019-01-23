@@ -6,6 +6,7 @@ import App from './App'
 import path from 'path'
 import fs from 'fs'
 import ScienceDbGlobals from './sciencedb-globals.js'
+import  store from './store'
 
 Vue.use(ScienceDbGlobals);
 
@@ -14,6 +15,7 @@ Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   template: '<App/>',
   components: { App }
