@@ -12,7 +12,6 @@
 
       <div v-if="isLoggedIn">
         <side-nav> </side-nav>
-
       </div>
 
       <div  class="main">
@@ -25,6 +24,7 @@
 import sideNav from '@/components/SideNav'
 //import appNav from '@/components/AppNav'
 import loginVuex from '@/components/LoginVuex'
+import axios from 'axios'
 
 import store from './store'
 
@@ -47,6 +47,21 @@ export default {
       this.$router.push('/')
     })
   }
+},
+
+created: function () {
+  axios.interceptors.response.use(undefined, function (err) {
+    return new Promise(function (resolve, reject) {
+      if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+      // if you ever get an unauthorized, logout the user
+        this.$store.dispatch('auth_logout')
+        .then(()=>{
+          this.$router.push('/')
+        })
+      }
+      throw err;
+    });
+  });
 }
 }
 </script>

@@ -7,6 +7,13 @@ import path from 'path'
 import fs from 'fs'
 import ScienceDbGlobals from './sciencedb-globals.js'
 import  store from './store'
+import axios from 'axios'
+
+//when refreshing the page re-set tokin in axios
+const token = localStorage.getItem('token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] =  'Bearer '+token;
+}
 
 Vue.use(ScienceDbGlobals);
 

@@ -1,12 +1,8 @@
 import axios from 'axios'
 
-export default function({url, query, variables, token }){
+export default function({url, query, variables}){
   return axios.post(url,{
     query:query,
-    variables:variables,
-    headers: {
-      'authorization': `Bearer ${token}`,
-      'Accept': 'application/graphql'
-    }
+    variables:variables
   })
 }

@@ -52,8 +52,12 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  console.log("FROM beforeEach",to)
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    console.log("FROM beforeEach matched",to)
+    console.log("STATUS",store.getters.authStatus)
     if (store.getters.isLoggedIn) {
+      console.log("FROM loggedIn",to)
       next()
       return
     }
