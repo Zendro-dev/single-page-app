@@ -6,19 +6,7 @@ import Home from '@/components/Home'
 import LoginVuex from '@/components/LoginVuex'
 import store from '../store' //  vuex store
 
-import Restricted from '@/components/Restricted'
-
 Vue.use(Router)
-
-// childPaths.push(
-//   {
-//     path: '/home',
-//     name: 'Home',
-//     component: Home
-//   }
-// )
-
-
 
 let routes = [
   {
@@ -31,15 +19,6 @@ let routes = [
     path: '/',
     name: 'Login',
     component: LoginVuex
-  },
-
-  {
-    path: '/restricted',
-    name: 'Restricted',
-    component: Restricted,
-    meta:{
-      requiresAuth : true
-    }
   }
 
 ];
@@ -52,12 +31,8 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log("FROM beforeEach",to)
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    console.log("FROM beforeEach matched",to)
-    console.log("STATUS",store.getters.authStatus)
     if (store.getters.isLoggedIn) {
-      console.log("FROM loggedIn",to)
       next()
       return
     }
