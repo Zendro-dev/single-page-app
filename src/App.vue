@@ -9,6 +9,9 @@
           <button class="logout" v-on:click="logout">Logout</button>
       </div>
 
+      <general-message v-if="flag_global_error" :type="'danger'" :errors="errors" v-on:click.native = "closeErrors">
+
+      </general-message>
 
       <div v-if="isLoggedIn">
         <side-nav> </side-nav>
@@ -24,16 +27,24 @@
 import sideNav from '@/components/SideNav'
 //import appNav from '@/components/AppNav'
 import loginVuex from '@/components/LoginVuex'
+import generalMessage from '@/components/generalMessage'
 import axios from 'axios'
 
 import store from './store'
 
 export default {
   name: 'app',
+  data(){
+    return {
+      flag_global_error : false,
+      errors : []
+    }
+  },
   components: {
     sideNav,
     //appNav,
-    loginVuex
+    loginVuex,
+    generalMessage
   },
   computed : {
     isLoggedIn : function(){
@@ -46,23 +57,36 @@ export default {
     .then(() => {
       this.$router.push('/')
     })
+  },
+
+  setErrors: function(errors){
+    console.log(typeof errors, errors)
+    this.flag_global_error = true;
+    this.errors = errors;
+  },
+
+  closeErrors: function(){
+    this.flag_global_error = false;
+    this.errors = [];
   }
 },
 
 created: function () {
-  axios.interceptors.response.use(undefined, function (err) {
-    return new Promise(function (resolve, reject) {
-      if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
-      // if you ever get an unauthorized, logout the user
-        this.$store.dispatch('auth_logout')
-        .then(()=>{
-          this.$router.push('/')
-        })
-      }
-      throw err;
+    axios.interceptors.response.use(undefined, function (err) {
+      return new Promise(function (resolve, reject) {
+        if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+        // if you ever get an unauthorized, logout the user
+          this.$store.dispatch('auth_logout')
+          .then(()=>{
+            this.$router.push('/')
+          })
+        }
+        throw err;
+      });
     });
-  });
-}
+
+    this.$root.$on('globalError', this.setErrors)
+  }
 }
 </script>
 
