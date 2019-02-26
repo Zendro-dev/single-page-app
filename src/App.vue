@@ -74,9 +74,9 @@ export default {
 created: function () {
     axios.interceptors.response.use(undefined, function (err) {
       return new Promise(function (resolve, reject) {
-        if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+        if (err.response && err.response.data && err.response.data.status === 401  && err.response.data.name === 'UnauthorizedError') {
         // if you ever get an unauthorized, logout the user
-          this.$store.dispatch('auth_logout')
+            store.dispatch('auth_logout')
           .then(()=>{
             this.$router.push('/')
           })
