@@ -9,6 +9,9 @@
           <button class="logout" v-on:click="logout">Logout</button>
       </div>
 
+
+      <login-vuex v-if="!isLoggedIn"> </login-vuex>
+
       <general-message v-if="flag_global_error" :type="'danger'" :errors="errors" v-on:click.native = "closeErrors">
 
       </general-message>
@@ -48,7 +51,7 @@ export default {
   },
   computed : {
     isLoggedIn : function(){
-      return this.$store.getters.isLoggedIn;
+      return this.$store.getters.isLoggedIn && !this.$store.getters.isExpired;
     }
   },
   methods: {
