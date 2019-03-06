@@ -23,10 +23,13 @@ export default {
   },
   methods: {
    login: function () {
-     const { email, password } = this
-     console.log(email, password);
-     this.$store.dispatch('auth_request', { email, password }).then((res) => {
-       console.log("FROM LOGIN COMPONENT", res)
+     let data_to_send = {
+       email: this.email,
+       password: this.password,
+       login_url: this.$loginUrl()
+     }
+     
+     this.$store.dispatch('auth_request', data_to_send).then((res) => {
        this.$router.push('/home')
      }).catch(err=>{
        this.email = "";
