@@ -12,7 +12,10 @@ let routes = [
   {
     path: '/home',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: {
+      requiresAuth: true
+    }
   }
   // ,
   // {
