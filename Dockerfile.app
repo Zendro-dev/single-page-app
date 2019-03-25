@@ -8,7 +8,6 @@ COPY . .
 
 # Clone the skeleton App project and install dependencies
 RUN apk update && \
- apk add git && apk add bash && \
- npm install npm@6.0.0
+ apk add git && apk add bash
 
 EXPOSE 8080
