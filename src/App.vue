@@ -1,14 +1,8 @@
 <template>
   <div id="app">
-  <!--  <app-nav></app-nav>
-      <div v-if="!isLoggedIn">
-        <login-vuex> </login-vuex>
-      </div>
--->
       <div v-if="isLoggedIn">
           <button class="logout" v-on:click="logout">Logout</button>
       </div>
-
 
       <login-vuex v-if="!isLoggedIn"> </login-vuex>
 
@@ -18,10 +12,10 @@
 
       <div v-if="isLoggedIn">
         <side-nav> </side-nav>
-      </div>
 
-      <div  class="main">
-        <router-view></router-view>
+        <div class="main">
+          <router-view></router-view>
+        </div>
       </div>
   </div>
 </template>
