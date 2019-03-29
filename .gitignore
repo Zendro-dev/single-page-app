@@ -5,3 +5,4 @@ npm-debug.log
 .idea
 .idea
 .vscode-upload.json
+*.tar.bz2
