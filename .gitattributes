@@ -1,2 +1,8 @@
 * text eol=lf
-/static/**/* binary
+*.png binary
+*.pdf binary
+*.gif binary
+*.jpg binary
+*.svg binary
+./src/assets/**/* binary
+./public/**/* binary
