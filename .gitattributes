@@ -4,5 +4,9 @@
 *.gif binary
 *.jpg binary
 *.svg binary
+*.eot binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
 ./src/assets/**/* binary
 ./public/**/* binary
