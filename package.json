@@ -1,6 +1,7 @@
 {
-  "name": "gay",
+  "name": "ScienceDb-single-page-app",
   "version": "0.1.0",
+  "repository": "https://github.com/ScienceDb/single-page-app",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
