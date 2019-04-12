@@ -4,9 +4,9 @@
 
 ### Environment variables
 
-* `MY_SERVER_URL` - url where your backend server will be running, default value is `http://localhost:3000/graphql`
-* `MY_LOGIN_URL` - url where your backend will check authentication, default value is `http://localhost:3000/login`.
-* `MAX_UPLOAD_SIZE`- maximum size(in MB) of a file intended to be uploaded, default value is `500`, which means that user can not upload a file larger than 500MB.
+* `VUE_APP_SERVER_URL` - url where your backend server will be running, default value is `http://localhost:3000/graphql`
+* `VUE_APP_LOGIN_URL` - url where your backend will check authentication, default value is `http://localhost:3000/login`.
+* `VUE_APP_MAX_UPLOAD_SIZE`- maximum size(in MB) of a file intended to be uploaded, default value is `500`, which means that user can not upload a file larger than 500MB.
 * `PORT` - for dev mode, this variable allows to modify the port where the app will be listening, default value is 8080.
 
 
