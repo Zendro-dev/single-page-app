@@ -7,5 +7,8 @@ module.exports = {
       .tap(options => Object.assign(options, {
         limit: 31000
       }))
+  },
+  devServer: {
+    disableHostCheck: true
   }
 }
