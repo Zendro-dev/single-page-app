@@ -9,7 +9,7 @@
       <v-row justify="center">
         <v-col :cols="cols" :sm="smCols" :md="mdCols">
           <v-snackbar v-model="snackbar" color="error" multi-line :timeout="6000" top>
-            The credentials you provided are not correct
+            {{snackbarText}}
             <v-btn
               class="mx-2"
               color="error"
@@ -88,6 +88,7 @@ export default {
 
       //snackbar props
       snackbar: false,
+      snackbarText: "",
 
       //layout props
       cols: 12,
@@ -111,6 +112,16 @@ export default {
           this.$router.push("/home");
         })
         .catch(err => {
+          if(err.message == "Network Error")
+          {
+            //set error msg
+            this.snackbarText = "Sorry, the server could not be reached, please make sure that it's up and ready.";
+          }
+          else{
+            //set error msg
+            this.snackbarText = "The credentials you provided are not correct";
+          }
+
           //show snackbar
           this.snackbar = "true";
           //set focus on password
