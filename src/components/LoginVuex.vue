@@ -9,10 +9,19 @@
      <hr/>
      <button type="submit">Login</button>
    </form>
+
+   <div id="react-root"></div>
+
  </div>
 </template>
 
 <script>
+
+ReactDOM.render(
+  <h1>Hello, world!</h1>,
+  document.getElementById('react-root')
+);
+
 export default {
   name: 'login-vuex',
   data() {
