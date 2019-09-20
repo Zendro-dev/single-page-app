@@ -10,17 +10,18 @@
      <button type="submit">Login</button>
    </form>
 
+    <!-- React: root -->
    <div id="react-root"></div>
 
  </div>
 </template>
 
 <script>
-
-ReactDOM.render(
-  <h1>Hello, world!</h1>,
-  document.getElementById('react-root')
-);
+/*
+  React support
+*/
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 export default {
   name: 'login-vuex',
@@ -29,6 +30,15 @@ export default {
       email: "",
       password: ""
     }
+  },
+  mounted() {
+    /*
+      React support
+    */
+    ReactDOM.render(
+      React.createElement("h1", null, "Hello, world!"),
+      document.getElementById('react-root')
+    );
   },
   methods: {
    login: function () {
