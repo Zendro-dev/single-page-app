@@ -33,7 +33,7 @@ export default {
   },
   mounted() {
     /*
-      React support
+      React render
     */
     ReactDOM.render(
       React.createElement("h1", null, "Hello, world!"),
