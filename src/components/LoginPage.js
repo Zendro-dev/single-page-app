@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from "react-router-dom";
 
 /*
-  Import Material-UI components
+  Material-UI components
 */
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
@@ -161,11 +161,11 @@ function LoginPage({ dispatch }) {
                                         .then(
                                             //dispatch ok
                                             authSuccess => {
-                                                if (authSuccess) {
-                                                    history.push("/home");
+                                                if (authSuccess === "loginSuccess") {
+                                                    history.push("/main/home");
                                                 }
                                                 else {
-                                                    history.push("/home");
+                                                    //show err msg
                                                 }
                                                 console.log("authRequest: msg: ", authSuccess);
                                             },

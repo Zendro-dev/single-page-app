@@ -8,6 +8,7 @@ import decode from 'jwt-decode';
 export const LOGIN_REQ = 'LOGIN_REQ';
 export const LOGIN_OK = 'LOGIN_OK';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
+export const LOGOUT = 'LOGOUT';
 
 /*
   Action creators
@@ -31,15 +32,14 @@ const loginFail = (user, error) => ({
   error
 });
 
+const logout = () => ({
+  type: LOGOUT
+});
+
 /*
   Thunks
 */
 export function authRequest(user, password) {
-
-  /**
-     * Debug
-     */
-    console.log("onAuthRequest.init: user: ", user);
 
   return function (dispatch, getState) {
     /**
@@ -76,29 +76,50 @@ export function authRequest(user, password) {
         response => {
           //get token
           const token = response.data.token;
+          var decoded_token = null;
+
+          /*
+            Decode JWT
+          */ 
+          try {
+
+            decoded_token = decode(token);
+            console.log("decoded_token: ok: ", decoded_token);
+          }
+          catch(err) { //bad token
+            
+            //clean up token
+            localStorage.removeItem('token');
+            localStorage.removeItem('expirationDate');
+
+            /*
+              Dispatch loginFail action: 
+              State is updated to inform that login was failed.
+            */
+            dispatch(loginFail(user, err));
+
+            return "loginError";
+          } //JWT decoded ok
+
           //save token on local storage
           localStorage.setItem('token', token);
           //set token on axios headers
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-
           //set expiration date
           let date = null;
-          const decoded_token = decode(token);
-
           if (decoded_token.exp) {
             date = new Date(0);
             date.setUTCSeconds(decoded_token.exp);
           }
           //save expiration date on local storage
           localStorage.setItem('expirationDate', date);
-
           /*
             Dispatch loginOk action: 
             State is updated to inform that login was successful.
           */
           dispatch(loginOk(user, token, date));
 
-          return "ok";
+          return "loginSuccess";
         },
         //on login fail handler
         err => {
@@ -118,7 +139,7 @@ export function authRequest(user, password) {
           */
           dispatch(loginFail(user, err));
 
-          return "not-ok";
+          return "loginError";
         });
     // Do not use catch, because that will also catch
     // any errors in the dispatch and resulting render,
@@ -127,3 +148,18 @@ export function authRequest(user, password) {
   }
 
 }//end: authRequest()
+
+export function logoutRequest() {
+
+  return function (dispatch) {
+    /*
+      Dispatch logout action: 
+      State is cleared.
+    */
+  dispatch(logout());
+
+  //clean up token
+  localStorage.removeItem('token');
+  localStorage.removeItem('expirationDate');
+  }
+}

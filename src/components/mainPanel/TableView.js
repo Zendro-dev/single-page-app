@@ -1,7 +1,11 @@
 import React from "react";
+
+/*
+  Material-UI components
+*/
 import Fade from '@material-ui/core/Fade';
 
-export default function Home() {
+export default function TableView() {
 
     return (
         <Fade in={true} timeout={500}>
@@ -9,9 +13,9 @@ export default function Home() {
                 <br />
                 <br />
                 <br />
-                <h2>Home</h2>
-                <p>Home</p>
-                <p>Home</p>
+                <h2>Table</h2>
+                <p>Table</p>
+                <p>Table</p>
             </div>
         </Fade>
     );

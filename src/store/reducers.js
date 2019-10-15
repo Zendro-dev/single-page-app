@@ -2,7 +2,8 @@ import { combineReducers } from 'redux'
 import {
     LOGIN_REQ,
     LOGIN_OK,
-    LOGIN_FAIL
+    LOGIN_FAIL,
+    LOGOUT
 } from './actions.js'
 
 /*
@@ -27,8 +28,8 @@ function login(
     state = {
         isFetching: false,
         user: '',
-        status: '',
-        token: '',
+        loginStatus: '',
+        token: null,
         expirationDate: null,
         error: null
     }, 
@@ -41,7 +42,7 @@ function login(
                 isFetching: true,
                 user: action.user,
                 loginStatus: 'loading',
-                token: '',
+                token: null,
                 expirationDate: null,
                 error: null
             });
@@ -61,9 +62,19 @@ function login(
                 isFetching: false,
                 user: action.user,
                 loginStatus: 'error',
-                token: '',
+                token: null,
                 expirationDate: null,
                 error: action.error
+            });
+        
+        case LOGOUT:
+            return Object.assign({}, state, {
+                isFetching: false,
+                user: '',
+                loginStatus: '',
+                token: null,
+                expirationDate: null,
+                error: null
             });
 
         default:

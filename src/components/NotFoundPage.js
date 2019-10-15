@@ -1,7 +1,7 @@
 import React from "react";
 import Fade from '@material-ui/core/Fade';
 
-export default function Home() {
+export default function NotFoundPage() {
 
     return (
         <Fade in={true} timeout={500}>
@@ -9,9 +9,9 @@ export default function Home() {
                 <br />
                 <br />
                 <br />
-                <h2>Home</h2>
-                <p>Home</p>
-                <p>Home</p>
+                <h2>404: Page not found</h2>
+                <p>404</p>
+                <p>404</p>
             </div>
         </Fade>
     );
