@@ -127,7 +127,8 @@ export function authRequest(user, password) {
            * Debug
            */
           console.log("ERROR: on authRequest, err: ", err);
-          console.log("ERROR: on authRequest, response:", err.response);
+          console.log("ERROR: on authRequest, err.message: ", err.message);
+          console.log("ERROR: on authRequest, response.data:", err.response);
 
           //remove items from localStorage
           localStorage.removeItem('token');
@@ -139,7 +140,17 @@ export function authRequest(user, password) {
           */
           dispatch(loginFail(user, err));
 
-          return "loginError";
+          //return
+          var errString = '';
+          if(err.response.status !== undefined)
+          {
+            errString = String(err.response.status);
+          }
+          else {
+            errString = err.response;
+          }
+
+          return errString;
         });
     // Do not use catch, because that will also catch
     // any errors in the dispatch and resulting render,
