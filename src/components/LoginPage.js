@@ -231,10 +231,26 @@ function LoginPage({ dispatch }) {
                             });
                             break;
                         
+                        //bad token
+                        case "tokenError":
+                            handleNewSnackbarMessage({
+                                message: 'The token received by server could not be validated.',
+                                variant: 'info',
+                            });
+                            break;
+                        
+                        //connection refused
+                        case "connectionRefused":
+                            handleNewSnackbarMessage({
+                                message: 'Could not connect to server. Please consult your network administrator.',
+                                variant: 'info',
+                            });
+                            break;
+                        
                         //other server error
                         default:
                             handleNewSnackbarMessage({
-                                message: 'An error occurred while trying to contact the server. Please consult your network administrator.',
+                                message: 'An error occurred while trying to contact the server. Please contact your administrator.',
                                 variant: 'info',
                             });
                             break;
@@ -244,7 +260,7 @@ function LoginPage({ dispatch }) {
                 //dispatch failed
                 err => {
                     handleNewSnackbarMessage({
-                        message: 'An error occurred while trying to contact the server. Please consult your network administrator.',
+                        message: 'An error occurred while trying to contact the server. Please contact your administrator.',
                         variant: 'info',
                     });
                 }

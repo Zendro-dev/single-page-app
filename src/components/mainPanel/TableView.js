@@ -1,22 +1,33 @@
-import React from "react";
+import React from 'react';
+import { 
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from 'react-router-dom'
 
-/*
-  Material-UI components
-*/
-import Fade from '@material-ui/core/Fade';
+//components
+import RoleTable from './admin/RoleTable'
+import NotFoundSection from '../NotFoundSection'
 
-export default function TableView() {
 
-    return (
-        <Fade in={true} timeout={500}>
-            <div>
-                <br />
-                <br />
-                <br />
-                <h2>Table</h2>
-                <p>Table</p>
-                <p>Table</p>
-            </div>
-        </Fade>
-    );
+function TableView() {
+  return (
+    <Router>
+          <div>
+              <Switch>
+                  
+                  <Route exact path="/main/admin/role">
+                      <RoleTable />
+                  </Route>
+
+                  <Route path="/main/admin">
+                      <NotFoundSection />
+                  </Route>
+
+              </Switch>
+          </div>
+      </Router>
+  );
 }
+
+export default TableView;

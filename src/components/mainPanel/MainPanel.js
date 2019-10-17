@@ -107,6 +107,8 @@ function MainPanel({ dispatch }) {
     const [openDrawer, setOpenDrawer] = useState(true);
     const [openModelsList, setOpenModelsList] = useState(true);
     const [modelsList, setModelsList] = useState([]);
+    const [openAdminList, setOpenAdminList] = useState(true);
+    const adminList = [ 'user', 'role', 'role_to_user' ];
     let history = useHistory();
 
     //hook:
@@ -133,11 +135,14 @@ function MainPanel({ dispatch }) {
         setOpenModelsList(!openModelsList);
     };
 
+    const handleAdminListClick = () => {
+        setOpenAdminList(!openAdminList);
+    };
+
     /*
       Methods
     */
    function updateModelList() {
-       console.debug("onUpdateModelList")
        setModelsList(['Model1', 'Model2', 'Model3']);
    }
 
@@ -220,6 +225,31 @@ function MainPanel({ dispatch }) {
                 <Collapse in={openModelsList} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                         {modelsList.map((text, index) => (
+                            <ListItem button className={classes.nested} key={text}>
+                                <ListItemIcon>
+                                    <CircleIcon color="primary"/>
+                                </ListItemIcon>
+                                <ListItemText primary={text} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Collapse>
+
+                <Divider />
+
+                {/* 
+                    Admin List 
+                */}
+                <ListItem button onClick={handleAdminListClick}>
+                    <ListItemIcon>
+                        <ModelsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Admin" />
+                    {openAdminList ? <ExpandLess /> : <ExpandMore />}
+                </ListItem>
+                <Collapse in={openAdminList} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {adminList.map((text, index) => (
                             <ListItem button className={classes.nested} key={text}>
                                 <ListItemIcon>
                                     <CircleIcon color="primary"/>

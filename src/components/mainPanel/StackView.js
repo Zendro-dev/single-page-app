@@ -24,7 +24,7 @@ function StackView() {
                       <HomePage />
                   </Route>
 
-                  <Route exact path="/main/tableView">
+                  <Route path="/main/admin">
                       <TableVIew />
                   </Route>
 

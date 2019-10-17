@@ -84,7 +84,6 @@ export function authRequest(user, password) {
           try {
 
             decoded_token = decode(token);
-            console.log("decoded_token: ok: ", decoded_token);
           }
           catch(err) { //bad token
             
@@ -98,7 +97,7 @@ export function authRequest(user, password) {
             */
             dispatch(loginFail(user, err));
 
-            return "loginError";
+            return "tokenError";
           } //JWT decoded ok
 
           //save token on local storage
@@ -140,17 +139,17 @@ export function authRequest(user, password) {
           */
           dispatch(loginFail(user, err));
 
-          //return
-          var errString = '';
-          if(err.response.status !== undefined)
-          {
-            errString = String(err.response.status);
-          }
-          else {
-            errString = err.response;
-          }
+          /*
+            Get status (todo: fix this)
+          */
+         let errStatus = err.response.status;
 
-          return errString;
+         if(errStatus !== undefined) {
+           return String(errStatus);
+         }
+         else {
+           return 'connectionRefused';
+         }
         });
     // Do not use catch, because that will also catch
     // any errors in the dispatch and resulting render,
