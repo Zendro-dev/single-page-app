@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 */
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Fade from '@material-ui/core/Fade';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -27,7 +28,8 @@ import Collapse from '@material-ui/core/Collapse';
 import HomeIcon from '@material-ui/icons/HomeOutlined';
 //import ModelsIcon from '@material-ui/icons/SelectAllOutlined';
 import ModelsIcon from '@material-ui/icons/BubbleChart';
-import CircleIcon from '@material-ui/icons/FiberManualRecordOutlined';
+import CircleIconOutlined from '@material-ui/icons/FiberManualRecordOutlined';
+import CircleIconFilled from '@material-ui/icons/FiberManualRecord';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
@@ -108,15 +110,38 @@ function MainPanel({ dispatch }) {
     const [openModelsList, setOpenModelsList] = useState(true);
     const [modelsList, setModelsList] = useState([]);
     const [openAdminList, setOpenAdminList] = useState(true);
-    const adminList = [ 'user', 'role', 'role_to_user' ];
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [adminItems, setAdminItems] = useState([
+        {
+            id: 0,
+            title: 'user',
+            url: '/main/admin/user',
+        },
+        {
+            id: 1,
+            title: 'role',
+            url: '/main/admin/role',
+        },
+        {
+            id: 2,
+            title: 'role_to_user',
+            url: '/main/admin/role_to_user',
+        }
+    ]);
     let history = useHistory();
 
     //hook:
     useEffect(() => {
+        //this hook behaves as componentDidMount()
+
         /*
           Get model list
+
+          //this would not be needed as table models will be generated.
         */
-       console.debug("onUseEffect: ok")
+        console.debug("onUseEffect: ok");
+        console.log("@props.history: ", history);
+
        updateModelList();
       }, []);
 
@@ -134,7 +159,6 @@ function MainPanel({ dispatch }) {
     const handleModelsListClick = () => {
         setOpenModelsList(!openModelsList);
     };
-
     const handleAdminListClick = () => {
         setOpenAdminList(!openAdminList);
     };
@@ -147,6 +171,7 @@ function MainPanel({ dispatch }) {
    }
 
     return (
+        <Fade in={true} timeout={500}>
         <div className={classes.root}>
             <CssBaseline />
             <AppBar
@@ -227,7 +252,7 @@ function MainPanel({ dispatch }) {
                         {modelsList.map((text, index) => (
                             <ListItem button className={classes.nested} key={text}>
                                 <ListItemIcon>
-                                    <CircleIcon color="primary"/>
+                                    <CircleIconOutlined color="primary"/>
                                 </ListItemIcon>
                                 <ListItemText primary={text} />
                             </ListItem>
@@ -241,20 +266,61 @@ function MainPanel({ dispatch }) {
                     Admin List 
                 */}
                 <ListItem button onClick={handleAdminListClick}>
+                    
+                    {/* 
+                        Icon 
+                    */}
                     <ListItemIcon>
                         <ModelsIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Admin" />
-                    {openAdminList ? <ExpandLess /> : <ExpandMore />}
+                    {/* 
+                        List Item Text & Expand Indicator 
+                    */}
+                    <ListItemText primary="Admin" /> {openAdminList ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
+                {/* 
+                    Collapsing List 
+                */}
                 <Collapse in={openAdminList} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {adminList.map((text, index) => (
-                            <ListItem button className={classes.nested} key={text}>
+                        
+                        {/*
+                            Map ListItems 
+                        */}
+                        {adminItems.map((item) => (
+                            /*
+                              Item
+                            */
+                            <ListItem
+                                button
+                                className={classes.nested}
+                                key={item.id}
+                                onClick={() => {
+
+                                    //set selected index
+                                    setSelectedIndex(item.id);
+
+                                    //push item's url
+                                    console.log("@pushing: ", item.url);
+                                    history.push(item.url);
+
+                                }}
+                                selected={selectedIndex === item.id}
+                            >
+                                {/*
+                                    Item.Icon 
+                                */}
                                 <ListItemIcon>
-                                    <CircleIcon color="primary"/>
+                                    {
+                                        (selectedIndex === item.id) ?
+                                            <CircleIconFilled color="primary" /> :
+                                            <CircleIconOutlined/>
+                                    }
                                 </ListItemIcon>
-                                <ListItemText primary={text} />
+                                {/*
+                                    Item.Text
+                                */}
+                                <ListItemText primary={item.title} />
                             </ListItem>
                         ))}
                     </List>
@@ -271,6 +337,7 @@ function MainPanel({ dispatch }) {
                 <StackView />
             </main>
         </div>
+        </Fade>
     );
 }
 

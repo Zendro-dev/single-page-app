@@ -7,26 +7,22 @@ import {
 
 //components
 import RoleTable from './admin/RoleTable'
+import UserTable from './admin/UserTable'
 import NotFoundSection from '../NotFoundSection'
 
 
 function TableView() {
   return (
-    <Router>
-          <div>
+    
               <Switch>
                   
-                  <Route exact path="/main/admin/role">
-                      <RoleTable />
-                  </Route>
+                  <Route exact path="/main/admin/role" component={RoleTable} />
+                  <Route exact path="/main/admin/user" component={UserTable} />
 
-                  <Route path="/main/admin">
-                      <NotFoundSection />
-                  </Route>
+                  {/* Default */}
+                  <Route exact path="/main/admin/role" component={NotFoundSection} />
 
               </Switch>
-          </div>
-      </Router>
   );
 }
 

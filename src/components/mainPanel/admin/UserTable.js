@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import requestGraphql from '../../../requests/request'
-//import RoleDetailRow from './RoleDetailRow.js'
+//import UserDetailRow from './UserDetailRow.js'
 
 /*
   Material-UI components
@@ -53,7 +53,7 @@ class Table extends React.Component {
             /*
               Table state
             */
-            title: 'Roles',
+            title: 'Users',
             data: [],
             /*
               Dialog state
@@ -72,14 +72,6 @@ class Table extends React.Component {
         //current total items
         this.currentTotalItems = 0;
     }
-
-    
-    componentDidMount() {
-        console.log("on: RoleTable!");
-        console.log("@props: ", this.props);
-        console.log("@props.history: ", this.props.history);
-    }
-
 
     /*
       Render
@@ -119,10 +111,10 @@ class Table extends React.Component {
                     }}
 
                     /*
-                    @headers
-                    ID
-                    Name
-                    Description
+                      @headers
+                      ID
+                      Email
+                      Password
                     */
                     columns={[
                         {
@@ -139,8 +131,8 @@ class Table extends React.Component {
                             sorting: true,
                         },
                         {
-                            title: 'Name',
-                            field: 'name',
+                            title: 'Email',
+                            field: 'email',
                             headerStyle: {
                                 textAlign: 'left',
                                 color: '#000'
@@ -152,8 +144,8 @@ class Table extends React.Component {
                             sorting: true,
                         },
                         {
-                            title: 'Description',
-                            field: 'description',
+                            title: 'Password',
+                            field: 'password',
                             headerStyle: {
                                 textAlign: 'left',
                                 color: '#000'
@@ -190,7 +182,7 @@ class Table extends React.Component {
                                         response.data.data
                                     ) {
                                         //set totalItems
-                                        t.currentTotalItems = response.data.data.countRoles;
+                                        t.currentTotalItems = response.data.data.countUsers;
 
                                         console.log("currentTotalItems: ", t.currentTotalItems);
                                         console.log("query: ", query);
@@ -215,9 +207,9 @@ class Table extends React.Component {
                                                 if (
                                                     response.data &&
                                                     response.data.data &&
-                                                    response.data.data.roles) {
+                                                    response.data.data.users) {
 
-                                                    console.log("items: ", response.data.data.roles);
+                                                    console.log("items: ", response.data.data.users);
 
                                                     //check empty page
                                                     var p = query.page;
@@ -225,7 +217,7 @@ class Table extends React.Component {
                                                         p = query.page - 1;
                                                     }
                                                     resolve({
-                                                        data: response.data.data.roles,
+                                                        data: response.data.data.users,
                                                         page: p,
                                                         totalCount: t.currentTotalItems
                                                     });
@@ -280,10 +272,25 @@ class Table extends React.Component {
                     actions={[
                         {
                             icon: Edit,
-                            tooltip: 'Edit Role',
+                            iconProps: {color: 'primary'},
+                            tooltip: 'Edit User',
                             onClick: (event, rowData) => this.editItem(event, rowData)
                         },
+                        {
+                            icon: Add,
+                            iconProps: {color: 'primary'},
+                            tooltip: 'Add User',
+                            isFreeAction: true,
+                            onClick: (event) => alert("You want to add a new row")
+                        },
                     ]}
+
+                    /*
+                      @options
+                    */
+                    options={{
+                        actionsColumnIndex: -1
+                    }}
 
                     editable={{
                         onRowDelete: oldData => new Promise((resolve, reject) => {
@@ -293,7 +300,7 @@ class Table extends React.Component {
                             Delete item on server
                             */
                             var t = this;
-                            this.deleteRole({
+                            this.deleteUser({
                                 url: this.props.graphqlServerUrl,
                                 variables: { id: oldData.id }
                             })
@@ -383,15 +390,15 @@ class Table extends React.Component {
         if (searchText !== null && searchText !== '') {
             //make search argument
             s = `search: {operator:or, search: [ 
-                            {field:name, value:{value:"%${searchText}%"}, operator:like}, 
-                            {field:description, value:{value:"%${searchText}%"}, operator:like}, 
+                            {field:email, value:{value:"%${searchText}%"}, operator:like}, 
+                            {field:password, value:{value:"%${searchText}%"}, operator:like}, 
                         ]}`
             //make query with search argument
-            query = `{ countRoles(${s}) }`;
+            query = `{ countUsers(${s}) }`;
         }
         else {
             //make query without search argument
-            query = `{ countRoles }`;
+            query = `{ countUsers }`;
         }
 
         //do request
@@ -418,8 +425,8 @@ class Table extends React.Component {
         if (searchText !== null && searchText !== '') {
             s = `search: {
                     operator:or, search: [
-                        {field:name, value:{value:"%${searchText}%"}, operator:like}, 
-                        {field:description, value:{value:"%${searchText}%"}, operator:like}, 
+                        {field:email, value:{value:"%${searchText}%"}, operator:like}, 
+                        {field:password, value:{value:"%${searchText}%"}, operator:like}, 
                     ]
                 }`
         }
@@ -453,10 +460,10 @@ class Table extends React.Component {
                 //query with search & sort & pagination
                 query =
                     `{
-                        roles(${s}, ${o}, ${p}) {
+                        users(${s}, ${o}, ${p}) {
                             id
-                            name 
-                            description 
+                            email 
+                            password 
                         }
                     }`
             }//end: if has order
@@ -465,10 +472,10 @@ class Table extends React.Component {
                 //query with search & pagination
                 query =
                     `{
-                        roles(${s}, ${p}) {
+                        users(${s}, ${p}) {
                             id
-                            name 
-                            description 
+                            email 
+                            password 
                         }
                     }`
             }//end: else: has not order
@@ -480,10 +487,10 @@ class Table extends React.Component {
                 //query with sort & pagination
                 query =
                     `{
-                        roles(${o}, ${p}) {
+                        users(${o}, ${p}) {
                             id
-                            name 
-                            description 
+                            email 
+                            password 
                         }
                     }`
             }//end: if has order
@@ -492,10 +499,10 @@ class Table extends React.Component {
                 //query string with pagination only
                 query =
                     `{
-                        roles(${p}) {
+                        users(${p}) {
                             id
-                            name 
-                            description 
+                            email 
+                            password 
                         }
                     }`
             }//end: else: has not order
@@ -507,10 +514,10 @@ class Table extends React.Component {
         return requestGraphql({ url, query });
     }//end: getItems()
 
-    deleteRole({url, variables, token}){
+    deleteUser({url, variables, token}){
         //make query string
-        let query = `mutation deleteRole($id:ID!) {
-            deleteRole(id:$id)
+        let query = `mutation deleteUser($id:ID!) {
+            deleteUser(id:$id)
         }`
 
         //do request
@@ -536,7 +543,7 @@ class Table extends React.Component {
 
     editItem(event, rowData) {
         //go edit
-        let url = '/role/' + rowData.id;
+        let url = '/user/' + rowData.id;
         this.props.history.push(url);
     }
     /**

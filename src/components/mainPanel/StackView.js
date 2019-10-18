@@ -13,8 +13,6 @@ import NotFoundSection from '../NotFoundSection'
 
 function StackView() {
   return (
-    <Router>
-          <div>
               <Switch>
                   <Route exact path="/main">
                       <HomePage />
@@ -33,8 +31,6 @@ function StackView() {
                   </Route>
 
               </Switch>
-          </div>
-      </Router>
   );
 }
 
