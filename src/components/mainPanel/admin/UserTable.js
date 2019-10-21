@@ -283,6 +283,13 @@ class Table extends React.Component {
                             isFreeAction: true,
                             onClick: (event) => alert("You want to add a new row")
                         },
+                        {
+                            icon: Add,
+                            iconProps: {color: 'primary'},
+                            tooltip: 'Add User',
+                            isFreeAction: true,
+                            onClick: (event) => alert("You want to add a new row")
+                        },
                     ]}
 
                     /*
