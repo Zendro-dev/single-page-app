@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     },
     grid: {
         height: '100vh',
-        width: '100wh'
+        width: '100vw'
     },
     container: {
         display: 'flex',

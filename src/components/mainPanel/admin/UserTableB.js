@@ -27,6 +27,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Card from '@material-ui/core/Card';
@@ -298,12 +299,8 @@ EnhancedTableToolbar.propTypes = {
   Styles
 */
 const useDetailRowStyles = makeStyles({
-  root: {
-    flexGrow: 1,
-    width: '100%',
-  },
-  card: {
-    minWidth: 275,
+  tabs: {
+    maxWidth: '50vw',
   },
   textSecondary: {
     marginBottom: 12,
@@ -348,7 +345,7 @@ function DetailRow(props) {
         aria-labelledby={`scrollable-auto-tab-${index}`}
         {...other}
       >
-        <Box p={3}>{children}</Box>
+        <Box p={3} >{children} </Box>
       </Typography>
     );
   }
@@ -370,12 +367,11 @@ function DetailRow(props) {
       Card
     */
      <Collapse in={ready}>
-      <Card className={classes.card}>
+      <Card>
         {/*
           Card.Content
         */}
         <CardContent>
-
           <Typography variant="h5" component="h2">
             Id
           </Typography>
@@ -402,14 +398,13 @@ function DetailRow(props) {
         <CardActions>
           <Button size="small">Learn More</Button>
         </CardActions>
-      </Card>
 
-      {/*
+        {/*
         Associations Tab Menu 
       */}
-      <div className={classes.root}>
-        <AppBar position="static" color="default">
+      <CardContent>
           <Tabs
+            className={classes.tabs}
             value={value}
             onChange={handleChange}
             indicatorColor="primary"
@@ -417,6 +412,7 @@ function DetailRow(props) {
             variant="scrollable"
             scrollButtons="auto"
             aria-label="scrollable auto tabs example"
+            
           >
             <Tab label="Item One" {...a11yProps(0)} />
             <Tab label="Item Two" {...a11yProps(1)} />
@@ -426,29 +422,9 @@ function DetailRow(props) {
             <Tab label="Item Six" {...a11yProps(5)} />
             <Tab label="Item Seven" {...a11yProps(6)} />
           </Tabs>
-        </AppBar>
-        <TabPanel value={value} index={0}>
-          Item One
-      </TabPanel>
-        <TabPanel value={value} index={1}>
-          Item Two
-      </TabPanel>
-        <TabPanel value={value} index={2}>
-          Item Three
-      </TabPanel>
-        <TabPanel value={value} index={3}>
-          Item Four
-      </TabPanel>
-        <TabPanel value={value} index={4}>
-          Item Five
-      </TabPanel>
-        <TabPanel value={value} index={5}>
-          Item Six
-      </TabPanel>
-        <TabPanel value={value} index={6}>
-          Item Seven
-      </TabPanel>
-      </div>
+          
+      </CardContent>
+      </Card>
     </Collapse>
   )//end: return
 }//end: function RoleDetailRow2()
@@ -463,15 +439,15 @@ function DetailRow(props) {
 */
 const useStyles = makeStyles(theme => ({
   root: {
+    height: '100%',
     width: '100%',
+    //maxWidth: '800px',
     marginTop: theme.spacing(7),
   },
   paper: {
-    width: '100%',
     marginBottom: theme.spacing(2),
   },
   table: {
-    minWidth: 750,
   },
   tableWrapper: {
     overflowX: 'auto',
@@ -516,7 +492,7 @@ function EnhancedTable() {
   const [expanded, setExpanded] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   /*
     Store selectors
   */
@@ -775,164 +751,175 @@ function EnhancedTable() {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
 
   return (
-    <div className={classes.root}>
-      <Paper className={classes.paper}>
-        
-        {/*
-          Toolbar
-        */}
-        <EnhancedTableToolbar numSelected={selected.length} />
-        
-        {/*
-          Table
-        */}
-        <div className={classes.tableWrapper}>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-            aria-label="enhanced table"
-          >
+    <div>
+      <Grid 
+          className={classes.root}
+          container
+          spacing={0}
+          direction="column"
+          alignItems="center"
+          justify="center"
+      >
+        <Grid item xs={9} md={11} lg={12}>
+          <Paper className={classes.paper}>
             {/*
-              Table Head
+              Toolbar
             */}
-            <EnhancedTableHead
-              classes={classes}
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={count}
+            <EnhancedTableToolbar numSelected={selected.length} />
+            
+            {/*
+              Table
+            */}
+            <div className={classes.tableWrapper}>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+              >
+                {/*
+                  Table Head
+                */}
+                <EnhancedTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={count}
+                />
+
+                {/*
+                  Table Body
+                */}
+                <TableBody>
+                  {
+                    items.map((item, index) => {
+                      const isItemSelected = isSelected(item.id);
+                      const isItemExpanded = isExpanded(item.id);
+                      const labelId = `enhanced-table-checkbox-${index}`;
+
+                      return ([
+                        /*
+                          Item Row
+                        */
+                        <TableRow
+                          hover
+                          onClick={event => handleClickOnRow(event, item)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={item.id}
+                          selected={isItemSelected}
+                        >
+                          {/*
+                            Checkbox 
+                          */}
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={isItemSelected}
+                              inputProps={{ 'aria-labelledby': labelId }}
+                              onChange={event => handleRowChecked(event, item)}
+                            />
+                          </TableCell>
+                          {/*
+                            Expand
+                          */}
+                          <TableCell padding="checkbox">
+                            <Tooltip title="">
+                              <IconButton 
+                                color="primary" 
+                                aria-label="expand-row"
+                                style={{ 
+                                  transition: 'all ease 200ms',
+                                  transform: isItemExpanded ? 'rotate(90deg)' : 'none' 
+                                }}
+                                onClick={event => handleRowExpanded(event, item)}
+                              >
+                                <ArrowRight />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                          {/*
+                            Actions:
+                            - Edit
+                            - Delete
+                          */}
+                          <TableCell>
+                            <div style={{ width: '100%' }}>
+                              <Box className={classes.actionsBox}>
+                                <Box>
+                                  <Tooltip title="Edit">
+                                    <IconButton color="primary" aria-label="add">
+                                      <Edit fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                                <Box>
+                                  <Tooltip title="Delete">
+                                    <IconButton color="primary" aria-label="import">
+                                      <Delete fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                              </Box>
+                            </div>
+                          </TableCell>
+                          {/*
+                            Item fields
+                          */}
+                          <TableCell style={{ width: '500px' }} align="right">{item.id}</TableCell>
+                          <TableCell style={{ width: '500px' }} align="left">{item.email}</TableCell>
+                          <TableCell style={{ width: '500px' }} align="left">{item.password}</TableCell>
+
+                        </TableRow>,
+                        /*
+                          Detail Row
+                        */
+                        (isItemExpanded) && (
+                          <TableRow key={"detail-row-" + item.id}>
+                            <TableCell colSpan={6} padding="none">
+                                <DetailRow item={item}/>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      ]);
+                    })
+                  }
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            {/*
+              Pagination
+            */}
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={items.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              backIconButtonProps={{
+                'aria-label': 'previous page',
+              }}
+              nextIconButtonProps={{
+                'aria-label': 'next page',
+              }}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
             />
-
-            {/*
-              Table Body
-            */}
-            <TableBody>
-              {
-                items.map((item, index) => {
-                  const isItemSelected = isSelected(item.id);
-                  const isItemExpanded = isExpanded(item.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  
-                  console.log("item: ", item, "index: ", index);
-
-                  return ([
-                    /*
-                      Item Row
-                    */
-                    <TableRow
-                      hover
-                      onClick={event => handleClickOnRow(event, item)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={item.id}
-                      selected={isItemSelected}
-                    >
-                      {/*
-                        Checkbox 
-                      */}
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ 'aria-labelledby': labelId }}
-                          onChange={event => handleRowChecked(event, item)}
-                        />
-                      </TableCell>
-
-                      {/*
-                        Expand
-                      */}
-                      <TableCell padding="checkbox">
-                        <Tooltip title="">
-                          <IconButton 
-                            color="primary" 
-                            aria-label="expand-row"
-                            style={{ 
-                              transition: 'all ease 200ms',
-                              transform: isItemExpanded ? 'rotate(90deg)' : 'none' 
-                            }}
-                            onClick={event => handleRowExpanded(event, item)}
-                          >
-                            <ArrowRight />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-
-                      {/*
-                        Actions:
-                        - Edit
-                        - Delete
-                      */}
-                      <TableCell>
-                        <div style={{ width: '100%' }}>
-                          <Box className={classes.actionsBox}>
-                            <Box>
-                              <Tooltip title="Edit">
-                                <IconButton color="primary" aria-label="add">
-                                  <Edit fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                            <Box>
-                              <Tooltip title="Delete">
-                                <IconButton color="primary" aria-label="import">
-                                  <Delete fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          </Box>
-                        </div>
-                      </TableCell>
-                      
-                      {/*
-                        Item fields
-                      */}
-                      <TableCell style={{ width: '500px' }} align="right">{item.id}</TableCell>
-                      <TableCell style={{ width: '500px' }} align="left">{item.email}</TableCell>
-                      <TableCell style={{ width: '500px' }} align="left">{item.password}</TableCell>
-
-                    </TableRow>,
-                    (isItemExpanded) && (
-                      <TableRow key={"detail-row-" + item.id}>
-                        <TableCell colSpan={6} padding="none">
-                            <DetailRow item={item}/>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  ]);
-                })
-              }
-              {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={items.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          backIconButtonProps={{
-            'aria-label': 'previous page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'next page',
-          }}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
+          </Paper>
+          <FormControlLabel
+            control={<Switch checked={dense} onChange={handleChangeDense} />}
+            label="Dense padding"
+          />
+        </Grid>
+      </Grid>
     </div>
   );
 }
