@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import api from '../../../requests/index'
+import CompactListView from './CompactListView'
 
 /*
   Material-UI components
@@ -40,6 +41,9 @@ import Tab from '@material-ui/core/Tab';
 import Collapse from '@material-ui/core/Collapse';
 import Fade from '@material-ui/core/Fade';
 import Zoom from '@material-ui/core/Zoom';
+import Grow from '@material-ui/core/Grow';
+import Slide from '@material-ui/core/Slide';
+import Badge from '@material-ui/core/Badge';
 
 /*
   Icons
@@ -62,6 +66,9 @@ import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
   Component: Enhanced Table Head
 */
 function EnhancedTableHead(props) {
+  /*
+    Properties
+  */
   const { 
     classes, 
     onSelectAllClick, 
@@ -70,19 +77,26 @@ function EnhancedTableHead(props) {
     numSelected, 
     rowCount, 
     onRequestSort } = props;
-  const createSortHandler = property => event => {
-    onRequestSort(event, property);
-  };
+    
   const headCells = [
     { id: 'id', numeric: true, disablePadding: false, label: 'ID' },
     { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
     { id: 'password', numeric: false, disablePadding: false, label: 'Password' },
   ];
 
+  /*
+    Handlers
+  */
+  const createSortHandler = property => event => {
+    onRequestSort(event, property);
+  };
+  
+  /*
+    Render
+  */
   return (
     <TableHead>
       <TableRow>
-        
         {/*
           Checkbox 
         */}
@@ -152,8 +166,12 @@ EnhancedTableHead.propTypes = {
 };
 
 
+/**
+ * TOOLBAR
+ */
+
 /*
-  Toolbar
+  Styles
 */
 const useToolbarStyles = makeStyles(theme => ({
   root: {
@@ -183,7 +201,7 @@ const useToolbarStyles = makeStyles(theme => ({
   }
 }));
 /*
-  Component: Enhanced Table Toolbar
+  Component
 */
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
@@ -285,37 +303,75 @@ const EnhancedTableToolbar = props => {
   );
 };
 /*
-  Component.Proptypes: Enhanced Table Toolbar
+  Prop Types
 */
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
+
+
+
 /**
- * Detail Row
+ * DETAIL ROW
  */
 
 /*
   Styles
 */
-const useDetailRowStyles = makeStyles({
+const useDetailRowStyles = makeStyles(theme => ({
   tabs: {
     maxWidth: '50vw',
   },
   textSecondary: {
     marginBottom: 12,
   },
-});
+  vtabsRoot: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    // height: 224,
+  },
+  vtabs: {
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
+  badgePadding: {
+    padding: theme.spacing(0, 2),
+  },
+  associationsRootGrid: {
+    flexGrow: 1,
+  },
+  associationTypeTab: {
+    height: 56,   //2 lines
+    maxHeight: 56
+  },
+  associationTab: {
+    height: 56,   //2 lines
+    maxHeight: 56
+  },
+
+}));
 /*
-  Component: Detail Row
+  Component
 */
 function DetailRow(props) {
+  /*
+    Styles
+  */
   const classes = useDetailRowStyles();
+
+  /*
+    Properties
+  */
+  const {toOnes, toManys} = props;
+
   /*
     State
   */
   const [ready, setReady] = useState(false);
-  const [value, setValue] = React.useState(0);
+  const [tabsValue, setTabsValue] = React.useState(0);
+  const [associationTypeSelected, setAssociationTypeSelected] = useState(0);
+
   /*
     Effect
   */
@@ -323,19 +379,224 @@ function DetailRow(props) {
     setReady(true);
     return function cleanup() { setReady(false) };
   }, []);
+  
   /*
     Handlers
   */
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    /**
+     * Debug
+     */
+    console.log("newValue: ", newValue);
+
+    setTabsValue(newValue);
   };
 
+  const handleAssociationTypeChange = (event, newValue) => {
+    
+    /**
+     * Debug
+     */
+    console.log("onAssociationTypeChange: newValue: ", newValue);
+    
+    setAssociationTypeSelected(newValue);
+  };
+
+  /*
+    Sub Components
+  */
+
+  /** 
+   * ASSOCIATION TYPE TABS 
+   */
+  function AssociationTypeTabs(props) {
+    /*
+      Properties
+    */
+    const { 
+      toOnesLength, 
+      toManysLength, 
+      associationTypeSelected, 
+      classes,
+      onChange,
+    } = props;
+    
+    /*
+      Render
+    */
+    return (
+      <Tabs
+        orientation="vertical"
+        variant="scrollable"
+        value={associationTypeSelected}
+        className={classes.vtabs}
+        onChange={onChange}
+      >
+        <Tab
+          id='tab-to-one'
+          key={0}
+          value={0}
+          className={classes.associationTypeTab}
+          label={
+            <Badge className={classes.badgePadding} color='secondary' badgeContent={toOnesLength}>
+              To-One
+            </Badge>
+          }
+        />
+        <Tab
+          id='tab-to-many'
+          key={1}
+          value={1}
+          className={classes.associationTypeTab}
+          label={
+            <Badge className={classes.badgePadding} color={ (associationTypeSelected===1)?'secondary':'default'} badgeContent={toManysLength}>
+              To-Many
+            </Badge>
+          }
+        />
+      </Tabs>
+    )
+  }
+
+  /** 
+   * ASSOCIATION TABS 
+   */
+  function AssociationTabs(props) {
+    /*
+      Properties
+    */
+    const { toOnes, toManys, associationTypeSelected, classes } = props;
+    /*
+      State
+    */
+    const [toOneSelected, setToOneSelected] = useState(0);
+    const [toManySelected, setToManySelected] = useState(0);
+    const [ready, setReady] = useState(false);
+
+    /*
+      Effect
+    */
+    useEffect(() => { 
+        console.log("ready: ok");
+      setReady(true);
+      return function cleanup() { setReady(false) };
+    }, []);
+
+    /*
+      Render
+    */
+    return (
+      
+        <div>
+          {/* 
+            Case 0: toOnes
+              Nested Tabs 
+          */}
+          {(associationTypeSelected === 0) && (
+            <Grow in={ready}>
+              <Tabs
+                className={classes.tabs}
+                value={toOneSelected}
+                // onChange={handleChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="scrollable"
+                scrollButtons="auto"
+              >
+                {(toOnes.length > 0) ?
+                  /*
+                    Case: There are associations
+                  */
+                  (toOnes.map((item, index) => {
+                    return (
+                      <Tab 
+                        label={item.relationNameCp} 
+                        key={item.relationNameCp + index} 
+                        value={index} 
+                        className={classes.associationTypeTab}
+                        // onClick={props.onClick} 
+                      />
+                  )})) :
+                  /*
+                    Case: There are no associations
+                  */
+                  (
+                    <Tab 
+                        label={"There are no to-one associations"} 
+                        disabled={true}
+                        disableRipple={true}
+                        disableFocusRipple={true}
+                        className={classes.associationTypeTab}
+                    />
+                  )
+                }
+              </Tabs>
+            </Grow>
+          )}
+
+          {/* 
+            Case 1: toManys
+              Nested Tabs 
+          */}
+          {(associationTypeSelected === 1) && (
+            <Grow in={ready}>
+              <Tabs
+                className={classes.tabs}
+                value={toManySelected}
+                // onChange={handleChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="scrollable"
+                scrollButtons="auto"
+
+              >
+                {(toManys.length > 0) ?
+                  /*
+                    Case: There are associations
+                  */
+                  (toManys.map((item, index) => {
+                    return (
+                      <Tab 
+                        label={item.relationNameCp} 
+                        key={item.relationNameCp + index} 
+                        value={index}
+                        className={classes.associationTypeTab}
+                        // onClick={props.onClick} 
+                      />
+                  )})) :
+                  /*
+                    Case: There are no associations
+                  */
+                  (
+                    <Tab 
+                        label={"There are no to-many associations"} 
+                        disabled={true}
+                        disableRipple={true}
+                        disableFocusRipple={true}
+                        className={classes.associationTypeTab}
+                    />
+                  )
+                }
+              </Tabs>
+            </Grow>
+          )}
+        </div>
+
+    );
+  }
+
   /**
-   * Tab Panel
+   * TAB PANEL
    */
   function TabPanel(props) {
+    /*
+      Properties
+    */
     const { children, value, index, ...other } = props;
   
+    /*
+      Render
+    */
     return (
       <Typography
         component="div"
@@ -362,6 +623,9 @@ function DetailRow(props) {
     };
   }
 
+  /*
+    Render
+  */
   return (
     /*
       Card
@@ -395,35 +659,88 @@ function DetailRow(props) {
           
         </CardContent>
 
-        <CardActions>
-          <Button size="small">Learn More</Button>
-        </CardActions>
+        {/* <CardActions>
+          <Button color="primary" size="small">SEE ASSOCIATIONS</Button>
+        </CardActions> */}
 
         {/*
-        Associations Tab Menu 
-      */}
-      <CardContent>
-          <Tabs
-            className={classes.tabs}
-            value={value}
-            onChange={handleChange}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="scrollable auto tabs example"
+          Associations
+        */}
+        <CardContent>
+          <Grid container className={classes.associationsRootGrid}>
+            {/*
+              Title
+            */}
+            <Grid item xs={12}>
+              <Grid container justify="flex-start">
+                <Grid item>
+                  <Typography variant="h6" color="primary">
+                    Associations
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            {/* 
+              Association types tabs  |   Association tabs
+              ------------------------|----------------------------
+                To Manys              |   ToManys.1  ToManys.2  ...  
+                To Ones               |   ToOnes.1   ToOnes.2   ...
+            */}
+            <Grid item xs={12}>
+              <Grid 
+                container justify="flex-start" 
+                alignItems={(associationTypeSelected === 0) ? "flex-start" : "flex-end"}
+                spacing={1}
+              >
+                
+                <Grid item>
+                  <AssociationTypeTabs
+                    toOnesLength={toOnes.length}
+                    toManysLength={toManys.length}
+                    associationTypeSelected={associationTypeSelected}
+                    classes={classes}
+                    onChange={handleAssociationTypeChange}
+                  />
+                </Grid>
             
-          >
-            <Tab label="Item One" {...a11yProps(0)} />
-            <Tab label="Item Two" {...a11yProps(1)} />
-            <Tab label="Item Three" {...a11yProps(2)} />
-            <Tab label="Item Four" {...a11yProps(3)} />
-            <Tab label="Item Five" {...a11yProps(4)} />
-            <Tab label="Item Six" {...a11yProps(5)} />
-            <Tab label="Item Seven" {...a11yProps(6)} />
-          </Tabs>
-          
-      </CardContent>
+                <Grid item >
+                  <AssociationTabs
+                    toOnes={toOnes}
+                    toManys={toManys}
+                    associationTypeSelected={associationTypeSelected}
+                    classes={classes}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            
+            {/*
+              Compact List View
+
+              const {
+        title,
+        modelName,
+        modelItemId,
+        associationName,
+        associationLabel,
+        associationSublabel,
+    } = props;
+
+
+            */}
+            <Grid item xs={12}>
+              <Grid container justify="flex-start">
+                <Grid item>
+                  <CompactListView 
+                    title="title"
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+          </Grid>
+        </CardContent>
       </Card>
     </Collapse>
   )//end: return
@@ -473,13 +790,29 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 /*
-  Component: Enhanced Table
+  Component
 */
 function EnhancedTable() {
   /*
-    Classes
+    Styles
   */
   const classes = useStyles();
+  /*
+    Properties
+  */
+ const toManys = [
+  { 
+    "relationName":"roles",
+    "relationNameCp":"Roles",
+    "targetModelPlLc":"roles",
+    "targetModelCp":"Role",
+    "targetModelPlCp":"Roles",
+    "label":"name",
+    "sublabel":"id"
+  },
+ ];
+ const toOnes = [];
+
   /*
     State
   */
@@ -501,7 +834,14 @@ function EnhancedTable() {
     Effect
   */
   //useEffect((), []) <=> componentDidUpdate()
-  useEffect(() => { getData() }, []);
+  useEffect(() => {
+    /**
+     * Debug
+     */
+    console.log("toManys: ", toManys);
+
+    getData() 
+  }, []);
 
   /*
     Methods
@@ -880,7 +1220,11 @@ function EnhancedTable() {
                         (isItemExpanded) && (
                           <TableRow key={"detail-row-" + item.id}>
                             <TableCell colSpan={6} padding="none">
-                                <DetailRow item={item}/>
+                                <DetailRow 
+                                  item={item}
+                                  toOnes={toOnes}
+                                  toManys={toManys}
+                                />
                             </TableCell>
                           </TableRow>
                         )
