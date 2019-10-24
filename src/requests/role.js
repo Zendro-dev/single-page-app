@@ -1,4 +1,5 @@
 import requestGraphql from './request'
+import queriesGraphql from './queries'
 
 /**
  * GraphQL API Queries
@@ -47,7 +48,28 @@ export default {
 
         return requestGraphql({ url, query });
     },
-
+    /**
+     * getCountItems
+     * 
+     * Construct query to get count of items. Then do the query-request 
+     * to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * {
+     *      countRoles( ${s} ) 
+     * }
+     * 
+     * Where:
+     *  ${s}: search parameter (optional)
+     * 
+     * @param {Object} model Object with model definition data
+     * @param {String} url GraphQL Server url
+     * @param {String} searchText Text string currently on search bar.
+     */
+    getCountItems (model, url, searchText){
+        return queriesGraphql.getCountItems(model, url, searchText);
+    },
     /**
      * getItems
      * 
@@ -70,6 +92,7 @@ export default {
      *  ${p}: pagination parameter (required)
      * 
      * 
+     * @param {Object} model Object with model definition data
      * @param {String} url GraphQL Server url
      * @param {String} searchText Text string currently on search bar.
      * @param {Object} orderBy Object with order properties.
@@ -77,95 +100,7 @@ export default {
      * @param {Number} paginationOffset Offset.
      * @param {Number} paginationLimit Max number of items to retreive.
      */
-    getItems(url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
-        /*
-          Construct search parameter
-        */
-        var s = null;
-        if (searchText !== null && searchText !== '') {
-            s = `search: {
-                    operator:or, search: [
-                        {field:name, value:{value:"%${searchText}%"}, operator:like}, 
-                        {field:description, value:{value:"%${searchText}%"}, operator:like}, 
-                    ]
-                }`
-        }
-        /*
-          Construct order parameter
-        */
-        var o = null;
-        if (typeof orderBy !== 'undefined') {
-            let upOrderDirection = String(orderDirection).toUpperCase();
-            o = `order: [ {field: ${orderBy.field}, order: ${upOrderDirection}} ]`;
-        }
-        /*
-          Construct pagination parameter
-        */
-        var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
-        
-        /*
-          Construct graphQL query
-        */
-        var query = '';
-
-        //if has search
-        if (s !== null) {
-            //if has order
-            if (o != null) {
-                //query with search & sort & pagination
-                query =
-                    `{
-                        roles(${s}, ${o}, ${p}) {
-                            id
-                            name 
-                            description 
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query with search & pagination
-                query =
-                    `{
-                        roles(${s}, ${p}) {
-                            id
-                            name 
-                            description 
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: if has search
-        else { // has not search
-            //if has order
-            if (o != null) {
-                //query with sort & pagination
-                query =
-                    `{
-                        roles(${o}, ${p}) {
-                            id
-                            name 
-                            description 
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query string with pagination only
-                query =
-                    `{
-                        roles(${p}) {
-                            id
-                            name 
-                            description 
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: else: has not search
-        
-        /**
-         * Debug
-         */
-        console.log("query: gql:\n", query);
-
-        //do request
-        return requestGraphql({ url, query });
-    }//end: getItems()
+    getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
+        return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit);
+    },
 }

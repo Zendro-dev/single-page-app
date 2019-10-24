@@ -1,4 +1,5 @@
 import requestGraphql from './request'
+import queriesGraphql from './queries'
 
 /**
  * GraphQL API Queries
@@ -47,9 +48,8 @@ export default {
 
         return requestGraphql({ url, query });
     },
-
     /**
-     * getCount
+     * getCountItems
      * 
      * Construct query to get count of items. Then do the query-request 
      * to GraphQL Server.
@@ -63,35 +63,13 @@ export default {
      * Where:
      *  ${s}: search parameter (optional)
      * 
-     * 
+     * @param {Object} model Object with model definition data
      * @param {String} url GraphQL Server url
      * @param {String} searchText Text string currently on search bar.
      */
-    getCount (url, searchText){
-        /*
-          Set @search arg
-        */
-        var s = '';
-        var query = '';
-
-        if (searchText !== null && searchText !== '') {
-            //make search argument
-            s = `search: {operator:or, search: [ 
-                            {field:email, value:{value:"%${searchText}%"}, operator:like}, 
-                            {field:password, value:{value:"%${searchText}%"}, operator:like}, 
-                        ]}`
-            //make query with search argument
-            query = `{ countUsers(${s}) }`;
-        }
-        else {
-            //make query without search argument
-            query = `{ countUsers }`;
-        }
-
-        //do request
-        return requestGraphql({ url, query });
+    getCountItems (model, url, searchText){
+        return queriesGraphql.getCountItems(model, url, searchText);
     },
-
     /**
      * getItems
      * 
@@ -101,10 +79,10 @@ export default {
      * Query format:
      * 
      * {
-     *      users(${s}, ${o}, ${p}) {
+     *      roles(${s}, ${o}, ${p}) {
      *          id
-     *          email 
-     *          password
+     *          name 
+     *          description 
      *      }
      * }
      * 
@@ -114,102 +92,15 @@ export default {
      *  ${p}: pagination parameter (required)
      * 
      * 
+     * @param {Object} model Object with model definition data
      * @param {String} url GraphQL Server url
      * @param {String} searchText Text string currently on search bar.
-     * @param {String} orderBy Order field string.
+     * @param {Object} orderBy Object with order properties.
      * @param {String} orderDirection Text string: asc | desc.
      * @param {Number} paginationOffset Offset.
      * @param {Number} paginationLimit Max number of items to retreive.
      */
-    getItems (url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
-        /*
-          Construct search parameter
-        */
-        var s = null;
-        if (searchText !== null && searchText !== '') {
-            s = `search: {
-                operator:or, search: [
-                    {field:email, value:{value:"%${searchText}%"}, operator:like}, 
-                    {field:password, value:{value:"%${searchText}%"}, operator:like}, 
-                ]
-            }`
-        }
-        /*
-          Construct order parameter
-        */
-        var o = null;
-        if (orderBy !== '' && orderBy !== null) {
-            let upOrderDirection = String(orderDirection).toUpperCase();
-            o = `order: [ {field: ${orderBy}, order: ${upOrderDirection}} ]`;
-        }
-        /*
-          Construct pagination parameter
-        */
-        var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
-        
-        /*
-          Construct graphQL query
-        */
-        var query = '';
-
-        //if has search
-        if (s !== null) {
-            //if has order
-            if (o != null) {
-                //query with search & sort & pagination
-                query =
-                    `{
-                        users(${s}, ${o}, ${p}) {
-                            id
-                            email 
-                            password 
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query with search & pagination
-                query =
-                    `{
-                        users(${s}, ${p}) {
-                            id
-                            email 
-                            password 
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: if has search
-        else { // has not search
-            //if has order
-            if (o != null) {
-                //query with sort & pagination
-                query =
-                    `{
-                        users(${o}, ${p}) {
-                            id
-                            email 
-                            password 
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query string with pagination only
-                query =
-                    `{
-                        users(${p}) {
-                            id
-                            email 
-                            password 
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: else: has not search
-        
-        /**
-         * Debug
-         */
-        console.log("query: gql:\n", query);
-
-        //do request
-        return requestGraphql({ url, query });
-    }//end: getItems()
+    getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
+        return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit);
+    },
 }

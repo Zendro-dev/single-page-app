@@ -9,6 +9,7 @@ import {
 import RoleTable from './admin/RoleTable'
 import UserTable from './admin/UserTable'
 import UserTableB from './admin/UserTableB'
+import UserTableC from './admin/UserTableC'
 import NotFoundSection from '../NotFoundSection'
 
 
@@ -18,7 +19,7 @@ function TableView() {
               <Switch>
                   
                   <Route exact path="/main/admin/role" component={RoleTable} />
-                  <Route exact path="/main/admin/user" component={UserTable} />
+                  <Route exact path="/main/admin/user" component={UserTableC} />
                   <Route exact path="/main/admin/role_to_user" component={UserTableB} />
 
                   {/* Default */}
