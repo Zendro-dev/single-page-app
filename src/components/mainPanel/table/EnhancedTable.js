@@ -61,20 +61,12 @@ import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
   Styles
 */
 const useStyles = makeStyles(theme => ({
-    root2: {
-        flexGrow: 1,
-    },
     root: {
         marginTop: theme.spacing(7),
     },
     paper: {
         marginBottom: theme.spacing(2),
-    },
-    table: {
         overflowX: 'auto',
-    },
-    x: {
-        width: '100%',
     }
 }));
 
@@ -477,8 +469,8 @@ export default function EnhancedTable(props) {
     */
     return (
         <div className={classes.root}>
-            <Grid container>
-                <Grid item xs={12}>
+            <Grid container justify='center'>
+                <Grid item xs={9} md={11} lg={12}>
                     <Paper className={classes.paper}>
 
                         {/* Toolbar */}
@@ -588,9 +580,10 @@ export default function EnhancedTable(props) {
                                             */
                                             (isItemExpanded) && (
                                                 <TableRow key={"detail-row-" + item.id}>
-                                                    <TableCell colSpan={6} padding="none">
+                                                    <TableCell colSpan={4 + headCells.length} padding="none">
                                                         <EnhancedTableRow
                                                             item={item}
+                                                            headCells={headCells}
                                                             toOnes={model.toOnes}
                                                             toManys={model.toManys}
                                                         />
@@ -602,7 +595,7 @@ export default function EnhancedTable(props) {
                                 }
                                 {emptyRows > 0 && (
                                     <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                                        <TableCell colSpan={6} />
+                                        <TableCell colSpan={4 + headCells.length} />
                                     </TableRow>
                                 )}
                             </TableBody>

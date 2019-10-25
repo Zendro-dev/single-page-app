@@ -9,6 +9,16 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+
+const defaultProps = {
+    bgcolor: 'background.paper',
+    border: 1,
+    m: 0,
+    borderColor: 'text.primary',
+    //style: { width: '5rem', height: '5rem' },
+  };
 
 export default function EnhancedTableHead(props) {
     /*
@@ -45,7 +55,9 @@ export default function EnhancedTableHead(props) {
 
                 {/* Actions */}
                 <TableCell padding="checkbox" align='center' size='small' colSpan={2}>
-                    Actions
+                    <Typography color="inherit" variant="overline">
+                        Actions
+                    </Typography>
                 </TableCell>
 
                 {/* Headers */}
@@ -64,7 +76,9 @@ export default function EnhancedTableHead(props) {
                             direction={order}
                             onClick={(event) => {onRequestSort(event, headCell.name)}}
                         >
-                            {headCell.label}
+                            <Typography color="inherit" variant="overline">
+                                {headCell.label}
+                            </Typography>
                         </TableSortLabel>
                     </TableCell>
                 ))}

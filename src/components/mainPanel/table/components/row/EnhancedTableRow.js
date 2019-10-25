@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import CompactListView from '../../../../compactListView/CompactListView'
 import AssociationsTabs from './components/AssociationsTabs'
 import AssociationsTypesTabs from './components/AssociationTypesTabs'
+import DetailView from '../../../../detailView/DetailView'
 
 /*
   Material-UI components
@@ -58,258 +59,6 @@ import Search from '@material-ui/icons/Search';
 import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 /*
-  Headers
-*/
-/*
-  Component: Enhanced Table Head
-*/
-function EnhancedTableHead(props) {
-  /*
-    Properties
-  */
-  const { 
-    classes, 
-    onSelectAllClick, 
-    order, 
-    orderBy, 
-    numSelected, 
-    rowCount, 
-    onRequestSort } = props;
-    
-  const headCells = [
-    { id: 'id', numeric: true, disablePadding: false, label: 'ID' },
-    { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
-    { id: 'password', numeric: false, disablePadding: false, label: 'Password' },
-  ];
-
-  /*
-    Handlers
-  */
-  const createSortHandler = property => event => {
-    onRequestSort(event, property);
-  };
-  
-  /*
-    Render
-  */
-  return (
-    <TableHead>
-      <TableRow>
-        {/*
-          Checkbox 
-        */}
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
-          />
-        </TableCell>
-        
-        {/*
-          Expand
-        */}
-        <TableCell padding="checkbox">
-          {/* Empty */}
-        </TableCell>
-        
-        {/*
-          Actions
-        */}
-        <TableCell align='center'>
-          Actions
-        </TableCell>
-        
-        {/*
-          Headers 
-        */}
-        {headCells.map(headCell => (
-          <TableCell
-            key={headCell.id}
-            style={{width: '500px'}}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'default'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={order}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-/*
-  Component.Proptypes: Enhanced Table Head
-*/
-EnhancedTableHead.propTypes = {
-  classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-
-/**
- * TOOLBAR
- */
-
-/*
-  Styles
-*/
-const useToolbarStyles = makeStyles(theme => ({
-  root: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(0),
-  },
-  highlight:
-    theme.palette.type === 'light'
-      ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
-      : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
-  title: {
-    flex: '1 1 100%',
-  },
-  actionsBox: {
-    display: "flex", 
-    flexDirection: "row",
-    p: 0,
-    m: 0, 
-    alignItems: "center",
-    justifyContent: "flex-end",
-  }
-}));
-/*
-  Component
-*/
-const EnhancedTableToolbar = props => {
-  const classes = useToolbarStyles();
-  const { numSelected } = props;
-
-  return (
-    <Toolbar
-      className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
-      })}
-    >
-      {numSelected > 0 ? (
-        <Typography className={classes.title} color="inherit" variant="subtitle1">
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography className={classes.title} variant="h6" id="tableTitle">
-          Users
-        </Typography>
-      )}
-
-      {numSelected > 0 ? 
-      (
-        /*
-          Actions on: multiple selection
-        */
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <Delete />
-          </IconButton>
-        </Tooltip>
-      ) : 
-      (
-        <div style={{ width: '100%' }}>
-          <Box className={classes.actionsBox}>
-            {/*
-              Search field 
-            */}
-            <Box>
-              <TextField
-                id="search-field"
-                className={classes.textField}
-                placeholder="Search"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Tooltip title="Search">
-                        <Search color="inherit" fontSize="small" />
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip title="Clear search">
-                        <IconButton
-                        //disabled={!this.props.searchText}
-                        //onClick={() => this.props.onSearchChanged("")}
-                        >
-                          <Clear color="inherit" fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            {/*
-              Actions on: no selection
-              - Add
-              - Import
-              - Export
-            */}
-            <Box>
-              <Tooltip title="Add new user">
-                <IconButton color="primary" aria-label="add">
-                  <Add />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Box>
-              <Tooltip title="Import from CSV">
-                <IconButton color="primary" aria-label="import">
-                  <Import />
-                </IconButton>
-              </Tooltip>
-            </Box>
-
-            <Box>
-              <Tooltip title="Export to CSV">
-                <IconButton color="primary" aria-label="export">
-                  <Export />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
-        </div>
-      )}
-    </Toolbar>
-  );
-};
-/*
-  Prop Types
-*/
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
-
-
-
-
-/**
- * DETAIL ROW
- */
-
-/*
   Styles
 */
 const useDetailRowStyles = makeStyles(theme => ({
@@ -347,7 +96,7 @@ const useDetailRowStyles = makeStyles(theme => ({
 /*
   Component
 */
-export default function DetailRow(props) {
+export default function EnhancedTableRow(props) {
   /*
     Styles
   */
@@ -356,7 +105,7 @@ export default function DetailRow(props) {
   /*
     Properties
   */
-  const {toOnes, toManys} = props;
+  const { item, headCells, toOnes, toManys } = props;
 
   /*
     State
@@ -368,11 +117,11 @@ export default function DetailRow(props) {
   /*
     Effect
   */
-  useEffect(() => { 
+  useEffect(() => {
     setReady(true);
     return function cleanup() { setReady(false) };
   }, []);
-  
+
   /*
     Handlers
   */
@@ -386,12 +135,12 @@ export default function DetailRow(props) {
   };
 
   const handleAssociationTypeChange = (event, newValue) => {
-    
+
     /**
      * Debug
      */
     console.log("onAssociationTypeChange: newValue: ", newValue);
-    
+
     setAssociationTypeSelected(newValue);
   };
 
@@ -399,9 +148,9 @@ export default function DetailRow(props) {
     Sub Components
   */
 
-  
 
-  
+
+
 
   /**
    * TAB PANEL
@@ -411,7 +160,7 @@ export default function DetailRow(props) {
       Properties
     */
     const { children, value, index, ...other } = props;
-  
+
     /*
       Render
     */
@@ -445,37 +194,16 @@ export default function DetailRow(props) {
     Render
   */
   return (
-    /*
-      Card
-    */
-     <Collapse in={ready}>
+
+    <Collapse in={ready}>
+      
       <Card>
-        {/*
-          Card.Content
-        */}
-        <CardContent>
-          <Typography variant="h5" component="h2">
-            Id
-          </Typography>
-          <Typography className={classes.textSecondary} color="textSecondary">
-            {props.item.id}
-          </Typography>
+        
+      {/* DetailView */}
+      <DetailView item={item} headCells={headCells} />
+   
 
-          <Typography variant="h5" component="h2">
-            Email
-          </Typography>
-          <Typography className={classes.textSecondary} color="textSecondary">
-            {props.item.email}
-          </Typography>
-
-          <Typography variant="h5" component="h2">
-            Password
-          </Typography>
-          <Typography className={classes.textSecondary} color="textSecondary">
-            {props.item.password}
-          </Typography>
-          
-        </CardContent>
+      
 
         {/* <CardActions>
           <Button color="primary" size="small">SEE ASSOCIATIONS</Button>
@@ -506,12 +234,12 @@ export default function DetailRow(props) {
                 To Ones               |   ToOnes.1   ToOnes.2   ...
             */}
             <Grid item xs={12}>
-              <Grid 
-                container justify="flex-start" 
+              <Grid
+                container justify="flex-start"
                 alignItems={(associationTypeSelected === 0) ? "flex-start" : "flex-end"}
                 spacing={1}
               >
-                
+
                 <Grid item>
                   <AssociationsTypesTabs
                     toOnesLength={toOnes.length}
@@ -521,7 +249,7 @@ export default function DetailRow(props) {
                     onChange={handleAssociationTypeChange}
                   />
                 </Grid>
-            
+
                 <Grid item >
                   <AssociationsTabs
                     toOnes={toOnes}
@@ -532,7 +260,7 @@ export default function DetailRow(props) {
                 </Grid>
               </Grid>
             </Grid>
-            
+
             {/*
               Compact List View
 
@@ -550,7 +278,7 @@ export default function DetailRow(props) {
             <Grid item xs={12}>
               <Grid container justify="flex-start">
                 <Grid item>
-                  <CompactListView 
+                  <CompactListView
                     title="title"
                   />
                 </Grid>
