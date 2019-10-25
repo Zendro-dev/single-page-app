@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import api from '../../../requests/index'
-import model from '../../../models/user'
-import CompactListView from './CompactListView'
-import EnhancedTableToolbar from '../table/components/EnhancedTableToolbar'
+import api from '../../../../requests/index'
+import model from '../../../../models/user'
+import CompactListView from '../../../compactListView/CompactListView'
+import EnhancedTableToolbar from '../../table/components/EnhancedTableToolbar'
 
 /*
   Material-UI components

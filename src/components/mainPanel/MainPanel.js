@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { logoutRequest } from '../../store/actions.js';
 import { useHistory } from "react-router-dom";
+import MainSwitch from './MainSwitch'
 
 /*
   Material-UI components
@@ -32,9 +33,6 @@ import CircleIconOutlined from '@material-ui/icons/FiberManualRecordOutlined';
 import CircleIconFilled from '@material-ui/icons/FiberManualRecord';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-
-//components
-import StackView from './StackView'
 
 const drawerWidth = 240;
 
@@ -332,9 +330,9 @@ function MainPanel({ dispatch }) {
                 })}
             > 
                 {/*
-                    StackView
+                    MainSwitch
                 */}
-                <StackView />
+                <MainSwitch />
             </main>
         </div>
         </Fade>

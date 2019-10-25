@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
 /*
   Material-UI components
 */
@@ -11,7 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
-function EnhancedTableHead(props) {
+export default function EnhancedTableHead(props) {
     /*
       Properties
     */
@@ -26,19 +25,13 @@ function EnhancedTableHead(props) {
     } = props;
 
     /*
-      Handlers
-    */
-    const handleRequestSort = property => event => {
-        onRequestSort(event, property);
-    };
-
-    /*
       Render
     */
     return (
         <TableHead>
             <TableRow>
-                {/* CHECKBOX */}
+
+                {/* Checkbox */}
                 <TableCell padding="checkbox">
                     <Checkbox
                         indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -46,24 +39,30 @@ function EnhancedTableHead(props) {
                         onChange={onSelectAllClick}
                     />
                 </TableCell>
-                {/* EXPANDER ICON */}
+
+                {/* Expanded icon */}
                 <TableCell padding="checkbox" />
-                {/* ACTIONS */}
-                <TableCell align='center'>
+
+                {/* Actions */}
+                <TableCell padding="checkbox" align='center' size='small' colSpan={2}>
                     Actions
                 </TableCell>
-                {/* HEADERS */}
+
+                {/* Headers */}
                 {headCells.map(headCell => (
                     <TableCell
-                        key={headCell.id}
-                        align={headCell.numeric ? 'right' : 'left'}
+                        key={headCell.key}
+                        align={
+                            (headCell.type === 'Int' || headCell.type === 'Float') ? 
+                            'right' : 'left'
+                        }
                         padding="default"
-                        sortDirection={orderBy === headCell.id ? order : false}
+                        sortDirection={orderBy === headCell.name ? order : false}
                     >
                         <TableSortLabel
-                            active={orderBy === headCell.id}
+                            active={orderBy === headCell.name}
                             direction={order}
-                            onClick={handleRequestSort(headCell.id)}
+                            onClick={(event) => {onRequestSort(event, headCell.name)}}
                         >
                             {headCell.label}
                         </TableSortLabel>
@@ -78,9 +77,10 @@ function EnhancedTableHead(props) {
 */
 EnhancedTableHead.propTypes = {
     headCells: PropTypes.arrayOf(PropTypes.exact({
-        id: PropTypes.number,
+        key: PropTypes.number,
         name: PropTypes.string,
-        label: PropTypes.string,   
+        label: PropTypes.string,
+        type: PropTypes.string,
     })).isRequired,
     numSelected: PropTypes.number.isRequired,
     order: PropTypes.oneOf(['asc', 'desc']).isRequired,

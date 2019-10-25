@@ -33,7 +33,8 @@ export default {
 
         //set
         const queryName = `count${model.names.namePlCp}`; //PlCp: pluralize-capitalized
-        const modelAttributes = Object.keys(model.attributes);
+        var modelAttributes = Object.keys(model.attributes);
+        modelAttributes.unshift('id');
 
 
         /**
@@ -108,7 +109,8 @@ export default {
     getItems (model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
         //set
         const queryName = model.names.namePlLc; //PlLc: pluralize-lowercase
-        const modelAttributes = Object.keys(model.attributes);
+        var modelAttributes = Object.keys(model.attributes);
+        modelAttributes.unshift('id');
 
         /*
           Construct search parameter

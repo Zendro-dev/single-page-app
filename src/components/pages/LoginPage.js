@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { authRequest } from '../store/actions.js';
+import { authRequest } from '../../store/actions.js';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
+import SnackbarContentWrapper from '../SnackbarContentWrapper'
 
 /*
   Material-UI components
 */
-import SnackbarContentWrapper from './SnackbarContentWrapper'
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
 import Card from '@material-ui/core/Card';

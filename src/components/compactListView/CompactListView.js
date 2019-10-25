@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import api from '../../../requests/index'
+import api from '../../requests/index'
 
 /*
   Material-UI components

@@ -8,6 +8,11 @@ export default {
         "name": "String",
         "description": "String"
     },
+    "attributesMap": [
+        "id",
+        "name",
+        "description",
+    ],
     "associations": {
         "users": {
             "type": "to_many",

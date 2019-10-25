@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { lighten, makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
 import api from '../../../requests/index'
 import EnhancedTableHead from './components/EnhancedTableHead'
 import EnhancedTableToolbar from './components/EnhancedTableToolbar'
-import CompactListView from './CompactListView'
+import EnhancedTableRow from './components/row/EnhancedTableRow'
 
 /*
   Material-UI components
-*/
-/*
-  Table
 */
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -65,11 +61,9 @@ import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
   Styles
 */
 const useStyles = makeStyles(theme => ({
-
-    /*
-      Head style
-    */
-
+    root2: {
+        flexGrow: 1,
+    },
     root: {
         marginTop: theme.spacing(7),
     },
@@ -77,23 +71,14 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(2),
     },
     table: {
-    },
-    tableWrapper: {
         overflowX: 'auto',
     },
-    actionsBox: {
-        display: "flex",
-        flexDirection: "row",
-        p: 0,
-        m: 0,
-        alignItems: "center",
-        justifyContent: "center",
+    x: {
+        width: '100%',
     }
 }));
-/*
-  Component
-*/
-export default function EnhancedTable(props){
+
+export default function EnhancedTable(props) {
     /*
       Styles
     */
@@ -102,6 +87,7 @@ export default function EnhancedTable(props){
       Properties
     */
     const { model } = props;
+    const headCells = makeHeadCells(props.model.attributes);
     /*
       State
     */
@@ -122,46 +108,50 @@ export default function EnhancedTable(props){
     /*
       Flags
     */
-    //managed by: getData()
-    var isOnApiRequest = false;
+    var isOnApiRequest = false; //context of: getData()
     /*
       Effects
     */
     useEffect(() => {
+        /**
+         * Debug
+         */
+        console.log("headCells: ", headCells);
+
         getData();
     }, []);
 
     useEffect(() => {
         console.log("new search: ", search);
-        if(!isOnApiRequest) {
+        if (!isOnApiRequest) {
             //getData();
         }
     }, [search]);
 
     useEffect(() => {
         console.log("new order: ", order);
-        if(!isOnApiRequest) {
+        if (!isOnApiRequest) {
             //getData();
         }
     }, [order]);
 
     useEffect(() => {
         console.log("new orderBy: ", orderBy);
-        if(!isOnApiRequest) {
+        if (!isOnApiRequest) {
             //getData();
         }
     }, [orderBy]);
 
     useEffect(() => {
         console.log("new page: ", page);
-        if(!isOnApiRequest) {
+        if (!isOnApiRequest) {
             //getData();
         }
     }, [page]);
 
     useEffect(() => {
         console.log("new rowsPerPage: ", rowsPerPage);
-        if(!isOnApiRequest) {
+        if (!isOnApiRequest) {
             //getData();
         }
     }, [rowsPerPage]);
@@ -169,6 +159,48 @@ export default function EnhancedTable(props){
     /*
       Methods
     */
+    /**
+     * makeHeadCells
+     *
+     * @param {Object} attributes Model attributes object.
+     */
+    function makeHeadCells(attributes) {
+
+        var headCells = [];
+        var attributesKeys = Object.keys(attributes);
+
+        //make id cell
+        headCells.push({ key: 0, name: "id", label: "Id", type: "Int" });
+
+        //make attributes cells
+        for (var i = 0; i < attributesKeys.length; i++) {
+            var o = {};
+
+            //add key
+            o.key = i + 1;
+
+            //add name
+            o.name = attributesKeys[i];
+
+            //add label
+            o.label = makeCellLabel(attributesKeys[i]);
+
+            //add type
+            o.type = attributes[attributesKeys[i]];
+
+            //push
+            headCells.push(o);
+        }
+        return headCells;
+    }
+
+    function makeCellLabel(text) {
+
+        //capitalize first letter
+        var label = text[0].toUpperCase() + text.slice(1);
+
+        return label;
+    }
 
     /**
      * getData
@@ -314,9 +346,9 @@ export default function EnhancedTable(props){
     /**
      * On search text changed handler.
      * 
-     * @param {string} value New search text value.
+     * @param {String} value New search text value.
      */
-    const onSearchChanged = search => {
+    const handleSearchChanged = search => {
         setSearch(search);
     }
 
@@ -327,9 +359,14 @@ export default function EnhancedTable(props){
     }
 
     const handleRequestSort = (event, property) => {
-        const isDesc = orderBy === property && order === 'desc';
+        //invert order
+        const isDesc = (order === 'desc');
         setOrder(isDesc ? 'asc' : 'desc');
-        setOrderBy(property);
+
+        if (orderBy !== property) {
+            //set new orderBy
+            setOrderBy(property);
+        }
     };
 
     const handleSelectAllClick = event => {
@@ -439,165 +476,152 @@ export default function EnhancedTable(props){
       Render
     */
     return (
-        <div>
-            <Grid
-                className={classes.root}
-                container
-                spacing={0}
-                direction="column"
-                alignItems="center"
-                justify="center"
-            >
-                <Grid item xs={9} md={11} lg={12}>
+        <div className={classes.root}>
+            <Grid container>
+                <Grid item xs={12}>
                     <Paper className={classes.paper}>
+
                         {/* Toolbar */}
-                        <EnhancedTableToolbar numSelected={selected.length} />
+                        <EnhancedTableToolbar
+                            numSelected={selected.length}
+                            search={search}
+                            onSearchChanged={handleSearchChanged}
+                        />
 
                         {/* Table */}
-                        <div className={classes.tableWrapper}>
-                            <Table
-                                className={classes.table}
-                                aria-labelledby="tableTitle"
-                                size={dense ? 'small' : 'medium'}
-                                aria-label="enhanced table"
-                            >
-                                {/* Table Head */}
-                                <EnhancedTableHead
-                                    classes={classes}
-                                    numSelected={selected.length}
-                                    order={order}
-                                    orderBy={orderBy}
-                                    onSelectAllClick={handleSelectAllClick}
-                                    onRequestSort={handleRequestSort}
-                                    rowCount={count}
-                                />
+                        <Table size={dense ? 'small' : 'medium'}>
+                            
+                            {/* Table Head */}
+                            <EnhancedTableHead
+                                headCells={headCells}
+                                numSelected={selected.length}
+                                order={order}
+                                orderBy={orderBy}
+                                rowCount={count}
+                                onSelectAllClick={handleSelectAllClick}
+                                onRequestSort={handleRequestSort}
+                            />
 
-                                {/* Table Body */}
-                                <TableBody>
-                                    {
-                                        items.map((item, index) => {
-                                            const isItemSelected = isSelected(item.id);
-                                            const isItemExpanded = isExpanded(item.id);
-                                            const labelId = `enhanced-table-checkbox-${index}`;
+                            {/* Table Body */}
+                            <TableBody>
+                                {
+                                    items.map((item, index) => {
+                                        const isItemSelected = isSelected(item.id);
+                                        const isItemExpanded = isExpanded(item.id);
+                                        const itemKeys = Object.keys(item);
 
-                                            return ([
-                                                /*
-                                                  Item Row
-                                                */
-                                                <TableRow
-                                                    hover
-                                                    onClick={event => handleClickOnRow(event, item)}
-                                                    role="checkbox"
-                                                    aria-checked={isItemSelected}
-                                                    tabIndex={-1}
-                                                    key={item.id}
-                                                    selected={isItemSelected}
-                                                >
-                                                    {/*
-                            Checkbox 
-                          */}
-                                                    <TableCell padding="checkbox">
-                                                        <Checkbox
-                                                            checked={isItemSelected}
-                                                            inputProps={{ 'aria-labelledby': labelId }}
-                                                            onChange={event => handleRowChecked(event, item)}
+                                        return ([
+                                            /*
+                                              Table Row
+                                            */
+                                            <TableRow
+                                                hover
+                                                onClick={event => handleClickOnRow(event, item)}
+                                                role="checkbox"
+                                                aria-checked={isItemSelected}
+                                                tabIndex={-1}
+                                                key={item.id}
+                                                selected={isItemSelected}
+                                            >
+                                                {/* Checkbox */}
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        checked={isItemSelected}
+                                                        onChange={event => handleRowChecked(event, item)}
+                                                    />
+                                                </TableCell>
+
+                                                {/* Expand icon */}
+                                                <TableCell padding="checkbox">
+                                                    <Tooltip title="">
+                                                        <IconButton
+                                                            color="primary"
+                                                            style={{
+                                                                transition: 'all ease 200ms',
+                                                                transform: isItemExpanded ? 'rotate(90deg)' : 'none'
+                                                            }}
+                                                            onClick={event => handleRowExpanded(event, item)}
+                                                        >
+                                                            <ArrowRight />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </TableCell>
+
+                                                {/*
+                                                    Actions:
+                                                    - Edit
+                                                    - Delete
+                                                */}
+                                                <TableCell padding='checkbox' align='center'>
+                                                    <Tooltip title="Edit">
+                                                        <IconButton color="primary">
+                                                            <Edit fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </TableCell>
+
+                                                <TableCell padding='checkbox' align='center'>
+                                                    <Tooltip title="Delete">
+                                                        <IconButton color="primary">
+                                                            <Delete fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </TableCell>
+
+                                                {/* Item fields */}
+                                                {headCells.map(head => (
+                                                    <TableCell
+                                                        key={head.name + item.id}
+                                                        align={
+                                                            (head.type === 'Int' || head.type === 'Float') ?
+                                                                'right' : 'left'
+                                                        }
+                                                        padding="default"
+                                                    >
+                                                        {item[head.name]}
+                                                    </TableCell>
+                                                ))}
+
+                                            </TableRow>,
+                                            /*
+                                              Detail Row
+                                            */
+                                            (isItemExpanded) && (
+                                                <TableRow key={"detail-row-" + item.id}>
+                                                    <TableCell colSpan={6} padding="none">
+                                                        <EnhancedTableRow
+                                                            item={item}
+                                                            toOnes={model.toOnes}
+                                                            toManys={model.toManys}
                                                         />
                                                     </TableCell>
-                                                    {/*
-                            Expand
-                          */}
-                                                    <TableCell padding="checkbox">
-                                                        <Tooltip title="">
-                                                            <IconButton
-                                                                color="primary"
-                                                                aria-label="expand-row"
-                                                                style={{
-                                                                    transition: 'all ease 200ms',
-                                                                    transform: isItemExpanded ? 'rotate(90deg)' : 'none'
-                                                                }}
-                                                                onClick={event => handleRowExpanded(event, item)}
-                                                            >
-                                                                <ArrowRight />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
-                                                    {/*
-                            Actions:
-                            - Edit
-                            - Delete
-                          */}
-                                                    <TableCell>
-                                                        <div style={{ width: '100%' }}>
-                                                            <Box className={classes.actionsBox}>
-                                                                <Box>
-                                                                    <Tooltip title="Edit">
-                                                                        <IconButton color="primary" aria-label="add">
-                                                                            <Edit fontSize="small" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                </Box>
-                                                                <Box>
-                                                                    <Tooltip title="Delete">
-                                                                        <IconButton color="primary" aria-label="import">
-                                                                            <Delete fontSize="small" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                </Box>
-                                                            </Box>
-                                                        </div>
-                                                    </TableCell>
-                                                    {/*
-                            Item fields
-                          */}
-                                                    <TableCell style={{ width: '500px' }} align="right">{item.id}</TableCell>
-                                                    <TableCell style={{ width: '500px' }} align="left">{item.email}</TableCell>
-                                                    <TableCell style={{ width: '500px' }} align="left">{item.password}</TableCell>
+                                                </TableRow>
+                                            )
+                                        ]);
+                                    })
+                                }
+                                {emptyRows > 0 && (
+                                    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
 
-                                                </TableRow>,
-                                                /*
-                                                  Detail Row
-                                                */
-                                                (isItemExpanded) && (
-                                                    <TableRow key={"detail-row-" + item.id}>
-                                                        <TableCell colSpan={6} padding="none">
-                                                            <DetailRow
-                                                                item={item}
-                                                                toOnes={toOnes}
-                                                                toManys={toManys}
-                                                            />
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )
-                                            ]);
-                                        })
-                                    }
-                                    {emptyRows > 0 && (
-                                        <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                                            <TableCell colSpan={6} />
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                        {/*
-              Pagination
-            */}
+                         {/*
+                            Pagination
+                        */}
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25]}
                             component="div"
                             count={items.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
-                            backIconButtonProps={{
-                                'aria-label': 'previous page',
-                            }}
-                            nextIconButtonProps={{
-                                'aria-label': 'next page',
-                            }}
                             onChangePage={handleChangePage}
                             onChangeRowsPerPage={handleChangeRowsPerPage}
                         />
                     </Paper>
+                    
                     <FormControlLabel
                         control={<Switch checked={dense} onChange={handleChangeDense} />}
                         label="Dense padding"

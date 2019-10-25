@@ -9,9 +9,9 @@ import { connect } from 'react-redux';
 import decode from 'jwt-decode';
 
 //components
-import Login from './components/LoginPage'
+import Login from './components/pages/LoginPage'
 import MainPanel from './components/mainPanel/MainPanel'
-import NotFoundPage from './components/NotFoundPage'
+import NotFoundPage from './components/pages/NotFoundPage'
 
 
 function App() {

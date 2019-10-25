@@ -43,144 +43,158 @@ const useToolbarStyles = makeStyles(theme => ({
                 color: theme.palette.text.primary,
                 backgroundColor: theme.palette.secondary.dark,
             },
-    titleSection: {
-        flex: '1 1 100%',
-    },
-    noTitleSection: {
-        flex: '.8 1 100%',
-    },
-    actionsSection: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-end",
-    }
 }));
 
-/*
-  Component
-*/
 export default function EnhancedTableToolbar(props) {
     /*
       Properties
     */
     const classes = useToolbarStyles();
-    const { 
-        numSelected, 
+    const {
+        numSelected,
         search,
         onSearchChanged,
     } = props;
 
     /*
-      
+      Render
     */
-
     return (
         <Toolbar
             className={clsx(classes.root, {
                 [classes.highlight]: numSelected > 0,
             })}
         >
-            {/* TITLE */}
-            {numSelected > 0 ? 
-            (
-                /*
-                  On selection
-                */
-                <Typography className={classes.titleSection} color="inherit" variant="subtitle1">
-                    {numSelected} selected
-                </Typography>
-            ) : 
-            (
-                /*
-                  On no-selection
-                */
-                <Typography className={classes.titleSection} variant="h6">
-                    Users
-                </Typography>
-            )}
+            <Grid container>
+                <Grid item xs={12}>
+                    <Grid container justify='space-between' alignItems='center' wrap='wrap'>
+            
+                        {/* Title */}
+                        {numSelected > 0 ?
+                            (
+                                /*
+                                  On selection
+                                */
+                                <Grid item>
+                                    <Typography color="inherit" variant="subtitle1">
+                                        {numSelected} selected
+                                    </Typography>
+                                </Grid>
+                            ) :
+                            (
+                                /*
+                                  On no-selection
+                                */
+                                <Grid item>
+                                    <Typography variant="h6">
+                                        Users
+                                    </Typography>
+                                </Grid>
+                            )
+                        }
 
-            {/* ACTIONS */}
-            {numSelected > 0 ?
-                (
-                    /*
-                      On selection
-                    */
-                    <Tooltip title="Delete">
-                        <IconButton aria-label="delete">
-                            <Delete />
-                        </IconButton>
-                    </Tooltip>
-                ) :
-                (
-                    /*
-                      On no-selection
-                    */
-                    <div className={classes.noTitle}>
-                        <Box className={classes.actionsBox}>
-                            
-                            {/* Search field */}
-                            <Box>
-                                <TextField
-                                    id="search-field"
-                                    value={search}
-                                    placeholder="Search"
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Tooltip title="Search">
-                                                    <Search color="inherit" fontSize="small" />
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip title="Clear search">
-                                                    <IconButton
-                                                    disabled={!search}
-                                                    onClick={() => onSearchChanged('')}
-                                                    >
-                                                        <Clear color="inherit" fontSize="small" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    onChange={event => onSearchChanged(event.target.value)}
-                                />
-                            </Box>
+                        {/* Actions */}
+                        {numSelected > 0 ?
+                            (
+                                /*
+                                  On selection
+                                */
+                                <Grid item>
+                                    <Tooltip title="Delete">
+                                        <IconButton aria-label="delete">
+                                            <Delete />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Grid>
+                            ) :
+                            (
+                                /*
+                                  On no-selection
+                                */
+                                <Grid item>
+                                    {/* Container: Search field + Actions */}
+                                    <Grid container>
+                                        <Grid item xs={12}>
+                                            <Grid container justify="flex-end" alignItems='center' wrap='wrap'>
 
-                            {/*
-                                Actions on: no selection
-                                - Add
-                                - Import
-                                - Export
-                            */}
-                            <Box>
-                                <Tooltip title="Add new user">
-                                    <IconButton color="primary" aria-label="add">
-                                        <Add />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                            <Box>
-                                <Tooltip title="Import from CSV">
-                                    <IconButton color="primary" aria-label="import">
-                                        <Import />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
+                                                <Grid item>
 
-                            <Box>
-                                <Tooltip title="Export to CSV">
-                                    <IconButton color="primary" aria-label="export">
-                                        <Export />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                        </Box>
-                    </div>
-                )}
+                                                    {/* Search field */}
+                                                    <TextField
+                                                        id="search-field"
+                                                        value={search}
+                                                        placeholder="Search"
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <Tooltip title="Search">
+                                                                        <Search color="inherit" fontSize="small" />
+                                                                    </Tooltip>
+                                                                </InputAdornment>
+                                                            ),
+                                                            endAdornment: (
+                                                                <InputAdornment position="end">
+                                                                    <Tooltip title="Clear search">
+                                                                        <span><IconButton
+                                                                            disabled={!search}
+                                                                            onClick={() => onSearchChanged('')}
+                                                                        >
+                                                                            <Clear color="inherit" fontSize="small" />
+                                                                        </IconButton></span>
+                                                                    </Tooltip>
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                        onChange={event => onSearchChanged(event.target.value)}
+                                                    />
+
+                                                </Grid>
+                                                <Grid item>
+
+                                                    {/*
+                                                        Actions on: no selection
+                                                        - Add
+                                                        - Import
+                                                        - Export
+                                                    */}
+                                                    <Grid container>
+                                                        <Grid item xs={12}>
+                                                            <Grid container justify="center">
+                                                                <Grid item>
+                                                                    <Tooltip title="Add new user">
+                                                                        <IconButton color="primary" aria-label="add">
+                                                                            <Add />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <Tooltip title="Import from CSV">
+                                                                        <IconButton color="primary" aria-label="import">
+                                                                            <Import />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Grid>
+                                                                <Grid item>
+                                                                    <Tooltip title="Export to CSV">
+                                                                        <IconButton color="primary" aria-label="export">
+                                                                            <Export />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Grid>
+
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            )
+                        }
+                    </Grid>
+                </Grid>
+            </Grid>
         </Toolbar>
     );
 };

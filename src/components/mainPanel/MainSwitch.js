@@ -4,12 +4,9 @@ import {
   Switch,
   Route
 } from 'react-router-dom'
-
-//components
-import HomePage from './HomePage'
-import TableVIew from './TableView'
-import NotFoundSection from '../NotFoundSection'
-
+import TablesSwitch from './tablePanel/TablesSwitch'
+import HomePage from './pages/HomePage'
+import NotFoundSectionPage from './pages/NotFoundSectionPage'
 
 function StackView() {
   return (
@@ -23,11 +20,11 @@ function StackView() {
                   </Route>
 
                   <Route path="/main/admin">
-                      <TableVIew />
+                      <TablesSwitch />
                   </Route>
 
                   <Route path="/main">
-                      <NotFoundSection />
+                      <NotFoundSectionPage />
                   </Route>
 
               </Switch>

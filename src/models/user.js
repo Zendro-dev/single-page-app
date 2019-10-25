@@ -6,7 +6,7 @@ export default {
     "storageType": "SQL",
     "attributes": {
         "email": "String",
-        "password": "String"
+        "password": "String",
     },
     "associations": {
         "roles": {
