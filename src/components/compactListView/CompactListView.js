@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import api from '../../requests/index'
+import { FixedSizeList } from 'react-window';
 
 /*
   Material-UI components
@@ -45,7 +46,7 @@ import Slide from '@material-ui/core/Slide';
 import Badge from '@material-ui/core/Badge';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import { FixedSizeList } from 'react-window';
+
 
 
 /*

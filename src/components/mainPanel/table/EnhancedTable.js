@@ -42,6 +42,8 @@ import Zoom from '@material-ui/core/Zoom';
 import Grow from '@material-ui/core/Grow';
 import Slide from '@material-ui/core/Slide';
 import Badge from '@material-ui/core/Badge';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 /*
   Icons
@@ -93,14 +95,20 @@ export default function EnhancedTable(props) {
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [isOnApiRequest, setIsOnApiRequest] = useState(true);
+    const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
+    const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
+    const [searchTimeoutId, setSearchTimeoutId] = useState(0);
+    const [isSearchTimeoutOn, setIsSearchTimeoutOn] = useState(false);
     /*
       Store selectors
     */
     const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
     /*
-      Flags
+      Vars
     */
-    var isOnApiRequest = false; //context of: getData()
+    
+    //var isOnApiRequest = false; //context of: getData()
     /*
       Effects
     */
@@ -114,43 +122,113 @@ export default function EnhancedTable(props) {
     }, []);
 
     useEffect(() => {
-        console.log("new search: ", search);
-        if (!isOnApiRequest) {
-            //getData();
+        console.log("new search: ", search, " isGettingFirstData: ", isGettingFirstData);
+        
+        if(isGettingFirstData) {
+          return;
         }
+
+        console.log("IS TIMEOUT ON: ", isSearchTimeoutOn);
+        if(isSearchTimeoutOn) {
+          //clear current timeout
+          window.clearTimeout(searchTimeoutId);
+  
+          console.log("CLEAR: timeout: ", searchTimeoutId)
+        }
+
+        //wait
+        waitSearchTimeoutAsync(200);
+
+        //update state
+        setIsSearchTimeoutOn(true);
+
     }, [search]);
 
     useEffect(() => {
         console.log("new order: ", order);
         if (!isOnApiRequest) {
-            //getData();
+            getData();
+        } else {
+          if(!isGettingFirstData)
+            setIsPendingApiRequest(true);
         }
     }, [order]);
 
     useEffect(() => {
         console.log("new orderBy: ", orderBy);
         if (!isOnApiRequest) {
-            //getData();
+            getData();
+        } else {
+          if(!isGettingFirstData)
+            setIsPendingApiRequest(true);
         }
     }, [orderBy]);
 
     useEffect(() => {
         console.log("new page: ", page);
         if (!isOnApiRequest) {
-            //getData();
+            getData();
+        } else {
+          if(!isGettingFirstData)
+            setIsPendingApiRequest(true);
         }
     }, [page]);
 
     useEffect(() => {
         console.log("new rowsPerPage: ", rowsPerPage);
         if (!isOnApiRequest) {
-            //getData();
+            getData();
+        } else {
+          if(!isGettingFirstData)
+            setIsPendingApiRequest(true);
         }
     }, [rowsPerPage]);
+
+    useEffect(() => {
+      console.log("new isOnApiRequest: ", isOnApiRequest);
+      console.log("isPendingApiRequest: ", isPendingApiRequest);
+      
+      if (!isOnApiRequest && isPendingApiRequest) {
+        //reset
+        setIsPendingApiRequest(false);
+
+        //get data  
+        getData();
+      }
+    }, [isOnApiRequest]);
 
     /*
       Methods
     */
+    let waitSearchTimeout = ms => new Promise(resolve => {
+      
+      //set timeout
+      let id = window.setTimeout(function() {
+        console.log("TRIGGER: T-timeout: ", searchTimeoutId, " T-search: ", search, " T-isOnApiReq: ", isOnApiRequest);
+        
+        if (!isOnApiRequest) {
+          getData();
+        } else {
+          setIsPendingApiRequest(true);
+        }
+        
+        //update state
+        setIsSearchTimeoutOn(false);
+
+        //resolve
+        resolve("ok");
+      }, ms);
+
+      //update state
+      setSearchTimeoutId(id);
+      console.log("START: timeout: ", id);
+
+    });
+
+    let waitSearchTimeoutAsync = async ms => {
+      await waitSearchTimeout(ms);
+    };
+
     /**
      * makeHeadCells
      *
@@ -209,19 +287,18 @@ export default function EnhancedTable(props) {
         console.log("@@getData() with: ");
         console.log("@@url: ", graphqlServerUrl);
         console.log("@@search: ", search);
-        console.log("@@onApiRequest: ", search);
+        console.log("@@onApiRequest: ", isOnApiRequest);
+
+        //set state flag
+        setIsOnApiRequest(true);
+
+        //reset
+        if(isGettingFirstData) {
+          setIsGettingFirstData(false);
+        }
 
         /*
-          Save current context
-        */
-        var c_search = search;
-        var c_order = order;
-        var c_orderBy = orderBy;
-        var c_page = page;
-        var c_rowsPerPage = rowsPerPage;
-
-        /*
-          API Request: count
+          API Request: countItems
         */
         api[model.model].getCountItems(model, graphqlServerUrl, search)
             .then(response => {
@@ -233,20 +310,13 @@ export default function EnhancedTable(props) {
                     /**
                      * Debug
                      */
-                    console.log("newCount: ", response.data.data.countUsers);
+                    console.log("newCount: ", response.data.data['count'+model.names.namePlCp]);
 
-                    //handle new count
-                    var newCount = response.data.data.countUsers;
-                    //handleNewCount(newCount);
-
-                    //check empty page
-                    // var p = query.page;
-                    // if ((t.currentTotalItems === (query.page * query.pageSize)) && (query.page > 0)) {
-                    //   p = query.page - 1;
-                    // }
+                    //set new count
+                    var newCount = response.data.data['count'+model.names.namePlCp];
 
                     /*
-                      Get items
+                      API Request: items
                     */
                     api[model.model].getItems(
                         model,
@@ -262,33 +332,21 @@ export default function EnhancedTable(props) {
                             if (
                                 response.data &&
                                 response.data.data &&
-                                response.data.data.users) {
-                                /**
-                                 * Debug
-                                 */
-                                //console.log("items: ", response.data.data.users);
-
-                                //check empty page
-                                // var p = query.page;
-                                // if ((t.currentTotalItems === (query.page * query.pageSize)) && (query.page > 0)) {
-                                //   p = query.page - 1;
-                                // }
-
-                                // resolve({
-                                //   data: response.data.data.users,
-                                //   page: p,
-                                //   totalCount: t.currentTotalItems
-                                // });
+                                response.data.data[model.names.namePl]) {
 
                                 /**
                                  * Debug
                                  */
                                 console.log("@@newCount: ", newCount);
-                                console.log("@@newItems: ", response.data.data.users);
+                                console.log("@@newItems: ", response.data.data[model.names.namePl]);
 
-                                handleNewData(newCount, response.data.data.users);
+                                //update state
+                                setIsOnApiRequest(false);
+                                setCount(newCount);
+                                setItems(response.data.data[model.names.namePl]);
 
                                 //done
+                                console.log("getData: done");
                                 return;
 
                             } else {
@@ -340,13 +398,15 @@ export default function EnhancedTable(props) {
      * 
      * @param {String} value New search text value.
      */
-    const handleSearchChanged = search => {
-        setSearch(search);
+    const handleSearchEnter = text => {
+      console.log("on HSC: text: ", text);
+      
+      setSearch(text);
     }
 
 
-    const handleNewData = (newCount, newItems) => {
-        setCount(newCount);
+    const handleNewData = ( newCount, newItems) => {
+        setCount(newCount); 
         setItems(newItems);
     }
 
@@ -477,7 +537,8 @@ export default function EnhancedTable(props) {
                         <EnhancedTableToolbar
                             numSelected={selected.length}
                             search={search}
-                            onSearchChanged={handleSearchChanged}
+                            title={model.names.namePlCp}
+                            onSearchEnter={handleSearchEnter}
                         />
 
                         {/* Table */}
@@ -495,110 +556,139 @@ export default function EnhancedTable(props) {
                             />
 
                             {/* Table Body */}
-                            <TableBody>
-                                {
-                                    items.map((item, index) => {
-                                        const isItemSelected = isSelected(item.id);
-                                        const isItemExpanded = isExpanded(item.id);
-                                        const itemKeys = Object.keys(item);
+                            {(!isOnApiRequest) && (                            
+                              <Fade
+                                in={true}
+                                unmountOnExit
+                              >
+                                <TableBody>
+                                    {
+                                        items.map((item, index) => {
+                                            const isItemSelected = isSelected(item.id);
+                                            const isItemExpanded = isExpanded(item.id);
+                                            const itemKeys = Object.keys(item);
 
-                                        return ([
-                                            /*
-                                              Table Row
-                                            */
-                                            <TableRow
-                                                hover
-                                                onClick={event => handleClickOnRow(event, item)}
-                                                role="checkbox"
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={item.id}
-                                                selected={isItemSelected}
-                                            >
-                                                {/* Checkbox */}
-                                                <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        checked={isItemSelected}
-                                                        onChange={event => handleRowChecked(event, item)}
-                                                    />
-                                                </TableCell>
-
-                                                {/* Expand icon */}
-                                                <TableCell padding="checkbox">
-                                                    <Tooltip title="">
-                                                        <IconButton
-                                                            color="primary"
-                                                            style={{
-                                                                transition: 'all ease 200ms',
-                                                                transform: isItemExpanded ? 'rotate(90deg)' : 'none'
-                                                            }}
-                                                            onClick={event => handleRowExpanded(event, item)}
-                                                        >
-                                                            <ArrowRight />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-
-                                                {/*
-                                                    Actions:
-                                                    - Edit
-                                                    - Delete
-                                                */}
-                                                <TableCell padding='checkbox' align='center'>
-                                                    <Tooltip title="Edit">
-                                                        <IconButton color="primary">
-                                                            <Edit fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-
-                                                <TableCell padding='checkbox' align='center'>
-                                                    <Tooltip title="Delete">
-                                                        <IconButton color="primary">
-                                                            <Delete fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-
-                                                {/* Item fields */}
-                                                {headCells.map(head => (
-                                                    <TableCell
-                                                        key={head.name + item.id}
-                                                        align={
-                                                            (head.type === 'Int' || head.type === 'Float') ?
-                                                                'right' : 'left'
-                                                        }
-                                                        padding="default"
-                                                    >
-                                                        {item[head.name]}
-                                                    </TableCell>
-                                                ))}
-
-                                            </TableRow>,
-                                            /*
-                                              Detail Row
-                                            */
-                                            (isItemExpanded) && (
-                                                <TableRow key={"detail-row-" + item.id}>
-                                                    <TableCell colSpan={4 + headCells.length} padding="none">
-                                                        <EnhancedTableRow
-                                                            item={item}
-                                                            headCells={headCells}
-                                                            toOnes={model.toOnes}
-                                                            toManys={model.toManys}
+                                            return ([
+                                                /*
+                                                  Table Row
+                                                */
+                                                <TableRow
+                                                    hover
+                                                    onClick={event => handleClickOnRow(event, item)}
+                                                    role="checkbox"
+                                                    aria-checked={isItemSelected}
+                                                    tabIndex={-1}
+                                                    key={item.id}
+                                                    selected={isItemSelected}
+                                                >
+                                                    {/* Checkbox */}
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox
+                                                            checked={isItemSelected}
+                                                            onChange={event => handleRowChecked(event, item)}
                                                         />
                                                     </TableCell>
-                                                </TableRow>
-                                            )
-                                        ]);
-                                    })
-                                }
-                                {emptyRows > 0 && (
-                                    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                                        <TableCell colSpan={4 + headCells.length} />
-                                    </TableRow>
-                                )}
-                            </TableBody>
+
+                                                    {/* Expand icon */}
+                                                    <TableCell padding="checkbox">
+                                                        <Tooltip title="">
+                                                            <IconButton
+                                                                color="primary"
+                                                                style={{
+                                                                    transition: 'all ease 200ms',
+                                                                    transform: isItemExpanded ? 'rotate(90deg)' : 'none'
+                                                                }}
+                                                                onClick={event => handleRowExpanded(event, item)}
+                                                            >
+                                                                <ArrowRight />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
+
+                                                    {/*
+                                                        Actions:
+                                                        - Edit
+                                                        - Delete
+                                                    */}
+                                                    <TableCell padding='checkbox' align='center'>
+                                                        <Tooltip title="Edit">
+                                                            <IconButton color="primary">
+                                                                <Edit fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
+
+                                                    <TableCell padding='checkbox' align='center'>
+                                                        <Tooltip title="Delete">
+                                                            <IconButton color="primary">
+                                                                <Delete fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
+
+                                                    {/* Item fields */}
+                                                    {headCells.map(head => (
+                                                        <TableCell
+                                                            key={head.name + item.id}
+                                                            align={
+                                                                (head.type === 'Int' || head.type === 'Float') ?
+                                                                    'right' : 'left'
+                                                            }
+                                                            padding="default"
+                                                        >
+                                                            {item[head.name]}
+                                                        </TableCell>
+                                                    ))}
+
+                                                </TableRow>,
+                                                /*
+                                                  Detail Row
+                                                */
+                                                (isItemExpanded) && (
+                                                    <TableRow key={"detail-row-" + item.id}>
+                                                        <TableCell colSpan={4 + headCells.length} padding="none">
+                                                            <EnhancedTableRow
+                                                                item={item}
+                                                                headCells={headCells}
+                                                                toOnes={model.toOnes}
+                                                                toManys={model.toManys}
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            ]);
+                                        })
+                                    }
+                                    {/* {emptyRows > 0 && (
+                                        <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                                            <TableCell colSpan={4 + headCells.length} />
+                                        </TableRow>
+                                    )} */}
+                                </TableBody>
+                              </Fade>
+                            )}
+                            {(isOnApiRequest) && (
+                              <Fade
+                                in={true}
+                                unmountOnExit
+                              >
+                                <TableBody>
+                                  <TableRow style={{ height: 53 * 4 }}>
+                                    <TableCell colSpan={4 + headCells.length}>
+                                      <Grid container>
+                                        <Grid item xs={12}>
+                                          <Grid container justify="center">
+                                            <Grid item>
+                                              <CircularProgress color='primary' disableShrink/>
+                                            </Grid>
+                                          </Grid>
+                                        </Grid>
+                                      </Grid>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Fade>
+                            )}
                         </Table>
 
                          {/*

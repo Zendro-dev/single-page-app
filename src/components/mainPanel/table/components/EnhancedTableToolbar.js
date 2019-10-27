@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -6,6 +6,7 @@ import clsx from 'clsx';
 /*
   Material-UI components
 */
+import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,6 +15,7 @@ import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 
 /*
   Icons
@@ -21,9 +23,28 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
 import Export from '@material-ui/icons/SaveAlt';
-import Clear from '@material-ui/icons/Clear';
+import ClearInactive from '@material-ui/icons/BackspaceOutlined';
+import ClearActive from '@material-ui/icons/Backspace';
 import Delete from '@material-ui/icons/DeleteOutline';
 import Search from '@material-ui/icons/Search';
+
+function ElevationScroll(props) {
+  const { children, window } = props;
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+    target: window ? window() : undefined,
+  });
+
+  return React.cloneElement(children, {
+    elevation: trigger ? 4 : 0,
+  });
+}
+
+ElevationScroll.propTypes = {
+  children: PropTypes.element.isRequired,
+  window: PropTypes.func,
+};
 
 /*
   Styles
@@ -43,6 +64,11 @@ const useToolbarStyles = makeStyles(theme => ({
                 color: theme.palette.text.primary,
                 backgroundColor: theme.palette.secondary.dark,
             },
+    appBar: {
+      marginTop: theme.spacing(7),
+      marginleft: theme.spacing(3),
+      marginright: theme.spacing(3),
+    }
 }));
 
 export default function EnhancedTableToolbar(props) {
@@ -53,13 +79,20 @@ export default function EnhancedTableToolbar(props) {
     const {
         numSelected,
         search,
-        onSearchChanged,
+        title,
+        onSearchEnter,
     } = props;
+    /*
+      State
+    */
+    const [displayedSearch, setDisplayedSearch] = useState('');
 
     /*
       Render
     */
     return (
+      // <ElevationScroll {...props}>
+      //   <AppBar className={classes.appBar} color='default' position='fixed'>
         <Toolbar
             className={clsx(classes.root, {
                 [classes.highlight]: numSelected > 0,
@@ -87,7 +120,7 @@ export default function EnhancedTableToolbar(props) {
                                 */
                                 <Grid item>
                                     <Typography variant="h6">
-                                        Users
+                                        {title}
                                     </Typography>
                                 </Grid>
                             )
@@ -122,7 +155,7 @@ export default function EnhancedTableToolbar(props) {
                                                     {/* Search field */}
                                                     <TextField
                                                         id="search-field"
-                                                        value={search}
+                                                        value={displayedSearch}
                                                         placeholder="Search"
                                                         InputProps={{
                                                             startAdornment: (
@@ -135,17 +168,36 @@ export default function EnhancedTableToolbar(props) {
                                                             endAdornment: (
                                                                 <InputAdornment position="end">
                                                                     <Tooltip title="Clear search">
-                                                                        <span><IconButton
-                                                                            disabled={!search}
-                                                                            onClick={() => onSearchChanged('')}
-                                                                        >
-                                                                            <Clear color="inherit" fontSize="small" />
-                                                                        </IconButton></span>
+                                                                        <span>
+                                                                          {(!search) && (
+                                                                              <IconButton
+                                                                                disabled={true}
+                                                                              >
+                                                                                <ClearInactive color="inherit" fontSize="small" />
+                                                                              </IconButton>
+                                                                          )}
+                                                                          {(search) && (
+                                                                              <IconButton
+                                                                                onClick={() => {
+                                                                                  onSearchEnter('');
+                                                                                  setDisplayedSearch('');
+                                                                                }}
+                                                                              >
+                                                                                <ClearActive color="secondary" fontSize="small" />
+                                                                              </IconButton>
+                                                                          )}
+                                                                        </span>
                                                                     </Tooltip>
                                                                 </InputAdornment>
                                                             ),
                                                         }}
-                                                        onChange={event => onSearchChanged(event.target.value)}
+                                                        onKeyPress={event => {
+                                                          if (event.key === 'Enter') {
+                                                            console.log('Enter key pressed, value: ', displayedSearch);
+                                                            onSearchEnter(displayedSearch);
+                                                          }
+                                                        }}
+                                                        onChange={event => setDisplayedSearch(event.target.value)}
                                                     />
 
                                                 </Grid>
@@ -196,6 +248,8 @@ export default function EnhancedTableToolbar(props) {
                 </Grid>
             </Grid>
         </Toolbar>
+      //   </AppBar>
+      // </ElevationScroll>
     );
 };
 
@@ -205,5 +259,6 @@ export default function EnhancedTableToolbar(props) {
 EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
     search: PropTypes.string.isRequired,
-    onSearchChanged: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
+    onSearchEnter: PropTypes.func.isRequired,
 };

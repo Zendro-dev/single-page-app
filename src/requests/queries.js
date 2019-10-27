@@ -54,7 +54,12 @@ export default {
             var sf = '';
             for(var i=0; i<modelAttributes.length; i++)
             {
+              /*
+                For now: only add search fields of type: String
+              */
+              if(model.attributes[modelAttributes[i]] === 'String') {
                 sf += `{field:${modelAttributes[i]}, value:{value:"%${searchText}%"}, operator:like},`
+              }
             }
 
             //make search argument
@@ -121,7 +126,12 @@ export default {
             var sf = '';
             for(var i=0; i<modelAttributes.length; i++)
             {
+              /*
+                For now: only add search fields of type: String
+              */
+              if(model.attributes[modelAttributes[i]] === 'String') {
                 sf += `{field:${modelAttributes[i]}, value:{value:"%${searchText}%"}, operator:like},`
+              }
             }
 
             //make search argument
