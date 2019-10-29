@@ -51,16 +51,35 @@ export default {
 
         if (searchText !== null && searchText !== '') {
             //make search fields
-            var sf = '';
-            for(var i=0; i<modelAttributes.length; i++)
+
+            var words = searchText.split(' ');
+
+            //for each word
+            for(var w=0; w<words.length; w++)
             {
               /*
-                For now: only add search fields of type: String
+                Make OR fields
               */
-              if(model.attributes[modelAttributes[i]] === 'String') {
-                sf += `{field:${modelAttributes[i]}, value:{value:"%${searchText}%"}, operator:like},`
+              var orFields = '';
+              //for each attribute
+              for(var i=0; i<modelAttributes.length; i++)
+              {
+                //type: String
+                if(model.attributes[modelAttributes[i]] === 'String') {
+                  orFields += `{field:${modelAttributes[i]}, value:{type: "string", value:"%${words[w]}%"}, operator:like},`
+                } else {
+                  //if word is an int number
+                if(/[0-9]+/.test(words[w])) {
+                  //type: Int
+                  if(model.attributes[modelAttributes[i]] === 'Int') {
+                      orFields += `{field:${modelAttributes[i]}, value:{type: "string", value:"%${words[w]}%"}, operator:like},`
+                    }
+                  }
+                }
               }
             }
+
+            
 
             //make search argument
             s = `search: {operator:or, search: [ ${sf} ]}`
@@ -283,3 +302,8 @@ export default {
       return requestGraphql({ url, query });
   },
 }
+
+
+/**
+ * Utils
+ */
