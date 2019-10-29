@@ -16,19 +16,18 @@ import Grow from '@material-ui/core/Grow';
 import Slide from '@material-ui/core/Slide';
 import Badge from '@material-ui/core/Badge';
 
-/** 
-   * ASSOCIATION TABS 
-   */
 export default function AssociationTabs(props) {
     /*
       Properties
     */
-    const { toOnes, toManys, associationTypeSelected, classes } = props;
+    const { 
+      toOnes, toManys, associationTypeSelected,
+      associationToManySelected, associationToOneSelected,
+      classes, onAssociationTabClick
+    } = props;
     /*
       State
     */
-    const [toOneSelected, setToOneSelected] = useState(0);
-    const [toManySelected, setToManySelected] = useState(0);
     const [ready, setReady] = useState(false);
 
     /*
@@ -44,18 +43,16 @@ export default function AssociationTabs(props) {
       Render
     */
     return (
-
         <div>
             {/* 
-            Case 0: toOnes
+              Case 0: toOnes
               Nested Tabs 
-          */}
+            */}
             {(associationTypeSelected === 0) && (
                 <Grow in={ready}>
                     <Tabs
-                        className={classes.tabs}
-                        value={toOneSelected}
-                        // onChange={handleChange}
+                        className={classes.htabs}
+                        value={associationToOneSelected}
                         indicatorColor="primary"
                         textColor="primary"
                         variant="scrollable"
@@ -71,8 +68,10 @@ export default function AssociationTabs(props) {
                                         label={item.relationNameCp}
                                         key={item.relationNameCp + index}
                                         value={index}
-                                        className={classes.associationTypeTab}
-                                    // onClick={props.onClick} 
+                                        className={classes.associationTab}
+                                        onClick={event => {
+                                          onAssociationTabClick(event, associationTypeSelected, index, item);
+                                        }} 
                                     />
                                 )
                             })) :
@@ -85,7 +84,7 @@ export default function AssociationTabs(props) {
                                     disabled={true}
                                     disableRipple={true}
                                     disableFocusRipple={true}
-                                    className={classes.associationTypeTab}
+                                    className={classes.associationTab}
                                 />
                             )
                         }
@@ -100,14 +99,12 @@ export default function AssociationTabs(props) {
             {(associationTypeSelected === 1) && (
                 <Grow in={ready}>
                     <Tabs
-                        className={classes.tabs}
-                        value={toManySelected}
-                        // onChange={handleChange}
+                        className={classes.htabs}
+                        value={associationToManySelected}
                         indicatorColor="primary"
                         textColor="primary"
                         variant="scrollable"
                         scrollButtons="auto"
-
                     >
                         {(toManys.length > 0) ?
                             /*
@@ -119,8 +116,10 @@ export default function AssociationTabs(props) {
                                         label={item.relationNameCp}
                                         key={item.relationNameCp + index}
                                         value={index}
-                                        className={classes.associationTypeTab}
-                                    // onClick={props.onClick} 
+                                        className={classes.associationTab}
+                                        onClick={event => {
+                                          onAssociationTabClick(event, associationTypeSelected, index, item);
+                                        }}
                                     />
                                 )
                             })) :
@@ -133,7 +132,7 @@ export default function AssociationTabs(props) {
                                     disabled={true}
                                     disableRipple={true}
                                     disableFocusRipple={true}
-                                    className={classes.associationTypeTab}
+                                    className={classes.associationTab}
                                 />
                             )
                         }
@@ -144,3 +143,20 @@ export default function AssociationTabs(props) {
 
     );
 }
+
+/*
+  PropTypes
+*/
+AssociationTabs.propTypes = {
+  toOnes: PropTypes.array.isRequired, 
+  toManys: PropTypes.array.isRequired, 
+  associationTypeSelected: PropTypes.number.isRequired,
+  associationToManySelected: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.bool]).isRequired,
+  associationToOneSelected: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.bool]).isRequired,
+  classes: PropTypes.object.isRequired,
+  onAssociationTabClick: PropTypes.func.isRequired,
+};

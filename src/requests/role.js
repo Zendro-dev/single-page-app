@@ -103,4 +103,36 @@ export default {
     getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
         return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit);
     },
+    /**
+     * 
+     *  
+     * getAssociationFilter
+     * 
+     * Construct query to get associations filter of the given item model. 
+     * Then do the query-request to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * {
+     *    readOne${modelName}(id: ${itemId}) {
+     *      ${association}Filter {
+     *        id
+     *        ${label}
+     *        ${sublabel}
+     *      }
+     *    }
+     * }
+     * 
+     * @param {String} url GraphQL Server url
+     * @param {Object} modelNames Model names object.
+     * @param {Number} itemId Model item id.
+     * @param {Object} associationNames Association names object.
+     * @param {String} label Label name.
+     * @param {String} sublabel Sublabel name.
+     * @param {Number} paginationOffset Offset.
+     * @param {Number} paginationLimit Max number of items to retreive.
+     */
+    getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
+      return queriesGraphql.getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit);
+    },
 }

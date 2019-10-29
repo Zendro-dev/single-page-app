@@ -206,5 +206,80 @@ export default {
 
         //do request
         return requestGraphql({ url, query });
-    }//end: getItems()
+    }, //end: getItems()
+
+    /**
+     * 
+     *  
+     * getAssociationFilter
+     * 
+     * Construct query to get associations filter of the given item model. 
+     * Then do the query-request to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * {
+     *    readOne${modelName}(id: ${itemId}) {
+     *      ${association}Filter {
+     *        id
+     *        ${label}
+     *        ${sublabel}
+     *      }
+     *    }
+     * }
+     * 
+     * @param {String} url GraphQL Server url
+     * @param {Object} modelNames Model names object.
+     * @param {Number} itemId Model item id.
+     * @param {Object} associationNames Association names object.
+     * @param {String} label Label name.
+     * @param {String} sublabel Sublabel name.
+     * @param {Number} paginationOffset Offset.
+     * @param {Number} paginationLimit Max number of items to retreive.
+     */
+    getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
+      /*
+        Construct search parameter
+      */
+      var s = null;
+      if (searchText !== null && searchText !== '') {
+        /*
+          @label and @sublabel must be STRING type on model definition.
+        */
+
+        //make search fields
+        var sf = '';
+        sf += `{field:${associationNames.label}, value:{value:"%${searchText}%"}, operator:like},`;
+        sf += `{field:${associationNames.sublabel}, value:{value:"%${searchText}%"}, operator:like},`;
+
+        //make search argument
+        s = `search: {operator:or, search: [ ${sf} ]}`
+      }
+
+      /*
+        Construct pagination parameter
+      */
+      var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
+
+      /*
+        Construct graphQL query
+      */
+      var query = '';
+      
+      //if has search
+      if (s !== null) {
+        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${s}, ${p}) {id, ${associationNames.label}, ${associationNames.sublabel}}, countFiltered${associationNames.targetModelPlCp} } }`;
+      }//end: if has search
+      else { // has not search
+        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${p}) {id, ${associationNames.label}, ${associationNames.sublabel}},  countFiltered${associationNames.targetModelPlCp} } }`;
+      }//end: else: has not search
+
+      /**
+       * Debug
+       */
+      console.log("getAssociationFilter.query: gql:\n", query);
+
+      //do request
+      return requestGraphql({ url, query });
+  },
 }

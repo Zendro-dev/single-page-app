@@ -13,50 +13,23 @@ import EnhancedTableRow from './components/row/EnhancedTableRow'
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Collapse from '@material-ui/core/Collapse';
 import Fade from '@material-ui/core/Fade';
-import Zoom from '@material-ui/core/Zoom';
-import Grow from '@material-ui/core/Grow';
-import Slide from '@material-ui/core/Slide';
-import Badge from '@material-ui/core/Badge';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 /*
   Icons
 */
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import Add from '@material-ui/icons/AddBox';
-import Import from '@material-ui/icons/UnarchiveOutlined';
-import Export from '@material-ui/icons/SaveAlt';
-import Clear from '@material-ui/icons/Clear';
 import Delete from '@material-ui/icons/DeleteOutline';
 import Edit from '@material-ui/icons/Edit';
-import Search from '@material-ui/icons/Search';
 import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 /*
@@ -394,7 +367,7 @@ export default function EnhancedTable(props) {
     */
 
     /**
-     * On search text changed handler.
+     * On search text enter handler.
      * 
      * @param {String} value New search text value.
      */
@@ -573,88 +546,89 @@ export default function EnhancedTable(props) {
                                                   Table Row
                                                 */
                                                 <TableRow
-                                                    hover
-                                                    onClick={event => handleClickOnRow(event, item)}
-                                                    role="checkbox"
-                                                    aria-checked={isItemSelected}
-                                                    tabIndex={-1}
-                                                    key={item.id}
-                                                    selected={isItemSelected}
+                                                  hover
+                                                  onClick={event => handleClickOnRow(event, item)}
+                                                  role="checkbox"
+                                                  aria-checked={isItemSelected}
+                                                  tabIndex={-1}
+                                                  key={item.id}
+                                                  selected={isItemSelected}
                                                 >
-                                                    {/* Checkbox */}
-                                                    <TableCell padding="checkbox">
-                                                        <Checkbox
-                                                            checked={isItemSelected}
-                                                            onChange={event => handleRowChecked(event, item)}
-                                                        />
-                                                    </TableCell>
+                                                  {/* Checkbox */}
+                                                  <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        checked={isItemSelected}
+                                                        onChange={event => handleRowChecked(event, item)}
+                                                    />
+                                                  </TableCell>
 
-                                                    {/* Expand icon */}
-                                                    <TableCell padding="checkbox">
-                                                        <Tooltip title="">
-                                                            <IconButton
-                                                                color="primary"
-                                                                style={{
-                                                                    transition: 'all ease 200ms',
-                                                                    transform: isItemExpanded ? 'rotate(90deg)' : 'none'
-                                                                }}
-                                                                onClick={event => handleRowExpanded(event, item)}
-                                                            >
-                                                                <ArrowRight />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
+                                                  {/* Expand icon */}
+                                                  <TableCell padding="checkbox">
+                                                    <Tooltip title="">
+                                                      <IconButton
+                                                          color="primary"
+                                                          style={{
+                                                              transition: 'all ease 200ms',
+                                                              transform: isItemExpanded ? 'rotate(90deg)' : 'none'
+                                                          }}
+                                                          onClick={event => handleRowExpanded(event, item)}
+                                                      >
+                                                          <ArrowRight />
+                                                      </IconButton>
+                                                    </Tooltip>
+                                                  </TableCell>
 
-                                                    {/*
-                                                        Actions:
-                                                        - Edit
-                                                        - Delete
-                                                    */}
-                                                    <TableCell padding='checkbox' align='center'>
-                                                        <Tooltip title="Edit">
-                                                            <IconButton color="primary">
-                                                                <Edit fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
+                                                  {/*
+                                                      Actions:
+                                                      - Edit
+                                                      - Delete
+                                                  */}
+                                                  <TableCell padding='checkbox' align='center'>
+                                                    <Tooltip title="Edit">
+                                                        <IconButton color="primary">
+                                                            <Edit fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                  </TableCell>
 
-                                                    <TableCell padding='checkbox' align='center'>
-                                                        <Tooltip title="Delete">
-                                                            <IconButton color="primary">
-                                                                <Delete fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
+                                                  <TableCell padding='checkbox' align='center'>
+                                                    <Tooltip title="Delete">
+                                                        <IconButton color="primary">
+                                                            <Delete fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                  </TableCell>
 
-                                                    {/* Item fields */}
-                                                    {headCells.map(head => (
-                                                        <TableCell
-                                                            key={head.name + item.id}
-                                                            align={
-                                                                (head.type === 'Int' || head.type === 'Float') ?
-                                                                    'right' : 'left'
-                                                            }
-                                                            padding="default"
-                                                        >
-                                                            {item[head.name]}
-                                                        </TableCell>
-                                                    ))}
+                                                  {/* Item fields */}
+                                                  {headCells.map(head => (
+                                                    <TableCell
+                                                        key={head.name + item.id}
+                                                        align={
+                                                            (head.type === 'Int' || head.type === 'Float') ?
+                                                                'right' : 'left'
+                                                        }
+                                                        padding="default"
+                                                    >
+                                                        {item[head.name]}
+                                                    </TableCell>
+                                                  ))}
 
                                                 </TableRow>,
                                                 /*
                                                   Detail Row
                                                 */
                                                 (isItemExpanded) && (
-                                                    <TableRow key={"detail-row-" + item.id}>
-                                                        <TableCell colSpan={4 + headCells.length} padding="none">
-                                                            <EnhancedTableRow
-                                                                item={item}
-                                                                headCells={headCells}
-                                                                toOnes={model.toOnes}
-                                                                toManys={model.toManys}
-                                                            />
-                                                        </TableCell>
-                                                    </TableRow>
+                                                  <TableRow key={"detail-row-" + item.id}>
+                                                    <TableCell colSpan={4 + headCells.length} padding="none">
+                                                      <EnhancedTableRow
+                                                          item={item}
+                                                          headCells={headCells}
+                                                          toOnes={model.toOnes}
+                                                          toManys={model.toManys}
+                                                          modelNames={model.names}
+                                                      />
+                                                    </TableCell>
+                                                  </TableRow>
                                                 )
                                             ]);
                                         })

@@ -37,306 +37,318 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex',
-    },
-    appBar: {
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    appBarShift: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
-    menuButton: {
-        marginRight: theme.spacing(2),
-    },
-    toolbarLeftButtons: {
-        marginLeft: 'auto',
-    },
-    hide: {
-        display: 'none',
-    },
-    drawer: {
-        width: drawerWidth,
-        flexShrink: 0,
-    },
-    drawerPaper: {
-        width: drawerWidth,
-    },
-    drawerHeader: {
-        display: 'flex',
-        alignItems: 'center',
-        padding: theme.spacing(0, 1),
-        ...theme.mixins.toolbar,
-        justifyContent: 'flex-end',
-    },
-    content: {
-        flexGrow: 1,
-        padding: theme.spacing(3),
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        marginLeft: -drawerWidth,
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-    },
-    nested: {
-        paddingLeft: theme.spacing(4),
-      },
+  root: {
+    display: 'flex',
+  },
+  appBar: {
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  toolbarLeftButtons: {
+    marginLeft: 'auto',
+  },
+  hide: {
+    display: 'none',
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  drawerHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: -drawerWidth,
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  },
+  nested: {
+    paddingLeft: theme.spacing(4),
+  },
 }));
 
 /*
     Component: MainPanel
 */
 function MainPanel({ dispatch }) {
-    const classes = useStyles();
-    const theme = useTheme();
-    const [openDrawer, setOpenDrawer] = useState(true);
-    const [openModelsList, setOpenModelsList] = useState(true);
-    const [modelsList, setModelsList] = useState([]);
-    const [openAdminList, setOpenAdminList] = useState(true);
-    const [selectedIndex, setSelectedIndex] = useState(-1);
-    const [adminItems, setAdminItems] = useState([
-        {
-            id: 0,
-            title: 'user',
-            url: '/main/admin/user',
-        },
-        {
-            id: 1,
-            title: 'role',
-            url: '/main/admin/role',
-        },
-        {
-            id: 2,
-            title: 'role_to_user',
-            url: '/main/admin/role_to_user',
-        }
-    ]);
-    let history = useHistory();
+  /*
+    Properties
+  */
+  const classes = useStyles();
+  const theme = useTheme();
+  const adminItems = [
+    {
+      id: 0,
+      title: 'user',
+      url: '/main/admin/user',
+    },
+    {
+      id: 1,
+      title: 'role',
+      url: '/main/admin/role',
+    },
+    {
+      id: 2,
+      title: 'role_to_user',
+      url: '/main/admin/role_to_user',
+    }
+  ];
+  let history = useHistory();
 
-    //hook:
-    useEffect(() => {
-        //this hook behaves as componentDidMount()
+  /*
+    State
+  */
+  const [openDrawer, setOpenDrawer] = useState(true);
+  const [openModelsList, setOpenModelsList] = useState(true);
+  const [modelsList, setModelsList] = useState([]);
+  const [openAdminList, setOpenAdminList] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-        /*
-          Get model list
 
-          //this would not be needed as table models will be generated.
-        */
-        console.debug("onUseEffect: ok");
-        console.log("@props.history: ", history);
-
-       updateModelList();
-      }, []);
+  //hook:
+  useEffect(() => {
+    //this hook behaves as componentDidMount()
 
     /*
-      Handlers
+      Get model list
+
+      //this would not be needed as table models will be generated.
     */
-    const handleDrawerOpen = () => {
-        setOpenDrawer(true);
-    };
+    console.debug("onUseEffect: ok");
+    console.log("@props.history: ", history);
 
-    const handleDrawerClose = () => {
-        setOpenDrawer(false);
-    };
+    updateModelList();
+  }, []);
 
-    const handleModelsListClick = () => {
-        setOpenModelsList(!openModelsList);
-    };
-    const handleAdminListClick = () => {
-        setOpenAdminList(!openAdminList);
-    };
+  /*
+    Handlers
+  */
+  const handleDrawerOpen = () => {
+    setOpenDrawer(true);
+  };
 
-    /*
-      Methods
-    */
-   function updateModelList() {
-       setModelsList(['Model1', 'Model2', 'Model3']);
-   }
+  const handleDrawerClose = () => {
+    setOpenDrawer(false);
+  };
 
-    return (
-        <Fade in={true} timeout={500}>
-        <div className={classes.root}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                className={clsx(classes.appBar, {
-                    [classes.appBarShift]: openDrawer,
-                })}
+  const handleModelsListClick = () => {
+    setOpenModelsList(!openModelsList);
+  };
+  const handleAdminListClick = () => {
+    setOpenAdminList(!openAdminList);
+  };
+
+  /*
+    Methods
+  */
+  function updateModelList() {
+    setModelsList(['Model1', 'Model2', 'Model3']);
+  }
+
+  return (
+    <Fade in={true} timeout={500}>
+      <div className={classes.root}>
+        <CssBaseline />
+        
+        <AppBar
+          position="fixed"
+          className={clsx(classes.appBar, {
+            [classes.appBarShift]: openDrawer,
+          })}
+        >
+          <Toolbar>
+            
+            {/* 
+              Button: Menu Open/Close 
+            */}
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              className={clsx(classes.menuButton, openDrawer && classes.hide)}
             >
-                <Toolbar>
-                    {/* 
-                        Button: Menu Open/Close 
-                    */}
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        className={clsx(classes.menuButton, openDrawer && classes.hide)}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    {/* 
-                        Title 
-                    */}
-                    <Typography variant="h6" noWrap>
-                        Cenzontle
-                    </Typography>
-                    
-                    <div className={classes.toolbarLeftButtons}>
-                        {/* 
-                            Button: Logout 
-                        */}
-                        <Button
-                            color="inherit"
-                            onClick={() => {
-                                dispatch(logoutRequest());
-                                history.push("/login");
-                            }}
-                        >
-                            Logout
-                        </Button>
-                    </div>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                className={classes.drawer}
-                variant="persistent"
-                anchor="left"
-                open={openDrawer}
-                classes={{
-                    paper: classes.drawerPaper,
+              <MenuIcon />
+            </IconButton>
+            
+            {/* 
+              Title 
+            */}
+            <Typography variant="h6" noWrap>
+              Cenzontle
+            </Typography>
+
+            <div className={classes.toolbarLeftButtons}>
+              {/* 
+                Button: Logout 
+              */}
+              <Button
+                color="inherit"
+                onClick={() => {
+                  dispatch(logoutRequest());
+                  history.push("/login");
                 }}
-            >
-                <div className={classes.drawerHeader}>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                </div>
-                <Divider />
-                <List>
-                    <ListItem button>
-                        <ListItemIcon>
-                            <HomeIcon />
-                        </ListItemIcon>
-                        <ListItemText primary='Home' />
-                    </ListItem>
-                </List>
-                <Divider />
-                <ListItem button onClick={handleModelsListClick}>
-                    <ListItemIcon>
-                        <ModelsIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Models" />
-                    {openModelsList ? <ExpandLess /> : <ExpandMore />}
+              >
+                Logout
+              </Button>
+            </div>
+
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          className={classes.drawer}
+          variant="persistent"
+          anchor="left"
+          open={openDrawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+        >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            </IconButton>
+          </div>
+          <Divider />
+          <List>
+            <ListItem button>
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary='Home' />
+            </ListItem>
+          </List>
+          <Divider />
+          <ListItem button onClick={handleModelsListClick}>
+            <ListItemIcon>
+              <ModelsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Models" />
+            {openModelsList ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={openModelsList} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {modelsList.map((text, index) => (
+                <ListItem button className={classes.nested} key={text}>
+                  <ListItemIcon>
+                    <CircleIconOutlined color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary={text} />
                 </ListItem>
-                <Collapse in={openModelsList} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        {modelsList.map((text, index) => (
-                            <ListItem button className={classes.nested} key={text}>
-                                <ListItemIcon>
-                                    <CircleIconOutlined color="primary"/>
-                                </ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Collapse>
+              ))}
+            </List>
+          </Collapse>
 
-                <Divider />
+          <Divider />
 
-                {/* 
+          {/* 
                     Admin List 
                 */}
-                <ListItem button onClick={handleAdminListClick}>
-                    
-                    {/* 
+          <ListItem button onClick={handleAdminListClick}>
+
+            {/* 
                         Icon 
                     */}
-                    <ListItemIcon>
-                        <ModelsIcon />
-                    </ListItemIcon>
-                    {/* 
+            <ListItemIcon>
+              <ModelsIcon />
+            </ListItemIcon>
+            {/* 
                         List Item Text & Expand Indicator 
                     */}
-                    <ListItemText primary="Admin" /> {openAdminList ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                {/* 
+            <ListItemText primary="Admin" /> {openAdminList ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          {/* 
                     Collapsing List 
                 */}
-                <Collapse in={openAdminList} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        
-                        {/*
+          <Collapse in={openAdminList} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+
+              {/*
                             Map ListItems 
                         */}
-                        {adminItems.map((item) => (
-                            /*
-                              Item
-                            */
-                            <ListItem
-                                button
-                                className={classes.nested}
-                                key={item.id}
-                                onClick={() => {
+              {adminItems.map((item) => (
+                /*
+                  Item
+                */
+                <ListItem
+                  button
+                  className={classes.nested}
+                  key={item.id}
+                  onClick={() => {
 
-                                    //set selected index
-                                    setSelectedIndex(item.id);
+                    //set selected index
+                    setSelectedIndex(item.id);
 
-                                    //push item's url
-                                    console.log("@pushing: ", item.url);
-                                    history.push(item.url);
+                    //push item's url
+                    console.log("@pushing: ", item.url);
+                    history.push(item.url);
 
-                                }}
-                                selected={selectedIndex === item.id}
-                            >
-                                {/*
+                  }}
+                  selected={selectedIndex === item.id}
+                >
+                  {/*
                                     Item.Icon 
                                 */}
-                                <ListItemIcon>
-                                    {
-                                        (selectedIndex === item.id) ?
-                                            <CircleIconFilled color="primary" /> :
-                                            <CircleIconOutlined/>
-                                    }
-                                </ListItemIcon>
-                                {/*
+                  <ListItemIcon>
+                    {
+                      (selectedIndex === item.id) ?
+                        <CircleIconFilled color="primary" /> :
+                        <CircleIconOutlined />
+                    }
+                  </ListItemIcon>
+                  {/*
                                     Item.Text
                                 */}
-                                <ListItemText primary={item.title} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Collapse>
-            </Drawer>
-            <main
-                className={clsx(classes.content, {
-                    [classes.contentShift]: openDrawer,
-                })}
-            > 
-                {/*
+                  <ListItemText primary={item.title} />
+                </ListItem>
+              ))}
+            </List>
+          </Collapse>
+        </Drawer>
+        <main
+          className={clsx(classes.content, {
+            [classes.contentShift]: openDrawer,
+          })}
+        >
+          {/*
                     MainSwitch
                 */}
-                <MainSwitch />
-            </main>
-        </div>
-        </Fade>
-    );
+          <MainSwitch />
+        </main>
+      </div>
+    </Fade>
+  );
 }
 
 /*

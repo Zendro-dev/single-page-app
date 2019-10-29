@@ -25,7 +25,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
   Icons
 */
 import Add from '@material-ui/icons/AddBox';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import Check from '@material-ui/icons/Check';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';

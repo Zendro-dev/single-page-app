@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import api from '../../requests/index'
+import api from '../../requests/index';
 import { FixedSizeList } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
+import CompactListViewToolbar from './components/CompactListViewToolbar';
+
 
 /*
   Material-UI components
@@ -39,13 +42,14 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Collapse from '@material-ui/core/Collapse';
-import Fade from '@material-ui/core/Fade';
 import Zoom from '@material-ui/core/Zoom';
 import Grow from '@material-ui/core/Grow';
 import Slide from '@material-ui/core/Slide';
 import Badge from '@material-ui/core/Badge';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Fade from '@material-ui/core/Fade';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 
@@ -63,204 +67,114 @@ import Edit from '@material-ui/icons/Edit';
 import Search from '@material-ui/icons/Search';
 import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
-/**
- * TOOLBAR
- */
-/*
-  Styles
-*/
-const useToolbarStyles = makeStyles(theme => ({
-  root: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(0),
-  },
-  title: {
-    flex: '1 1 100%',
-  },
-  actionsBox: {
-    display: "flex", 
-    flexDirection: "row",
-    p: 0,
-    m: 0, 
-    alignItems: "center",
-    justifyContent: "flex-end",
-  }
-}));
-/*
-  Component
-*/
-const ListToolbar = props => {
-  /*
-    Properties
-  */
-  const classes = useToolbarStyles();
-  const { title } = props;
 
-  /*
-    Render
-  */
-  return (
-    <Toolbar className={classes.root}>
-
-        <Typography id="listTitle" className={classes.title} variant="h6">
-            {title}    
-        </Typography>
-
-        <Box className={classes.actionsBox}>
-            {/*
-            Search field 
-            */}
-            <Box>
-            <TextField
-                id="search-field"
-                className={classes.textField}
-                placeholder="Search"
-                InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                    <Tooltip title="Search">
-                        <Search color="inherit" fontSize="small" />
-                    </Tooltip>
-                    </InputAdornment>
-                ),
-                endAdornment: (
-                    <InputAdornment position="end">
-                    <Tooltip title="Clear search">
-                        <IconButton
-                        //disabled={!this.props.searchText}
-                        //onClick={() => this.props.onSearchChanged("")}
-                        >
-                        <Clear color="inherit" fontSize="small" />
-                        </IconButton>
-                    </Tooltip>
-                    </InputAdornment>
-                ),
-                }}
-            />
-            </Box>
-        </Box>
-    </Toolbar>
-  );
-};
-/*
-  Prop Types
-*/
-ListToolbar.propTypes = {
-  title: PropTypes.string.isRequired,
-};
-
-/**
- * Row
- */
-function Row(props) {
-    const { index, style } = props;
-
-    return (
-        <ListItem button style={style} key={index}>
-            <ListItemText primary={`Item ${index + 1}`} />
-        </ListItem>
-    );
-}
-
-Row.propTypes = {
-    index: PropTypes.number.isRequired,
-    style: PropTypes.object.isRequired,
-};
-
-/**
- * List
- */
 /*
   Styles
 */
 const useStyles = makeStyles(theme => ({
-    root: {
-        height: '100%',
-        width: '100%',
-        marginTop: theme.spacing(7),
-    },
-    list: {
-        width: '100%',
-        height: 400,
-        maxWidth: 360,
-        backgroundColor: theme.palette.background.paper,
-    },
-    paper: {
-        marginBottom: theme.spacing(2),
-    },
-    tableWrapper: {
-        overflowX: 'auto',
-    },
-    visuallyHidden: {
-        border: 0,
-        clip: 'rect(0 0 0 0)',
-        height: 1,
-        margin: -1,
-        overflow: 'hidden',
-        padding: 0,
-        position: 'absolute',
-        top: 20,
-        width: 1,
-    },
-    actionsBox: {
-        display: "flex",
-        flexDirection: "row",
-        p: 0,
-        m: 0,
-        alignItems: "center",
-        justifyContent: "center",
-    }
+  root: {
+    marginTop: theme.spacing(0),
+  },
+  card: {
+    margin: theme.spacing(1),
+    overflowX: 'auto',
+  },
 }));
-/*
-  Component
-*/
-function CompactListView(props) {
-    /*
-      Styles
-    */
-    const classes = useStyles();
-    /*
-      Properties
-    */
-    const {
-        title,
-        modelName,
-        modelItemId,
-        associationName,
-        associationLabel,
-        associationSublabel,
-    } = props;
 
-    /*
-        State
-    */
-    const [items, setItems] = useState([]);
-    const [count, setCount] = useState(0);
-    const [search, setSearch] = useState('');
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('id');
-    const [selected, setSelected] = useState([]);
-    const [expanded, setExpanded] = useState([]);
-    const [page, setPage] = useState(0);
-    const [dense, setDense] = useState(false);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    /*
-        Store selectors
-    */
-    const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
-    /*
-        Effect
-    */
-    //useEffect((), []) <=> componentDidUpdate()
-    useEffect(() => {
-        //getData() 
-    }, []);
+export default function CompactListView(props) {
+  /*
+    Styles
+  */
+  const classes = useStyles();
+  /*
+    Properties
+  */
+  const {
+    title,
+    modelNames,
+    itemId,
+    associationNames,
+  } = props;
+  const minListHeight = 200;
+  const maxListHeight = 450;
+  var itemHeights = [];
 
-    /*
-        Methods
-    */
+  /*
+    State
+  */
+  const [totalItemsHeight, setTotalItemsHeight] = useState(minListHeight);
+  const [listHeight, setListHeight] = useState(minListHeight);
 
-    /**
+  /*
+    State
+  */
+  const [items, setItems] = useState([]);
+  const [count, setCount] = useState(0);
+  const [search, setSearch] = useState('');
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('id');
+  const [selected, setSelected] = useState([]);
+  const [expanded, setExpanded] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isOnApiRequest, setIsOnApiRequest] = useState(true);
+  const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
+  const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
+  const [searchTimeoutId, setSearchTimeoutId] = useState(0);
+  const [isSearchTimeoutOn, setIsSearchTimeoutOn] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
+
+  /*
+      Store selectors
+  */
+  const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
+
+  /*
+    Effects
+  */
+  useEffect(() => {
+    console.log("hook:[]: ", associationNames);
+    
+    if(associationNames !== undefined){
+      getData();
+    }
+  }, []);
+
+  useEffect(() => {
+
+    console.log("on: useEffect[ITEMS]!!!!!: ", items);
+
+  }, [items]);
+
+   useEffect(() => {
+
+    //new itemsHeight
+    if(count === 0) {
+      itemHeights = [];
+    } else {
+      itemHeights = new Array(count).fill(50);
+    }
+
+    console.log("on: useEffect[COUNT]!!!!!: itemHeights: ", itemHeights);
+
+  }, [count]);
+
+
+  /*
+      Methods
+  */
+  const getItemSize = index => {
+    
+    if(itemHeights.length > 0) {
+      return itemHeights[index];
+    }
+    else {
+      return 50;
+    }
+  }
+
+  /**
      * getData
      * 
      * Get @items and @count from GrahpQL Server.
@@ -269,220 +183,256 @@ function CompactListView(props) {
      * 
      */
     function getData() {
-        /**
-         * Debug
-         */
-        console.log("@@getData() with: ");
-        console.log("@@url: ", search);
-        console.log("@@search: ", search);
-        
-        /*
-        Get count
-        */
-        api.user.getCount(graphqlServerUrl, search)
-        .then(response => {
-            //Check response
-            if (
-            response.data &&
-            response.data.data
-            ) {
-            /**
-             * Debug
-             */
-            console.log("newCount: ", response.data.data.countUsers);
+      /**
+       * Debug
+       */
+      console.log("@@getData() with: ");
+      console.log("@@url: ", graphqlServerUrl);
+      console.log("@@search: ", search);
+      console.log("@@onApiRequest: ", isOnApiRequest);
 
-            //handle new count
-            var newCount = response.data.data.countUsers;
-            //handleNewCount(newCount);
+      //set state flag
+      setIsOnApiRequest(true);
 
-            //check empty page
-            // var p = query.page;
-            // if ((t.currentTotalItems === (query.page * query.pageSize)) && (query.page > 0)) {
-            //   p = query.page - 1;
-            // }
-            
-            /*
-                Get items
-            */
-            api.user.getItems(
-                graphqlServerUrl,
-                search,
-                orderBy,
-                order,
-                page * rowsPerPage, //paginationOffset
-                rowsPerPage, //paginationLimit
-            )
-                .then(response => {
-                //check response
-                if (
-                    response.data &&
-                    response.data.data &&
-                    response.data.data.users) {
-                    /**
-                     * Debug
-                     */
-                    //console.log("items: ", response.data.data.users);
+      //reset
+      if(isGettingFirstData) {
+        setIsGettingFirstData(false);
+      }
 
-                    //check empty page
-                    // var p = query.page;
-                    // if ((t.currentTotalItems === (query.page * query.pageSize)) && (query.page > 0)) {
-                    //   p = query.page - 1;
-                    // }
+      /*
+        Get data
+      */
+      api[modelNames.name].getAssociationFilter(
+        graphqlServerUrl, 
+        modelNames, 
+        itemId, 
+        associationNames,
+        search,
+        page * rowsPerPage, //paginationOffset
+        rowsPerPage, //paginationLimit
+      )
+          .then(response => {
+              //Check response
+              if (
+                  response.data &&
+                  response.data.data
+              ) {
+                  /**
+                   * Debug
+                   */
+                  console.log("newData: ", response.data.data);
 
-                    // resolve({
-                    //   data: response.data.data.users,
-                    //   page: p,
-                    //   totalCount: t.currentTotalItems
-                    // });
+                  //update state
+                  setIsOnApiRequest(false);
+                  setCount(response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`]);
+                  setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
 
-                    /**
-                     * Debug
-                     */
-                    console.log("@@newCount: ", newCount);
-                    console.log("@@newItems: ", response.data.data.users);
+                  //done
+                  return;
 
-                    handleNewData(newCount, response.data.data.users);
+              } else {
 
-                    //done
-                    return;
+                  //error
+                  console.log("error3")
 
-                } else {
+                  //done
+                  return;
+              }
+          })
+          .catch(err => {
 
-                    //error
-                    console.log("error1");
+              //error
+              console.log("error4: ", err)
 
-                    //done
-                    return;
-                }
-                })
-                .catch(err => {
+              //done
+              return;
+          });
+  }
 
-                //error
-                console.log("error2");
-
-                //done
-                return;
-                });
-
-            //done
-            return;
-
-            } else {
-
-            //error
-            console.log("error3")
-
-            //done
-            return;
-            }
-        })
-        .catch(err => {
-
-            //error
-            console.log("error4: ", err)
-
-            //done
-            return;
-        });
+  /*
+      Handlers
+  */
+  /**
+     * On search text enter handler.
+     * 
+     * @param {String} value New search text value.
+     */
+    const handleSearchEnter = text => {
+      console.log("on HSC: text: ", text);
+      
+      setSearch(text);
     }
 
-    /*
-        Handlers
-    */
-    const handleNewData = (newCount, newItems) => {
-        setCount(newCount);
-        setItems(newItems);
-    }
+  const handleNewData = (newCount, newItems) => {
+      setCount(newCount);
+      setItems(newItems);
+  }
 
-    const handleClickOnRow = (event, item) => {
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
 
-        console.log("clicked itemId: ", item.id);
+  const handleChangeRowsPerPage = event => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+  };
 
-        // const selectedIndex = selected.indexOf(name);
-        // let newSelected = [];
+  const handleChangeDense = event => {
+      setDense(event.target.checked);
+  };
 
-        // if (selectedIndex === -1) {
-        //   newSelected = newSelected.concat(selected, name);
-        // } else if (selectedIndex === 0) {
-        //   newSelected = newSelected.concat(selected.slice(1));
-        // } else if (selectedIndex === selected.length - 1) {
-        //   newSelected = newSelected.concat(selected.slice(0, -1));
-        // } else if (selectedIndex > 0) {
-        //   newSelected = newSelected.concat(
-        //     selected.slice(0, selectedIndex),
-        //     selected.slice(selectedIndex + 1),
-        //   );
-        // }
+  const handleItemsRendered = () => {
+    console.log("on: handleItemsRendered!!!!!");
+  }
 
-        // setSelected(newSelected);
-    };
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
 
-    
+  /**
+   * SubComponent: Row
+   */
+  const Row = ({ index, style }) => {
+    const item = items[index];
+    const itemKeys = Object.keys(items[index]);
+    const itemRef = useRef(null);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = event => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const handleChangeDense = event => {
-        setDense(event.target.checked);
-    };
-
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
+    useEffect(() => {
+      //set new item height
+      itemHeights[index] = itemRef.current.clientHeight;
+    }, []);
 
     return (
-        <div>
-        <Grid 
-            className={classes.root}
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justify="center"
-        >
-            <Grid item xs={9} md={11} lg={12}>
-                <Paper className={classes.paper}>
-                    {/*
-                        Toolbar
-                    */}
-                    <ListToolbar title={title} />
-                    
-                    {/*
-                        List
-                    */}
-                    <div className={classes.list}>
-                        <FixedSizeList height={200} width={360} itemSize={46} itemCount={200}>
-                            {Row}
-                        </FixedSizeList>
-                    </div>
-                    
-                    {/*
-                        Pagination
-                    */}
-                    <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
-                        component="div"
-                        count={items.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        backIconButtonProps={{
-                            'aria-label': 'previous page',
-                        }}
-                        nextIconButtonProps={{
-                            'aria-label': 'next page',
-                        }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
-                    />
-                </Paper>
-            </Grid>
+      <CardContent ref={itemRef} >
+        
+        <Typography variant="caption" display="inline"><b>id:</b> </Typography>
+        <Typography variant="caption" display="inline">{item.id}<b> | </b> </Typography>
+
+        <Typography variant="caption" display="inline"><b>{itemKeys[1]}:</b> </Typography>
+        <Typography variant="caption" display="inline">{item[itemKeys[1]]}<b> | </b> </Typography>
+
+        <Typography variant="caption" display="inline"><b>{itemKeys[2]}:</b> </Typography>
+        <Typography variant="caption" display="inline">{item[itemKeys[2]]}<b></b> </Typography>
+{/* 
+        <Typography variant="caption" display="inline">id: </Typography>
+        <Typography variant="caption" display="inline">{item.id}</Typography>
+        
+
+        <Typography color="textSecondary">
+          {item[head.name]}
+        </Typography> */}
+
+      </CardContent>
+    )
+  };
+  Row.propTypes = {
+      index: PropTypes.number.isRequired,
+      style: PropTypes.object.isRequired,
+  };
+
+
+  return (
+    <div className={classes.root}>
+      <Grid container justify='center'>
+        <Grid item xs={12}>
+          <Card className={classes.card}>
+
+            {/* Toolbar */}
+            <CompactListViewToolbar 
+              title={title}
+              search={search}
+              onSearchEnter={handleSearchEnter}
+            />
+
+            {/* Case: no data */}
+            {(!isOnApiRequest && count === 0) && (
+
+              /* Progress */
+              <Fade
+                in={true}
+                unmountOnExit
+              >
+                <div style={{ width: "100%", height: 200 }}>
+                  <Grid container>
+                    <Grid item xs={12}>
+                      <Grid container justify="center" alignItems="center">
+                        <Grid item>
+                          <Typography variant="body1" > No data to display </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </div>
+              </Fade>
+
+            )}
+
+            {/* Case: data ready */}
+            {(!isOnApiRequest && items.length > 0 && count > 0) && (
+            
+              /* List */
+              <List
+                height={listHeight}
+                width="100%"
+                itemCount={count}
+                itemSize={getItemSize}
+                onItemsRendered={handleItemsRendered}
+              >
+                {Row}
+              </List>
+
+            )}
+
+            {/* Case: loading */}
+            {(isOnApiRequest) && (
+              /* Progress */
+              <Fade
+                in={true}
+                unmountOnExit
+              >
+                <div style={{ width: "100%", height: 200 }}>
+                  <Grid container>
+                    <Grid item xs={12}>
+                      <Grid container justify="center">
+                        <Grid item>
+                          <CircularProgress color='primary' disableShrink/>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </div>
+              </Fade>
+
+            )}
+
+            {/* Pagination */}
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={items.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                backIconButtonProps={{
+                    'aria-label': 'previous page',
+                }}
+                nextIconButtonProps={{
+                    'aria-label': 'next page',
+                }}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+
+          </Card>
         </Grid>
-        </div>
-    );
+      </Grid>
+    </div>
+  );
 }
 
-export default CompactListView
+/*
+  PropTypes
+*/
+CompactListView.propTypes = {
+    title: PropTypes.string,
+    modelNames: PropTypes.object,
+    itemId: PropTypes.number,
+    associationNams: PropTypes.object,
+};
