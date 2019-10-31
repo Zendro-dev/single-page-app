@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(0),
   },
   card: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(0),
     overflowX: 'auto',
   },
 }));

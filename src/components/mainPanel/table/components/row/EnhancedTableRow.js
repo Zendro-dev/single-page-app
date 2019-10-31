@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import CompactListView from '../../../../compactListView/CompactListView'
 import AssociationsTabs from './components/AssociationsTabs'
 import AssociationsTypesTabs from './components/AssociationTypesTabs'
@@ -19,6 +19,9 @@ import Collapse from '@material-ui/core/Collapse';
   Styles
 */
 const useDetailRowStyles = makeStyles(theme => ({
+  root: {
+    backgroundColor: "#ffffff"
+  },
   associationsRootGrid: {
     flexGrow: 1,
   },
@@ -155,7 +158,7 @@ export default function EnhancedTableRow(props) {
   */
   return (
     <Collapse in={ready}>
-      <Card>
+      <Card raised={false}  className={classes.root} bgcolor="text.disabled">
 
         {/* DetailView */}
         <DetailView item={item} headCells={headCells} />

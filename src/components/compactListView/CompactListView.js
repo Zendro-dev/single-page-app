@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import api from '../../requests/index';
-import { FixedSizeList } from 'react-window';
 import { VariableSizeList as List } from 'react-window';
 import CompactListViewToolbar from './components/CompactListViewToolbar';
 
@@ -11,61 +10,13 @@ import CompactListViewToolbar from './components/CompactListViewToolbar';
 /*
   Material-UI components
 */
-/*
-  Table
-*/
-import { lighten, makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Collapse from '@material-ui/core/Collapse';
-import Zoom from '@material-ui/core/Zoom';
-import Grow from '@material-ui/core/Grow';
-import Slide from '@material-ui/core/Slide';
-import Badge from '@material-ui/core/Badge';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-
-
-/*
-  Icons
-*/
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import Add from '@material-ui/icons/AddBox';
-import Import from '@material-ui/icons/UnarchiveOutlined';
-import Export from '@material-ui/icons/SaveAlt';
-import Clear from '@material-ui/icons/Clear';
-import Delete from '@material-ui/icons/DeleteOutline';
-import Edit from '@material-ui/icons/Edit';
-import Search from '@material-ui/icons/Search';
-import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 
 /*
@@ -78,6 +29,17 @@ const useStyles = makeStyles(theme => ({
   card: {
     margin: theme.spacing(1),
     overflowX: 'auto',
+  },
+  noDataBox: {
+    width: "100%",
+    height:200,
+  },
+  loadingBox: {
+    width: "100%",
+    height:200,
+  },
+  line: {
+    display: "inline",
   },
 }));
 
@@ -97,13 +59,15 @@ export default function CompactListView(props) {
   } = props;
   const minListHeight = 200;
   const maxListHeight = 450;
-  var itemHeights = [];
+  const defaultRowHeight = 50;
 
   /*
     State
   */
   const [totalItemsHeight, setTotalItemsHeight] = useState(minListHeight);
   const [listHeight, setListHeight] = useState(minListHeight);
+  const [areRowsReady, setAreRowsReady] = useState(false);
+  var itemHeights= [];
 
   /*
     State
@@ -111,20 +75,15 @@ export default function CompactListView(props) {
   const [items, setItems] = useState([]);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState('');
-  const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('id');
-  const [selected, setSelected] = useState([]);
-  const [expanded, setExpanded] = useState([]);
+  // const [selected, setSelected] = useState([]);
+  // const [expanded, setExpanded] = useState([]);
   const [page, setPage] = useState(0);
-  const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
   const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
-  const [searchTimeoutId, setSearchTimeoutId] = useState(0);
-  const [isSearchTimeoutOn, setIsSearchTimeoutOn] = useState(false);
-  const [dataReady, setDataReady] = useState(false);
-
+  const [isCountReady, setIsCountReady] = useState(false);
+  const [areItemsReady, setAreItemsReady] = useState(false);
   /*
       Store selectors
   */
@@ -134,43 +93,128 @@ export default function CompactListView(props) {
     Effects
   */
   useEffect(() => {
+    /**
+     * Debug
+     */
     console.log("hook:[]: ", associationNames);
     
-    if(associationNames !== undefined){
-      getData();
-    }
+    //get data
+    if(associationNames !== undefined){ getData(); }
   }, []);
 
   useEffect(() => {
-
+    /**
+     * Debug
+     */
     console.log("on: useEffect[ITEMS]!!!!!: ", items);
+
+    //update state
+    if(items.length > 0) { setAreItemsReady(true); } else { setAreItemsReady(false); }
 
   }, [items]);
 
    useEffect(() => {
 
+    console.log("on: useEffect[COUNT]!!!!!: ", count);
+
     //new itemsHeight
     if(count === 0) {
+      //reset
       itemHeights = [];
+      //update state
+      setIsCountReady(false);
+
     } else {
-      itemHeights = new Array(count).fill(50);
+      //init
+      itemHeights = new Array(count).fill(defaultRowHeight);
+      //update state
+      setIsCountReady(true);
     }
 
-    console.log("on: useEffect[COUNT]!!!!!: itemHeights: ", itemHeights);
-
   }, [count]);
+
+  useEffect(() => {
+    console.log("new search: ", search, " isGettingFirstData: ", isGettingFirstData);
+    //return on init
+    if(isGettingFirstData) return;
+
+    //get data
+    if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+  }, [search]);
+
+  useEffect(() => {
+    console.log("new areItemsReady: ", areItemsReady,  "  ihs: ", itemHeights);
+
+  }, [areItemsReady]);
+
+  useEffect(() => {
+    console.log("new isCountReady: ", isCountReady);
+    
+  }, [isCountReady]);
+
+  useEffect(() => {
+    console.log("new areRowsReady: ", areRowsReady, "  ihs: ", itemHeights);
+
+    if(areRowsReady) {
+      //get new total items height
+      var t = 0;
+      for (var i=0; i < itemHeights.length; ++i) 
+      {
+        t += itemHeights[i];
+        console.log("[",i,"]: ", itemHeights[i]);
+      }
+
+      /**
+       * Debug
+       */
+      console.log("curTH: ", totalItemsHeight, " newTH: ", t);
+      console.log("curIH: ", itemHeights);
+      console.log("curLH: ", listHeight, " newLH: ", Math.min(Math.max(minListHeight, t), maxListHeight));
+
+      //update totalItemsHeight
+      setTotalItemsHeight(t);
+      //update listHeight
+      setListHeight(Math.min(Math.max(minListHeight, t), maxListHeight));
+    }
+  }, [areRowsReady]);
+
+  useEffect(() => {
+    console.log("new totalItemsHeight: ", totalItemsHeight);
+    
+  }, [totalItemsHeight]);
+
+  useEffect(() => {
+    console.log("new listHeight: ", listHeight);
+    
+  }, [listHeight]);
+
+  useEffect(() => {
+    console.log("new isOnApiRequest: ", isOnApiRequest);
+    console.log("isPendingApiRequest: ", isPendingApiRequest);
+    
+    if (!isOnApiRequest && isPendingApiRequest) {
+      //reset
+      setIsPendingApiRequest(false);
+
+      //get data  
+      getData();
+    }
+  }, [isOnApiRequest]);
+
 
 
   /*
       Methods
   */
   const getItemSize = index => {
+
+    console.log("on getItemSize: index: ", index, "l: ", itemHeights.length, " size: ", itemHeights[index]);
     
     if(itemHeights.length > 0) {
       return itemHeights[index];
     }
     else {
-      return 50;
+      return defaultRowHeight;
     }
   }
 
@@ -191,8 +235,11 @@ export default function CompactListView(props) {
       console.log("@@search: ", search);
       console.log("@@onApiRequest: ", isOnApiRequest);
 
-      //set state flag
+      //update state
       setIsOnApiRequest(true);
+      setCount(0);
+      setItems([]);
+      setAreRowsReady(false);
 
       //reset
       if(isGettingFirstData) {
@@ -223,9 +270,9 @@ export default function CompactListView(props) {
                   console.log("newData: ", response.data.data);
 
                   //update state
-                  setIsOnApiRequest(false);
                   setCount(response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`]);
                   setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
+                  setIsOnApiRequest(false);
 
                   //done
                   return;
@@ -277,15 +324,9 @@ export default function CompactListView(props) {
       setPage(0);
   };
 
-  const handleChangeDense = event => {
-      setDense(event.target.checked);
-  };
-
   const handleItemsRendered = () => {
-    console.log("on: handleItemsRendered!!!!!");
+    console.log("on: handleItemsRendered!!!!!, areItemsReady: ", areItemsReady, "  isCountReady: ", isCountReady, " ihs: ", itemHeights);
   }
-
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
 
   /**
    * SubComponent: Row
@@ -296,30 +337,46 @@ export default function CompactListView(props) {
     const itemRef = useRef(null);
 
     useEffect(() => {
+
+      console.log("onRow: keys: ", itemKeys, " item: ", item);
+      console.log("onRow: count: ", count, " index: ", index, "  cur_ihs: ", itemHeights);
+
       //set new item height
       itemHeights[index] = itemRef.current.clientHeight;
+
+      console.log("onRow: new_ihs: ", itemHeights);
+
+      //update state
+      if(index < (count-1)) {
+        setAreRowsReady(false);
+      } else {
+        setAreRowsReady(true);
+      }
+
     }, []);
 
     return (
       <CardContent ref={itemRef} >
         
+        {/* id */}
         <Typography variant="caption" display="inline"><b>id:</b> </Typography>
-        <Typography variant="caption" display="inline">{item.id}<b> | </b> </Typography>
-
-        <Typography variant="caption" display="inline"><b>{itemKeys[1]}:</b> </Typography>
-        <Typography variant="caption" display="inline">{item[itemKeys[1]]}<b> | </b> </Typography>
-
-        <Typography variant="caption" display="inline"><b>{itemKeys[2]}:</b> </Typography>
-        <Typography variant="caption" display="inline">{item[itemKeys[2]]}<b></b> </Typography>
-{/* 
-        <Typography variant="caption" display="inline">id: </Typography>
         <Typography variant="caption" display="inline">{item.id}</Typography>
-        
 
-        <Typography color="textSecondary">
-          {item[head.name]}
-        </Typography> */}
+        {/* label */}
+        {(itemKeys.length > 1 && item[itemKeys[1]] !== null) && (
+          <div className={classes.line}>
+            <Typography variant="caption" display="inline"><b> | {itemKeys[1]}:</b> </Typography>
+            <Typography variant="caption" display="inline">{item[itemKeys[1]]}</Typography>
+          </div>
+        )}
 
+         {/* sublabel */}
+         {(itemKeys.length > 2 && item[itemKeys[2]] !== null) && (
+          <div className={classes.line}>
+            <Typography variant="caption" display="inline"><b> | {itemKeys[2]}:</b> </Typography>
+            <Typography variant="caption" display="inline">{item[itemKeys[2]]}<b></b> </Typography>
+          </div>
+        )}
       </CardContent>
     )
   };
@@ -343,17 +400,17 @@ export default function CompactListView(props) {
             />
 
             {/* Case: no data */}
-            {(!isOnApiRequest && count === 0) && (
+            {(!isOnApiRequest && (!areItemsReady || !isCountReady)) && (
 
-              /* Progress */
+              /* Label */
               <Fade
                 in={true}
                 unmountOnExit
               >
-                <div style={{ width: "100%", height: 200 }}>
+                <div>
                   <Grid container>
                     <Grid item xs={12}>
-                      <Grid container justify="center" alignItems="center">
+                      <Grid className={classes.noDataBox} container justify="center" alignItems="center">
                         <Grid item>
                           <Typography variant="body1" > No data to display </Typography>
                         </Grid>
@@ -366,18 +423,23 @@ export default function CompactListView(props) {
             )}
 
             {/* Case: data ready */}
-            {(!isOnApiRequest && items.length > 0 && count > 0) && (
+            {(!isOnApiRequest && areItemsReady && isCountReady) && (
             
               /* List */
-              <List
-                height={listHeight}
-                width="100%"
-                itemCount={count}
-                itemSize={getItemSize}
-                onItemsRendered={handleItemsRendered}
+              <Fade
+                in={true}
+                unmountOnExit
               >
-                {Row}
-              </List>
+                <List
+                  height={listHeight}
+                  width="100%"
+                  itemCount={count}
+                  itemSize={getItemSize}
+                  onItemsRendered={handleItemsRendered}
+                >
+                  {Row}
+                </List>
+              </Fade>
 
             )}
 
@@ -388,10 +450,10 @@ export default function CompactListView(props) {
                 in={true}
                 unmountOnExit
               >
-                <div style={{ width: "100%", height: 200 }}>
+                <div>
                   <Grid container>
                     <Grid item xs={12}>
-                      <Grid container justify="center">
+                      <Grid container className={classes.loadingBox} justify="center" alignItems="center" justify="center">
                         <Grid item>
                           <CircularProgress color='primary' disableShrink/>
                         </Grid>

@@ -6,6 +6,7 @@ import api from '../../../requests/index'
 import EnhancedTableHead from './components/EnhancedTableHead'
 import EnhancedTableToolbar from './components/EnhancedTableToolbar'
 import EnhancedTableRow from './components/row/EnhancedTableRow'
+import AddView from '../../createView/CreateView'
 
 /*
   Material-UI components
@@ -24,6 +25,8 @@ import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import Popover from '@material-ui/core/Popover';
 
 /*
   Icons
@@ -71,90 +74,67 @@ export default function EnhancedTable(props) {
     const [isOnApiRequest, setIsOnApiRequest] = useState(true);
     const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
     const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
-    const [searchTimeoutId, setSearchTimeoutId] = useState(0);
-    const [isSearchTimeoutOn, setIsSearchTimeoutOn] = useState(false);
+    //add
+    const [addOpen, setAddOpen] = useState(false);
+    const [addItem, setAddItem] = useState(undefined);
     /*
       Store selectors
     */
     const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
     /*
-      Vars
-    */
-    
-    //var isOnApiRequest = false; //context of: getData()
-    /*
       Effects
     */
     useEffect(() => {
-        /**
-         * Debug
-         */
-        console.log("headCells: ", headCells);
-
         getData();
     }, []);
 
     useEffect(() => {
         console.log("new search: ", search, " isGettingFirstData: ", isGettingFirstData);
-        
-        if(isGettingFirstData) {
-          return;
-        }
+        //return on init
+        if(isGettingFirstData) return;
 
-        console.log("IS TIMEOUT ON: ", isSearchTimeoutOn);
-        if(isSearchTimeoutOn) {
-          //clear current timeout
-          window.clearTimeout(searchTimeoutId);
-  
-          console.log("CLEAR: timeout: ", searchTimeoutId)
-        }
-
-        //wait
-        waitSearchTimeoutAsync(200);
-
-        //update state
-        setIsSearchTimeoutOn(true);
-
+        //get data
+        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
     }, [search]);
 
     useEffect(() => {
         console.log("new order: ", order);
-        if (!isOnApiRequest) {
-            getData();
-        } else {
-          if(!isGettingFirstData)
-            setIsPendingApiRequest(true);
-        }
+        //return on init
+        if(isGettingFirstData) return;
+
+        //get data
+        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+
     }, [order]);
 
     useEffect(() => {
         console.log("new orderBy: ", orderBy);
-        if (!isOnApiRequest) {
-            getData();
-        } else {
-          if(!isGettingFirstData)
-            setIsPendingApiRequest(true);
-        }
+        //return on init
+        if(isGettingFirstData) return;
+
+        //get data
+        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+
     }, [orderBy]);
 
     useEffect(() => {
         console.log("new page: ", page);
-        if (!isOnApiRequest) {
-            getData();
-        } else {
-          if(!isGettingFirstData)
-            setIsPendingApiRequest(true);
-        }
+        //return on init
+        if(isGettingFirstData) return;
+
+        //get data
+        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+
     }, [page]);
 
     useEffect(() => {
         console.log("new rowsPerPage: ", rowsPerPage);
-        if (!isOnApiRequest) {
-            getData();
-        } else {
-          if(!isGettingFirstData)
-            setIsPendingApiRequest(true);
-        }
+        //return on init
+        if(isGettingFirstData) return;
+
+        //get data
+        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+
     }, [rowsPerPage]);
 
     useEffect(() => {
@@ -170,38 +150,21 @@ export default function EnhancedTable(props) {
       }
     }, [isOnApiRequest]);
 
+    useEffect(() => {
+      console.log("add item: ", addItem);
+      
+      if(addItem !== undefined) {
+        //update state
+        setAddOpen(true);
+      } else {
+        //update state
+        setAddOpen(false);
+      }
+  }, [addItem]);
+
     /*
       Methods
     */
-    let waitSearchTimeout = ms => new Promise(resolve => {
-      
-      //set timeout
-      let id = window.setTimeout(function() {
-        console.log("TRIGGER: T-timeout: ", searchTimeoutId, " T-search: ", search, " T-isOnApiReq: ", isOnApiRequest);
-        
-        if (!isOnApiRequest) {
-          getData();
-        } else {
-          setIsPendingApiRequest(true);
-        }
-        
-        //update state
-        setIsSearchTimeoutOn(false);
-
-        //resolve
-        resolve("ok");
-      }, ms);
-
-      //update state
-      setSearchTimeoutId(id);
-      console.log("START: timeout: ", id);
-
-    });
-
-    let waitSearchTimeoutAsync = async ms => {
-      await waitSearchTimeout(ms);
-    };
-
     /**
      * makeHeadCells
      *
@@ -244,7 +207,6 @@ export default function EnhancedTable(props) {
 
         return label;
     }
-
     /**
      * getData
      * 
@@ -487,9 +449,18 @@ export default function EnhancedTable(props) {
         setPage(0);
     };
 
+    const handleAddClicked = (event, item) => {
+      console.log("@@on:-- add clicked: item: ", item);
+
+      //update state
+      setAddItem(item);
+    }
+      
+
     const handleChangeDense = event => {
         setDense(event.target.checked);
     };
+
 
     const isSelected = itemId => selected.indexOf(itemId) !== -1;
 
@@ -529,7 +500,9 @@ export default function EnhancedTable(props) {
                             />
 
                             {/* Table Body */}
-                            {(!isOnApiRequest) && (                            
+
+                            {/* Case: show table body */}
+                            {(!isOnApiRequest && count > 0) && (                            
                               <Fade
                                 in={true}
                                 unmountOnExit
@@ -585,7 +558,12 @@ export default function EnhancedTable(props) {
                                                   */}
                                                   <TableCell padding='checkbox' align='center'>
                                                     <Tooltip title="Edit">
-                                                        <IconButton color="primary">
+                                                        <IconButton 
+                                                          color="primary"
+                                                          onClick={(event) => {
+                                                            console.log("item: ", item);  
+                                                            handleAddClicked(event, item)}}
+                                                        >
                                                             <Edit fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
@@ -593,7 +571,9 @@ export default function EnhancedTable(props) {
 
                                                   <TableCell padding='checkbox' align='center'>
                                                     <Tooltip title="Delete">
-                                                        <IconButton color="primary">
+                                                        <IconButton 
+                                                          color="primary"
+                                                        >
                                                             <Delete fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
@@ -641,6 +621,8 @@ export default function EnhancedTable(props) {
                                 </TableBody>
                               </Fade>
                             )}
+
+                            {/* Case: loading */}
                             {(isOnApiRequest) && (
                               <Fade
                                 in={true}
@@ -663,10 +645,34 @@ export default function EnhancedTable(props) {
                                 </TableBody>
                               </Fade>
                             )}
+
+                            {/* Case: No data */}
+                            {(!isOnApiRequest && count===0) && (
+                              <Fade
+                                in={true}
+                                unmountOnExit
+                              >
+                                <TableBody>
+                                  <TableRow style={{ height: 53 * 4 }}>
+                                    <TableCell colSpan={4 + headCells.length}>
+                                      <Grid container>
+                                        <Grid item xs={12}>
+                                          <Grid container justify="center">
+                                            <Grid item>
+                                            <Typography variant="body1" > No data to display </Typography>
+                                            </Grid>
+                                          </Grid>
+                                        </Grid>
+                                      </Grid>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Fade>
+                            )}
                         </Table>
 
-                         {/*
-                            Pagination
+                        {/*
+                          Pagination
                         */}
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25]}
@@ -685,6 +691,26 @@ export default function EnhancedTable(props) {
                     />
                 </Grid>
             </Grid>
+
+            {/* Popover: AddView */}
+            <Popover
+              id={'add-view-popover'}
+              open={addOpen}
+              // anchorEl={anchorEl}
+              // onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'center',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+            >
+              <AddView 
+                item={addItem} 
+                headCells={headCells}/>
+            </Popover>
         </div>
     );
 }

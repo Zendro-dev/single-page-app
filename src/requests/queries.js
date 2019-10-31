@@ -1,4 +1,5 @@
 import requestGraphql from './request'
+import models from '../models/index'
 
 /**
  * GraphQL API Queries
@@ -17,6 +18,33 @@ export default {
      *      countModel( ${s} ) 
      * }
      * 
+     * 
+     * {
+  roles(
+    search: {
+      operator: and, 
+      search: [
+        {operator: or, 
+         search: [
+          	{field: id, value: {type: "int", value: "28"}, operator: like}, 
+            {field: description, value: {type:"string", value: "%$w%"}, operator: like}
+          ]
+        },
+        {operator: or, 
+         search: [
+          	{field: name, value: {type: "string", value: "%w%"}, operator: like}, 
+            {field: description, value: {type:"string", value: "%$w%"}, operator: like}
+          ]
+        },
+      ]
+	  }
+  ) 
+  {
+    id
+    name 
+  }
+}
+
      * Where:
      *  ${s}: search parameter (optional)
      * 
@@ -44,46 +72,17 @@ export default {
         console.log("getCountItems.modelAttributes: ", modelAttributes);
 
         /*
-          Set @search arg
+          Get @search arg
         */
-        var s = '';
+        var s = getSearchArgument(model, searchText);
+
+        /*
+          Get graphQL @query
+        */
         var query = '';
-
-        if (searchText !== null && searchText !== '') {
-            //make search fields
-
-            var words = searchText.split(' ');
-
-            //for each word
-            for(var w=0; w<words.length; w++)
-            {
-              /*
-                Make OR fields
-              */
-              var orFields = '';
-              //for each attribute
-              for(var i=0; i<modelAttributes.length; i++)
-              {
-                //type: String
-                if(model.attributes[modelAttributes[i]] === 'String') {
-                  orFields += `{field:${modelAttributes[i]}, value:{type: "string", value:"%${words[w]}%"}, operator:like},`
-                } else {
-                  //if word is an int number
-                if(/[0-9]+/.test(words[w])) {
-                  //type: Int
-                  if(model.attributes[modelAttributes[i]] === 'Int') {
-                      orFields += `{field:${modelAttributes[i]}, value:{type: "string", value:"%${words[w]}%"}, operator:like},`
-                    }
-                  }
-                }
-              }
-            }
-
-            
-
-            //make search argument
-            s = `search: {operator:or, search: [ ${sf} ]}`
-
+        
+        //if has search
+        if (s !== null) {
             //make query with search argument
             query = `{ ${queryName}(${s}) }`;
         }
@@ -137,27 +136,12 @@ export default {
         modelAttributes.unshift('id');
 
         /*
-          Construct search parameter
+          Get @search parameter
         */
-        var s = null;
-        if (searchText !== null && searchText !== '') {
-            //make search fields
-            var sf = '';
-            for(var i=0; i<modelAttributes.length; i++)
-            {
-              /*
-                For now: only add search fields of type: String
-              */
-              if(model.attributes[modelAttributes[i]] === 'String') {
-                sf += `{field:${modelAttributes[i]}, value:{value:"%${searchText}%"}, operator:like},`
-              }
-            }
+        var s = getSearchArgument(model, searchText);
 
-            //make search argument
-            s = `search: {operator:or, search: [ ${sf} ]}`
-        }
         /*
-          Construct order parameter
+          Get @order parameter
         */
         var o = null;
         if (orderBy !== '' && orderBy !== null) {
@@ -165,12 +149,12 @@ export default {
             o = `order: [ {field: ${orderBy}, order: ${upOrderDirection}} ]`;
         }
         /*
-          Construct pagination parameter
+          Get @pagination parameter
         */
         var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
         
         /*
-          Construct graphQL query
+          Get graphQL @query
         */
         var query = '';
 
@@ -239,7 +223,7 @@ export default {
      * 
      * {
      *    readOne${modelName}(id: ${itemId}) {
-     *      ${association}Filter {
+     *      ${association}Filter(${s}, ${p}) {
      *        id
      *        ${label}
      *        ${sublabel}
@@ -257,37 +241,30 @@ export default {
      * @param {Number} paginationLimit Max number of items to retreive.
      */
     getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
+      var associationModel = models[associationNames.targetModelLc];
+      /**
+       * Debug
+       */
+      console.log("-@: associationModel: ", associationModel)
+      
       /*
-        Construct search parameter
+        Get @search parameter
       */
-      var s = null;
-      if (searchText !== null && searchText !== '') {
-        /*
-          @label and @sublabel must be STRING type on model definition.
-        */
-
-        //make search fields
-        var sf = '';
-        sf += `{field:${associationNames.label}, value:{value:"%${searchText}%"}, operator:like},`;
-        sf += `{field:${associationNames.sublabel}, value:{value:"%${searchText}%"}, operator:like},`;
-
-        //make search argument
-        s = `search: {operator:or, search: [ ${sf} ]}`
-      }
+      var s = getSearchArgument(associationModel, searchText);
 
       /*
-        Construct pagination parameter
+        Get @pagination parameter
       */
       var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
 
       /*
-        Construct graphQL query
+        Get graphQL @query
       */
       var query = '';
       
       //if has search
       if (s !== null) {
-        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${s}, ${p}) {id, ${associationNames.label}, ${associationNames.sublabel}}, countFiltered${associationNames.targetModelPlCp} } }`;
+        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${s}, ${p}) {id, ${associationNames.label}, ${associationNames.sublabel}}, countFiltered${associationNames.targetModelPlCp}(${s}) } }`;
       }//end: if has search
       else { // has not search
         query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${p}) {id, ${associationNames.label}, ${associationNames.sublabel}},  countFiltered${associationNames.targetModelPlCp} } }`;
@@ -307,3 +284,300 @@ export default {
 /**
  * Utils
  */
+function getSearchArgument(model, searchText) {
+  /**
+   * Debug
+   */
+  console.log("@- on getSearchArgument: ", searchText);
+  
+  var modelAttributes = Object.keys(model.attributes); modelAttributes.unshift('id');
+  var ors = '';
+  var orSearch = null;
+  var ands = '';
+  var andSearch = null;
+
+  if(searchText !== null && searchText !== '') {
+    
+    /*
+      Make AND fields
+    */
+    var words = searchText.split(' ');
+    /**
+     * Debug
+     */
+    console.log("@- words: ", words);
+
+    //for each word
+    for(var w=0; w<words.length; w++)
+    {
+      /*
+        Make OR fields
+      */
+
+      //for each attribute
+      for(var i=0; i<modelAttributes.length; i++)
+      {
+        let num = 0;
+        let d = '';
+        let t = '';
+        let dt = '';
+
+        console.log("@--switch: attType: ", model.attributes[modelAttributes[i]], "  att: ", modelAttributes[i]);
+
+        /*
+          Case (special): attribute: id
+        */
+        if(modelAttributes[i] === 'id') {
+          console.log("@--s: case ID (INT): num: ", parseInt(words[w]));
+          num = parseInt(words[w]);
+          //add if: word is an integer number
+          if(!isNaN(num)) {
+            ors += `{field:${modelAttributes[i]}, value:{value:"${num}"}, operator:eq},`
+          }
+        } else {
+          /*
+            Other attributes
+          */
+          switch(model.attributes[modelAttributes[i]]) {
+            case 'String':
+              //add
+              ors += `{field:${modelAttributes[i]}, value:{value:"%${words[w]}%"}, operator:like},`
+              break;
+
+            case 'Int':
+              console.log("@--s: case Int: num: ", parseInt(words[w]));
+              num = parseInt(words[w]);
+              //add if: word is an integer number
+              if(!isNaN(num)) {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${num}"}, operator:eq},`
+              }
+              break;
+            
+            case 'Float':
+              num = parseFloat(words[w]);
+              //add if: word is a float number
+              if(!isNaN(num)) {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${num}"}, operator:eq},`
+              }
+              break;
+
+            case 'Boolean':
+              //add if: word is 'true' or 'false'
+              if(words[w] === 'true' || words[w] === 'false') {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${words[w]}"}, operator:eq},`
+              }
+              break;
+
+            case 'Date':
+              d = getIsoDate(words[w]);
+              //add if: word is an ISO date
+              if(d !== '') {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${d}"}, operator:eq},`
+              }
+              break;
+
+            case 'Time':
+              t = getIsoTime(words[w]);
+              //add if: word is an ISO time
+              if(t !== '') {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${t}"}, operator:eq},`
+              }
+              break;
+
+            case 'DateTime':
+              dt = getIsoDateTime(words[w]);
+              //add if: word is an ISO datetime
+              if(dt !== '') {
+                ors += `{field:${modelAttributes[i]}, value:{value:"${dt}"}, operator:eq},`
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        //make OR search argument
+        orSearch = `{operator:or, search: [ ${ors} ]},`
+
+        /**
+         * Debug
+         */
+        console.log("@- orSearch[",i,"]: ", orSearch);
+
+      }//end: for each attribute (ORs)
+
+      //add to ANDs
+      ands += orSearch;
+
+    }//end: for each word (ANDs)
+
+    //make search argument
+    andSearch = `search: {operator:and, search: [ ${ands} ]}`
+  }
+
+  return andSearch;
+}
+
+function getIsoDate(text) {
+  //if has the form: aaaa[-/]mm[-/]dd
+  if(/^\d{4}[-/][01]\d[-/][0-3]\d/.test(text)) {
+    
+    let m = text.slice(5, 7);
+    let d = text.slice(8, 10);
+
+    let numM = parseInt(m);
+    let numD = parseInt(d);
+
+    //if has the correct content
+    if((numM >= 1 && numM <=12) && (numD >= 1 && numD <=31)) {
+      console.log("ISO Date ok: ", text);
+      return text;
+    }
+  }
+  return '';
+}
+
+function getIsoTime(text) {
+
+  /**
+   * Case: complete precision: hh:mm:ss.d+
+   */
+  if(/^[0-2]\d:[0-5]\d:[0-5]\d\.\d+/.test(text)) {
+      
+    let h = text.slice(0, 2);
+    let numH = parseInt(h);
+
+    if(numH >= 0 && numH <= 23) {
+      console.log("ISO Time ok(1): ", text);
+      return text;
+    }
+
+    return '';
+  } else {
+    /**
+     * Case: no milliseconds: hh:mm:ss
+     */
+    if(/^[0-2]\d:[0-5]\d:[0-5]\d/.test(text)) {
+        
+      let h = text.slice(0, 2);
+      let numH = parseInt(h);
+
+      if(numH >= 0 && numH <= 23) {
+        console.log("ISO Time ok(2): ", text);
+        return text;
+      }
+
+      return '';
+    } else {
+      /**
+       * Case: no seconds: hh:mm
+       */
+      if(/^[0-2]\d:[0-5]\d/.test(text)) {
+          
+        let h = text.slice(0, 2);
+        let numH = parseInt(h);
+
+        if(numH >= 0 && numH <= 23) {
+          console.log("ISO Time ok(3): ", text);
+          return text;
+        }
+
+        return '';
+      }
+    }
+  }
+
+  return '';
+}
+
+function getIsoDateTime(text) {
+
+  /**
+   * Case: complete precision: YYYY[-/]MM[-/]DD[ T]hh:mm:ss.d+
+   */
+  if(/^\d{4}[/-][01]\d[/-][0-3]\d[T ][0-2]\d:[0-5]\d:[0-5]\d\.\d+/.test(text)) {
+      
+    let M = text.slice(5, 7);
+    let D = text.slice(8, 10);
+    let h = text.slice(11, 13);
+
+    let numM = parseInt(M);
+    let numD = parseInt(D);
+    let numH = parseInt(h);
+
+    //if content ok
+    if((numM >= 1 && numM <=12) && (numD >= 1 && numD <=31) && (numH >= 0 && numH <= 23)) {
+      console.log("ISO Date ok(1): ", text);
+      return text;
+    }
+
+    return '';
+  } else {
+    /**
+     * Case: no milliseconds: YYYY[-/]MM[-/]DD[ T]hh:mm:ss
+     */
+    if(/^\d{4}[/-][01]\d[/-][0-3]\d[T ][0-2]\d:[0-5]\d:[0-5]\d/.test(text)) {
+        
+      let M = text.slice(5, 7);
+      let D = text.slice(8, 10);
+      let h = text.slice(11, 13);
+
+      let numM = parseInt(M);
+      let numD = parseInt(D);
+      let numH = parseInt(h);
+
+      //if content ok
+      if((numM >= 1 && numM <=12) && (numD >= 1 && numD <=31) && (numH >= 0 && numH <= 23)) {
+        console.log("ISO Date ok(2): ", text);
+        return text;
+      }
+
+      return '';
+    } else {
+      /**
+       * Case: no seconds: YYYY[-/]MM[-/]DD[ T]hh:mm
+       */
+      if(/^\d{4}[/-][01]\d[/-][0-3]\d[T ][0-2]\d:[0-5]\d/.test(text)) {
+          
+        let M = text.slice(5, 7);
+        let D = text.slice(8, 10);
+        let h = text.slice(11, 13);
+  
+        let numM = parseInt(M);
+        let numD = parseInt(D);
+        let numH = parseInt(h);
+  
+        //if content ok
+        if((numM >= 1 && numM <=12) && (numD >= 1 && numD <=31) && (numH >= 0 && numH <= 23)) {
+          console.log("ISO Date ok(3): ", text);
+          return text;
+        }
+
+        return '';
+      } else {
+        /**
+         * Case: no time: YYYY[-/]MM[-/]DD
+         */
+        if(/^\d{4}[/-][01]\d[/-][0-3]\d/.test(text)) {
+            
+          let M = text.slice(5, 7);
+          let D = text.slice(8, 10);
+    
+          let numM = parseInt(M);
+          let numD = parseInt(D);
+    
+          //if content ok
+          if((numM >= 1 && numM <=12) && (numD >= 1 && numD <=31)) {
+            console.log("ISO Date ok(4): ", text);
+            return text;
+          }
+
+          return '';
+        }
+      }
+    }
+  }
+
+  return '';
+}

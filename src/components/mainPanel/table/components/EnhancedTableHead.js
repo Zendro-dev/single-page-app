@@ -9,16 +9,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-
-const defaultProps = {
-    bgcolor: 'background.paper',
-    border: 1,
-    m: 0,
-    borderColor: 'text.primary',
-    //style: { width: '5rem', height: '5rem' },
-  };
 
 export default function EnhancedTableHead(props) {
     /*

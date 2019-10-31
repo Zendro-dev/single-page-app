@@ -119,7 +119,7 @@ function MainPanel({ dispatch }) {
       url: '/main/admin/role',
     }
   ];
-  let history = useHistory();
+  const history = useHistory();
 
   /*
     State
@@ -133,16 +133,6 @@ function MainPanel({ dispatch }) {
 
   //hook:
   useEffect(() => {
-    //this hook behaves as componentDidMount()
-
-    /*
-      Get model list
-
-      //this would not be needed as table models will be generated.
-    */
-    console.debug("onUseEffect: ok");
-    console.log("@props.history: ", history);
-
     updateModelList();
   }, []);
 
