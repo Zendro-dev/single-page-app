@@ -49,6 +49,10 @@ export default function DetailView(props) {
     Hooks
   */
   useEffect(() => {
+    console.log("@@- headCells: ", headCells);
+  }, []);
+  
+  useEffect(() => {
 
     if(areRowsReady) {
       //get new total items height

@@ -6,7 +6,7 @@ import api from '../../../requests/index'
 import EnhancedTableHead from './components/EnhancedTableHead'
 import EnhancedTableToolbar from './components/EnhancedTableToolbar'
 import EnhancedTableRow from './components/row/EnhancedTableRow'
-import AddView from '../../createView/CreateView'
+import CreatePanel from '../../createPanel/CreatePanel'
 
 /*
   Material-UI components
@@ -24,9 +24,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
+import Slide from '@material-ui/core/Slide';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Popover from '@material-ui/core/Popover';
+
 
 /*
   Icons
@@ -75,8 +77,8 @@ export default function EnhancedTable(props) {
     const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
     const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
     //add
-    const [addOpen, setAddOpen] = useState(false);
-    const [addItem, setAddItem] = useState(undefined);
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [createItem, setCreateItem] = useState(undefined);
     /*
       Store selectors
     */
@@ -151,16 +153,16 @@ export default function EnhancedTable(props) {
     }, [isOnApiRequest]);
 
     useEffect(() => {
-      console.log("add item: ", addItem);
+      console.log("add createItem: ", createItem);
       
-      if(addItem !== undefined) {
+      if(createItem !== undefined) {
         //update state
-        setAddOpen(true);
+        setCreateDialogOpen(true);
       } else {
         //update state
-        setAddOpen(false);
+        setCreateDialogOpen(false);
       }
-  }, [addItem]);
+  }, [createItem]);
 
     /*
       Methods
@@ -449,11 +451,17 @@ export default function EnhancedTable(props) {
         setPage(0);
     };
 
-    const handleAddClicked = (event, item) => {
-      console.log("@@on:-- add clicked: item: ", item);
+    const handleCreateClicked = (event, item) => {
+      console.log("@@on:-- create clicked: item: ", item);
 
       //update state
-      setAddItem(item);
+      setCreateItem(item);
+      setCreateDialogOpen(true);
+    }
+
+    const handleCreateDialogClose = (event) => {
+      //update state
+      setCreateDialogOpen(false);
     }
       
 
@@ -560,9 +568,7 @@ export default function EnhancedTable(props) {
                                                     <Tooltip title="Edit">
                                                         <IconButton 
                                                           color="primary"
-                                                          onClick={(event) => {
-                                                            console.log("item: ", item);  
-                                                            handleAddClicked(event, item)}}
+                                                          onClick={(event) => { handleCreateClicked(event, item)} }
                                                         >
                                                             <Edit fontSize="small" />
                                                         </IconButton>
@@ -692,25 +698,13 @@ export default function EnhancedTable(props) {
                 </Grid>
             </Grid>
 
-            {/* Popover: AddView */}
-            <Popover
-              id={'add-view-popover'}
-              open={addOpen}
-              // anchorEl={anchorEl}
-              // onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
-              }}
-            >
-              <AddView 
-                item={addItem} 
-                headCells={headCells}/>
-            </Popover>
+            {/* Dialog: Create Panel */}
+            <CreatePanel
+                item={createItem} 
+                headCells={headCells}
+                open={createDialogOpen}
+                handleClose={handleCreateDialogClose}
+            />
         </div>
     );
 }

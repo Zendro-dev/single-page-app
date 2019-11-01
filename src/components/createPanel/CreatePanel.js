@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { VariableSizeList as List } from 'react-window';
+import { VariableSizeList } from 'react-window';
+import ChipsView from '../views/chipsView/ChipsView';
+import AttributesFormView from '../views/attributesFormView/AttributesFormVIew'
 
 /*
   Material-UI components
@@ -10,6 +12,17 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItem from '@material-ui/core/ListItem';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Slide from '@material-ui/core/Slide';
 
 /*
   Styles
@@ -22,7 +35,18 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(0),
     overflowX: 'auto',
   },
+  appBar: {
+    position: 'relative',
+  },
+  title: {
+    marginLeft: theme.spacing(2),
+    flex: 1,
+  },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function DetailView(props) {
   /*
@@ -33,7 +57,7 @@ export default function DetailView(props) {
   /*
     Properties
   */
-  const { headCells, item } = props;
+  const { headCells, item, open, handleClose } = props;
   const minListHeight = 200;
   const maxListHeight = 450;
   const defaultRowHeight = 50;
@@ -73,6 +97,17 @@ export default function DetailView(props) {
     else {
       return defaultRowHeight;
     }
+  }
+
+  /*
+    Handlers
+  */
+  const handleChipClick = (event, item) => {
+    console.log("@- chip clicked: item: ", item);
+  }
+
+  const handleChipDelete = (event, item) => {
+    console.log("@- chip delete: item: ", item);
   }
 
   /*
@@ -117,18 +152,38 @@ export default function DetailView(props) {
     <div className={classes.root}>
       <Grid container justify='center'>
         <Grid item xs={12}>
-          <Card className={classes.card}>
 
-            <List
-              height={listHeight}
-              width="100%"
-              itemCount={headCells.length}
-              itemSize={getItemSize}
-            >
-              {Row}
-            </List>
+          <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+            <AppBar className={classes.appBar}>
+              <Toolbar>
+                <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+                  <CloseIcon />
+                </IconButton>
+                <Typography variant="h6" className={classes.title}>
+                  New Item
+                </Typography>
+                <Button color="inherit" onClick={handleClose}>
+                  save
+                </Button>
+              </Toolbar>
+            </AppBar>
 
-          </Card>
+            <Grid container justify='center'>
+              <Grid item xs={3}>
+                <ChipsView
+                  items={headCells}
+                  deletable={false}
+                  handleClick={handleChipClick}
+                  handleDelete={handleChipDelete}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <AttributesFormView
+                  items={headCells}
+                />
+              </Grid>
+            </Grid>
+          </Dialog>
         </Grid>
       </Grid>
     </div>
