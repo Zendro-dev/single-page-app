@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles(theme => ({
   textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 300,
+    margin: 'auto',
+    width: '100%',
+    maxWidth: 300,
+    minWidth: 200,
   },
 }));
 
@@ -15,16 +16,26 @@ export default function IntField(props) {
     Properties
   */
   const classes = useStyles();
-  const { 
+  const {
+    itemKey,
     label,
     text,
     handleChange,
+    handleFocus,
+    handleBlur,
+    handleReady,
   } = props;
   
   /*
     State
   */
   const [value, setValue] = React.useState('');
+
+  /*
+    Refs
+  */
+  const inputRef = useRef(null);
+  
 
   /*
     Hooks
@@ -34,15 +45,20 @@ export default function IntField(props) {
       //update state
       setValue(text);
     }
+
+    //run callback
+    if(handleReady !== undefined) {
+      handleReady(itemKey, inputRef);
+    }
+
   }, []);
 
   return (
         <TextField
-          id="int-field"
+          id={"int-field-"+itemKey+'-'+label}
           label={label}
+          inputRef={inputRef}
           type="number"
-          // multiline
-          // rowsMax="4"
           value={value}
           className={classes.textField}
           margin="normal"
@@ -53,7 +69,19 @@ export default function IntField(props) {
 
             //run callback
             if(handleChange !== undefined) {
-              handleChange(event, event.target.value);
+              handleChange(event, event.target.value, itemKey);
+            }
+          }}
+          onFocus={(event) => {
+            //run callback
+            if(handleFocus !== undefined) {
+              handleFocus(event, event.target.value, itemKey);
+            }
+          }}
+          onBlur={(event) => {
+            //run callback
+            if(handleBlur !== undefined) {
+              handleBlur(event, event.target.value, itemKey);
             }
           }}
         />

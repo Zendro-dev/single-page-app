@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
-import { VariableSizeList as List } from 'react-window';
 import StringField from './components/StringField'
 import IntField from './components/IntField'
 
 /*
   Material-UI components
 */
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Chip from '@material-ui/core/Chip';
+import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 
 /*
@@ -21,17 +16,20 @@ import CardContent from '@material-ui/core/CardContent';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    margin: theme.spacing(10),
+    marginTop: theme.spacing(5),
   },
-  card: {
+  box: {
     margin: 'auto',
     overflow: 'auto',
-    textAlign: 'center',
+    textAlign: 'left',
     height: '100%',
     maxHeight: '80vh'
   },
   cardContent: {
     margin: 'auto',
+    width: '100%',
+    maxWidth: 600,
+    minWidth: 200,
   }
 }));
 
@@ -44,18 +42,16 @@ export default function CreateView(props) {
   /*
     Properties
   */
-  const { items } = props;
-  
-  /*
-    State
-  */
-
+  const { items, itemFocusStates, 
+          handleFocus, handleBlur, 
+          handleFieldReady } = props;
 
   /*
     Hooks
   */
   useEffect(() => {
     console.log("@@- items: ", items);
+
   }, []);
 
   /*
@@ -72,27 +68,35 @@ export default function CreateView(props) {
     <div className={classes.root}>
       <Grid container justify='center'>
         <Grid item xs={12}>
-          <Box className={classes.card}>
-            
+          <Box className={classes.box} border={1} borderColor="primary.main" borderRadius="borderRadius">
           
-              {items.map(item => {
+              {items.map((item, index) => {
+                
                 return (
           
-                  <CardContent key={item.key} >
+                  <CardContent key={item.key} className={classes.cardContent} >
 
                     {/* Case: String */}
                     {(item.type === 'String') && (
                       <StringField
+                        itemKey={item.key}
                         label={item.label}
                         handleChange={handleValueChange}
+                        handleFocus={handleFocus}
+                        handleBlur={handleBlur}
+                        handleReady={handleFieldReady}
                       />
                     )}
 
                     {/* Case: Int */}
                     {(item.type === 'Int') && (
                       <IntField
+                        itemKey={item.key}
                         label={item.label}
                         handleChange={handleValueChange}
+                        handleFocus={handleFocus}
+                        handleBlur={handleBlur}
+                        handleReady={handleFieldReady}
                       />
                     )}
 
@@ -100,7 +104,6 @@ export default function CreateView(props) {
             
                 );
               })}
-           
           </Box>
         </Grid>
       </Grid>

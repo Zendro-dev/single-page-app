@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { VariableSizeList } from 'react-window';
-import ChipsView from '../views/chipsView/ChipsView';
-import AttributesFormView from '../views/attributesFormView/AttributesFormVIew'
+import AttributesPage from './components/AttributesPage'
 
 /*
   Material-UI components
@@ -65,39 +63,14 @@ export default function DetailView(props) {
   /*
     State
   */
-  const [listHeight, setListHeight] = useState(Math.min(Math.max(minListHeight, (props.headCells.length * defaultRowHeight)), maxListHeight));
-  const [areRowsReady, setAreRowsReady] = useState(false);
-  var itemHeights = new Array(props.headCells.length).fill(defaultRowHeight);
 
   /*
     Hooks
   */
-  useEffect(() => {
-
-    if(areRowsReady) {
-      //get new total items height
-      var t = 0;
-      for (var i=0; i < itemHeights.length; ++i) 
-      {
-        t += itemHeights[i];
-      }
-      //update listHeight
-      setListHeight(Math.min(Math.max(minListHeight, t), maxListHeight));
-    }
-  }, [areRowsReady]);
 
   /*
     Methods
   */
-  const getItemSize = index => {
-    
-    if(itemHeights.length > 0) {
-      return itemHeights[index];
-    }
-    else {
-      return defaultRowHeight;
-    }
-  }
 
   /*
     Handlers
@@ -109,41 +82,6 @@ export default function DetailView(props) {
   const handleChipDelete = (event, item) => {
     console.log("@- chip delete: item: ", item);
   }
-
-  /*
-    SubComponent: Row
-  */
-  const Row = ({ index, style }) => {
-    const head = headCells[index];
-    const itemRef = useRef(null);
-
-    useEffect(() => {
-      //set new item height
-      itemHeights[index] = itemRef.current.clientHeight;
-
-      //update state
-      if(index < (headCells.length-1)) {
-        setAreRowsReady(false);
-      } else {
-        setAreRowsReady(true);
-      }
-
-    },[]);
-
-    return (
-      <CardContent ref={itemRef} >
-
-        <Typography variant="h5">
-          {head.label}
-        </Typography>
-
-        <Typography color="textSecondary">
-          {item[head.name]}
-        </Typography>
-
-      </CardContent>
-    )
-  };
 
   /*
     Render
@@ -168,21 +106,11 @@ export default function DetailView(props) {
               </Toolbar>
             </AppBar>
 
-            <Grid container justify='center'>
-              <Grid item xs={3}>
-                <ChipsView
-                  items={headCells}
-                  deletable={false}
-                  handleClick={handleChipClick}
-                  handleDelete={handleChipDelete}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <AttributesFormView
-                  items={headCells}
-                />
-              </Grid>
-            </Grid>
+            {/* Attributes Page */}
+            <AttributesPage
+              items={headCells} 
+            />
+
           </Dialog>
         </Grid>
       </Grid>
@@ -193,7 +121,3 @@ export default function DetailView(props) {
 /*
   PropTypes
 */
-DetailView.propTypes = {
-  item: PropTypes.object.isRequired,
-  headCells: PropTypes.array.isRequired,
-};
