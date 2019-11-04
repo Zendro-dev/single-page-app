@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import ChipsView from '../../views/chipsView/ChipsView';
 import AttributesFormView from '../../views/attributesFormView/AttributesFormView'
 
 /*
   Material-UI components
 */
+import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Popover from '@material-ui/core/Popover';
+import Input from '@material-ui/core/Input';
 
 /*
   Styles
@@ -34,15 +37,23 @@ export default function AttributesPage(props) {
   */
   const [itemFocusStates, setItemFocusStates] = useState(items.map(function(item, index){ return {key: item.key, focus: false}}));
   const [valueOkStates, setValueOkStates] = useState(items.map(function(item, index){ return {key: item.key, valueOk: 0}}));
-
+  //popper
+  const [attsSearchAnchorEl, setAttsSearchAnchorEl] = useState(null);
+  const [attsSearchOpen, setAttsSearchOpen] = useState(false);
+  const [allowChipsSearch, setAllowChipsSearch] = useState(true);
+  
   /*
     Refs
   */
   const fieldRefs = useRef([]);
+  const fieldHasFocus = useRef(false);
+
 
   /*
     Hooks
   */
+  useEffect(() => {
+  }, []);
 
   /*
     Methods
@@ -64,7 +75,7 @@ export default function AttributesPage(props) {
 
       status codes:
         1: acceptable
-        0: unknown/not tested yet (this is set on initial render)
+        0: unknown/not tested yet (this is set on initial render)/empty
        -1: not acceptable 
     */
     
@@ -81,6 +92,13 @@ export default function AttributesPage(props) {
     */
     if(value === null || value === undefined) {
       return -1;
+    }
+
+    /*
+      Check 3 (last): empty
+    */
+    if(value.trim() === '') {
+      return 0;
     }
 
     return 1;
@@ -100,13 +118,38 @@ export default function AttributesPage(props) {
     }
     if(i !== -1) {
       //set focus
-      fieldRefs.current[i].ref.current.focus();
+      fieldRefs.current[i].inputRef.current.focus();
+      
+      //scroll
+      //last item
+      fieldRefs.current[i].textFieldRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
-
   }
 
   const handleChipDelete = (event, item) => {
     console.log("@- chip delete: item: ", item);
+  }
+
+  const handleFieldChange = (event, value, key) => {
+    /*
+      Handle: valueOk state (reset)
+    */
+    //make new valueOk state object
+    let o = {key: key, valueOk: 0};
+    let i = -1;
+    //find index
+    if(valueOkStates.length > 0) {
+      i = valueOkStates.findIndex(itemHasKey, {key:key});
+    }
+    //update state
+    if(i !== -1) {
+      let newValueOkStates = Array.from(valueOkStates);
+      newValueOkStates[i] = o;
+      setValueOkStates(newValueOkStates);
+    }
   }
 
   const handleFieldFocus = (event, value, key) => {
@@ -125,6 +168,10 @@ export default function AttributesPage(props) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
       setItemFocusStates(newItemFocusStates);
+      setAllowChipsSearch(false);
+      
+      //update ref
+      //fieldHasFocus.current = true;
     }
   }
 
@@ -144,6 +191,10 @@ export default function AttributesPage(props) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
       setItemFocusStates(newItemFocusStates);
+      setAllowChipsSearch(true);
+      
+      //update ref
+      //fieldHasFocus.current = false;
     }
 
     /*
@@ -164,12 +215,12 @@ export default function AttributesPage(props) {
     }
   }
 
-  const handleFieldReady = (key, ref) => {
+  const handleFieldReady = (key, textFieldRef, inputRef) => {
     /*
       Update refs array
     */
     //make new ref object
-    let o = {key: key, ref: ref};
+    let o = {key: key, textFieldRef: textFieldRef, inputRef: inputRef};
     //find index ref
     let i = -1;
     if(fieldRefs.current.length > 0) {
@@ -185,31 +236,69 @@ export default function AttributesPage(props) {
     }
   }
 
+  const handleFieldsKeyDown = (event, value, key) => {
+    
+    console.log("EVENT: bubbles: ", event.bubbles);
+
+    /*
+      Enter
+    */
+    if(event.key === 'Enter') {
+        handleOkState(value, key);
+    }
+  }
+
+  const handleOkState = (value, key) => {
+    //make new valueOk state object
+    let o = {key: key, valueOk: getAcceptableStatus(key, value)};
+    let i = -1;
+    //find index
+    if(valueOkStates.length > 0) {
+      i = valueOkStates.findIndex(itemHasKey, {key:key});
+    }
+    //update state
+    if(i !== -1) {
+      let newValueOkStates = Array.from(valueOkStates);
+      newValueOkStates[i] = o;
+      setValueOkStates(newValueOkStates);
+    }
+  }
+
   /*
     Render
   */
   return (
-    <Grid className={classes.root} container justify='center' alignItems='flex-start'>
-      <Grid item xs={3}>
-        <ChipsView
-          items={items}
-          itemFocusStates={itemFocusStates}
-          valueOkStates={valueOkStates}
-          deletable={false}
-          handleClick={handleChipClick}
-          handleDelete={handleChipDelete}
-        />
+    <div>
+      <Grid
+        className={classes.root} 
+        container justify='center' 
+        alignItems='flex-start'
+        spacing={2}
+      >
+        <Grid item xs={3}>
+          <ChipsView
+            items={items}
+            itemFocusStates={itemFocusStates}
+            valueOkStates={valueOkStates}
+            deletable={false}
+            allowSearch={allowChipsSearch}
+            handleClick={handleChipClick}
+            handleDelete={handleChipDelete}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <AttributesFormView
+            items={items}
+            itemFocusStates={itemFocusStates}
+            handleFocus={handleFieldFocus}
+            handleBlur={handleFieldBlur}
+            handleFieldReady={handleFieldReady}
+            handleChange = {handleFieldChange}
+            handleKeyDown = {handleFieldsKeyDown}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={6}>
-        <AttributesFormView
-          items={items}
-          itemFocusStates={itemFocusStates}
-          handleFocus={handleFieldFocus}
-          handleBlur={handleFieldBlur}
-          handleFieldReady={handleFieldReady}
-        />
-      </Grid>
-    </Grid>
+    </div>
   );
 }
 

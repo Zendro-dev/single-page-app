@@ -24,6 +24,7 @@ export default function IntField(props) {
     handleFocus,
     handleBlur,
     handleReady,
+    handleKeyDown,
   } = props;
   
   /*
@@ -35,8 +36,8 @@ export default function IntField(props) {
     Refs
   */
   const inputRef = useRef(null);
+  const textFieldRef = useRef(null);
   
-
   /*
     Hooks
   */
@@ -48,7 +49,7 @@ export default function IntField(props) {
 
     //run callback
     if(handleReady !== undefined) {
-      handleReady(itemKey, inputRef);
+      handleReady(itemKey, textFieldRef, inputRef);
     }
 
   }, []);
@@ -57,6 +58,7 @@ export default function IntField(props) {
         <TextField
           id={"int-field-"+itemKey+'-'+label}
           label={label}
+          ref={textFieldRef}
           inputRef={inputRef}
           type="number"
           value={value}
@@ -82,6 +84,12 @@ export default function IntField(props) {
             //run callback
             if(handleBlur !== undefined) {
               handleBlur(event, event.target.value, itemKey);
+            }
+          }}
+          onKeyDown={(event) => {
+            //run callback
+            if(handleKeyDown !== undefined) {
+              handleKeyDown(event, event.target.value, itemKey);
             }
           }}
         />

@@ -24,6 +24,7 @@ export default function StringField(props) {
     handleFocus,
     handleBlur,
     handleReady,
+    handleKeyDown,
   } = props;
   
   /*
@@ -35,6 +36,7 @@ export default function StringField(props) {
     Refs
   */
   const inputRef = useRef(null);
+  const textFieldRef = useRef(null);
 
   /*
     Hooks
@@ -49,7 +51,7 @@ export default function StringField(props) {
 
     //run callback
     if(handleReady !== undefined) {
-      handleReady(itemKey, inputRef);
+      handleReady(itemKey, textFieldRef, inputRef);
     }
 
   }, []);
@@ -58,6 +60,7 @@ export default function StringField(props) {
         <TextField
           id={"string-field-"+itemKey+'-'+label}
           label={label}
+          ref={textFieldRef}
           inputRef={inputRef}
           multiline
           rowsMax="4"
@@ -84,6 +87,12 @@ export default function StringField(props) {
             //run callback
             if(handleBlur !== undefined) {
               handleBlur(event, event.target.value, itemKey);
+            }
+          }}
+          onKeyDown={(event) => {
+            //run callback
+            if(handleKeyDown !== undefined) {
+              handleKeyDown(event, event.target.value, itemKey);
             }
           }}
         />

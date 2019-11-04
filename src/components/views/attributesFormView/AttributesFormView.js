@@ -44,7 +44,9 @@ export default function CreateView(props) {
   */
   const { items, itemFocusStates, 
           handleFocus, handleBlur, 
-          handleFieldReady } = props;
+          handleFieldReady, handleChange,
+          handleKeyDown,
+        } = props;
 
   /*
     Hooks
@@ -85,6 +87,8 @@ export default function CreateView(props) {
                         handleFocus={handleFocus}
                         handleBlur={handleBlur}
                         handleReady={handleFieldReady}
+                        handleChange={handleChange}
+                        handleKeyDown={handleKeyDown}
                       />
                     )}
 
@@ -97,6 +101,8 @@ export default function CreateView(props) {
                         handleFocus={handleFocus}
                         handleBlur={handleBlur}
                         handleReady={handleFieldReady}
+                        handleChange={handleChange}
+                        handleKeyDown={handleKeyDown}
                       />
                     )}
 
