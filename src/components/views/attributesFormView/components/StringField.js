@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from 'react';
+
+/*
+  Material-UI components
+*/
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+//icons
+import CheckIcon from '@material-ui/icons/Check';
 
 const useStyles = makeStyles(theme => ({
   textField: {
@@ -20,6 +27,7 @@ export default function StringField(props) {
     itemKey,
     label,
     text,
+    valueOk,
     handleChange,
     handleFocus,
     handleBlur,
@@ -67,7 +75,13 @@ export default function StringField(props) {
           value={value}
           className={classes.textField}
           margin="normal"
-          variant="standard"
+          variant="filled"
+          InputProps={{
+            endAdornment:
+              <InputAdornment position="end">
+                {valueOk ? <CheckIcon color="primary" fontSize="small" /> : ''}
+              </InputAdornment>
+          }}
           onChange={(event) => {
             //update state
             setValue(event.target.value);

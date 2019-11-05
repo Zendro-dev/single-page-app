@@ -2,15 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import ChipsView from '../../views/chipsView/ChipsView';
 import AttributesFormView from '../../views/attributesFormView/AttributesFormView'
+import ConfirmationDialog from './ConfirmationDialog'
 
 /*
   Material-UI components
 */
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Popover from '@material-ui/core/Popover';
-import Input from '@material-ui/core/Input';
+import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button';
 
 /*
   Styles
@@ -30,30 +30,45 @@ export default function AttributesPage(props) {
   /*
     Properties
   */
-  const { items } = props;
+  const { items, handleClose } = props;
   
   /*
     State
   */
-  const [itemFocusStates, setItemFocusStates] = useState(items.map(function(item, index){ return {key: item.key, focus: false}}));
-  const [valueOkStates, setValueOkStates] = useState(items.map(function(item, index){ return {key: item.key, valueOk: 0}}));
-  //popper
-  const [attsSearchAnchorEl, setAttsSearchAnchorEl] = useState(null);
-  const [attsSearchOpen, setAttsSearchOpen] = useState(false);
-  const [allowChipsSearch, setAllowChipsSearch] = useState(true);
+  const [itemFocusStates, setItemFocusStates] = useState(items.map(function(item){ return {key: item.key, focus: false}}));
+  const [valueOkStates, setValueOkStates] = useState(items.map(function(item){ return {key: item.key, value: '', valueOk: 0}}));
+  //state: confirmation dialog
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [confirmationTitle, setConfirmationTitle] = useState('');
+  const [confirmationText, setConfirmationText] = useState('');
+  const [confirmationAcceptText, setConfirmationAcceptText] = useState('');
+  const [confirmationRejectText, setConfirmationRejectText] = useState('');
   
   /*
     Refs
   */
   const fieldRefs = useRef([]);
-  const fieldHasFocus = useRef(false);
+  const searchAllowed = useRef(true);
+  //refs: confirmation dialog
+  const handleAccept = useRef(undefined);
+  const handleReject = useRef(undefined);
 
 
   /*
     Hooks
   */
   useEffect(() => {
+
+    //set focus on first item
+    setFocusOnIndex(0);
+
   }, []);
+
+  useEffect(() => {
+
+    console.log("##-NEW valueOkStates: ", valueOkStates);
+
+  }, [valueOkStates]);
 
   /*
     Methods
@@ -104,6 +119,55 @@ export default function AttributesPage(props) {
     return 1;
   }
 
+  function setFocusOnIndex(index) {
+    //find index ref
+    let i = -1;
+    if(fieldRefs.current.length > 0 && items.length > 0) {
+      i = fieldRefs.current.findIndex(itemHasKey, {key: items[index].key}); 
+    }
+    if(i !== -1) {
+      //set focus
+      fieldRefs.current[i].inputRef.current.focus();
+      
+      //scroll
+      fieldRefs.current[i].textFieldRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
+
+  function areThereAcceptableFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function areThereNotAcceptableFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function areThereIncompleteFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function doSave() {
+    console.log("##: on.DoSave() :##")
+  }
+
   /*
     Handlers
   */
@@ -138,7 +202,7 @@ export default function AttributesPage(props) {
       Handle: valueOk state (reset)
     */
     //make new valueOk state object
-    let o = {key: key, valueOk: 0};
+    let o = {key: key, value: value, valueOk: 0};
     let i = -1;
     //find index
     if(valueOkStates.length > 0) {
@@ -168,10 +232,9 @@ export default function AttributesPage(props) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
       setItemFocusStates(newItemFocusStates);
-      setAllowChipsSearch(false);
       
       //update ref
-      //fieldHasFocus.current = true;
+      searchAllowed.current = false;
     }
   }
 
@@ -191,17 +254,16 @@ export default function AttributesPage(props) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
       setItemFocusStates(newItemFocusStates);
-      setAllowChipsSearch(true);
       
       //update ref
-      //fieldHasFocus.current = false;
+      searchAllowed.current = true;
     }
 
     /*
       Handle: valueOk state
     */
     //make new valueOk state object
-    o = {key: key, valueOk: getAcceptableStatus(key, value)};
+    o = {key: key, value: value, valueOk: getAcceptableStatus(key, value)};
     i = -1;
     //find index
     if(valueOkStates.length > 0) {
@@ -250,7 +312,7 @@ export default function AttributesPage(props) {
 
   const handleOkState = (value, key) => {
     //make new valueOk state object
-    let o = {key: key, valueOk: getAcceptableStatus(key, value)};
+    let o = {key: key, value: value, valueOk: getAcceptableStatus(key, value)};
     let i = -1;
     //find index
     if(valueOkStates.length > 0) {
@@ -264,6 +326,129 @@ export default function AttributesPage(props) {
     }
   }
 
+  const handleSave = (event) => {
+    console.log("##- on.handleSave: values: ", valueOkStates);
+
+    /*
+      Check: not-acceptable fields
+    */
+   if(areThereNotAcceptableFields()) {
+      /*
+        Show confirmation dialog
+      */
+      //set state
+      setConfirmationTitle("Some fields are not valid! ");
+      setConfirmationText("To continue, please validate these fields.")
+      setConfirmationAcceptText("I UNDERSTAND");
+      setConfirmationRejectText("");
+      //set refs
+      handleAccept.current = () => {
+        console.log("#. accepting .#");
+        //hide
+        setConfirmationOpen(false);
+      }
+      handleReject.current = undefined;
+
+      //show
+      setConfirmationOpen(true);
+
+      //done
+      return;
+   }
+
+    /*
+      Check: incomplete fields
+    */
+    if(areThereIncompleteFields()) {
+      /*
+        Show confirmation dialog
+      */
+      //set state
+      setConfirmationTitle("Some fields are incomplete, want to continue anyway?");
+      setConfirmationText("If you are sure that this is correct, please continue.")
+      setConfirmationAcceptText("YES, SAVE THE FORM");
+      setConfirmationRejectText("BACK TO THE FORM");
+      //set refs
+      handleAccept.current = () => {
+        console.log("#. accepting .#");
+        //do save
+        doSave();
+        //hide
+        setConfirmationOpen(false);
+      }
+      handleReject.current = () => {
+        console.log("#. cancelling .#");
+        //hide
+        setConfirmationOpen(false);
+      }
+
+      //show
+      setConfirmationOpen(true);
+
+   } else {
+     //do save
+     doSave();
+   }
+
+  }
+
+  const handleCancel = (event) => {
+    console.log("##- on.handleCancel: values: ", valueOkStates);
+    /*
+      Check: acceptable fields
+    */
+    if(areThereAcceptableFields()) {
+        /*
+          Show confirmation dialog
+        */
+        //set state
+        setConfirmationTitle("The information already captured will be lost!");
+        setConfirmationText("Some fields are already completed, if you continue, the information already captured will be lost, are you sure you want to continue?")
+        setConfirmationAcceptText("YES, CONTINUE");
+        setConfirmationRejectText("BACK TO THE FORM");
+        //set refs
+        handleAccept.current = () => {
+          console.log("#. accepting .#");
+          //hide
+          setConfirmationOpen(false);
+          //callback: close
+          handleClose(event);
+        }
+        handleReject.current = () => {
+          console.log("#. cancelling .#");
+          //hide
+          setConfirmationOpen(false);
+        }
+
+        //show
+        setConfirmationOpen(true);
+
+        //done
+        return;
+    } else {
+      //callback: close
+      handleClose(event);
+    }
+  }
+
+  const handleConfirmationAccept = (event) => {
+    //run ref
+    handleAccept.current();
+  }
+
+  const handleConfirmationReject = (event) => {
+    //run ref
+    handleReject.current();
+  }
+
+  const onGetSearchAllowed = () => {
+    if(searchAllowed !== undefined) {
+      return searchAllowed.current;
+    } else {
+      return false;
+    }
+  }
+
   /*
     Render
   */
@@ -273,31 +458,46 @@ export default function AttributesPage(props) {
         className={classes.root} 
         container justify='center' 
         alignItems='flex-start'
-        spacing={2}
-      >
+        spacing={3}
+      > 
         <Grid item xs={3}>
           <ChipsView
             items={items}
             itemFocusStates={itemFocusStates}
             valueOkStates={valueOkStates}
             deletable={false}
-            allowSearch={allowChipsSearch}
             handleClick={handleChipClick}
             handleDelete={handleChipDelete}
+            onGetSearchAllowed={onGetSearchAllowed}
           />
         </Grid>
+
         <Grid item xs={6}>
           <AttributesFormView
             items={items}
-            itemFocusStates={itemFocusStates}
+            valueOkStates={valueOkStates}
             handleFocus={handleFieldFocus}
             handleBlur={handleFieldBlur}
             handleFieldReady={handleFieldReady}
-            handleChange = {handleFieldChange}
-            handleKeyDown = {handleFieldsKeyDown}
+            handleChange={handleFieldChange}
+            handleKeyDown={handleFieldsKeyDown}
+            handleCancel={handleCancel}
+            handleSave={handleSave}
           />
         </Grid>
       </Grid>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        open={confirmationOpen}
+        title={confirmationTitle}
+        text={confirmationText}
+        acceptText={confirmationAcceptText}
+        rejectText={confirmationRejectText}
+        handleAccept={handleConfirmationAccept}
+        handleReject={handleConfirmationReject}
+      />
+
     </div>
   );
 }

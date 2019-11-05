@@ -10,6 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
+import Grow from '@material-ui/core/Grow';
+import Fade from '@material-ui/core/Fade';
 //icons
 import ClearActive from '@material-ui/icons/Backspace';
 import Search from '@material-ui/icons/Search';
@@ -17,11 +19,13 @@ import Filter from '@material-ui/icons/FilterList';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: '2px 4px',
+    paddingTop: theme.spacing(.25),
+    paddingBottom: theme.spacing(.25),
+    paddingLeft: theme.spacing(0),
+    paddingRight: theme.spacing(0),
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    maxWidth: '300'
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -45,77 +49,91 @@ export default function ChipsViewSearchBar(props) {
   /*
     Properties
   */
-  const { handleClose } = props;
+  const { 
+    value, searchActive, handleValueChange,
+    handleOpen, handleClose,
+  } = props;
 
   /*
     State
   */
-  const [filterActive, setFilterActive] = useState(false);
 
+  /*
+    Hooks
+  */
 
   return (
     <div>
       {/* Filter Inactive */}
-      {(filterActive === false) && 
+      {(searchActive === undefined || searchActive === false) && 
         (
-          <Box 
-            className={classes.root}
-            border={1} 
-            borderColor="primary.main" 
-          >
-            {/* Filter Icon */}
-            <Tooltip title="Filter">
-              <IconButton
-                className={classes.iconButton}
-                onClick={(event) => {
-                  setFilterActive(true);
-                }}
-              >
-                <Filter color="primary" fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          <Fade in={true} timeout={500}>
+            <Box 
+              className={classes.root}
+              border={0} 
+              borderColor="primary.main" 
+            >
+              {/* Filter Icon */}
+              <Tooltip title="Filter">
+                <IconButton
+                  className={classes.iconButton}
+                  onClick={(event) => {
+                    //run callback
+                    if(handleOpen !== undefined) {
+                      handleOpen(event);
+                    }
+                  }}
+                >
+                  <Filter color="primary" fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Fade>
         )
       }
 
       {/* Filter Active */}
-      {(filterActive === true) && 
+      {(searchActive !== undefined && searchActive === true) && 
         (
-          <Paper 
-            className={classes.root}
-            elevation={1}
+          <Grow 
+            in={true}
+            style={{ transformOrigin: '0 50% 0' }} 
           >
-            {/* Filter Icon */}
-            <Tooltip title="Filter">
+            <Paper 
+              className={classes.root}
+              elevation={1}
+            >
+
+              {/* Input */}
+              <InputBase 
+                className={classes.input} 
+                autoFocus={true}
+                value={value}
+                onChange={(event) => {
+                  //run callback
+                  if(handleValueChange !== undefined) {
+                    handleValueChange(event, event.target.value);
+                  }
+                }}
+              />
+
+              {/* Divider */}
+              <Divider className={classes.divider} orientation="vertical" />
+            
+              {/* Clear Icon Button */}
               <IconButton
                 className={classes.iconButton}
+                onClick={(event) => {
+                  //run callback
+                  if(handleClose !== undefined) {
+                    handleClose(event);
+                  }
+                }}
               >
-                <Filter color="inherit" fontSize="small" />
+                <ClearActive color="secondary" fontSize="small" />
               </IconButton>
-            </Tooltip>
-
-            {/* Input */}
-            <InputBase className={classes.input} />
-
-            {/* Divider */}
-            <Divider className={classes.divider} orientation="vertical" />
-          
-            {/* Clear Icon Button */}
-            <IconButton
-              className={classes.iconButton}
-              onClick={(event) => {
-                // onSearchEnter('');
-                // setDisplayedSearch('');
-                setFilterActive(false);
-                
-                if(handleClose !== undefined) {
-                  handleClose(event);
-                }
-              }}
-            >
-              <ClearActive color="secondary" fontSize="small" />
-            </IconButton>
-          </Paper>
+            </Paper>
+          </Grow>
         )
       }
     </div>

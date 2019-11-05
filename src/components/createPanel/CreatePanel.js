@@ -71,6 +71,24 @@ export default function DetailView(props) {
   /*
     Methods
   */
+  function getEditableItems() {
+
+    let its = Array.from(headCells);
+
+    /*
+      Remove no editable items:
+        - name: id
+    */
+    for(var i=0; i<its.length; ++i)
+    {
+      if(its[i].name.toLowerCase() === 'id') {
+        //remove item
+        its.splice(i, 1);
+      }
+    }
+
+    return its;
+  }
 
   /*
     Handlers
@@ -100,15 +118,13 @@ export default function DetailView(props) {
                 <Typography variant="h6" className={classes.title}>
                   New Item
                 </Typography>
-                <Button color="inherit" onClick={handleClose}>
-                  save
-                </Button>
               </Toolbar>
             </AppBar>
 
             {/* Attributes Page */}
             <AttributesPage
-              items={headCells} 
+              items={getEditableItems()}
+              handleClose={handleClose}
             />
 
           </Dialog>

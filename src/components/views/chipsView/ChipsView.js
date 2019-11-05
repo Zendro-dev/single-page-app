@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { borders } from '@material-ui/system';
-import { VariableSizeList as List } from 'react-window';
 import ChipsViewSearchBar from './components/ChipsViewSearchBar'
 
 /*
@@ -11,13 +9,8 @@ import ChipsViewSearchBar from './components/ChipsViewSearchBar'
 import Chip from '@material-ui/core/Chip';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import Popover from '@material-ui/core/Popover';
-import Popper from '@material-ui/core/Popper';
-import Button from '@material-ui/core/Button';
-import Fade from '@material-ui/core/Fade';
+import Divider from '@material-ui/core/Divider';
 
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
 
 //icons
 import DoneIcon from '@material-ui/icons/Done';
@@ -37,6 +30,14 @@ const useStyles = makeStyles(theme => ({
   chip: {
     margin: theme.spacing(0.5),
   },
+  ibox: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+  },
 }));
 
 export default function ChipsView(props) {
@@ -52,15 +53,16 @@ export default function ChipsView(props) {
     items, itemFocusStates, deletable,
     valueOkStates, 
     handleClick, handleDelete,
-    allowSearch,
+    onGetSearchAllowed,
   } = props;
   
   /*
     State
   */
-  //popper
-  const [searchAnchorEl, setSearchAnchorEl] = useState(null);
-  const [searchOpen, setSearchOpen] = useState(true);
+  //filter
+  const [filterStates, setFilterStates] = useState(items.map(function(item, index){ return {key: item.key, filtered: false}})); //filtered means no-visible
+  const [searchValue, setSearchValue] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
 
   /*
     Refs
@@ -71,8 +73,6 @@ export default function ChipsView(props) {
     Hooks
   */
   useEffect(() => {
-
-    console.log("onRender: allowSearch: ", allowSearch);
       
     //add event listener
     window.addEventListener("keydown", handleWindowKeyDown, false);
@@ -83,6 +83,16 @@ export default function ChipsView(props) {
     }
 
   }, []);
+
+  useEffect(() => {
+    console.log("@- new searchValue: ", searchValue);
+
+    //if empty filter
+    if(searchValue === '') {
+      //close search
+      setSearchActive (false);
+    }
+  }, [searchValue]);
 
   /*
     Methods
@@ -125,69 +135,163 @@ export default function ChipsView(props) {
     }
   }
 
+  function getFilterStatus(key) {
+    let it = undefined;
+
+    //find index
+    if(filterStates.length > 0) {
+      it = filterStates.find(itemHasKey, {key:key});
+    }
+    //update state
+    if(it !== undefined) {
+      return it.filtered;
+    } else {
+      return false;
+    }
+  }
+
+  function getMatches(value) {
+    let m = [];
+
+    for(var i=0; i<items.length; ++i)
+    {
+      //search
+      let l = items[i].label.trim().toLowerCase();
+      let v = value.trim().toLowerCase();
+      let s = l.indexOf(v);
+
+      if(s !== -1) {
+        //add match
+        m.push(items[i].key);
+      }
+    }
+
+    return m;
+  }
+
   /*
     Handlers
   */
   const handleWindowKeyDown = (event) => {
-      
-    console.log("EVENT WINDOW: ", event.key, " allowSearch: ", allowSearch);
-    
-    if(allowSearch !== undefined && allowSearch) {
-      //open search popper
-      //setSearchPopoverOpen(true);
+    /*
+      Checks to open search bar.
+    */
+    if(onGetSearchAllowed() //no field has focus
+        && !searchActive    //search input is inactive
+        && !event.ctrlKey   //no ctrl key
+        && /^[a-zA-Z0-9!"#$%&'()*+,.\/:;<=>¿?@\[\]^_`{|}~-°]$/.test(event.key) //is printable (no-white-space) 
+      )
+    {  
+      //set search active
+      setSearchActive(true);
     }
   }
 
-  const handleSearchClick = (event) => {
-
-    console.log("#: onCLick: searchOpen ", searchOpen);
-    console.log("#: onCLick: event.currentTarget: ", event.currentTarget);
-    console.log("#: onCLick: rootRef.current ", rootRef.current);
-
-    setSearchAnchorEl(rootRef.current);
-    setSearchOpen(true);
+  const handleSearchOpen = (event) => {
+    //update state
+    setSearchActive(true);
   };
+
 
   const handleSearchClose = (event) => {
-    setSearchOpen(false);
+    /*
+      Unfiltering
+    */
+    //new filter states array: all unfiltered
+    let newFilterStates = items.map(function(item, index){ return {key: item.key, filtered: false}});
+    
+    //update state
+    setFilterStates(newFilterStates);
+    setSearchValue('');
+    setSearchActive(false);
   };
+
+  const handleSearchChange = (event, value) => {
+    /*
+      Do filtering
+    */
+    //get match keys
+    let matches = getMatches(value);
+
+    //new filter states array: all filtered
+    let newFilterStates = items.map(function(item, index){ return {key: item.key, filtered: true}});
+
+    //for each match
+    for(var j=0; j<matches.length; ++j)
+    {
+      //make new filter state object
+      let o = {key: matches[j], filtered: false};
+      let i = -1;
+
+      //find index
+      i = items.findIndex(itemHasKey, {key:matches[j]});
+
+      //update filter state for matching item
+      if(i !== -1) {
+        newFilterStates[i] = 0;
+      }
+    }
+
+    //update value state
+    setSearchValue(value);
+
+    //update filter states
+    setFilterStates(newFilterStates);
+  }
 
   /*
     Render
   */
   return (
     <div ref={rootRef} className={classes.root}>
-      <Grid container justify='center' spacing={1}>
+      <Grid container justify='center' spacing={2}>
         
+        {/* Search Bar */}
         <Grid item xs={12}>
-          <ChipsViewSearchBar />
+          <Box className={classes.ibox}>
+            <ChipsViewSearchBar 
+              value={searchValue}
+              searchActive={searchActive}
+              handleValueChange={handleSearchChange}
+              handleOpen={handleSearchOpen}
+              handleClose={handleSearchClose}
+            />
+          </Box>
         </Grid>
 
+        {/* Divider */}
+        <Divider className={classes.divider} orientation="horizontal" />
+
+        {/* Chips */}
         <Grid item xs={12}>
           <Box 
             className={classes.box} 
-            border={1} 
-            borderColor="text.secondary" 
+            border={0} 
+            borderColor="grey.500" 
             borderRadius="borderRadius">
 
             {items.map((item, index) => {
               var hasFocus = getFocusStatus(item.key);
               var valueOk = getValueOkStatus(item.key);
+              var filtered = getFilterStatus(item.key);
 
               return (
-                <Chip
-                  key={item.key}
-                  label={item.label}
-                  className={classes.chip}
-                  variant={hasFocus ? 'default' : 'outlined'}
-                  size='small'
-                  color={ (hasFocus || valueOk===1) ? 'primary' : (valueOk === -1) ? 'secondary' : 'default'}
-                  // style={{backgroundColor: 'primary', color: 'primary'}}
-                  icon={(valueOk === 1) ? <DoneIcon /> : null}
-                  clickable={true}
-                  onClick={(event) => handleClick(event, item)}
-                  onDelete={deletable ? ((event) => handleDelete(event, item)) : undefined}
-                />
+                <span key={'span-'+item.key}>
+                  {(!filtered) && (
+                    <Chip
+                      key={item.key}
+                      label={item.label}
+                      className={classes.chip}
+                      variant={hasFocus ? 'default' : 'outlined'}
+                      size='small'
+                      color={ (hasFocus || valueOk===1) ? 'primary' : (valueOk === -1) ? 'secondary' : 'default'}
+                      icon={(valueOk === 1) ? <DoneIcon /> : null}
+                      clickable={true}
+                      onClick={(event) => handleClick(event, item)}
+                      onDelete={deletable ? ((event) => handleDelete(event, item)) : undefined}
+                    />
+                  )}
+                </span>
               );
             })}
 
