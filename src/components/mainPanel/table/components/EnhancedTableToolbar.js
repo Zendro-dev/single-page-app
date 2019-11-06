@@ -81,6 +81,7 @@ export default function EnhancedTableToolbar(props) {
         search,
         title,
         onSearchEnter,
+        handleAddClicked,
     } = props;
     /*
       State
@@ -214,7 +215,10 @@ export default function EnhancedTableToolbar(props) {
                                                             <Grid container justify="center">
                                                                 <Grid item>
                                                                     <Tooltip title="Add new user">
-                                                                        <IconButton color="primary" aria-label="add">
+                                                                        <IconButton 
+                                                                          color="primary"
+                                                                          onClick={(event) => { handleAddClicked(event)} } 
+                                                                        >
                                                                             <Add />
                                                                         </IconButton>
                                                                     </Tooltip>

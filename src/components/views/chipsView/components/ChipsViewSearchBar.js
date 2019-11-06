@@ -26,6 +26,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
+    maxWidth: 250
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -84,7 +85,7 @@ export default function ChipsViewSearchBar(props) {
                     }
                   }}
                 >
-                  <Filter color="primary" fontSize="small" />
+                  <Search color="primary" fontSize="small" />
                 </IconButton>
               </Tooltip>
             </Box>

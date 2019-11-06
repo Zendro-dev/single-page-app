@@ -20,7 +20,7 @@ import DoneIcon from '@material-ui/icons/Done';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(1),
   },
   box: {
     margin: 'auto',
@@ -51,7 +51,7 @@ export default function ChipsView(props) {
   */
   const { 
     items, itemFocusStates, deletable,
-    valueOkStates, 
+    valueOkStates, hidden,
     handleClick, handleDelete,
     onGetSearchAllowed,
   } = props;
@@ -73,6 +73,8 @@ export default function ChipsView(props) {
     Hooks
   */
   useEffect(() => {
+
+    console.log("··Chips: ", items);
       
     //add event listener
     window.addEventListener("keydown", handleWindowKeyDown, false);
@@ -243,7 +245,7 @@ export default function ChipsView(props) {
     Render
   */
   return (
-    <div ref={rootRef} className={classes.root}>
+    <div ref={rootRef} className={classes.root} hidden={hidden}>
       <Grid container justify='center' spacing={2}>
         
         {/* Search Bar */}

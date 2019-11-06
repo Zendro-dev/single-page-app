@@ -8,7 +8,6 @@ import IntField from './components/IntField'
 */
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -20,7 +19,7 @@ import CardActions from '@material-ui/core/CardActions';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(1),
   },
   card: {
     margin: 'auto',
@@ -51,7 +50,7 @@ export default function CreateView(props) {
   const { items, valueOkStates, 
           handleFocus, handleBlur, 
           handleFieldReady, handleChange,
-          handleKeyDown, handleCancel, handleSave,
+          handleKeyDown,
         } = props;
 
   /*
@@ -152,37 +151,6 @@ export default function CreateView(props) {
                 </CardContent>
               );
             })}
-
-            {/* Actions */}
-            <CardActions>
-
-              {/* Action: Cancel */}
-              <Button 
-                size="small" 
-                color="primary"
-                onClick={(event) => {
-                  if(handleCancel !== undefined) {
-                    handleCancel(event);
-                  }
-                }}
-              >
-                CANCEL
-              </Button>
-
-              {/* Action: Save */}
-              <Button 
-                size="small" 
-                color="primary"
-                onClick={(event) => {
-                  if(handleSave !== undefined) {
-                    handleSave(event);
-                  }
-                }}
-              >
-                SAVE
-              </Button>
-
-            </CardActions>
 
           </Card>
         </Grid>

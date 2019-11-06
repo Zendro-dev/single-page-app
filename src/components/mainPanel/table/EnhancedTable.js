@@ -491,6 +491,7 @@ export default function EnhancedTable(props) {
                             search={search}
                             title={model.names.namePlCp}
                             onSearchEnter={handleSearchEnter}
+                            handleAddClicked={handleCreateClicked}
                         />
 
                         {/* Table */}
@@ -699,9 +700,11 @@ export default function EnhancedTable(props) {
             </Grid>
 
             {/* Dialog: Create Panel */}
-            <CreatePanel
-                item={createItem} 
+            <CreatePanel 
                 headCells={headCells}
+                toOnes={model.toOnes}
+                toManys={model.toManys}
+                modelNames={model.names}
                 open={createDialogOpen}
                 handleClose={handleCreateDialogClose}
             />

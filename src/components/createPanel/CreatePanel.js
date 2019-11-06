@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import AttributesPage from './components/AttributesPage'
+import AssociationsPage from './components/AssociationsPage'
+import TabsA from './components/TabsA'
+import ConfirmationDialog from './components/ConfirmationDialog'
 
 /*
   Material-UI components
@@ -21,13 +24,15 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
+import Hidden from '@material-ui/core/Hidden';
+
 
 /*
   Styles
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(0),
+    marginTop: theme.spacing(3),
   },
   card: {
     margin: theme.spacing(0),
@@ -55,19 +60,49 @@ export default function DetailView(props) {
   /*
     Properties
   */
-  const { headCells, item, open, handleClose } = props;
-  const minListHeight = 200;
-  const maxListHeight = 450;
-  const defaultRowHeight = 50;
+  const { 
+    headCells,
+    toOnes,
+    toManys,
+    open, 
+    handleClose 
+  } = props;
   
   /*
     State
   */
+  //state: tabsMenuA
+  const [tabsValue, setTabsValue] = useState(0);
+  //state: headCells
+  const [valueOkStates, setValueOkStates] = useState(getEditableItems().map(function(item){ return {key: item.key, value: '', valueOk: 0}}));
+  //state: confirmation dialog
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [confirmationTitle, setConfirmationTitle] = useState('');
+  const [confirmationText, setConfirmationText] = useState('');
+  const [confirmationAcceptText, setConfirmationAcceptText] = useState('');
+  const [confirmationRejectText, setConfirmationRejectText] = useState('');
+
+  /*
+    Refs
+  */
+  //refs: confirmation dialog
+  const handleAccept = useRef(undefined);
+  const handleReject = useRef(undefined);
 
   /*
     Hooks
   */
+  useEffect(() => {
+    console.log("##- new: tabsValue: ", tabsValue);
 
+  }, [tabsValue]);
+
+  useEffect(() => {
+
+    console.log("##-NEW valueOkStates: ", valueOkStates);
+
+  }, [valueOkStates]);
+  
   /*
     Methods
   */
@@ -90,47 +125,314 @@ export default function DetailView(props) {
     return its;
   }
 
+  function itemHasKey(item, index) {
+    if(item !== undefined) {
+      return item.key === this.key;
+    } else {
+      return false;
+    }
+  }
+
+  function getAcceptableStatus(key, value) {
+    /*
+      For now, just context validations are done
+      to ensure that in future, this function can
+      be used to enforce acceptable conditions
+      retrieved from model specs.
+
+      status codes:
+        1: acceptable
+        0: unknown/not tested yet (this is set on initial render)/empty
+      -1: not acceptable 
+    */
+    
+    /*
+      Check 1: item exists with itemKey
+    */
+    let it = headCells.find(itemHasKey, {key: key});
+    if(it === undefined) {
+      return -1;
+    }
+
+    /*
+      Check 2: null or undefined value
+    */
+    if(value === null || value === undefined) {
+      return -1;
+    }
+
+    /*
+      Check 3 (last): empty
+    */
+    if(value.trim() === '') {
+      return 0;
+    }
+
+    return 1;
+  }
+
+  function areThereAcceptableFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function areThereNotAcceptableFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function areThereIncompleteFields() {
+    for(var i=0; i<valueOkStates.length; ++i) {
+      if(valueOkStates[i].valueOk === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function doSave(event) {
+    console.log("##: on.DoSave(): states: ", valueOkStates);
+    
+    //callback: close
+    handleClose(event);
+    //reset
+    setTabsValue(0);
+  }
+
   /*
     Handlers
   */
-  const handleChipClick = (event, item) => {
-    console.log("@- chip clicked: item: ", item);
+  const handleTabsChange = (event, newValue) => {
+    setTabsValue(newValue);
+  };
+
+  const handleFieldChange = (event, value, key) => {
+    /*
+      Handle: valueOk state (reset)
+    */
+    //make new valueOk state object
+    let o = {key: key, value: value, valueOk: 0};
+    let i = -1;
+    //find index
+    if(valueOkStates.length > 0) {
+      i = valueOkStates.findIndex(itemHasKey, {key:key});
+    }
+    //update state
+    if(i !== -1) {
+      let newValueOkStates = Array.from(valueOkStates);
+      newValueOkStates[i] = o;
+      setValueOkStates(newValueOkStates);
+    }
   }
 
-  const handleChipDelete = (event, item) => {
-    console.log("@- chip delete: item: ", item);
+  const handleOkStateUpdate = (value, key) => {
+    //make new valueOk state object
+    let o = {key: key, value: value, valueOk: getAcceptableStatus(key, value)};
+    let i = -1;
+    //find index
+    if(valueOkStates.length > 0) {
+      i = valueOkStates.findIndex(itemHasKey, {key:key});
+    }
+    //update state
+    if(i !== -1) {
+      let newValueOkStates = Array.from(valueOkStates);
+      newValueOkStates[i] = o;
+      setValueOkStates(newValueOkStates);
+    }
+  }
+
+  const handleSave = (event) => {
+    console.log("##- on.handleSave: values: ", valueOkStates);
+
+    /*
+      Check: not-acceptable fields
+    */
+  if(areThereNotAcceptableFields()) {
+      /*
+        Show confirmation dialog
+      */
+      //set state
+      setConfirmationTitle("Some fields are not valid! ");
+      setConfirmationText("To continue, please validate these fields.")
+      setConfirmationAcceptText("I UNDERSTAND");
+      setConfirmationRejectText("");
+      //set refs
+      handleAccept.current = () => {
+        console.log("#. accepting .#");
+        //hide
+        setConfirmationOpen(false);
+      }
+      handleReject.current = undefined;
+
+      //show
+      setConfirmationOpen(true);
+
+      //done
+      return;
+  }
+
+    /*
+      Check: incomplete fields
+    */
+    if(areThereIncompleteFields()) {
+      /*
+        Show confirmation dialog
+      */
+      //set state
+      setConfirmationTitle("Some fields are incomplete, want to continue anyway?");
+      setConfirmationText("If you are sure that this is correct, please continue.")
+      setConfirmationAcceptText("YES, SAVE THE FORM");
+      setConfirmationRejectText("BACK TO THE FORM");
+      //set refs
+      handleAccept.current = () => {
+        console.log("#. accepting .#");
+        //do save
+        doSave(event);
+        //hide
+        setConfirmationOpen(false);
+      }
+      handleReject.current = () => {
+        console.log("#. cancelling .#");
+        //hide
+        setConfirmationOpen(false);
+      }
+
+      //show
+      setConfirmationOpen(true);
+
+  } else {
+    //do save
+    doSave(event);
+  }
+
+  }
+
+  const handleCancel = (event) => {
+    console.log("##- on.handleCancel: values: ", valueOkStates);
+    /*
+      Check: acceptable fields
+    */
+    if(areThereAcceptableFields()) {
+        /*
+          Show confirmation dialog
+        */
+        //set state
+        setConfirmationTitle("The information already captured will be lost!");
+        setConfirmationText("Some fields are already completed, if you continue, the information already captured will be lost, are you sure you want to continue?")
+        setConfirmationAcceptText("YES, CONTINUE");
+        setConfirmationRejectText("BACK TO THE FORM");
+        //set refs
+        handleAccept.current = () => {
+          console.log("#. accepting .#");
+          //hide
+          setConfirmationOpen(false);
+          //callback: close
+          handleClose(event);
+          //reset
+          setTabsValue(0);
+        }
+        handleReject.current = () => {
+          console.log("#. cancelling .#");
+          //hide
+          setConfirmationOpen(false);
+        }
+
+        //show
+        setConfirmationOpen(true);
+
+        //done
+        return;
+    } else {
+      //callback: close
+      handleClose(event);
+      //reset
+      setTabsValue(0);
+    }
+  }
+
+  const handleConfirmationAccept = (event) => {
+    //run ref
+    handleAccept.current();
+  }
+
+  const handleConfirmationReject = (event) => {
+    //run ref
+    handleReject.current();
   }
 
   /*
     Render
   */
   return (
-    <div className={classes.root}>
-      <Grid container justify='center'>
-        <Grid item xs={12}>
+    
+    <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+      <AppBar className={classes.appBar}>
+        <Toolbar>
+          <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+          <Typography variant="h6" className={classes.title}>
+            New Item
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-          <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-            <AppBar className={classes.appBar}>
-              <Toolbar>
-                <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-                  <CloseIcon />
-                </IconButton>
-                <Typography variant="h6" className={classes.title}>
-                  New Item
-                </Typography>
-              </Toolbar>
-            </AppBar>
-
-            {/* Attributes Page */}
+      <div className={classes.root}>
+        <Grid container justify='center'>
+          <Grid item xs={12}>
+            
+            {/* TabsA: Menú */}
+            <TabsA
+              value={tabsValue}
+              handleChange={handleTabsChange}
+              handleCancel={handleCancel}
+              handleSave={handleSave}
+            />
+              
+            {/* Attributes Page [0] */}
             <AttributesPage
+              hidden={tabsValue !== 0}
               items={getEditableItems()}
-              handleClose={handleClose}
+              valueOkStates={valueOkStates}
+              handleFieldChange={handleFieldChange}
+              handleOkStateUpdate={handleOkStateUpdate}
             />
 
-          </Dialog>
+            {/* Associations Page [1] */}
+            <AssociationsPage
+              hidden={tabsValue !== 1}
+              items={getEditableItems()}
+              toOnes={toOnes}
+              toManys={toManys}
+              valueOkStates={valueOkStates}
+              handleFieldChange={handleFieldChange}
+              handleOkStateUpdate={handleOkStateUpdate}
+            />
+
+          </Grid>
         </Grid>
-      </Grid>
-    </div>
+
+        {/* Confirmation Dialog */}
+        <ConfirmationDialog
+          open={confirmationOpen}
+          title={confirmationTitle}
+          text={confirmationText}
+          acceptText={confirmationAcceptText}
+          rejectText={confirmationRejectText}
+          handleAccept={handleConfirmationAccept}
+          handleReject={handleConfirmationReject}
+        />
+      </div>
+
+    </Dialog>
   );
 }
 
