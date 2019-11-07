@@ -237,7 +237,7 @@ export default function EnhancedTable(props) {
         /*
           API Request: countItems
         */
-        api[model.model].getCountItems(model, graphqlServerUrl, search)
+        api[model.model].getCountItems(model.model, graphqlServerUrl, search)
             .then(response => {
                 //Check response
                 if (
@@ -256,7 +256,7 @@ export default function EnhancedTable(props) {
                       API Request: items
                     */
                     api[model.model].getItems(
-                        model,
+                        model.model,
                         graphqlServerUrl,
                         search,
                         orderBy,

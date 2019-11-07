@@ -4,6 +4,7 @@ import ChipsView from '../../views/chipsView/ChipsView';
 import AttributesFormView from '../../views/attributesFormView/AttributesFormView'
 import AssociationTypesTabs from './AssociationTypesTabs'
 import CompactListView from '../../compactListView/CompactListView'
+import AssociationSelectableView from '../../views/associationSelectableView/AssociationSelectableView'
 
 /*
   Material-UI components
@@ -55,6 +56,9 @@ export default function AttributesPage(props) {
   const [toOneFocusStates, setToOneFocusStates] = useState(getToOneItems().map(function(item){ return {key: item.key, focus: false}}));
   //state: tabsMenuB
   const [associationTypeSelected, setAssociationTypeSelected] = useState(0);
+  //state: associations table view
+  const [associationTitle, setAssociationTitle] = useState('');
+  const [association, setAssociation] = useState(undefined);
 
   /*
     Refs
@@ -69,8 +73,8 @@ export default function AttributesPage(props) {
 
     console.log("toManys: ", toManys);
 
-    //set focus on first item
-    setFocusOnIndex(0);
+    //select approtiate association type
+    setAssociationTypeSelected(getInitialAssociationTypeSelected);
 
   }, []);
 
@@ -91,7 +95,24 @@ export default function AttributesPage(props) {
     }
   }
 
+  function getInitialAssociationTypeSelected() {
+    /*
+      0  toOne
+      1  toMany
+    */
+
+    if (toOnes.length === toManys.length) {
+      return 0;
+    }
+    else {
+      return (toOnes.length > 0) ? 0 : 1;
+    }
+  }
+
   function setFocusOnIndex(index) {
+
+    console.log("///setFocusOnIndex: ", index);
+
     //find index ref
     let i = -1;
     if(fieldRefs.current.length > 0 && items.length > 0) {
@@ -110,17 +131,41 @@ export default function AttributesPage(props) {
   }
 
   function getToManyItems() {
-    return toManys.map(function(item, index){ return {key: item.relationName, name: item.relationName, label: item.relationNameCp }});
+    return toManys.map(function(item, index){ return {key: item.targetModelLc, name: item.relationName, label: item.relationNameCp }});
   }
 
   function getToOneItems() {
-    return toOnes.map(function(item, index){ return {key: item.relationName, name: item.relationName, label: item.relationNameCp }});
+    return toOnes.map(function(item, index){ return {key: item.targetModelLc, name: item.relationName, label: item.relationNameCp }});
+  }
+
+  function getToManyByName(name) {
+    for(var i=0; i<toManys.length; ++i) {
+      if(toManys[i].targetModelLc === name) {
+        return toManys[i];
+      }
+    }
+
+    return undefined;
+  }
+
+  function getToOneByName(name) {
+    for(var i=0; i<toOnes.length; ++i) {
+      if(toOnes[i].targetModelLc === name) {
+        return toOnes[i];
+      }
+    }
+
+    return undefined;
   }
 
   /*
     Handlers
   */
   const handleChipClick = (event, item) => {
+
+    console.log("@@%%%_ handleChipClick: item: ", item);
+
+
     /*
       Set focus on respective field
     */
@@ -143,11 +188,12 @@ export default function AttributesPage(props) {
   }
 
   const handleToManyChipClick = (event, item) => {
+    let key = item.key;
+
     /*
       Set focus on respective field (set selected)
     */
     //make new focus state object
-    let key = item.key;
     let o = {key: key, focus: true};
     let i = -1;
     //find index
@@ -159,27 +205,15 @@ export default function AttributesPage(props) {
       let newToManyFocusStates = Array.from(toManyFocusStates);
       newToManyFocusStates[i] = o;
       setToManyFocusStates(newToManyFocusStates);
-      
-      //update ref
-      searchAllowed.current = false;
     }
 
-    //find index ref
-    // let i = -1;
-    // if(fieldRefs.current.length > 0) {
-    //   i = fieldRefs.current.findIndex(itemHasKey, {key: item.key}); 
-    // }
-    // if(i !== -1) {
-    //   //set focus
-    //   fieldRefs.current[i].inputRef.current.focus();
-      
-    //   //scroll
-    //   //last item
-    //   fieldRefs.current[i].textFieldRef.current.scrollIntoView({
-    //     behavior: 'smooth',
-    //     block: 'start',
-    //   });
-    // }
+    /*
+      Update current association object
+    */
+   console.log("##clicked item: ", item);
+    console.log("##clicked assoc: ", getToManyByName(key));
+    setAssociationTitle(item.label);
+    setAssociation(getToManyByName(key));
   }
 
   const handleFieldFocus = (event, value, key) => {
@@ -368,15 +402,19 @@ export default function AttributesPage(props) {
             wrap='wrap'
             spacing={1}
           >
-            <Grid item xs={12} lg={6}>
-              <CompactListView
-              />
+            <Grid item xs={12} xl={6}>
+              {(association !== undefined) && (
+                <AssociationSelectableView
+                  title={associationTitle}
+                  associationNames={association}
+                />
+              )}
             </Grid>
 
-            <Grid item xs={12} lg={6}>
+            {/* <Grid item xs={12} lg={6}>
               <CompactListView
               />
-            </Grid>
+            </Grid> */}
 
 
           </Grid>

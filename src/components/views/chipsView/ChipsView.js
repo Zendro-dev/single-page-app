@@ -289,7 +289,11 @@ export default function ChipsView(props) {
                       color={ (hasFocus || valueOk===1) ? 'primary' : (valueOk === -1) ? 'secondary' : 'default'}
                       icon={(valueOk === 1) ? <DoneIcon /> : null}
                       clickable={true}
-                      onClick={(event) => handleClick(event, item)}
+                      onClick={(event) => {
+                        console.log("** item: ", item);
+                        
+                        handleClick(event, item);
+                      }}
                       onDelete={deletable ? ((event) => handleDelete(event, item)) : undefined}
                     />
                   )}

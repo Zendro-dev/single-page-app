@@ -110,7 +110,7 @@ export default function SimpleTabs(props) {
             <Grid container justify='center'>
             <Grid item xs={10}>
               {/* Divider */}
-              <Divider className={classes.divider} orientation="horizontal" />
+              <Divider orientation="horizontal" />
             </Grid>
 
           </Grid>

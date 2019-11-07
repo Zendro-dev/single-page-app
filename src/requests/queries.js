@@ -45,217 +45,45 @@ export default {
   }
 }
 
-     * Where:
-     *  ${s}: search parameter (optional)
-     * 
-     * 
-     * @param {Object} model Object with model definition data
-     * @param {String} url GraphQL Server url
-     * @param {String} searchText Text string currently on search bar.
-     */
-    getCountItems (model, url, searchText){
-        /**
-         * Debug
-         */
-        console.log("getCountItems.model: ", model);
-
-        //set
-        const queryName = `count${model.names.namePlCp}`; //PlCp: pluralize-capitalized
-        var modelAttributes = Object.keys(model.attributes);
-        modelAttributes.unshift('id');
-
-
-        /**
-         * Debug
-         */
-        console.log("getCountItems.queryName: ", queryName);
-        console.log("getCountItems.modelAttributes: ", modelAttributes);
-
-        /*
-          Get @search arg
-        */
-        var s = getSearchArgument(model, searchText);
-
-        /*
-          Get graphQL @query
-        */
-        var query = '';
-        
-        //if has search
-        if (s !== null) {
-            //make query with search argument
-            query = `{ ${queryName}(${s}) }`;
-        }
-        else {
-            //make query without search argument
-            query = `{ ${queryName} }`;
-        }
-
-        /**
-         * Debug
-         */
-        console.log("getCountItems.query: gql:\n", query);
-
-        //do request
-        return requestGraphql({ url, query });
-    },
-
-    /**
-     * getItems
-     * 
-     * Construct query to get items. Then do the query-request 
-     * to GraphQL Server.
-     * 
-     * Query format:
-     * 
-     * {
-     *      model(${s}, ${o}, ${p}) {
-     *          ${atts}
-     *      }
-     * }
-     * 
-     * Where:
-     *  ${s}: search parameter (optional)
-     *  ${o}: order parameter (optional)
-     *  ${p}: pagination parameter (required)
-     *  ${atts}: model attributes list (required)
-     * 
-     * 
-     * @param {Object} model Object with model definition data
-     * @param {String} url GraphQL Server url
-     * @param {String} searchText Text string currently on search bar.
-     * @param {String} orderBy Order field string.
-     * @param {String} orderDirection Text string: asc | desc.
-     * @param {Number} paginationOffset Offset.
-     * @param {Number} paginationLimit Max number of items to retreive.
-     */
-    getItems (model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
-        //set
-        const queryName = model.names.namePlLc; //PlLc: pluralize-lowercase
-        var modelAttributes = Object.keys(model.attributes);
-        modelAttributes.unshift('id');
-
-        /*
-          Get @search parameter
-        */
-        var s = getSearchArgument(model, searchText);
-
-        /*
-          Get @order parameter
-        */
-        var o = null;
-        if (orderBy !== '' && orderBy !== null) {
-            let upOrderDirection = String(orderDirection).toUpperCase();
-            o = `order: [ {field: ${orderBy}, order: ${upOrderDirection}} ]`;
-        }
-        /*
-          Get @pagination parameter
-        */
-        var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
-        
-        /*
-          Get graphQL @query
-        */
-        var query = '';
-
-        //if has search
-        if (s !== null) {
-            //if has order
-            if (o != null) {
-                //query with search & sort & pagination
-                query =
-                    `{
-                        ${queryName}(${s}, ${o}, ${p}) {
-                            ${modelAttributes.join()} 
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query with search & pagination
-                query =
-                    `{
-                        ${queryName}(${s}, ${p}) {
-                            ${modelAttributes.join()}  
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: if has search
-        else { // has not search
-            //if has order
-            if (o != null) {
-                //query with sort & pagination
-                query =
-                    `{
-                        ${queryName}(${o}, ${p}) {
-                            ${modelAttributes.join()}  
-                        }
-                    }`
-            }//end: if has order
-            else { //has not order
-                //query string with pagination only
-                query =
-                    `{
-                        ${queryName}(${p}) {
-                            ${modelAttributes.join()}  
-                        }
-                    }`
-            }//end: else: has not order
-        }//end: else: has not search
-        
-        /**
-         * Debug
-         */
-        console.log("getData.query: gql:\n", query);
-
-        //do request
-        return requestGraphql({ url, query });
-    }, //end: getItems()
-
-    /**
-     * 
-     *  
-     * getAssociationFilter
-     * 
-     * Construct query to get associations filter of the given item model. 
-     * Then do the query-request to GraphQL Server.
-     * 
-     * Query format:
-     * 
-     * {
-     *    readOne${modelName}(id: ${itemId}) {
-     *      ${association}Filter(${s}, ${p}) {
-     *        id
-     *        ${label}
-     *        ${sublabel}
-     *      }
-     *    }
-     * }
-     * 
-     * @param {String} url GraphQL Server url
-     * @param {Object} modelNames Model names object.
-     * @param {Number} itemId Model item id.
-     * @param {Object} associationNames Association names object.
-     * @param {String} label Label name.
-     * @param {String} sublabel Sublabel name.
-     * @param {Number} paginationOffset Offset.
-     * @param {Number} paginationLimit Max number of items to retreive.
-     */
-    getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
-      var associationModel = models[associationNames.targetModelLc];
+    * Where:
+    *  ${s}: search parameter (optional)
+    * 
+    * 
+    * @param {Object} model Object with model definition data
+    * @param {String} url GraphQL Server url
+    * @param {String} searchText Text string currently on search bar.
+    * @param {String} ops Object with adittional query options.
+    */
+  getCountItems (modelName, url, searchText, ops){
       /**
        * Debug
        */
-      console.log("-@: associationModel: ", associationModel)
-      
-      /*
-        Get @search parameter
-      */
-      var s = getSearchArgument(associationModel, searchText);
+      console.log("getCountItems.model: ", modelName);
 
       /*
-        Get @pagination parameter
+        Check: model
       */
-      var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
+      var model = models[modelName];
+      if(model === undefined) {
+        return null;
+      }
+
+      //set
+      const queryName = `count${model.names.namePlCp}`; //PlCp: pluralize-capitalized
+      var modelAttributes = Object.keys(model.attributes);
+      modelAttributes.unshift('id');
+
+
+      /**
+       * Debug
+       */
+      console.log("getCountItems.queryName: ", queryName);
+      console.log("getCountItems.modelAttributes: ", modelAttributes);
+
+      /*
+        Get @search arg
+      */
+      var s = getSearchArgument(model, searchText, ops);
 
       /*
         Get graphQL @query
@@ -264,19 +92,210 @@ export default {
       
       //if has search
       if (s !== null) {
-        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${s}, ${p}) {id, ${associationNames.label}, ${associationNames.sublabel}}, countFiltered${associationNames.targetModelPlCp}(${s}) } }`;
-      }//end: if has search
-      else { // has not search
-        query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${p}) {id, ${associationNames.label}, ${associationNames.sublabel}},  countFiltered${associationNames.targetModelPlCp} } }`;
-      }//end: else: has not search
+          //make query with search argument
+          query = `{ ${queryName}(${s}) }`;
+      }
+      else {
+          //make query without search argument
+          query = `{ ${queryName} }`;
+      }
 
       /**
        * Debug
        */
-      console.log("getAssociationFilter.query: gql:\n", query);
+      console.log("getCountItems.query: gql:\n", query);
 
       //do request
       return requestGraphql({ url, query });
+  },
+
+  /**
+   * getItems
+   * 
+   * Construct query to get items. Then do the query-request 
+   * to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * {
+   *      model(${s}, ${o}, ${p}) {
+   *          ${atts}
+   *      }
+   * }
+   * 
+   * Where:
+   *  ${s}: search parameter (optional)
+   *  ${o}: order parameter (optional)
+   *  ${p}: pagination parameter (required)
+   *  ${atts}: model attributes list (required)
+   * 
+   * 
+   * @param {Object} model Object with model definition data
+   * @param {String} url GraphQL Server url
+   * @param {String} searchText Text string currently on search bar.
+   * @param {String} orderBy Order field string.
+   * @param {String} orderDirection Text string: asc | desc.
+   * @param {Number} paginationOffset Offset.
+   * @param {Number} paginationLimit Max number of items to retreive.
+   * @param {String} ops Object with adittional query options.
+   */
+  getItems (modelName, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops) {
+    
+    /*
+      Check: model
+    */
+    var model = models[modelName];
+    if(model === undefined) {
+      return null;
+    }
+    
+    //set
+    const queryName = model.names.namePlLc; //PlLc: pluralize-lowercase
+    var modelAttributes = Object.keys(model.attributes);
+    modelAttributes.unshift('id');
+
+    /*
+      Get @search parameter
+    */
+    var s = getSearchArgument(model, searchText, ops);
+
+    /*
+      Get @order parameter
+    */
+    var o = null;
+    if (orderBy !== '' && orderBy !== null) {
+        let upOrderDirection = String(orderDirection).toUpperCase();
+        o = `order: [ {field: ${orderBy}, order: ${upOrderDirection}} ]`;
+    }
+    /*
+      Get @pagination parameter
+    */
+    var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
+    
+    /*
+      Get graphQL @query
+    */
+    var query = '';
+
+    //if has search
+    if (s !== null) {
+        //if has order
+        if (o != null) {
+            //query with search & sort & pagination
+            query =
+                `{
+                    ${queryName}(${s}, ${o}, ${p}) {
+                        ${modelAttributes.join()} 
+                    }
+                }`
+        }//end: if has order
+        else { //has not order
+            //query with search & pagination
+            query =
+                `{
+                    ${queryName}(${s}, ${p}) {
+                        ${modelAttributes.join()}  
+                    }
+                }`
+        }//end: else: has not order
+    }//end: if has search
+    else { // has not search
+        //if has order
+        if (o != null) {
+            //query with sort & pagination
+            query =
+                `{
+                    ${queryName}(${o}, ${p}) {
+                        ${modelAttributes.join()}  
+                    }
+                }`
+        }//end: if has order
+        else { //has not order
+            //query string with pagination only
+            query =
+                `{
+                    ${queryName}(${p}) {
+                        ${modelAttributes.join()}  
+                    }
+                }`
+        }//end: else: has not order
+    }//end: else: has not search
+    
+    /**
+     * Debug
+     */
+    console.log("getData.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
+  }, //end: getItems()
+
+  /**
+   * 
+   *  
+   * getAssociationFilter
+   * 
+   * Construct query to get associations filter of the given item model. 
+   * Then do the query-request to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * {
+   *    readOne${modelName}(id: ${itemId}) {
+   *      ${association}Filter(${s}, ${p}) {
+   *        id
+   *        ${label}
+   *        ${sublabel}
+   *      }
+   *    }
+   * }
+   * 
+   * @param {String} url GraphQL Server url
+   * @param {Object} modelNames Model names object.
+   * @param {Number} itemId Model item id.
+   * @param {Object} associationNames Association names object.
+   * @param {String} label Label name.
+   * @param {String} sublabel Sublabel name.
+   * @param {Number} paginationOffset Offset.
+   * @param {Number} paginationLimit Max number of items to retreive.
+   */
+  getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
+    var associationModel = models[associationNames.targetModelLc];
+    /**
+     * Debug
+     */
+    console.log("-@: associationModel: ", associationModel)
+    
+    /*
+      Get @search parameter
+    */
+    var s = getSearchArgument(associationModel, searchText);
+
+    /*
+      Get @pagination parameter
+    */
+    var p = `pagination: {offset: ${paginationOffset}, limit: ${paginationLimit}}`
+
+    /*
+      Get graphQL @query
+    */
+    var query = '';
+    
+    //if has search
+    if (s !== null) {
+      query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${s}, ${p}) {id, ${associationNames.label}, ${associationNames.sublabel}}, countFiltered${associationNames.targetModelPlCp}(${s}) } }`;
+    }//end: if has search
+    else { // has not search
+      query = `{ readOne${modelNames.nameCp}(id: ${itemId}) { ${associationNames.targetModelPlLc}Filter(${p}) {id, ${associationNames.label}, ${associationNames.sublabel}},  countFiltered${associationNames.targetModelPlCp} } }`;
+    }//end: else: has not search
+
+    /**
+     * Debug
+     */
+    console.log("getAssociationFilter.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
   },
 }
 
@@ -284,11 +303,11 @@ export default {
 /**
  * Utils
  */
-function getSearchArgument(model, searchText) {
+function getSearchArgument(model, searchText, ops) {
   /**
    * Debug
    */
-  console.log("@- on getSearchArgument: ", searchText);
+  console.log("@- on getSearchArgument: ", searchText, " @ops: ", ops);
   
   var modelAttributes = Object.keys(model.attributes); modelAttributes.unshift('id');
   var ors = '';
@@ -411,6 +430,68 @@ function getSearchArgument(model, searchText) {
       ands += orSearch;
 
     }//end: for each word (ANDs)
+
+    /*
+      Options
+    */
+    if(ops !== undefined && ops !== null && typeof ops === 'object') {
+    /*
+      Exclude option
+      For each field name in exclude array, an AND search argument will be added to search string. 
+
+      Format:
+        {
+          exclude: [
+            {
+              values: {
+                'fieldName1': ['value1', 'value2', ..., 'valueN'],
+                ...
+                'fieldNameM': ['value1', 'value2', ..., 'valueN'],
+              }
+              type: 'type'
+            },
+            ...
+            {
+              values: {
+                'fieldName1': ['value1', 'value2', ..., 'valueN'],
+                ...
+                'fieldNameN': ['value1', 'value2', ..., 'valueN'],
+              }
+              type: 'type'
+            }
+          ]
+        }
+      */
+      if(ops.hasOwnProperty('exclude') && Array.isArray(ops.exclude)) {
+        //for each exclude object
+        for(var i=0; i<ops.exclude.length; i++) {
+          let o=ops.exclude[i];
+          /*
+            Switch type
+
+            At the momment, just 'Int' type is supported for exclude option
+          */
+          if(o.type === 'Int') {
+            let v = o.values;
+            let vkeys = Object.keys(v);
+
+            //for each key
+            for(var k=0; k<vkeys.length; k++) {
+              let va = v[k]; //values array
+              
+              //for each value
+              for(var kv=0; kv<va.length; kv++) {
+                let nvalue = parseInt(va[kv]);
+                //add if: value is an integer number
+                if(!isNaN(nvalue)) {
+                  ands += `{field:${vkeys[k]}, value:{value:"${nvalue}"}, operator:ne},`
+                }
+              }//end: for earch value
+            }//end: for earch key
+          }//end: if type 'Int
+        }//end: for earch exclude object
+      }//end: if has 'exclude'
+    }//end: if has 'ops'
 
     //make search argument
     andSearch = `search: {operator:and, search: [ ${ands} ]}`

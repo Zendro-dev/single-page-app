@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import api from '../../requests/index';
-import { VariableSizeList as List } from 'react-window';
+import api from '../../../requests/index';
+//import { VariableSizeList as List } from 'react-window';
 import AssociationSelectableViewToolbar from './components/AssociationSelectableViewToolbar';
 
 
@@ -13,10 +13,19 @@ import AssociationSelectableViewToolbar from './components/AssociationSelectable
 import TablePagination from '@material-ui/core/TablePagination';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Divider from '@material-ui/core/Divider';
 
 
 /*
@@ -25,6 +34,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(0),
+    minWidth: 500,
   },
   card: {
     margin: theme.spacing(1),
@@ -41,9 +51,26 @@ const useStyles = makeStyles(theme => ({
   line: {
     display: "inline",
   },
+  row: {
+    maxHeight: 70,
+  },
+  fieldId: {
+    maxHeight: 70,
+  },
+  fieldLabel: {
+    maxHeight: 70,
+  },
+  fieldSublabel: {
+    maxHeight: 70,
+  },
+  divider: {
+    height: 50,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
 }));
 
-export default function CompactListView(props) {
+export default function AssociationSelectableView(props) {
   /*
     Styles
   */
@@ -103,7 +130,7 @@ export default function CompactListView(props) {
     console.log("hook:[]: ", associationNames);
     
     //get data
-    if(associationNames !== undefined){ getData(); }
+    if(associationNames !== undefined){ getData(); } else {setAreRowsReady(true);}
   }, []);
 
   useEffect(() => {
@@ -223,81 +250,120 @@ export default function CompactListView(props) {
   }
 
   /**
-     * getData
-     * 
-     * Get @items and @count from GrahpQL Server.
-     * Uses current state properties to fill query request.
-     * Updates state to inform new @items and @count retreived.
-     * 
+   * getData
+   * 
+   * Get @items and @count from GrahpQL Server.
+   * Uses current state properties to fill query request.
+   * Updates state to inform new @items and @count retreived.
+   * 
+   */
+  function getData() {
+    /**
+     * Debug
      */
-    function getData() {
-      /**
-       * Debug
-       */
-      console.log("@@getData() with: ");
-      console.log("@@url: ", graphqlServerUrl);
-      console.log("@@search: ", search);
-      console.log("@@onApiRequest: ", isOnApiRequest);
+    console.log("@@getData() with: ");
+    console.log("@@url: ", graphqlServerUrl);
+    console.log("@@search: ", search);
+    console.log("@@onApiRequest: ", isOnApiRequest);
 
-      //update state
-      setIsOnApiRequest(true);
-      setCount(0);
-      setItems([]);
-      setAreRowsReady(false);
+    //set state flag
+    setIsOnApiRequest(true);
+    setAreRowsReady(false);
 
-      //reset
-      if(isGettingFirstData) {
-        setIsGettingFirstData(false);
-      }
+    //reset
+    if (isGettingFirstData) {
+      setIsGettingFirstData(false);
+    }
+    /*
+      API Request: countItems
+    */
+    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search)
+      .then(response => {
+        //Check response
+        if (
+          response.data &&
+          response.data.data
+        ) {
+          /**
+           * Debug
+           */
+          console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
 
-      /*
-        Get data
-      */
-      api[associationNames.relationName].get(
-        graphqlServerUrl, 
-        modelNames, 
-        itemId, 
-        associationNames,
-        search,
-        page * rowsPerPage, //paginationOffset
-        rowsPerPage, //paginationLimit
-      )
-          .then(response => {
-              //Check response
+          //set new count
+          var newCount = response.data.data['count' + associationNames.relationNameCp];
+
+          /*
+            API Request: items
+          */
+          api[associationNames.targetModelLc].getItems(
+            associationNames.targetModelLc,
+            graphqlServerUrl,
+            search,
+            null, //orderBy
+            null, //orderDirection
+            page * rowsPerPage, //paginationOffset
+            rowsPerPage, //paginationLimit
+          )
+            .then(response => {
+              //check response
               if (
-                  response.data &&
-                  response.data.data
-              ) {
-                  /**
-                   * Debug
-                   */
-                  console.log("newData: ", response.data.data);
+                response.data &&
+                response.data.data &&
+                response.data.data[associationNames.relationName]) {
 
-                  //update state
-                  setCount(response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`]);
-                  setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
-                  setIsOnApiRequest(false);
+                /**
+                 * Debug
+                 */
+                console.log("@@newCount: ", newCount);
+                console.log("@@newItems: ", response.data.data[associationNames.relationName]);
 
-                  //done
-                  return;
+                //update state
+                setCount(newCount);
+                setItems(response.data.data[associationNames.relationName]);
+                setIsOnApiRequest(false);
+
+                //done
+                console.log("getData: done");
+                return;
 
               } else {
 
-                  //error
-                  console.log("error3")
+                //error
+                console.log("error1");
 
-                  //done
-                  return;
+                //done
+                return;
               }
-          })
-          .catch(err => {
+            })
+            .catch(err => {
 
               //error
-              console.log("error4: ", err)
+              console.log("error2");
 
               //done
               return;
-          });
+            });
+
+          //done
+          return;
+
+        } else {
+
+          //error
+          console.log("error3")
+
+          //done
+          return;
+        }
+      })
+      .catch(err => {
+
+        //error
+        console.log("error4: ", err)
+
+        //done
+        return;
+      });
   }
 
   /*
@@ -330,6 +396,10 @@ export default function CompactListView(props) {
 
   const handleItemsRendered = () => {
     console.log("on: handleItemsRendered!!!!!, areItemsReady: ", areItemsReady, "  isCountReady: ", isCountReady, " ihs: ", itemHeights.current);
+  }
+
+  const handleRowClicked = (event, item) => {
+    console.log("clicked: ", item);
   }
 
   /**
@@ -394,99 +464,173 @@ export default function CompactListView(props) {
     <div className={classes.root}>
       <Grid container justify='center'>
         <Grid item xs={12}>
-          <Card className={classes.card}>
 
-            {/* Toolbar */}
-            <AssociationSelectableViewToolbar 
-              title={title}
-              search={search}
-              onSearchEnter={handleSearchEnter}
-            />
+          {(associationNames!==undefined) && (
+            <Card className={classes.card}>
 
-            {/* Case: no data */}
-            {(!isOnApiRequest && (!areItemsReady || !isCountReady)) && (
+              {/* Toolbar */}
+              <AssociationSelectableViewToolbar 
+                title={title}
+                search={search}
+                associationNames={associationNames}
+                onSearchEnter={handleSearchEnter}
+              />
 
-              /* Label */
-              <Fade
-                in={true}
-                unmountOnExit
-              >
-                <div>
-                  <Grid container>
-                    <Grid item xs={12}>
-                      <Grid className={classes.noDataBox} container justify="center" alignItems="center">
-                        <Grid item>
-                          <Typography variant="body1" > No data to display </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </div>
-              </Fade>
+              {/* Case: no data */}
+              {(!isOnApiRequest && (!areItemsReady || !isCountReady)) && (
 
-            )}
-
-            {/* Case: data ready */}
-            {(!isOnApiRequest && areItemsReady && isCountReady) && (
-            
-              /* List */
-              <Fade
-                in={true}
-                unmountOnExit
-              >
-                <List
-                  height={listHeight}
-                  width="100%"
-                  itemCount={count}
-                  itemSize={getItemSize}
-                  onItemsRendered={handleItemsRendered}
+                /* Label */
+                <Fade
+                  in={true}
+                  unmountOnExit
                 >
-                  {Row}
-                </List>
-              </Fade>
-
-            )}
-
-            {/* Case: loading */}
-            {(isOnApiRequest) && (
-              /* Progress */
-              <Fade
-                in={true}
-                unmountOnExit
-              >
-                <div>
-                  <Grid container>
-                    <Grid item xs={12}>
-                      <Grid container className={classes.loadingBox} justify="center" alignItems="center" justify="center">
-                        <Grid item>
-                          <CircularProgress color='primary' disableShrink/>
+                  <div>
+                    <Grid container>
+                      <Grid item xs={12}>
+                        <Grid className={classes.noDataBox} container justify="center" alignItems="center">
+                          <Grid item>
+                            <Typography variant="body1" > No data to display </Typography>
+                          </Grid>
                         </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                </div>
-              </Fade>
+                  </div>
+                </Fade>
 
-            )}
+              )}
 
-            {/* Pagination */}
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={items.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                backIconButtonProps={{
-                    'aria-label': 'previous page',
-                }}
-                nextIconButtonProps={{
-                    'aria-label': 'next page',
-                }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
+              {/* Case: data ready */}
+              {(!isOnApiRequest && areItemsReady && isCountReady) && (
+              
+                /* List */
+                <Fade
+                  in={true}
+                  unmountOnExit
+                >
+                  <List dense component="div" role="list">
+                    
+                    {items.map(item => {
+                      let key = item.id;
+                      let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
+                      let sublabel = (associationNames.sublabel !== 'id' && 
+                                      associationNames.sublabel !== associationNames.label) ? 
+                                        item[associationNames.sublabel] : null;
+                      return (
+                        <ListItem key={key} 
+                          role="listitem" 
+                          button 
+                          className={classes.row}
+                          onClick={(event) => {
+                            handleRowClicked(event, item);
+                          }}
+                        >
+                          <Grid container justify='center' alignItems='center'>
+                            <Grid item xs={12}>
 
-          </Card>
+                              <Grid container justify='center' alignItems='center' wrap='nowrap'>
+                                <Grid item xs={4}>
+                                  <Grid container>
+                                    <Grid item xs={12}>
+
+                                      <Grid container justify='center' alignItems='center' spacing={2}>
+                                        <Grid item xs={6}>
+
+                                          {/* Checkbox */}
+                                          <ListItemIcon>
+                                            <Checkbox
+                                              //checked={checked.indexOf(value) !== -1}
+                                              tabIndex={-1}
+                                            />
+                                          </ListItemIcon>
+                                        </Grid>
+
+                                        <Grid item xs={6}>
+                                          {/* id */}
+                                          <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                        </Grid>
+                                      </Grid>
+
+                                    </Grid>
+                                  </Grid>
+
+                                </Grid>
+
+
+                                {/* Divider */}
+                                <Divider className={classes.divider} orientation="vertical" />
+
+                                <Grid item xs={4}>
+                                  {/* label */}
+                                  {(label !== undefined && label != null) && (
+                                    <Typography variant="caption" display="block" noWrap={true}>{label}</Typography>
+                                  )}
+                                </Grid>
+
+                                {/* Divider */}
+                                <Divider className={classes.divider} orientation="vertical" />
+                                <Grid item xs={4}>
+                                  {/* sublabel */}
+                                  {(sublabel !== undefined && sublabel != null) && (
+
+                                    <Typography variant="caption" display="block" noWrap={true}>{sublabel}<b></b> </Typography>
+
+                                  )}
+                                </Grid>
+                              </Grid>
+
+                            </Grid>
+                          </Grid>
+
+                        </ListItem>
+                      );
+                    })}
+                    <ListItem />
+                  </List>
+                </Fade>
+
+              )}
+
+              {/* Case: loading */}
+              {(isOnApiRequest) && (
+                /* Progress */
+                <Fade
+                  in={true}
+                  unmountOnExit
+                >
+                  <div>
+                    <Grid container>
+                      <Grid item xs={12}>
+                        <Grid container className={classes.loadingBox} justify="center" alignItems="center" justify="center">
+                          <Grid item>
+                            <CircularProgress color='primary' disableShrink/>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </div>
+                </Fade>
+
+              )}
+
+              {/* Pagination */}
+              <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={items.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  backIconButtonProps={{
+                      'aria-label': 'previous page',
+                  }}
+                  nextIconButtonProps={{
+                      'aria-label': 'next page',
+                  }}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+              />
+
+            </Card>
+          )}
         </Grid>
       </Grid>
     </div>
@@ -496,9 +640,7 @@ export default function CompactListView(props) {
 /*
   PropTypes
 */
-CompactListView.propTypes = {
+AssociationSelectableView.propTypes = {
     title: PropTypes.string,
-    modelNames: PropTypes.object,
-    itemId: PropTypes.number,
-    associationNams: PropTypes.object,
+    associationNames: PropTypes.object,
 };
