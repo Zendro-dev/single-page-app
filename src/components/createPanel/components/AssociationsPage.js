@@ -52,6 +52,7 @@ export default function AttributesPage(props) {
     State
   */
   const [itemFocusStates, setItemFocusStates] = useState(items.map(function(item){ return {key: item.key, focus: false}}));
+  const [associationFocusStates, setAssociationsFocusStates] = useState(getAssociationsItems().map(function(item){ return {key: item.key, focus: false}}));
   const [toManyFocusStates, setToManyFocusStates] = useState(getToManyItems().map(function(item){ return {key: item.key, focus: false}}));
   const [toOneFocusStates, setToOneFocusStates] = useState(getToOneItems().map(function(item){ return {key: item.key, focus: false}}));
   //state: tabsMenuB
@@ -65,24 +66,16 @@ export default function AttributesPage(props) {
   */
   const fieldRefs = useRef([]);
   const searchAllowed = useRef(true);
+  const associationIdsToAdd = useRef(getAssociationsItems().map(function(item){ return {key: item.key, ids: []}}));
 
   /*
     Hooks
   */
   useEffect(() => {
-
-    console.log("toManys: ", toManys);
-
     //select approtiate association type
     setAssociationTypeSelected(getInitialAssociationTypeSelected);
 
   }, []);
-
-  useEffect(() => {
-
-    console.log("new: associationTypeSelected: ", associationTypeSelected);
-
-  }, [associationTypeSelected]);
 
   /*
     Methods
@@ -111,8 +104,6 @@ export default function AttributesPage(props) {
 
   function setFocusOnIndex(index) {
 
-    console.log("///setFocusOnIndex: ", index);
-
     //find index ref
     let i = -1;
     if(fieldRefs.current.length > 0 && items.length > 0) {
@@ -128,6 +119,25 @@ export default function AttributesPage(props) {
         block: 'start',
       });
     }
+  }
+
+  function getAssociationsItems() {
+    //toManys
+    let itemsToManys = toManys.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp }
+      });
+    //toOnes
+    let itemsToOnes = toOnes.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp }
+      });
+    //retrun concat  
+    return itemsToOnes.concat(itemsToManys);
   }
 
   function getToManyItems() {
@@ -158,14 +168,21 @@ export default function AttributesPage(props) {
     return undefined;
   }
 
+  function getIdsToAdd() {
+    //find current association excluded ids
+    for(var i=0; i<associationIdsToAdd.length; ++i) {
+      if(associationIdsToAdd[i].key === association.targetModelLc) {
+        return associationIdsToAdd[i].ids;
+      }
+    }
+    //if not found
+    return [];
+  }
+
   /*
     Handlers
   */
   const handleChipClick = (event, item) => {
-
-    console.log("@@%%%_ handleChipClick: item: ", item);
-
-
     /*
       Set focus on respective field
     */
@@ -210,8 +227,33 @@ export default function AttributesPage(props) {
     /*
       Update current association object
     */
-   console.log("##clicked item: ", item);
-    console.log("##clicked assoc: ", getToManyByName(key));
+    setAssociationTitle(item.label);
+    setAssociation(getToManyByName(key));
+  }
+
+  const handleAssociationClick = (event, item) => {
+    let key = item.key;
+
+    /*
+      Set focus
+    */
+    //make new focus state object
+    let o = {key: key, focus: true};
+    let i = -1;
+    //find index
+    if(associationFocusStates.length > 0) {
+      i = associationFocusStates.findIndex(itemHasKey, {key:key});
+    }
+    //update state
+    if(i !== -1) {
+      let newAssociationFocusStates = Array.from(associationFocusStates);
+      newAssociationFocusStates[i] = o;
+      setToManyFocusStates(newAssociationFocusStates);
+    }
+
+    /*
+      Update current association object
+    */
     setAssociationTitle(item.label);
     setAssociation(getToManyByName(key));
   }
@@ -298,6 +340,19 @@ export default function AttributesPage(props) {
     setAssociationTypeSelected(newValue);   
   };
 
+  const handleTransferToAdd = (associationKey, itemId) => {
+
+    //find association key entry
+    for(var i=0; i<associationIdsToAdd.current.length; ++i) {
+      if(associationIdsToAdd.current[i].key === associationKey) {
+        //push new id
+        associationIdsToAdd.current[i].ids.push(itemId);
+        //done
+        return;
+      }
+    }
+  }
+
   const onGetSearchAllowed = () => {
     if(searchAllowed !== undefined) {
       return searchAllowed.current;
@@ -313,22 +368,13 @@ export default function AttributesPage(props) {
     <div hidden={hidden}>
       <Grid
         className={classes.root} 
-        container justify='center' 
+        container justify='center'
         alignItems='flex-start'
         spacing={3}
       > 
-        {/* Tabs: Associations Types */}
-        <Grid item xs={2}>
-        <AssociationTypesTabs 
-          toOnesLength={toOnes.length}
-          toManysLength={toManys.length}
-          associationTypeSelected={associationTypeSelected}
-          onAssociationTypeChange={handleAssociationTypeChange}
-        />
-        </Grid>
 
         {/* Chips View: ToOnes & ToManys */}
-        <Grid item xs={2}>
+        <Grid item xs={8} sm={2}>
 
           {/* <ChipsView
             items={items}
@@ -339,33 +385,7 @@ export default function AttributesPage(props) {
             onGetSearchAllowed={onGetSearchAllowed}
           /> */}
 
-
-          {/* ToOnes */}
-          {(toOnes.length > 0) ? (
-            <ChipsView
-              hidden={associationTypeSelected !== 0}
-              items={getToOneItems()}
-              itemFocusStates={toOneFocusStates}
-              valueOkStates={valueOkStates}
-              deletable={false}
-              handleClick={handleChipClick}
-              onGetSearchAllowed={onGetSearchAllowed}
-            />
-          ):(
-            <div hidden={associationTypeSelected !== 0}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <Grid className={classes.noDataBox} container justify="center" alignItems="center">
-                    <Grid item>
-                      <Typography variant="body1" > There are not to-one associations </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </div>
-          )}
-
-          {/* ToManys */}
+          {/* Associations Chips View */}
           {(toManys.length > 0) ? (
             <ChipsView
               hidden={associationTypeSelected !== 1}
@@ -390,19 +410,43 @@ export default function AttributesPage(props) {
             </div>
           )}
           
-
-          
         </Grid>
 
-        {/* Associations Compact List B */}
-        <Grid item xs={6}>
+        {/* Associations Selectable View */}
+        <Grid item xs={8} sm={4}>
           <Grid container
             container justify='center' 
             alignItems='flex-start'
             wrap='wrap'
             spacing={1}
           >
-            <Grid item xs={12} xl={6}>
+            <Grid item xs={12}>
+              {(association !== undefined) && (
+                <AssociationSelectableView
+                  title={associationTitle}
+                  associationNames={association}
+                  exludedIds={getIdsToAdd()}
+                  handleTransfer={handleTransferToAdd}
+                />
+              )}
+            </Grid>
+
+            {/* <Grid item xs={12} lg={6}>
+              <CompactListView
+              />
+            </Grid> */}
+          </Grid>
+        </Grid>
+
+        {/* Associations To Add View */}
+        <Grid item xs={8} sm={4}>
+          <Grid container
+            container justify='center' 
+            alignItems='flex-start'
+            wrap='wrap'
+            spacing={1}
+          >
+            <Grid item xs={12}>
               {(association !== undefined) && (
                 <AssociationSelectableView
                   title={associationTitle}
@@ -415,10 +459,9 @@ export default function AttributesPage(props) {
               <CompactListView
               />
             </Grid> */}
-
-
           </Grid>
         </Grid>
+
       </Grid>
     </div>
   );

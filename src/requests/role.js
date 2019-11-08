@@ -67,8 +67,8 @@ export default {
      * @param {String} url GraphQL Server url
      * @param {String} searchText Text string currently on search bar.
      */
-    getCountItems (model, url, searchText){
-        return queriesGraphql.getCountItems(model, url, searchText);
+    getCountItems (model, url, searchText, ops){
+        return queriesGraphql.getCountItems(model, url, searchText, ops);
     },
     /**
      * getItems
@@ -100,8 +100,8 @@ export default {
      * @param {Number} paginationOffset Offset.
      * @param {Number} paginationLimit Max number of items to retreive.
      */
-    getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit) {
-        return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit);
+    getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops) {
+        return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops);
     },
     /**
      * 

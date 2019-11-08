@@ -45,8 +45,13 @@ const useToolbarStyles = makeStyles(theme => ({
     headers: {
       paddingLeft: theme.spacing(0),
       paddingRight: theme.spacing(0),
-      paddingTop: theme.spacing(1),
+      paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(0),
+    },
+    dividerV: {
+      height: 30,
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
     },
 }));
 
@@ -147,55 +152,31 @@ export default function CompactListViewToolbar(props) {
               </Grid>
             </Grid>
 
-              {/* Headers */}
-              <Grid item xs={12} className={classes.headers}>
-                <Grid container justify='center' alignItems='center' wrap='nowrap' spacing={0}>
+            {/* Headers */}
+            <Grid item xs={12} className={classes.headers}>
+              <Grid container justify='flex-start' alignItems='center' wrap='nowrap'>
 
-
-                  <Grid item xs={4}>
-                    <Grid container>
-                      <Grid item xs={12}>
-
-                        <Grid container justify='center' alignItems='center' spacing={0}>
-                          <Grid item xs={6}>
-                            {/* Checkbox */}
-                            <Checkbox
-                              //checked={checked.indexOf(value) !== -1}
-                              tabIndex={-1}
-                            />
-                          </Grid>
-
-                          <Grid item xs={6}>
-                            {/* id */}
-                            <Typography className={classes.fieldId} variant="caption" display="block" noWrap={true}><b>id</b></Typography>
-
-                          </Grid>
-                        </Grid>
-
-                      </Grid>
-                    </Grid>
-
-                  </Grid>
-                  <Grid item xs={4}>
-                    {/* label */}
-                    <Typography variant="caption" display="block" noWrap={true}><b>{associationNames.label}</b></Typography>
-                  </Grid>
-
-                  <Grid item xs={4}>
-                    {/* sublabel */}
-                        <Typography variant="caption" display="block" noWrap={true}><b>{associationNames.sublabel}</b> </Typography>
-                  </Grid>
-               
+                {/* Id */}
+                <Grid item xs={1}>
+                  <Typography className={classes.fieldId} variant="caption" display="block" noWrap={true}><b>id</b></Typography>
                 </Grid>
+                
+                {/* Label */}
+                <Grid item xs={9}>
+                  <Typography variant="caption" display="block" noWrap={true}>
+                    <b>&nbsp;&nbsp;{associationNames.label}</b></Typography>
+                </Grid>
+              
               </Grid>
+            </Grid>
 
-              <Grid container justify='center' alignItems='center' wrap='wrap'>
-              <Grid item xs={10}>
+            <Grid container justify='center' alignItems='center' wrap='wrap'>
+              <Grid item xs={12}>
               {/* Divider */}
               <Divider orientation="horizontal" />
+              </Grid>
             </Grid>
-            </Grid>
-            
+
           </Grid>
         </Grid>
       </Grid>

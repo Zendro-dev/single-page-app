@@ -140,7 +140,6 @@ export default {
    * @param {String} ops Object with adittional query options.
    */
   getItems (modelName, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops) {
-    
     /*
       Check: model
     */
@@ -477,7 +476,7 @@ function getSearchArgument(model, searchText, ops) {
 
             //for each key
             for(var k=0; k<vkeys.length; k++) {
-              let va = v[k]; //values array
+              let va = v[vkeys[k]]; //values array
               
               //for each value
               for(var kv=0; kv<va.length; kv++) {
@@ -495,7 +494,77 @@ function getSearchArgument(model, searchText, ops) {
 
     //make search argument
     andSearch = `search: {operator:and, search: [ ${ands} ]}`
-  }
+  }//end: if searchText
+  else {
+    /*
+      Check: ops
+    */
+    /*
+      Options
+    */
+   if(ops !== undefined && ops !== null && typeof ops === 'object') {
+    /*
+      Exclude option
+      For each field name in exclude array, an AND search argument will be added to search string. 
+
+      Format:
+        {
+          exclude: [
+            {
+              values: {
+                'fieldName1': ['value1', 'value2', ..., 'valueN'],
+                ...
+                'fieldNameM': ['value1', 'value2', ..., 'valueN'],
+              }
+              type: 'type'
+            },
+            ...
+            {
+              values: {
+                'fieldName1': ['value1', 'value2', ..., 'valueN'],
+                ...
+                'fieldNameN': ['value1', 'value2', ..., 'valueN'],
+              }
+              type: 'type'
+            }
+          ]
+        }
+      */
+      if(ops.hasOwnProperty('exclude') && Array.isArray(ops.exclude)) {
+
+        //for each exclude object
+        for(var i=0; i<ops.exclude.length; i++) {
+          let o=ops.exclude[i];
+          /*
+            Switch type
+
+            At the momment, just 'Int' type is supported for exclude option key
+          */
+          if(o.type === 'Int') {
+            let v = o.values;
+            let vkeys = Object.keys(v);
+
+            //for each key
+            for(var k=0; k<vkeys.length; k++) {
+              let va = v[vkeys[k]]; //values array
+              
+              //for each value
+              for(var kv=0; kv<va.length; kv++) {
+                let nvalue = parseInt(va[kv]);
+                //add if: value is an integer number
+                if(!isNaN(nvalue)) {
+                  ands += `{field:${vkeys[k]}, value:{value:"${nvalue}"}, operator:ne},`
+                }
+              }//end: for earch value
+            }//end: for earch key
+          }//end: if type 'Int
+        }//end: for earch exclude object
+      }//end: if has 'exclude'
+
+      //make search argument
+      andSearch = `search: {operator:and, search: [ ${ands} ]}`
+    }//end: if has 'ops'
+  }//end: if !searchText
 
   return andSearch;
 }

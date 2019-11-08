@@ -16,7 +16,6 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -26,6 +25,15 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
+import Popover from '@material-ui/core/Popover';
+import Grow from '@material-ui/core/Grow';
+import Fade from '@material-ui/core/Fade';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fab from '@material-ui/core/Fab';
+//icons
+import Add from '@material-ui/icons/AddCircle';
+
 
 
 /*
@@ -34,7 +42,7 @@ import Divider from '@material-ui/core/Divider';
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(0),
-    minWidth: 500,
+    minWidth: 200,
   },
   card: {
     margin: theme.spacing(1),
@@ -54,19 +62,16 @@ const useStyles = makeStyles(theme => ({
   row: {
     maxHeight: 70,
   },
-  fieldId: {
-    maxHeight: 70,
-  },
-  fieldLabel: {
-    maxHeight: 70,
-  },
-  fieldSublabel: {
-    maxHeight: 70,
-  },
-  divider: {
+  dividerV: {
     height: 50,
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
+  },
+  rowPopover: {
+    pointerEvents: 'none',
+  },
+  iconButton: {
+    padding: theme.spacing(1),
   },
 }));
 
@@ -81,7 +86,7 @@ export default function AssociationSelectableView(props) {
   const {
     title,
     associationNames,
-    transferStates,
+    idsToAdd,
     handleTransfer,
   } = props;
   const minListHeight = 200;
@@ -94,7 +99,11 @@ export default function AssociationSelectableView(props) {
   const [items, setItems] = useState([]);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState('');
-  const [selectStates, setSelectStates] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [hoveredItems, setHoveredItems] = useState([]);
+  const [rowAnchorEl, setRowAnchorEl] = useState(null);
+  const [rowPopoverOpen, setRowPopoverOpen] = useState(false);
+  const isRowEnter = Boolean(rowAnchorEl);
   // const [selected, setSelected] = useState([]);
   // const [expanded, setExpanded] = useState([]);
   const [page, setPage] = useState(0);
@@ -113,7 +122,7 @@ export default function AssociationSelectableView(props) {
     Refs
   */
   const itemHeights = useRef([]);
-
+  const lidsToAdd = useRef([]);
 
   /*
       Store selectors
@@ -127,27 +136,25 @@ export default function AssociationSelectableView(props) {
     /**
      * Debug
      */
-    console.log("hook:[]: ", associationNames);
-    
+    console.log("@@-- hook: associationNames: ", associationNames);
+    console.log("@@-- hook: idsToAdd: ", idsToAdd);
+
+    //set ids to add
+    if(idsToAdd !== undefined && idsToAdd.length > 0) {
+      lidsToAdd.current.concat(idsToAdd);
+    }
+
     //get data
     if(associationNames !== undefined){ getData(); } else {setAreRowsReady(true);}
   }, []);
 
   useEffect(() => {
-    /**
-     * Debug
-     */
-    console.log("on: useEffect[ITEMS]!!!!!: ", items);
-
     //update state
     if(items.length > 0) { setAreItemsReady(true); } else { setAreItemsReady(false); }
 
   }, [items]);
 
    useEffect(() => {
-
-    console.log("on: useEffect[COUNT]!!!!!: ", count);
-
     //new itemsHeight
     if(count === 0) {
       //reset
@@ -233,22 +240,9 @@ export default function AssociationSelectableView(props) {
   }, [isOnApiRequest]);
 
 
-
   /*
       Methods
   */
-  const getItemSize = index => {
-
-    console.log("on getItemSize: index: ", index, "l: ", itemHeights.current.length, " size: ", itemHeights.current[index]);
-    
-    if(itemHeights.current.length > 0) {
-      return itemHeights.current[index];
-    }
-    else {
-      return defaultRowHeight;
-    }
-  }
-
   /**
    * getData
    * 
@@ -274,10 +268,22 @@ export default function AssociationSelectableView(props) {
     if (isGettingFirstData) {
       setIsGettingFirstData(false);
     }
+
+    //set ops: excluded ids
+    let ops = null;
+    if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
+      ops = {
+        exclude: [{
+          type: 'Int',
+          values: {id: lidsToAdd.current}
+        }]
+      };
+    }
+
     /*
       API Request: countItems
     */
-    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search)
+    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search, ops)
       .then(response => {
         //Check response
         if (
@@ -303,6 +309,7 @@ export default function AssociationSelectableView(props) {
             null, //orderDirection
             page * rowsPerPage, //paginationOffset
             rowsPerPage, //paginationLimit
+            ops
           )
             .then(response => {
               //check response
@@ -366,6 +373,34 @@ export default function AssociationSelectableView(props) {
       });
   }
 
+  function itemHasKey(item, index) {
+    if(item !== undefined) {
+      return item.key === this.key;
+    } else {
+      return false;
+    }
+  }
+
+  function isSelected(item) {
+    for(var i=0; i<selectedItems.length; i++) 
+    {
+      if(item.id === selectedItems[i].id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function hasHover(item) {
+    for(var i=0; i<hoveredItems.length; i++) 
+    {
+      if(item.id === hoveredItems[i].id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /*
       Handlers
   */
@@ -402,63 +437,45 @@ export default function AssociationSelectableView(props) {
     console.log("clicked: ", item);
   }
 
-  /**
-   * SubComponent: Row
-   */
-  const Row = ({ index, style }) => {
-    const item = items[index];
-    const itemKeys = Object.keys(items[index]);
-    const itemRef = useRef(null);
-
-    useEffect(() => {
-
-      console.log("onRow: keys: ", itemKeys, " item: ", item);
-      console.log("onRow: count: ", count, " index: ", index, "  cur_ihs: ", itemHeights.current);
-
-      //set new item height
-      itemHeights.current[index] = itemRef.current.clientHeight;
-
-      console.log("onRow: new_ihs: ", itemHeights.current);
-
-      //update state
-      if(index < (count-1)) {
-        setAreRowsReady(false);
-      } else {
-        setAreRowsReady(true);
+  const handleSelectItem = (item, newStatus) => {
+    let newSelectedItems = Array.from(selectedItems);
+    
+    if(newStatus) {
+      //add
+      newSelectedItems.push(item);
+    } else {
+      //find item
+      for(var i=0; i<newSelectedItems.length; ++i)
+      {
+        if(item.id === newSelectedItems[i].id) {
+          //remove
+          newSelectedItems.splice(i, 1);
+        }
       }
+    }
 
-    }, []);
+    //update state
+    setSelectedItems(newSelectedItems);
+  }
 
-    return (
-      <CardContent ref={itemRef} >
-        
-        {/* id */}
-        <Typography variant="caption" display="inline"><b>id:</b> </Typography>
-        <Typography variant="caption" display="inline">{item.id}</Typography>
+  const handleMouseEnterRow = (event, item) => {
+    //reset
+    let newHoveredItems = [];
+    //add
+    newHoveredItems.push(item);
+    //update state
+    setHoveredItems(newHoveredItems);
+  }
 
-        {/* label */}
-        {(itemKeys.length > 1 && item[itemKeys[1]] !== null) && (
-          <div className={classes.line}>
-            <Typography variant="caption" display="inline"><b> | {itemKeys[1]}:</b> </Typography>
-            <Typography variant="caption" display="inline">{item[itemKeys[1]]}</Typography>
-          </div>
-        )}
+  const handleMouseLeaveRow = (event, item) => {
+    //update state
+    setHoveredItems([]);
+  }
 
-         {/* sublabel */}
-         {(itemKeys.length > 2 && item[itemKeys[2]] !== null) && (
-          <div className={classes.line}>
-            <Typography variant="caption" display="inline"><b> | {itemKeys[2]}:</b> </Typography>
-            <Typography variant="caption" display="inline">{item[itemKeys[2]]}<b></b> </Typography>
-          </div>
-        )}
-      </CardContent>
-    )
-  };
-  Row.propTypes = {
-      index: PropTypes.number.isRequired,
-      style: PropTypes.object.isRequired,
-  };
-
+  const handleAddClicked = (event, item) => {
+    //update state
+    console.log("onAddClicked: ", item);
+  }
 
   return (
     <div className={classes.root}>
@@ -515,6 +532,9 @@ export default function AssociationSelectableView(props) {
                       let sublabel = (associationNames.sublabel !== 'id' && 
                                       associationNames.sublabel !== associationNames.label) ? 
                                         item[associationNames.sublabel] : null;
+                      let selected = isSelected(item);
+                      let hovered = hasHover(item);
+
                       return (
                         <ListItem key={key} 
                           role="listitem" 
@@ -523,64 +543,59 @@ export default function AssociationSelectableView(props) {
                           onClick={(event) => {
                             handleRowClicked(event, item);
                           }}
+                          onMouseEnter={(event) => {handleMouseEnterRow(event, item)}}
+                          onMouseLeave={(event) => {handleMouseLeaveRow(event, item)}}
                         >
                           <Grid container justify='center' alignItems='center'>
                             <Grid item xs={12}>
-
                               <Grid container justify='center' alignItems='center' wrap='nowrap'>
-                                <Grid item xs={4}>
-                                  <Grid container>
-                                    <Grid item xs={12}>
-
-                                      <Grid container justify='center' alignItems='center' spacing={2}>
-                                        <Grid item xs={6}>
-
-                                          {/* Checkbox */}
-                                          <ListItemIcon>
-                                            <Checkbox
-                                              //checked={checked.indexOf(value) !== -1}
-                                              tabIndex={-1}
-                                            />
-                                          </ListItemIcon>
-                                        </Grid>
-
-                                        <Grid item xs={6}>
-                                          {/* id */}
-                                          <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
-                                        </Grid>
-                                      </Grid>
-
-                                    </Grid>
-                                  </Grid>
-
-                                </Grid>
-
-
-                                {/* Divider */}
-                                <Divider className={classes.divider} orientation="vertical" />
-
-                                <Grid item xs={4}>
-                                  {/* label */}
-                                  {(label !== undefined && label != null) && (
-                                    <Typography variant="caption" display="block" noWrap={true}>{label}</Typography>
-                                  )}
+                                
+                                {/* Id */}
+                                <Grid item xs={1}>
+                                  <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
                                 </Grid>
 
                                 {/* Divider */}
-                                <Divider className={classes.divider} orientation="vertical" />
-                                <Grid item xs={4}>
-                                  {/* sublabel */}
-                                  {(sublabel !== undefined && sublabel != null) && (
+                                <Divider className={classes.dividerV} orientation="vertical" />
 
-                                    <Typography variant="caption" display="block" noWrap={true}>{sublabel}<b></b> </Typography>
-
+                                {/* Label */}
+                                <Grid item xs={9}>
+                                  {(label !== undefined && label !== null) && (
+                                    <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
+                                  )}
+                                  {/* Sublabel */}
+                                  {(sublabel !== undefined && sublabel !== null) && (
+                                    <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
                                   )}
                                 </Grid>
+
+                                {/* Button */}
+                                <Grid item xs={2}>
+                                  <Tooltip title="Add to list">
+                                    <IconButton
+                                      color="primary"
+                                      className={classes.iconButton}
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+
+                                        //push id to add
+                                        lidsToAdd.current.push(item.id);
+
+                                        //get data
+                                        getData();
+
+                                        //callback
+                                        handleTransfer(associationNames.targetModelLc, item.id);
+                                      }}
+                                    >
+                                      <Add color="primary"/>
+                                    </IconButton>
+                                  </Tooltip>
+                                </Grid>
+
                               </Grid>
-
                             </Grid>
                           </Grid>
-
                         </ListItem>
                       );
                     })}
@@ -600,7 +615,7 @@ export default function AssociationSelectableView(props) {
                   <div>
                     <Grid container>
                       <Grid item xs={12}>
-                        <Grid container className={classes.loadingBox} justify="center" alignItems="center" justify="center">
+                        <Grid container className={classes.loadingBox} justify="center" alignItems="center">
                           <Grid item>
                             <CircularProgress color='primary' disableShrink/>
                           </Grid>
