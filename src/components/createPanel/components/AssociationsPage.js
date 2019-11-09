@@ -26,17 +26,12 @@ const useStyles = makeStyles(theme => ({
   root: {
     margin: theme.spacing(0),
   },
-  noDataBox: {
-    width: "100%",
-    height: 112,
-  },
   listItemText: {
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
   },
-  listItemButton: {
-    width: '100%',
-    height: '100%'
+  menu: {
+    marginTop: theme.spacing(1),
   }
 }));
 
@@ -149,10 +144,10 @@ export default function AssociationsPage(props) {
         container 
         justify='center'
         alignItems='flex-start'
-        spacing={3}
+        spacing={0}
       > 
         {/* Menu: Associations */}
-        <Grid item xs={11} sm={2}>
+        <Grid item xs={11} sm={2} className={classes.menu}>
           <List dense component="div" role="list">
             {associationItems.map((item, index) => {
               return (
@@ -160,7 +155,7 @@ export default function AssociationsPage(props) {
                   key={item.key}
                   role="listitem"
                   button
-                  selected={selectedAssociationIndex === index}
+                  //selected={selectedAssociationIndex === index}
                   onClick={(event) => {
                     //update selected index
                     setSelectedAssociationIndex(index);
@@ -174,6 +169,7 @@ export default function AssociationsPage(props) {
                     variant="subtitle1" 
                     display="block" 
                     noWrap={true}
+                    color={selectedAssociationIndex === index ? 'primary' : 'initial'}
                   >
                     {item.label}
                   </Typography>

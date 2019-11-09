@@ -23,6 +23,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ClearInactive from '@material-ui/icons/BackspaceOutlined';
 import ClearActive from '@material-ui/icons/Backspace';
 import Search from '@material-ui/icons/Search';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+import AddList from '@material-ui/icons/AddToPhotosTwoTone';
 
 /*
   Styles
@@ -63,6 +65,7 @@ export default function AssociationToAddTransferViewToolbar(props) {
   const {
       search,
       title,
+      titleIcon,
       associationNames,
       onSearchEnter,
   } = props;
@@ -80,74 +83,77 @@ export default function AssociationToAddTransferViewToolbar(props) {
     <Toolbar className={classes.root}>
       <Grid container>
         <Grid item xs={12}>
-          <Grid container justify='space-between' alignItems='center' wrap='wrap'>
-  
+          <Grid container justify='space-between' alignItems='center' wrap='wrap' spacing={2}>
+            
             {/* Title */}
-            <Grid item >
-                <Typography variant="h6">
+            <Grid item xs={12} >
+              <Grid container justify='flex-start' alignItems='center' wrap='nowrap' spacing={2}>
+                {(titleIcon !== undefined) && (
+                  <Grid item>
+                    <AddList color="primary" fontSize="small" />
+                  </Grid>
+                )}
+                
+                <Grid item>
+                  <Typography variant="h6">
                     {title}
-                </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
             </Grid>
 
-            {/* Actions */}
-            <Grid item>
 
-              {/* Container: Search field + Actions */}
-              <Grid container>
-                <Grid item xs={12}>
-                  
-                  <Grid container justify="flex-end" alignItems='center' wrap='wrap'>
-                    <Grid item>
-
-                      {/* Search field */}
-                      <TextField
-                        id="search-field"
-                        value={displayedSearch}
-                        placeholder="Search"
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Tooltip title="Search">
-                                <Search color="inherit" fontSize="small" />
-                              </Tooltip>
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <Tooltip title="Clear search">
-                                <span>
-                                  {(!search) && (
-                                    <IconButton
-                                      disabled={true}
-                                    >
-                                      <ClearInactive color="inherit" fontSize="small" />
-                                    </IconButton>
-                                  )}
-                                  {(search) && (
-                                    <IconButton
-                                      onClick={() => {
-                                        onSearchEnter('');
-                                        setDisplayedSearch('');
-                                      }}
-                                    >
-                                      <ClearActive color="secondary" fontSize="small" />
-                                    </IconButton>
-                                  )}
-                                </span>
-                              </Tooltip>
-                            </InputAdornment>
-                          ),
-                        }}
-                        onKeyPress={event => {
-                          if (event.key === 'Enter') {
-                            console.log('Enter key pressed, value: ', displayedSearch);
-                            onSearchEnter(displayedSearch);
-                          }
-                        }}
-                        onChange={event => setDisplayedSearch(event.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
+            {/* SearchField + Actions */}
+            <Grid item xs={12}>
+              <Grid container justify='flex-end' alignItems='center' wrap='nowrap'>
+                <Grid item>
+                  {/* Search field */}
+                  <TextField
+                    id="search-field"s
+                    value={displayedSearch}
+                    placeholder="Search"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Tooltip title="Search">
+                            <Search color="inherit" fontSize="small" />
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Clear search">
+                            <span>
+                              {(!search) && (
+                                <IconButton
+                                  disabled={true}
+                                >
+                                  <ClearInactive color="inherit" fontSize="small" />
+                                </IconButton>
+                              )}
+                              {(search) && (
+                                <IconButton
+                                  onClick={() => {
+                                    onSearchEnter('');
+                                    setDisplayedSearch('');
+                                  }}
+                                >
+                                  <ClearActive color="secondary" fontSize="small" />
+                                </IconButton>
+                              )}
+                            </span>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                    onKeyPress={event => {
+                      if (event.key === 'Enter') {
+                        console.log('Enter key pressed, value: ', displayedSearch);
+                        onSearchEnter(displayedSearch);
+                      }
+                    }}
+                    onChange={event => setDisplayedSearch(event.target.value)}
+                  />
                 </Grid>
               </Grid>
             </Grid>

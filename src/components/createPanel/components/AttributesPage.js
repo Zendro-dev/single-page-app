@@ -16,7 +16,7 @@ import Divider from '@material-ui/core/Divider';
   Styles
 */
 const useStyles = makeStyles(theme => ({
-  root: {
+  root1: {
     margin: theme.spacing(0),
   },
 }));
@@ -205,13 +205,14 @@ export default function AttributesPage(props) {
   return (
     <div hidden={hidden}>
       <Grid
-        className={classes.root} 
+        className={classes.root1} 
         container justify='center' 
         alignItems='flex-start'
-        spacing={3}
+        spacing={0}
       > 
+
         {/* Chips View */}
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <ChipsView
             hidden={false}
             items={items}
@@ -221,10 +222,10 @@ export default function AttributesPage(props) {
             handleClick={handleChipClick}
             onGetSearchAllowed={onGetSearchAllowed}
           />
-        </Grid>
+        </Grid> */}
 
         {/* Attributes Form View */}
-        <Grid item xs={5}>
+        <Grid item xs={12} md={10} lg={8} xl={7}>
           <AttributesFormView
             items={items}
             valueOkStates={valueOkStates}

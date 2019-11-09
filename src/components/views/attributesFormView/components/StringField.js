@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   textField: {
     margin: 'auto',
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 500,
     minWidth: 200,
   },
 }));

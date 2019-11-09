@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
   },
   title: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(0),
     flex: 1,
   },
 }));
@@ -64,6 +64,7 @@ export default function DetailView(props) {
     headCells,
     toOnes,
     toManys,
+    modelNames,
     handleClose 
   } = props;
   
@@ -463,7 +464,7 @@ export default function DetailView(props) {
             <CloseIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            New Item
+            {'New '+modelNames.nameCp}
           </Typography>
         </Toolbar>
       </AppBar>

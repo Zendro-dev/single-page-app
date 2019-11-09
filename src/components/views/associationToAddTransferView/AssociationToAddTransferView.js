@@ -41,7 +41,7 @@ import Remove from '@material-ui/icons/RemoveCircle';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(0),
+    marginTop: theme.spacing(1),
     minWidth: 200,
     maxWidth: 477*2+20,
   },
@@ -578,7 +578,7 @@ export default function AssociationToAddTransferView(props) {
 
   return (
     <div className={classes.root}>
-      <Grid container>
+      <Grid container spacing={4}>
         {/*
           * Selectable list (A)
           */}
@@ -731,7 +731,6 @@ export default function AssociationToAddTransferView(props) {
                   onChangePage={handleChangePage}
                   onChangeRowsPerPage={handleChangeRowsPerPage}
               />
-
             </Card>
           )}
         </Grid>
@@ -747,9 +746,11 @@ export default function AssociationToAddTransferView(props) {
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
                 title={titleB}
+                titleIcon={true}
                 search={searchB}
                 associationNames={associationNames}
                 onSearchEnter={handleSearchEnterB}
+
               />
 
               {/* Case: no items added */}

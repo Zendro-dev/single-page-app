@@ -19,18 +19,17 @@ import CardActions from '@material-ui/core/CardActions';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(1),
+    margin: theme.spacing(2),
   },
   card: {
     margin: 'auto',
     overflow: 'auto',
     height: '100%',
-    maxHeight: '80vh'
+    maxHeight: '70vh'
   },
   cardContent: {
-    marginLeft: theme.spacing(0),
-    width: '100%',
-    maxWidth: 600,
+    marginLeft: theme.spacing(5),
+    marginRight: theme.spacing(5),
     minWidth: 200,
   },
   ibox: {
@@ -102,7 +101,7 @@ export default function CreateView(props) {
       <Grid container justify='center'>
         <Grid item xs={12}>
           <Card className={classes.card} 
-            elevation={0}
+            //elevation={0}
           >
             {/* Message */}
             <CardContent>
