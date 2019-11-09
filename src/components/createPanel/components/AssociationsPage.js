@@ -4,7 +4,7 @@ import ChipsView from '../../views/chipsView/ChipsView';
 import AttributesFormView from '../../views/attributesFormView/AttributesFormView'
 import AssociationTypesTabs from './AssociationTypesTabs'
 import CompactListView from '../../compactListView/CompactListView'
-import AssociationSelectableView from '../../views/associationSelectableView/AssociationSelectableView'
+import AssociationToAddTransferView from '../../views/associationToAddTransferView/AssociationToAddTransferView'
 
 /*
   Material-UI components
@@ -15,6 +15,9 @@ import Typography from '@material-ui/core/Typography';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 /*
   Styles
@@ -27,9 +30,17 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     height: 112,
   },
+  listItemText: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+  },
+  listItemButton: {
+    width: '100%',
+    height: '100%'
+  }
 }));
 
-export default function AttributesPage(props) {
+export default function AssociationsPage(props) {
   /*
     Styles
   */
@@ -39,122 +50,51 @@ export default function AttributesPage(props) {
     Properties
   */
   const {
-    items,
-    toOnes, 
-    toManys, 
-    valueOkStates,
     hidden,
-    handleFieldChange,
-    handleOkStateUpdate,
+    associationItems,
+    toOnes, 
+    toManys,
+    associationIdsToAdd,
+    handleTransferToAdd,
+    handleUntransferFromAdd,
   } = props;
   
   /*
     State
   */
-  const [itemFocusStates, setItemFocusStates] = useState(items.map(function(item){ return {key: item.key, focus: false}}));
-  const [associationFocusStates, setAssociationsFocusStates] = useState(getAssociationsItems().map(function(item){ return {key: item.key, focus: false}}));
-  const [toManyFocusStates, setToManyFocusStates] = useState(getToManyItems().map(function(item){ return {key: item.key, focus: false}}));
-  const [toOneFocusStates, setToOneFocusStates] = useState(getToOneItems().map(function(item){ return {key: item.key, focus: false}}));
-  //state: tabsMenuB
-  const [associationTypeSelected, setAssociationTypeSelected] = useState(0);
-  //state: associations table view
-  const [associationTitle, setAssociationTitle] = useState('');
-  const [association, setAssociation] = useState(undefined);
+  const [selectedAssociationIndex, setSelectedAssociationIndex] = React.useState(0);
+  const [associationTitle, setAssociationTitle] = useState(associationItems[0].label);
+  const [association, setAssociation] = useState(getAssociationNames(associationItems[0]));
 
   /*
     Refs
   */
-  const fieldRefs = useRef([]);
-  const searchAllowed = useRef(true);
-  const associationIdsToAdd = useRef(getAssociationsItems().map(function(item){ return {key: item.key, ids: []}}));
-
+  
   /*
     Hooks
   */
   useEffect(() => {
-    //select approtiate association type
-    setAssociationTypeSelected(getInitialAssociationTypeSelected);
+
+    console.log("@@init@@: Associations IDs to ADD: ", associationIdsToAdd);
+
+    //select first association
+    if(associationItems.length > 0) {
+      setAssociationTitle(associationItems[0].label);
+      setAssociation(getAssociationNames(associationItems[0]));
+      setSelectedAssociationIndex(0);
+    }
 
   }, []);
 
   /*
     Methods
   */
-  function itemHasKey(item, index) {
-    if(item !== undefined) {
-      return item.key === this.key;
-    } else {
-      return false;
-    }
-  }
-
-  function getInitialAssociationTypeSelected() {
-    /*
-      0  toOne
-      1  toMany
-    */
-
-    if (toOnes.length === toManys.length) {
-      return 0;
-    }
-    else {
-      return (toOnes.length > 0) ? 0 : 1;
-    }
-  }
-
-  function setFocusOnIndex(index) {
-
-    //find index ref
-    let i = -1;
-    if(fieldRefs.current.length > 0 && items.length > 0) {
-      i = fieldRefs.current.findIndex(itemHasKey, {key: items[index].key}); 
-    }
-    if(i !== -1) {
-      //set focus
-      fieldRefs.current[i].inputRef.current.focus();
-      
-      //scroll
-      fieldRefs.current[i].textFieldRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
-  function getAssociationsItems() {
-    //toManys
-    let itemsToManys = toManys.map(function(item, index){ 
-      return {
-        key: item.targetModelLc, 
-        name: item.relationName, 
-        label: item.relationNameCp }
-      });
-    //toOnes
-    let itemsToOnes = toOnes.map(function(item, index){ 
-      return {
-        key: item.targetModelLc, 
-        name: item.relationName, 
-        label: item.relationNameCp }
-      });
-    //retrun concat  
-    return itemsToOnes.concat(itemsToManys);
-  }
-
-  function getToManyItems() {
-    return toManys.map(function(item, index){ return {key: item.targetModelLc, name: item.relationName, label: item.relationNameCp }});
-  }
-
-  function getToOneItems() {
-    return toOnes.map(function(item, index){ return {key: item.targetModelLc, name: item.relationName, label: item.relationNameCp }});
-  }
-
   function getToManyByName(name) {
     for(var i=0; i<toManys.length; ++i) {
       if(toManys[i].targetModelLc === name) {
         return toManys[i];
       }
     }
-
     return undefined;
   }
 
@@ -163,6 +103,17 @@ export default function AttributesPage(props) {
       if(toOnes[i].targetModelLc === name) {
         return toOnes[i];
       }
+    }
+    return undefined;
+  }
+
+  function getAssociationNames(item) {
+    if(item.type==='toMany') {
+      return getToManyByName(item.key);
+    } 
+    
+    if(item.type==='toOne') {
+      return getToOneByName(item.key);
     }
 
     return undefined;
@@ -182,183 +133,10 @@ export default function AttributesPage(props) {
   /*
     Handlers
   */
-  const handleChipClick = (event, item) => {
-    /*
-      Set focus on respective field
-    */
-    //find index ref
-    let i = -1;
-    if(fieldRefs.current.length > 0) {
-      i = fieldRefs.current.findIndex(itemHasKey, {key: item.key}); 
-    }
-    if(i !== -1) {
-      //set focus
-      fieldRefs.current[i].inputRef.current.focus();
-      
-      //scroll
-      //last item
-      fieldRefs.current[i].textFieldRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
-  const handleToManyChipClick = (event, item) => {
-    let key = item.key;
-
-    /*
-      Set focus on respective field (set selected)
-    */
-    //make new focus state object
-    let o = {key: key, focus: true};
-    let i = -1;
-    //find index
-    if(toManyFocusStates.length > 0) {
-      i = toManyFocusStates.findIndex(itemHasKey, {key:key});
-    }
-    //update state
-    if(i !== -1) {
-      let newToManyFocusStates = Array.from(toManyFocusStates);
-      newToManyFocusStates[i] = o;
-      setToManyFocusStates(newToManyFocusStates);
-    }
-
-    /*
-      Update current association object
-    */
-    setAssociationTitle(item.label);
-    setAssociation(getToManyByName(key));
-  }
-
   const handleAssociationClick = (event, item) => {
-    let key = item.key;
-
-    /*
-      Set focus
-    */
-    //make new focus state object
-    let o = {key: key, focus: true};
-    let i = -1;
-    //find index
-    if(associationFocusStates.length > 0) {
-      i = associationFocusStates.findIndex(itemHasKey, {key:key});
-    }
-    //update state
-    if(i !== -1) {
-      let newAssociationFocusStates = Array.from(associationFocusStates);
-      newAssociationFocusStates[i] = o;
-      setToManyFocusStates(newAssociationFocusStates);
-    }
-
-    /*
-      Update current association object
-    */
+    //update current association object
     setAssociationTitle(item.label);
-    setAssociation(getToManyByName(key));
-  }
-
-  const handleFieldFocus = (event, value, key) => {
-    /*
-      Handle: focus state
-    */
-    //make new focus state object
-    let o = {key: key, focus: true};
-    let i = -1;
-    //find index
-    if(itemFocusStates.length > 0) {
-      i = itemFocusStates.findIndex(itemHasKey, {key:key});
-    }
-    //update state
-    if(i !== -1) {
-      let newItemFocusStates = Array.from(itemFocusStates);
-      newItemFocusStates[i] = o;
-      setItemFocusStates(newItemFocusStates);
-      
-      //update ref
-      searchAllowed.current = false;
-    }
-  }
-
-  const handleFieldBlur = (event, value, key) => {
-    /*
-      Handle: focus state
-    */
-    //make new focus state object
-    let o = {key: key, focus: false};
-    let i = -1;
-    //find index
-    if(itemFocusStates.length > 0) {
-      i = itemFocusStates.findIndex(itemHasKey, {key:key});
-    }
-    //update state
-    if(i !== -1) {
-      let newItemFocusStates = Array.from(itemFocusStates);
-      newItemFocusStates[i] = o;
-      setItemFocusStates(newItemFocusStates);
-      
-      //update ref
-      searchAllowed.current = true;
-    }
-
-    //callback
-    handleOkStateUpdate(value, key);
-  }
-
-  const handleFieldReady = (key, textFieldRef, inputRef) => {
-    /*
-      Update refs array
-    */
-    //make new ref object
-    let o = {key: key, textFieldRef: textFieldRef, inputRef: inputRef};
-    //find index ref
-    let i = -1;
-    if(fieldRefs.current.length > 0) {
-      i = fieldRefs.current.findIndex(itemHasKey, {key: key}); 
-    }
-    //if ref already exists
-    if(i !== -1) {
-      //update ref
-      fieldRefs.current[i] = o;
-    } else {
-      //push new ref
-      fieldRefs.current.push(o);
-    }
-  }
-
-  const handleFieldsKeyDown = (event, value, key) => {
-    /*
-      Enter
-    */
-    if(event.key === 'Enter') {
-        //callback
-        handleOkStateUpdate(value, key);
-    }
-  }
-
-  const handleAssociationTypeChange = (event, newValue) => {
-    setAssociationTypeSelected(newValue);   
-  };
-
-  const handleTransferToAdd = (associationKey, itemId) => {
-
-    //find association key entry
-    for(var i=0; i<associationIdsToAdd.current.length; ++i) {
-      if(associationIdsToAdd.current[i].key === associationKey) {
-        //push new id
-        associationIdsToAdd.current[i].ids.push(itemId);
-        //done
-        return;
-      }
-    }
-  }
-
-  const onGetSearchAllowed = () => {
-    if(searchAllowed !== undefined) {
-      return searchAllowed.current;
-    } else {
-      return false;
-    }
+    setAssociation(getAssociationNames(item));
   }
 
   /*
@@ -368,108 +146,58 @@ export default function AttributesPage(props) {
     <div hidden={hidden}>
       <Grid
         className={classes.root} 
-        container justify='center'
+        container 
+        justify='center'
         alignItems='flex-start'
         spacing={3}
       > 
-
-        {/* Chips View: ToOnes & ToManys */}
-        <Grid item xs={8} sm={2}>
-
-          {/* <ChipsView
-            items={items}
-            itemFocusStates={itemFocusStates}
-            valueOkStates={valueOkStates}
-            deletable={false}
-            handleClick={handleChipClick}
-            onGetSearchAllowed={onGetSearchAllowed}
-          /> */}
-
-          {/* Associations Chips View */}
-          {(toManys.length > 0) ? (
-            <ChipsView
-              hidden={associationTypeSelected !== 1}
-              items={getToManyItems()}
-              itemFocusStates={toManyFocusStates}
-              valueOkStates={valueOkStates}
-              deletable={false}
-              handleClick={handleToManyChipClick}
-              onGetSearchAllowed={onGetSearchAllowed}
-            />
-          ):(
-            <div hidden={associationTypeSelected !== 1}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <Grid className={classes.noDataBox} container justify="center" alignItems="center">
-                    <Grid item>
-                      <Typography variant="body1" > There are not to-many associations </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </div>
-          )}
-          
+        {/* Menu: Associations */}
+        <Grid item xs={11} sm={2}>
+          <List dense component="div" role="list">
+            {associationItems.map((item, index) => {
+              return (
+                <ListItem
+                  key={item.key}
+                  role="listitem"
+                  button
+                  selected={selectedAssociationIndex === index}
+                  onClick={(event) => {
+                    //update selected index
+                    setSelectedAssociationIndex(index);
+                    //handle
+                    handleAssociationClick(event, item);
+                  }}
+                >
+                  {/* Label */}
+                  <Typography 
+                    className={classes.listItemText}  
+                    variant="subtitle1" 
+                    display="block" 
+                    noWrap={true}
+                  >
+                    {item.label}
+                  </Typography>
+                </ListItem>
+              );
+            })}
+          </List>
         </Grid>
-
-        {/* Associations Selectable View */}
-        <Grid item xs={8} sm={4}>
-          <Grid container
-            container justify='center' 
-            alignItems='flex-start'
-            wrap='wrap'
-            spacing={1}
-          >
-            <Grid item xs={12}>
-              {(association !== undefined) && (
-                <AssociationSelectableView
-                  title={associationTitle}
-                  associationNames={association}
-                  exludedIds={getIdsToAdd()}
-                  handleTransfer={handleTransferToAdd}
-                />
-              )}
-            </Grid>
-
-            {/* <Grid item xs={12} lg={6}>
-              <CompactListView
-              />
-            </Grid> */}
-          </Grid>
+        
+        {/* ToAdd Transfer Lists */}
+        <Grid item xs={11} sm={9}>
+          <AssociationToAddTransferView
+            title={associationTitle}
+            titleB={associationTitle}
+            associationNames={association}
+            idsToAdd={getIdsToAdd()}
+            handleTransfer={handleTransferToAdd}
+            handleUntransfer={handleUntransferFromAdd}
+          />
         </Grid>
-
-        {/* Associations To Add View */}
-        <Grid item xs={8} sm={4}>
-          <Grid container
-            container justify='center' 
-            alignItems='flex-start'
-            wrap='wrap'
-            spacing={1}
-          >
-            <Grid item xs={12}>
-              {(association !== undefined) && (
-                <AssociationSelectableView
-                  title={associationTitle}
-                  associationNames={association}
-                />
-              )}
-            </Grid>
-
-            {/* <Grid item xs={12} lg={6}>
-              <CompactListView
-              />
-            </Grid> */}
-          </Grid>
-        </Grid>
-
       </Grid>
     </div>
   );
 }
-
 /*
   PropTypes
 */
-AttributesPage.propTypes = {
-  items: PropTypes.array.isRequired,
-};

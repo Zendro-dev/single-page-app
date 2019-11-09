@@ -64,13 +64,13 @@ export default function DetailView(props) {
     headCells,
     toOnes,
     toManys,
-    open, 
     handleClose 
   } = props;
   
   /*
     State
   */
+  const [open, setOpen] = useState(true);
   //state: tabsMenuA
   const [tabsValue, setTabsValue] = useState(0);
   //state: headCells
@@ -88,10 +88,21 @@ export default function DetailView(props) {
   //refs: confirmation dialog
   const handleAccept = useRef(undefined);
   const handleReject = useRef(undefined);
+  const associationIdsToAdd = useRef(getAssociationsItems().map(function(item){ return {key: item.key, ids: []}}));
 
   /*
     Hooks
   */
+  useEffect(() => {
+
+    console.log("#Create Panel: init");
+
+    return function cleanup() {
+      console.log("##Create Pane: end");
+    }
+
+  }, []);
+
   useEffect(() => {
     console.log("##- new: tabsValue: ", tabsValue);
 
@@ -106,6 +117,25 @@ export default function DetailView(props) {
   /*
     Methods
   */
+  function getAssociationsItems() {
+    //toManys
+    let itemsToManys = toManys.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp }
+      });
+    //toOnes
+    let itemsToOnes = toOnes.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp }
+      });
+    //retrun concat  
+    return itemsToOnes.concat(itemsToManys);
+  }
+
   function getEditableItems() {
 
     let its = Array.from(headCells);
@@ -201,10 +231,31 @@ export default function DetailView(props) {
   function doSave(event) {
     console.log("##: on.DoSave(): states: ", valueOkStates);
     
-    //callback: close
-    handleClose(event);
-    //reset
-    setTabsValue(0);
+    //close
+    onClose(event);
+  }
+
+  function getAssociationItems() {
+    //toManys
+    let itemsToManys = toManys.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp,
+        type: 'toMany'
+       }
+    });
+    //toOnes
+    let itemsToOnes = toOnes.map(function(item, index){ 
+      return {
+        key: item.targetModelLc, 
+        name: item.relationName, 
+        label: item.relationNameCp,
+        type: 'toOne'
+      }
+    });
+    //return concat  
+    return itemsToOnes.concat(itemsToManys);
   }
 
   /*
@@ -334,10 +385,7 @@ export default function DetailView(props) {
           console.log("#. accepting .#");
           //hide
           setConfirmationOpen(false);
-          //callback: close
-          handleClose(event);
-          //reset
-          setTabsValue(0);
+          onClose(event);
         }
         handleReject.current = () => {
           console.log("#. cancelling .#");
@@ -351,11 +399,15 @@ export default function DetailView(props) {
         //done
         return;
     } else {
-      //callback: close
-      handleClose(event);
-      //reset
-      setTabsValue(0);
+      onClose(event);
     }
+  }
+
+  const onClose = (event) => {
+    //update state
+    setOpen(false);
+    //callback: close
+    handleClose(event);
   }
 
   const handleConfirmationAccept = (event) => {
@@ -367,16 +419,47 @@ export default function DetailView(props) {
     //run ref
     handleReject.current();
   }
+  
+
+  const handleTransferToAdd = (associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToAdd.current.length; ++i) {
+      if(associationIdsToAdd.current[i].key === associationKey) {
+        //push new id
+        associationIdsToAdd.current[i].ids.push(itemId);
+        //done
+        return;
+      }
+    }
+  }
+
+  const handleUntransferFromAdd =(associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToAdd.current.length; ++i) {
+      if(associationIdsToAdd.current[i].key === associationKey) {
+        //find
+        for(var j=0; j<associationIdsToAdd.current[i].ids.length; ++j)
+        {
+          if(associationIdsToAdd.current[i].ids[j] === itemId) {
+            //remove
+            associationIdsToAdd.current[i].ids.splice(j, 1);
+            //done
+            return;
+          }
+        }
+      }
+    }
+  }
 
   /*
     Render
   */
   return (
     
-    <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+    <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={Transition}>
       <AppBar className={classes.appBar}>
         <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+          <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
             <CloseIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
@@ -409,12 +492,12 @@ export default function DetailView(props) {
             {/* Associations Page [1] */}
             <AssociationsPage
               hidden={tabsValue !== 1}
-              items={getEditableItems()}
+              associationItems={getAssociationItems()}
               toOnes={toOnes}
               toManys={toManys}
-              valueOkStates={valueOkStates}
-              handleFieldChange={handleFieldChange}
-              handleOkStateUpdate={handleOkStateUpdate}
+              associationIdsToAdd={associationIdsToAdd.current}
+              handleTransferToAdd={handleTransferToAdd}
+              handleUntransferFromAdd={handleUntransferFromAdd}
             />
 
           </Grid>

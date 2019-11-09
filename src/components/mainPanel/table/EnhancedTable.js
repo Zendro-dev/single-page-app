@@ -459,14 +459,24 @@ export default function EnhancedTable(props) {
       setCreateDialogOpen(true);
     }
 
-    const handleCreateDialogClose = (event) => {
-      //update state
-      setCreateDialogOpen(false);
-    }
-      
-
     const handleChangeDense = event => {
         setDense(event.target.checked);
+    };
+
+    const handleCreateDialogClose = (event) => {
+      delayedCloseCreatePanel(event, 500);
+    }
+    const delayedCloseCreatePanel = async (event, ms) => {
+      await new Promise(resolve => {
+        //set timeout
+        window.setTimeout(function() {
+          //update state
+          setCreateDialogOpen(false);
+          //resolve
+          console.log("Delayed close: ok");
+          resolve("ok");
+        }, ms);
+      });
     };
 
 
@@ -700,14 +710,15 @@ export default function EnhancedTable(props) {
             </Grid>
 
             {/* Dialog: Create Panel */}
-            <CreatePanel 
+            {(createDialogOpen) && (
+              <CreatePanel 
                 headCells={headCells}
                 toOnes={model.toOnes}
                 toManys={model.toManys}
                 modelNames={model.names}
-                open={createDialogOpen}
                 handleClose={handleCreateDialogClose}
-            />
+              />
+            )}
         </div>
     );
 }

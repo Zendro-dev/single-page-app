@@ -41,19 +41,17 @@ export default function SimpleTabs(props) {
 
   return (
     <div className={classes.root}>
-
       <Grid container justify='center'>
         <Grid item xs={12}>
 
-          {/* TabsA: Menú */}
+          {/* Menú */}
           <Grid container justify='center'>
-            <Grid item xs={4}>
+            
+            {/* Tabs */}
+            <Grid item xs={5}>
               <Tabs
                 value={value}
                 onChange={(event, newValue) => {
-
-                  console.log("value: ", newValue, " event: ", event);
-
                   if (handleChange !== undefined) {
                     handleChange(event, newValue);
                   }
@@ -63,52 +61,46 @@ export default function SimpleTabs(props) {
               </Tabs>
             </Grid>
 
-            <Grid item xs={4}>
-
+            {/* Actions */}
+            <Grid item xs={6}>
               <Grid container className={classes.actions} spacing={1} justify='flex-end'>
-
-                <Grid item> 
-                {/* Actions */}
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  onClick={(event) => {
-                    if(handleCancel !== undefined) {
-                      handleCancel(event);
-                    }
-                  }}
-                >
-                  CANCEL
-                </Button>
+                {/* Cancel */}
+                <Grid item>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    onClick={(event) => {
+                      if (handleCancel !== undefined) {
+                        handleCancel(event);
+                      }
+                    }}
+                  >
+                    CANCEL
+                  </Button>
                 </Grid>
 
-                <Grid item> 
-                {/* Action: Save */}
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  onClick={(event) => {
-                    if(handleSave !== undefined) {
-                      handleSave(event);
-                    }
-                  }}
-                >
-                  SAVE
+                <Grid item>
+                  {/* Save */}
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={(event) => {
+                      if (handleSave !== undefined) {
+                        handleSave(event);
+                      }
+                    }}
+                  >
+                    SAVE
               </Button>
+                </Grid>
               </Grid>
-
-              </Grid>
-
             </Grid>
-
-
-
           </Grid>
 
-            <Grid container justify='center'>
-            <Grid item xs={10}>
+          <Grid container justify='center'>
+            <Grid item xs={11}>
               {/* Divider */}
               <Divider orientation="horizontal" />
             </Grid>

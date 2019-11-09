@@ -55,7 +55,7 @@ const useToolbarStyles = makeStyles(theme => ({
     },
 }));
 
-export default function CompactListViewToolbar(props) {
+export default function AssociationToAddTransferViewToolbar(props) {
   /*
     Properties
   */
@@ -188,7 +188,7 @@ export default function CompactListViewToolbar(props) {
 /*
   PropTypes
 */
-CompactListViewToolbar.propTypes = {
+AssociationToAddTransferViewToolbar.propTypes = {
     search: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     onSearchEnter: PropTypes.func.isRequired,
