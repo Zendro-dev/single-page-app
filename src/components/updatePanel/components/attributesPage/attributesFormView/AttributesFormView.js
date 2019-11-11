@@ -13,6 +13,11 @@ import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
+import CardHeader from '@material-ui/core/CardHeader';
+import Avatar from '@material-ui/core/Avatar';
+//icons
+import NewRecord from '@material-ui/icons/NoteAddTwoTone';
+import Attributes from '@material-ui/icons/HdrWeakTwoTone';
 
 /*
   Styles
@@ -22,10 +27,9 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(2),
   },
   card: {
-    margin: 'auto',
+    margin: theme.spacing(1),
+    maxHeight: '77vh',
     overflow: 'auto',
-    height: '100%',
-    maxHeight: '70vh'
   },
   cardContent: {
     marginLeft: theme.spacing(5),
@@ -37,7 +41,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function CreateView(props) {
+export default function AttributesFormView(props) {
   /*
     Styles
   */
@@ -46,7 +50,7 @@ export default function CreateView(props) {
   /*
     Properties
   */
-  const { items, valueOkStates, 
+  const { modelNames, item, items, valueOkStates, 
           handleFocus, handleBlur, 
           handleFieldReady, handleChange,
           handleKeyDown,
@@ -78,12 +82,25 @@ export default function CreateView(props) {
     if(valueOkStates.length > 0) {
       it = valueOkStates.find(itemHasKey, {key:key});
     }
-    //update state
+    //return status
     if(it !== undefined) {
       return it.valueOk;
     } else {
       return 0;
     }
+  }
+
+  function getItemsOk() {
+    let countOk=0;
+    if(valueOkStates.length > 0) {
+      for(var i=0; i<valueOkStates.length; ++i)
+      {
+        if(valueOkStates[i].valueOk === 1) {
+          countOk++;
+        }
+      }
+    }
+    return countOk;
   }
 
   /*
@@ -103,25 +120,40 @@ export default function CreateView(props) {
           <Card className={classes.card} 
             //elevation={0}
           >
-            {/* Message */}
-            <CardContent>
-              <Typography variant="h5" component="h2">
-                Please complete the fields
-              </Typography>
-            </CardContent>
+            {/* Header */}
+            <CardHeader
+              avatar={
+                <Attributes color="primary" fontSize="small" />
+              }
+              title={
+                <Typography variant="h6">
+                  {modelNames.nameCp+" attributes"}
+                </Typography>
+              }
+              subheader={getItemsOk()+' / '+items.length+' completed'}
+            >
+            </CardHeader>
 
+            {/* Id */}
+            <CardContent key={item.key} className={classes.cardContent}>
+              <Typography variant="h6" display="inline">Id:</Typography>
+              <Typography variant="h6" display="inline" color="textSecondary">&nbsp;{item.id}</Typography>
+            </CardContent>
+            
             {/* Fields */}
-            {items.map((item, index) => {
-              var valueOk = getValueOkStatus(item.key);
+            {items.map((att, index) => {
+              var valueOk = getValueOkStatus(att.key);
               
               return (
-                <CardContent key={item.key} className={classes.cardContent} >
+                <CardContent key={att.key} className={classes.cardContent} >
 
                   {/* Case: String */}
-                  {(item.type === 'String') && (
+                  {(att.type === 'String') && (
                     <StringField
-                      itemKey={item.key}
-                      label={item.label}
+                      itemKey={att.key}
+                      name={att.name}
+                      label={att.label}
+                      text={item[att.name]}
                       valueOk={valueOk}
                       handleChange={handleValueChange}
                       handleFocus={handleFocus}
@@ -133,10 +165,12 @@ export default function CreateView(props) {
                   )}
 
                   {/* Case: Int */}
-                  {(item.type === 'Int') && (
+                  {(att.type === 'Int') && (
                     <IntField
-                      itemKey={item.key}
-                      label={item.label}
+                      itemKey={att.key}
+                      name={att.name}
+                      label={att.label}
+                      text={item[att.name]}
                       valueOk={valueOk}
                       handleChange={handleValueChange}
                       handleFocus={handleFocus}
@@ -161,6 +195,6 @@ export default function CreateView(props) {
 /*
   PropTypes
 */
-CreateView.propTypes = {
+AttributesFormView.propTypes = {
   items: PropTypes.array.isRequired,
 };

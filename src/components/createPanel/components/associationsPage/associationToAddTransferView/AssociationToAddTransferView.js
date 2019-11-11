@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import api from '../../../requests/index';
+import api from '../../../../../requests/index';
 import AssociationToAddTransferViewToolbar from './components/AssociationToAddTransferViewToolbar';
 
 
@@ -14,22 +14,13 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import Popover from '@material-ui/core/Popover';
-import Grow from '@material-ui/core/Grow';
 import Fade from '@material-ui/core/Fade';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import Fab from '@material-ui/core/Fab';
 //icons
 import Add from '@material-ui/icons/AddCircle';
 import Remove from '@material-ui/icons/RemoveCircle';
@@ -47,7 +38,13 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     margin: theme.spacing(1),
-    overflowX: 'auto',
+    maxHeight: '77vh',
+    overflow: 'auto',
+  },
+  listBox: {
+    maxHeight: '43vh',
+    overflowY: 'auto',
+    overflowX: 'hidden'
   },
   noDataBox: {
     width: "100%",
@@ -102,7 +99,7 @@ export default function AssociationToAddTransferView(props) {
   const [selectedItems, setSelectedItems] = useState([]);
   //table
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
   const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
@@ -118,7 +115,7 @@ export default function AssociationToAddTransferView(props) {
   const [selectedItemsB, setSelectedItemsB] = useState([]);
   //table
   const [pageB, setPageB] = useState(0);
-  const [rowsPerPageB, setRowsPerPageB] = useState(5);
+  const [rowsPerPageB, setRowsPerPageB] = useState(10);
   const [isOnApiRequestB, setIsOnApiRequestB] = useState(true);
   const [isPendingApiRequestB, setIsPendingApiRequestB] = useState(false);
   const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true); //to avoid repeat initial fetch
@@ -187,6 +184,7 @@ export default function AssociationToAddTransferView(props) {
     }
 
   }, [items]);
+
   useEffect(() => {
     //update state
     if(itemsB.length > 0) { 
@@ -207,6 +205,7 @@ export default function AssociationToAddTransferView(props) {
       setIsCountReady(true);
     }
   }, [count]);
+
   useEffect(() => {
     if(countB === 0) {
       //update state
@@ -219,13 +218,13 @@ export default function AssociationToAddTransferView(props) {
   }, [countB]);
 
   useEffect(() => {
-    console.log("new search: ", search, " isGettingFirstData: ", isGettingFirstData);
     //return on init
     if(isGettingFirstData) return;
 
     //get data
     if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
   }, [search]);
+
   useEffect(() => {
     //return on init
     if(isGettingFirstDataB) return;
@@ -233,6 +232,48 @@ export default function AssociationToAddTransferView(props) {
     //get data
     if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
   }, [searchB]);
+
+  useEffect(() => {
+    //return on init
+    if(isGettingFirstData) return;
+
+    //get data
+    if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+  }, [page]);
+
+  useEffect(() => {
+    //return on init
+    if(isGettingFirstDataB) return;
+
+    //get data
+    if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+  }, [pageB]);
+
+  useEffect(() => {
+    //return on init
+    if(isGettingFirstData) return;
+
+    if(page !== 0) {
+      //update state
+      setPage(0);
+    } else {
+      //get data
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    }
+  }, [rowsPerPage]);
+
+  useEffect(() => {
+    //return on init
+    if(isGettingFirstDataB) return;
+
+    if(pageB !== 0) {
+      //update state
+      setPageB(0);
+    } else {
+      //get data
+      if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+    }
+  }, [rowsPerPageB]);
 
   useEffect(() => {
     if (!isOnApiRequest && isPendingApiRequest) {
@@ -515,19 +556,19 @@ export default function AssociationToAddTransferView(props) {
   }
 
   const handleChangePage = (event, newPage) => {
+    //update state
     setPage(newPage);
   };
   const handleChangePageB = (event, newPage) => {
+    //update state
     setPageB(newPage);
   };
 
   const handleChangeRowsPerPage = event => {
       setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
   };
   const handleChangeRowsPerPageB = event => {
     setRowsPerPageB(parseInt(event.target.value, 10));
-    setPageB(0);
   };
 
   const handleRowClicked = (event, item) => {
@@ -588,7 +629,7 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={title}
+                title={title + " to choose"}
                 search={search}
                 associationNames={associationNames}
                 onSearchEnter={handleSearchEnter}
@@ -623,75 +664,77 @@ export default function AssociationToAddTransferView(props) {
                   in={true}
                   unmountOnExit
                 >
-                  <List dense component="div" role="list">
-                    {items.map(item => {
-                      let key = item.id;
-                      let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                      let sublabel = (associationNames.sublabel !== 'id' && 
-                                      associationNames.sublabel !== associationNames.label) ? 
-                                        item[associationNames.sublabel] : null;
+                  <Box className={classes.listBox}>
+                    <List dense component="div" role="list" >
+                      {items.map(item => {
+                        let key = item.id;
+                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
+                        let sublabel = (associationNames.sublabel !== 'id' && 
+                                        associationNames.sublabel !== associationNames.label) ? 
+                                          item[associationNames.sublabel] : null;
 
-                      return (
-                        <ListItem key={key} 
-                          role="listitem" 
-                          button 
-                          className={classes.row}
-                          onClick={(event) => {
-                            handleRowClicked(event, item);
-                          }}
-                        >
-                          <Grid container justify='center' alignItems='center'>
-                            <Grid item xs={12}>
-                              <Grid container justify='center' alignItems='center' wrap='nowrap'>
-                                
-                                {/* Id */}
-                                <Grid item xs={1}>
-                                  <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
-                                </Grid>
-
-                                {/* Divider */}
-                                <Divider className={classes.dividerV} orientation="vertical" />
-
-                                <Grid item xs={9}>
-
-                                  {/* Label */}
-                                  {(label !== undefined && label !== null) && (
-                                    <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
-                                  )}
+                        return (
+                          <ListItem key={key} 
+                            role="listitem" 
+                            button 
+                            className={classes.row}
+                            onClick={(event) => {
+                              handleRowClicked(event, item);
+                            }}
+                          >
+                            <Grid container justify='center' alignItems='center'>
+                              <Grid item xs={12}>
+                                <Grid container justify='center' alignItems='center' wrap='nowrap'>
                                   
-                                  {/* Sublabel */}
-                                  {(sublabel !== undefined && sublabel !== null) && (
-                                    <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
-                                  )}
-                                </Grid>
+                                  {/* Id */}
+                                  <Grid item xs={1}>
+                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                  </Grid>
 
-                                {/* Button: Add */}
-                                <Grid item xs={2}>
-                                  <Grid container justify='flex-end'>
-                                    <Grid item>
-                                      <Tooltip title="Add to list">
-                                        <IconButton
-                                          color="primary"
-                                          className={classes.iconButton}
-                                          onClick={(event) => {
-                                            event.stopPropagation();
-                                            handleAddItem(event, item);
-                                          }}
-                                        >
-                                          <Add color="primary" />
-                                        </IconButton>
-                                      </Tooltip>
+                                  {/* Divider */}
+                                  <Divider className={classes.dividerV} orientation="vertical" />
+
+                                  <Grid item xs={9}>
+
+                                    {/* Label */}
+                                    {(label !== undefined && label !== null) && (
+                                      <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
+                                    )}
+                                    
+                                    {/* Sublabel */}
+                                    {(sublabel !== undefined && sublabel !== null) && (
+                                      <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
+                                    )}
+                                  </Grid>
+
+                                  {/* Button: Add */}
+                                  <Grid item xs={2}>
+                                    <Grid container justify='flex-end'>
+                                      <Grid item>
+                                        <Tooltip title="Add to chosen list">
+                                          <IconButton
+                                            color="primary"
+                                            className={classes.iconButton}
+                                            onClick={(event) => {
+                                              event.stopPropagation();
+                                              handleAddItem(event, item);
+                                            }}
+                                          >
+                                            <Add color="primary" />
+                                          </IconButton>
+                                        </Tooltip>
+                                      </Grid>
                                     </Grid>
                                   </Grid>
                                 </Grid>
                               </Grid>
                             </Grid>
-                          </Grid>
-                        </ListItem>
-                      );
-                    })}
-                    <ListItem />
-                  </List>
+                          </ListItem>
+                        );
+                      })}
+                      <ListItem />
+                    </List>
+                  </Box>
                 </Fade>
               )}
               {/* Case: loading */}
@@ -717,17 +760,12 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Pagination */}
               <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
+                  rowsPerPageOptions={[10, 25, 50, 100]}
                   component="div"
-                  count={items.length}
+                  count={count}
                   rowsPerPage={rowsPerPage}
+                  labelRowsPerPage='rows'
                   page={page}
-                  backIconButtonProps={{
-                      'aria-label': 'previous page',
-                  }}
-                  nextIconButtonProps={{
-                      'aria-label': 'next page',
-                  }}
                   onChangePage={handleChangePage}
                   onChangeRowsPerPage={handleChangeRowsPerPage}
               />
@@ -745,7 +783,7 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={titleB}
+                title={titleB + " chosen"}
                 titleIcon={true}
                 search={searchB}
                 associationNames={associationNames}
@@ -803,70 +841,72 @@ export default function AssociationToAddTransferView(props) {
                   in={true}
                   unmountOnExit
                 >
-                  <List dense component="div" role="list">
-                    {itemsB.map(item => {
-                      let key = item.id;
-                      let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                      let sublabel = (associationNames.sublabel !== 'id' && 
-                                      associationNames.sublabel !== associationNames.label) ? 
-                                        item[associationNames.sublabel] : null;
+                  <Box className={classes.listBox}>
+                    <List dense component="div" role="list">
+                      {itemsB.map(item => {
+                        let key = item.id;
+                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
+                        let sublabel = (associationNames.sublabel !== 'id' && 
+                                        associationNames.sublabel !== associationNames.label) ? 
+                                          item[associationNames.sublabel] : null;
 
-                      return (
-                        <ListItem key={key} 
-                          role="listitem" 
-                          button 
-                          className={classes.row}
-                          onClick={(event) => {
-                            handleRowClicked(event, item);
-                          }}
-                        >
-                          <Grid container justify='flex-end' alignItems='center'>
-                            <Grid item xs={12}>
-                              <Grid container justify='space-evenly' alignItems='center' alignContent='stretch' wrap='nowrap'>
-                                
-                                {/* Id */}
-                                <Grid item xs={1}>
-                                  <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
-                                </Grid>
-
-                                {/* Divider */}
-                                <Divider className={classes.dividerV} orientation="vertical" />
-
-                                <Grid item xs={9}>
-
-                                  {/* Label */}
-                                  {(label !== undefined && label !== null) && (
-                                    <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
-                                  )}
+                        return (
+                          <ListItem key={key} 
+                            role="listitem" 
+                            button 
+                            className={classes.row}
+                            onClick={(event) => {
+                              handleRowClicked(event, item);
+                            }}
+                          >
+                            <Grid container justify='flex-end' alignItems='center'>
+                              <Grid item xs={12}>
+                                <Grid container justify='space-evenly' alignItems='center' alignContent='stretch' wrap='nowrap'>
                                   
-                                  {/* Sublabel */}
-                                  {(sublabel !== undefined && sublabel !== null) && (
-                                    <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
-                                  )}
-                                </Grid>
+                                  {/* Id */}
+                                  <Grid item xs={1}>
+                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                  </Grid>
 
-                                {/* Button: Add */}
-                                <Grid item xs={2}>
-                                  <Tooltip title="Return this item">
-                                    <IconButton
-                                      color="primary"
-                                      onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleRemoveItem(event, item);
-                                      }}
-                                    >
-                                      <Remove color="secondary" />
-                                    </IconButton>
-                                  </Tooltip>
+                                  {/* Divider */}
+                                  <Divider className={classes.dividerV} orientation="vertical" />
+
+                                  <Grid item xs={9}>
+
+                                    {/* Label */}
+                                    {(label !== undefined && label !== null) && (
+                                      <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
+                                    )}
+                                    
+                                    {/* Sublabel */}
+                                    {(sublabel !== undefined && sublabel !== null) && (
+                                      <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
+                                    )}
+                                  </Grid>
+
+                                  {/* Button: Add */}
+                                  <Grid item xs={2}>
+                                    <Tooltip title="Remove from chosen list">
+                                      <IconButton
+                                        color="primary"
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          handleRemoveItem(event, item);
+                                        }}
+                                      >
+                                        <Remove color="secondary" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Grid>
                                 </Grid>
                               </Grid>
                             </Grid>
-                          </Grid>
-                        </ListItem>
-                      );
-                    })}
-                    <ListItem />
-                  </List>
+                          </ListItem>
+                        );
+                      })}
+                      <ListItem />
+                    </List>
+                  </Box>
                 </Fade>
               )}
               {/* Case: loading */}
@@ -892,21 +932,15 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Pagination */}
               <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
+                  rowsPerPageOptions={[10, 25, 50, 100]}
                   component="div"
-                  count={itemsB.length}
+                  count={countB}
                   rowsPerPage={rowsPerPageB}
+                  labelRowsPerPage='rows'
                   page={pageB}
-                  backIconButtonProps={{
-                      'aria-label': 'previous page',
-                  }}
-                  nextIconButtonProps={{
-                      'aria-label': 'next page',
-                  }}
                   onChangePage={handleChangePageB}
                   onChangeRowsPerPage={handleChangeRowsPerPageB}
               />
-
             </Card>
           )}
         </Grid>

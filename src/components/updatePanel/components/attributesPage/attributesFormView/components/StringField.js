@@ -13,18 +13,19 @@ const useStyles = makeStyles(theme => ({
   textField: {
     margin: 'auto',
     width: '100%',
-    maxWidth: 300,
+    maxWidth: 400,
     minWidth: 200,
   },
 }));
 
-export default function IntField(props) {
+export default function StringField(props) {
   /*
     Properties
   */
   const classes = useStyles();
   const {
     itemKey,
+    name,
     label,
     text,
     valueOk,
@@ -45,11 +46,13 @@ export default function IntField(props) {
   */
   const inputRef = useRef(null);
   const textFieldRef = useRef(null);
-  
+
   /*
     Hooks
   */
   useEffect(() => {
+    console.log("!!- init ftxt: ", label, " txt: ", text);
+
     if(text !== undefined && text !== null && text !== '') {
       //update state
       setValue(text);
@@ -64,19 +67,20 @@ export default function IntField(props) {
 
   return (
         <TextField
-          id={"int-field-"+itemKey+'-'+label}
+          id={"string-field-"+itemKey+'-'+label}
           label={label}
           ref={textFieldRef}
           inputRef={inputRef}
-          type="number"
+          multiline
+          rowsMax="4"
           value={value}
           className={classes.textField}
           margin="normal"
-          variant="standard"
+          variant="filled"
           InputProps={{
             endAdornment:
               <InputAdornment position="end">
-                {(valueOk!==undefined&&valueOk) ? <CheckIcon color="primary" fontSize="small" /> : ''}
+                {valueOk ? <CheckIcon color="primary" fontSize="small" /> : ''}
               </InputAdornment>
           }}
           onChange={(event) => {

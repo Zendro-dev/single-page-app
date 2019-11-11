@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 import AttributesPage from './components/attributesPage/AttributesPage'
 import AssociationsPage from './components/associationsPage/AssociationsPage'
 import TabsA from './components/TabsA'
@@ -10,7 +11,6 @@ import api from '../../requests/index';
 /*
   Material-UI components
 */
-import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
@@ -78,10 +78,11 @@ export default function CreatePanel(props) {
     Properties
   */
   const { 
-    headCells,
-    toOnes,
-    toManys,
-    modelNames,
+    headCells, //current model attributes
+    item, //current item values
+    toOnes, //current model toOne associations
+    toManys, //current model toMany associations
+    modelNames, //current model names
     handleClose 
   } = props;
   
@@ -89,10 +90,8 @@ export default function CreatePanel(props) {
     State
   */
   const [open, setOpen] = useState(true);
-  //state: tabsMenuA
   const [tabsValue, setTabsValue] = useState(0);
-  //state: headCells
-  const [valueOkStates, setValueOkStates] = useState(getEditableItems().map(function(item){ return {key: item.key, valueOk: 0}}));
+  const [valueOkStates, setValueOkStates] = useState(getInitialValueOkStates());
   //state: confirmation dialog
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [confirmationTitle, setConfirmationTitle] = useState('');
@@ -107,7 +106,8 @@ export default function CreatePanel(props) {
   const handleAccept = useRef(undefined);
   const handleReject = useRef(undefined);
   const associationIdsToAdd = useRef(getAssociationsItems().map(function(item){ return {key: item.key, names: item.names, ids: []}}));
-  const values = useRef(getEditableItems().map(function(item){ return {key: item.key, name: item.name, value: ''}}));
+  const associationIdsToRemove = useRef(getAssociationsItems().map(function(item){ return {key: item.key, names: item.names, ids: []}}));
+  const values = useRef(getInitialValues());
 
   /*
       Store selectors
@@ -118,24 +118,12 @@ export default function CreatePanel(props) {
     Hooks
   */
   useEffect(() => {
-
-    console.log("#Create Panel: init");
-
     return function cleanup() {
-      console.log("##Create Pane: end");
     }
-
   }, []);
 
   useEffect(() => {
-    console.log("##- new: tabsValue: ", tabsValue);
-
-  }, [tabsValue]);
-
-  useEffect(() => {
-
     console.log("##-NEW valueOkStates: ", valueOkStates);
-
   }, [valueOkStates]);
   
   /*
@@ -158,10 +146,45 @@ export default function CreatePanel(props) {
     return itemsToOnes.concat(itemsToManys);
   }
 
+  function getInitialValueOkStates() {
+    let its = getEditableItems();
+    let initialValueOkStates = [];
+
+    //for each attribute
+    for(var i=0; i<its.length; ++i) {
+      //get
+      let o = {
+        key: its[i].key, 
+        valueOk: getAcceptableStatus(its[i].key, item[its[i].name])
+      };
+      //push
+      initialValueOkStates.push(o);
+    }
+    //done
+    return initialValueOkStates;
+  }
+
+  function getInitialValues() {
+    let its = getEditableItems();
+    let initialValues = [];
+
+    //for each attribute
+    for(var i=0; i<its.length; ++i) {
+      //get
+      let o = {
+        key: its[i].key,
+        name: its[i].name,
+        value: item[its[i].name]
+      };
+      //push
+      initialValues.push(o);
+    }
+    //done
+    return initialValues;
+  }
+
   function getEditableItems() {
-
     let its = Array.from(headCells);
-
     /*
       Remove no editable items:
         - name: id
@@ -173,7 +196,6 @@ export default function CreatePanel(props) {
         its.splice(i, 1);
       }
     }
-
     return its;
   }
 
@@ -541,7 +563,7 @@ export default function CreatePanel(props) {
             </IconButton>
           </Tooltip>
           <Typography variant="h6" className={classes.title}>
-            {'New '+modelNames.nameCp}
+            {'Editing '+modelNames.nameCp}
           </Typography>
           <Tooltip title={"Save "+modelNames.name}>
             <Fab 
@@ -573,6 +595,7 @@ export default function CreatePanel(props) {
             <AttributesPage
               hidden={tabsValue !== 0}
               modelNames={modelNames}
+              item={item}
               items={getEditableItems()}
               valueOkStates={valueOkStates}
               handleFieldChange={handleFieldChange}
@@ -582,6 +605,8 @@ export default function CreatePanel(props) {
             {/* Associations Page [1] */}
             <AssociationsPage
               hidden={tabsValue !== 1}
+              modelNames={modelNames}
+              item={item}
               associationItems={getAssociationItems()}
               toOnes={toOnes}
               toManys={toManys}

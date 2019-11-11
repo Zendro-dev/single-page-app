@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   textField: {
     margin: 'auto',
     width: '100%',
-    maxWidth: 500,
+    maxWidth: 400,
     minWidth: 200,
   },
 }));
@@ -25,6 +25,7 @@ export default function StringField(props) {
   const classes = useStyles();
   const {
     itemKey,
+    name,
     label,
     text,
     valueOk,

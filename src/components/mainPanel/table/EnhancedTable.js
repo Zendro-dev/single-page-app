@@ -7,6 +7,7 @@ import EnhancedTableHead from './components/EnhancedTableHead'
 import EnhancedTableToolbar from './components/EnhancedTableToolbar'
 import EnhancedTableRow from './components/row/EnhancedTableRow'
 import CreatePanel from '../../createPanel/CreatePanel'
+import UpdatePanel from '../../updatePanel/UpdatePanel'
 
 /*
   Material-UI components
@@ -76,9 +77,10 @@ export default function EnhancedTable(props) {
     const [isOnApiRequest, setIsOnApiRequest] = useState(true);
     const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
     const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
-    //add
+    //actions
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
-    const [createItem, setCreateItem] = useState(undefined);
+    const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+    const [updateItem, setUpdateItem] = useState(undefined);
     /*
       Store selectors
     */
@@ -152,17 +154,14 @@ export default function EnhancedTable(props) {
       }
     }, [isOnApiRequest]);
 
-    useEffect(() => {
-      console.log("add createItem: ", createItem);
-      
-      if(createItem !== undefined) {
-        //update state
-        setCreateDialogOpen(true);
-      } else {
-        //update state
-        setCreateDialogOpen(false);
-      }
-  }, [createItem]);
+  useEffect(() => {
+    console.log("new updateItem: ", updateItem);
+
+    if (updateItem !== undefined) {
+      //update state
+      setUpdateDialogOpen(true);
+    }
+  }, [updateItem]);
 
     /*
       Methods
@@ -451,12 +450,16 @@ export default function EnhancedTable(props) {
         setPage(0);
     };
 
-    const handleCreateClicked = (event, item) => {
-      console.log("@@on:-- create clicked: item: ", item);
+    const handleCreateClicked = (event) => {
+      console.log("@@on:-- create clicked");
 
       //update state
-      setCreateItem(item);
       setCreateDialogOpen(true);
+    }
+
+    const handleUpdateClicked = (event, item) => {
+      //update state
+      setUpdateItem(item);
     }
 
     const handleChangeDense = event => {
@@ -472,6 +475,23 @@ export default function EnhancedTable(props) {
         window.setTimeout(function() {
           //update state
           setCreateDialogOpen(false);
+          //resolve
+          console.log("Delayed close: ok");
+          resolve("ok");
+        }, ms);
+      });
+    };
+
+    const handleUpdateDialogClose = (event) => {
+      delayedCloseUpdatePanel(event, 500);
+    }
+    const delayedCloseUpdatePanel = async (event, ms) => {
+      await new Promise(resolve => {
+        //set timeout
+        window.setTimeout(function() {
+          //update state
+          setUpdateDialogOpen(false);
+          setUpdateItem(undefined);
           //resolve
           console.log("Delayed close: ok");
           resolve("ok");
@@ -579,7 +599,7 @@ export default function EnhancedTable(props) {
                                                     <Tooltip title="Edit">
                                                         <IconButton 
                                                           color="primary"
-                                                          onClick={(event) => { handleCreateClicked(event, item)} }
+                                                          onClick={(event) => { handleUpdateClicked(event, item)} }
                                                         >
                                                             <Edit fontSize="small" />
                                                         </IconButton>
@@ -719,6 +739,19 @@ export default function EnhancedTable(props) {
                 handleClose={handleCreateDialogClose}
               />
             )}
+
+            {/* Dialog: Update Panel */}
+            {(updateDialogOpen) && (
+              <UpdatePanel 
+                headCells={headCells}
+                item={updateItem}
+                toOnes={model.toOnes}
+                toManys={model.toManys}
+                modelNames={model.names}
+                handleClose={handleUpdateDialogClose}
+              />
+            )}
+
         </div>
     );
 }

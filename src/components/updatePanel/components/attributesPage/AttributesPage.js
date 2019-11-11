@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import ChipsView from '../../views/chipsView/ChipsView';
-import AttributesFormView from '../../views/attributesFormView/AttributesFormView'
+import AttributesFormView from './attributesFormView/AttributesFormView'
 
 /*
   Material-UI components
 */
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
+import Fade from '@material-ui/core/Fade';
 
 /*
   Styles
@@ -30,7 +27,9 @@ export default function AttributesPage(props) {
   /*
     Properties
   */
-  const { 
+  const {
+    modelNames,
+    item,
     items, 
     valueOkStates,
     hidden,
@@ -135,7 +134,7 @@ export default function AttributesPage(props) {
     }
   }
 
-  const handleFieldBlur = (event, value, key) => {
+  const handleFieldBlur = (event, name, value, key) => {
     /*
       Handle: focus state
     */
@@ -157,7 +156,7 @@ export default function AttributesPage(props) {
     }
 
     //callback
-    handleOkStateUpdate(value, key);
+    handleOkStateUpdate(name, value, key);
   }
 
   const handleFieldReady = (key, textFieldRef, inputRef) => {
@@ -181,13 +180,13 @@ export default function AttributesPage(props) {
     }
   }
 
-  const handleFieldsKeyDown = (event, value, key) => {
+  const handleFieldsKeyDown = (event, name, value, key) => {
     /*
       Enter
     */
     if(event.key === 'Enter') {
         //callback
-        handleOkStateUpdate(value, key);
+        handleOkStateUpdate(name, value, key);
     }
   }
 
@@ -204,39 +203,43 @@ export default function AttributesPage(props) {
   */
   return (
     <div hidden={hidden}>
-      <Grid
-        className={classes.root1} 
-        container justify='center' 
-        alignItems='flex-start'
-        spacing={0}
-      > 
+      <Fade in={!hidden} timeout={500}>
+        <Grid
+          className={classes.root1} 
+          container justify='center' 
+          alignItems='flex-start'
+          spacing={0}
+        > 
 
-        {/* Chips View */}
-        {/* <Grid item xs={3}>
-          <ChipsView
-            hidden={false}
-            items={items}
-            itemFocusStates={itemFocusStates}
-            valueOkStates={valueOkStates}
-            deletable={false}
-            handleClick={handleChipClick}
-            onGetSearchAllowed={onGetSearchAllowed}
-          />
-        </Grid> */}
+          {/* Chips View */}
+          {/* <Grid item xs={3}>
+            <ChipsView
+              hidden={false}
+              items={items}
+              itemFocusStates={itemFocusStates}
+              valueOkStates={valueOkStates}
+              deletable={false}
+              handleClick={handleChipClick}
+              onGetSearchAllowed={onGetSearchAllowed}
+            />
+          </Grid> */}
 
-        {/* Attributes Form View */}
-        <Grid item xs={12} md={10} lg={8} xl={7}>
-          <AttributesFormView
-            items={items}
-            valueOkStates={valueOkStates}
-            handleFocus={handleFieldFocus}
-            handleBlur={handleFieldBlur}
-            handleFieldReady={handleFieldReady}
-            handleChange={handleFieldChange}
-            handleKeyDown={handleFieldsKeyDown}
-          />
+          {/* Attributes Form View */}
+          <Grid item xs={12} md={10} lg={8} xl={7}>
+            <AttributesFormView
+              modelNames={modelNames}
+              item={item}
+              items={items}
+              valueOkStates={valueOkStates}
+              handleFocus={handleFieldFocus}
+              handleBlur={handleFieldBlur}
+              handleFieldReady={handleFieldReady}
+              handleChange={handleFieldChange}
+              handleKeyDown={handleFieldsKeyDown}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      </Fade>
     </div>
   );
 }

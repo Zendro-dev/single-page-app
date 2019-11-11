@@ -135,4 +135,58 @@ export default {
     getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
       return queriesGraphql.getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit);
     },
+    /**
+     * 
+     *  
+     * getAssociatedIds
+     * 
+     * Construct query to get association records ids associated to the given item model. 
+     * Then do the query-request to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * {
+     *    readOne${modelName}(id: ${itemId}) {
+     *      ${association}Filter() {
+     *        id
+     *      }
+     *    }
+     * }
+     * 
+     * @param {String} url GraphQL Server url
+     * @param {Object} modelNames Model names object.
+     * @param {Number} itemId Model item id.
+     * @param {Object} associationNames Association names object.
+     */
+    getAssociatedIds(url, modelNames, itemId, associationNames) {
+      return queriesGraphql.getAssociatedIds(url, modelNames, itemId, associationNames);
+    },
+    /**
+     * createItem
+     * 
+     * Construct query to add new item. Then do the query-request 
+     * to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * mutation{
+     *  add${Model}(${attributesToAdd}) {
+     *    ${attributesToGet}
+     *  } 
+     * }
+     * 
+     * 
+     * Where:
+     *  ${Model}: name (capitalized) of the model.
+     *  ${attributesToAdd}: attributes to add.
+     *  ${attributesToGet}: attributes returned by mutation.
+     * 
+     * @param {String} url GraphQL Server url.
+     * @param {Object} modelNames Object with model names.
+     * @param {Array} attributesValues Array of objects with attributes names and values. 
+     * @param {Array} asssociationsIds Array of objects with association names and ids to add.
+     */
+    createItem(url, modelNames, attributesValues, asssociationsIds) {
+      return queriesGraphql.createItem(url, modelNames, attributesValues, asssociationsIds);
+    },
 }

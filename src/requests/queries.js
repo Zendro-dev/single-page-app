@@ -296,8 +296,108 @@ roles(
     //do request
     return requestGraphql({ url, query });
   },
-}
+  /**
+   * 
+   *  
+   * getAssociatedIds
+   * 
+   * Construct query to get association records ids associated to the given item model. 
+   * Then do the query-request to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * {
+   *    readOne${modelName}(id: ${itemId}) {
+   *      ${association}Filter() {
+   *        id
+   *      }
+   *    }
+   * }
+   * 
+   * @param {String} url GraphQL Server url
+   * @param {Object} modelNames Model names object.
+   * @param {Number} itemId Model item id.
+   * @param {Object} associationNames Association names object.
+   */
+  getAssociatedIds(url, modelNames, itemId, associationNames) {
+    /*
+      Get graphQL @query
+    */
+    var query = `{ readOne${modelNames.nameCp}( id: ${itemId} ){ ${associationNames.targetModelPlLc}Filter{ id } } }`;
 
+    /**
+     * Debug
+     */
+    console.log("getAssociatedIds.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
+  },
+
+  /**
+   * createItem
+   * 
+   * Construct query to add new item. Then do the query-request 
+   * to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * mutation{
+   *  add${Model}(${attributesToAdd}) {
+   *    ${attributesToGet}
+   *  } 
+   * }
+   * 
+   * 
+   * Where:
+   *  ${Model}: name (capitalized) of the model.
+   *  ${attributesToAdd}: attributes to add.
+   *  ${attributesToGet}: attributes returned by mutation.
+   * 
+   * @param {String} url GraphQL Server url.
+   * @param {Object} modelNames Object with model names.
+   * @param {Array} attributesValues Array of objects with attributes names and values. 
+   * @param {Array} asssociationsIds Array of objects with association names and ids to add.
+   */
+  createItem(url, modelNames, attributesValues, asssociationsIds) {
+    /*
+      Get attributes
+    */
+    var atts = '';
+    var attsToGet = 'id,';
+    for(var i=0; i<attributesValues.length; ++i)
+    {
+      atts += `${attributesValues[i].name}: \"${attributesValues[i].value}\",`;
+      attsToGet += `${attributesValues[i].name},`;
+    }
+
+    console.log("##associationsIds: ", asssociationsIds);
+    /*
+      Get associations ids
+    */
+    for(i=0; i<asssociationsIds.length; ++i)
+    {
+      //get ids array
+      if(asssociationsIds[i].ids.length > 0) {
+        let ids = `[${asssociationsIds[i].ids.join()}]`;
+        atts += `add${asssociationsIds[i].names.targetModelPlCp}: ${ids},`;
+      }
+    }
+
+    /*
+      Get graphQL @query
+    */
+    var query = `mutation{ add${modelNames.nameCp}(${atts}){${attsToGet}} }`;
+
+    /**
+     * Debug
+     */
+    console.log("getCountItems.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
+  },
+}
 
 /**
  * Utils

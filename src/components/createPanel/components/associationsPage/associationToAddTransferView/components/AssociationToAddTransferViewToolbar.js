@@ -109,7 +109,7 @@ export default function AssociationToAddTransferViewToolbar(props) {
                 <Grid item>
                   {/* Search field */}
                   <TextField
-                    id="search-field"s
+                    id="search-field"
                     value={displayedSearch}
                     placeholder="Search"
                     InputProps={{
