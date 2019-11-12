@@ -257,8 +257,9 @@ roles(
    * @param {String} sublabel Sublabel name.
    * @param {Number} paginationOffset Offset.
    * @param {Number} paginationLimit Max number of items to retreive.
+   * @param {String} ops Object with adittional query options.
    */
-  getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) {
+  getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit, ops) {
     var associationModel = models[associationNames.targetModelLc];
     /**
      * Debug
@@ -268,7 +269,7 @@ roles(
     /*
       Get @search parameter
     */
-    var s = getSearchArgument(associationModel, searchText);
+    var s = getSearchArgument(associationModel, searchText, ops);
 
     /*
       Get @pagination parameter
@@ -392,7 +393,118 @@ roles(
     /**
      * Debug
      */
-    console.log("getCountItems.query: gql:\n", query);
+    console.log("createItem.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
+  },
+  /**
+   * updateItem
+   * 
+   * Construct query to update item. Then do the query-request 
+   * to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * mutation{
+   *  update${Model}(${attributesToUpdate}) {
+   *    ${attributesToGet}
+   *  } 
+   * }
+   * 
+   * 
+   * Where:
+   *  ${Model}: name (capitalized) of the model.
+   *  ${attributesToUpdate}: attributes to update.
+   *  ${attributesToGet}: attributes returned by mutation.
+   * 
+   * @param {String} url GraphQL Server url.
+   * @param {Object} modelNames Object with model names.
+   * @param {Number} itemId Model item id.
+   * @param {Array} attributesValues Array of objects with attributes names and values. 
+   * @param {Array} asssociationsIdsToAdd Array of objects with association names and ids to add.
+   * @param {Array} asssociationsIdsToRemove Array of objects with association names and ids to remove.
+   */
+  updateItem(url, modelNames, itemId, attributesValues, asssociationsIdsToAdd, asssociationsIdsToRemove) {
+    /*
+      Get attributes
+    */
+    var atts = '';
+    var attsToGet = 'id,';
+    for(var i=0; i<attributesValues.length; ++i)
+    {
+      atts += `${attributesValues[i].name}: \"${attributesValues[i].value}\",`;
+      attsToGet += `${attributesValues[i].name},`;
+    }
+
+    /*
+      Get associations ids to add
+    */
+    for(i=0; i<asssociationsIdsToAdd.length; ++i)
+    {
+      //get ids array
+      if(asssociationsIdsToAdd[i].ids.length > 0) {
+        let ids = `[${asssociationsIdsToAdd[i].ids.join()}]`;
+        atts += `add${asssociationsIdsToAdd[i].names.targetModelPlCp}: ${ids},`;
+      }
+    }
+
+    /*
+      Get associations ids to remove
+    */
+    for(i=0; i<asssociationsIdsToRemove.length; ++i)
+    {
+      //get ids array
+      if(asssociationsIdsToRemove[i].ids.length > 0) {
+        let ids = `[${asssociationsIdsToRemove[i].ids.join()}]`;
+        atts += `remove${asssociationsIdsToRemove[i].names.targetModelPlCp}: ${ids},`;
+      }
+    }
+
+    /*
+      Get graphQL @query
+    */
+    var query = `mutation{ update${modelNames.nameCp}(id: ${itemId}, ${atts}){${attsToGet}} }`;
+
+    /**
+     * Debug
+     */
+    console.log("updateItem.query: gql:\n", query);
+
+    //do request
+    return requestGraphql({ url, query });
+  },
+  /**
+   * deleteItem
+   * 
+   * Construct query to delete an item. Then do the query-request 
+   * to GraphQL Server.
+   * 
+   * Query format:
+   * 
+   * mutation{
+   *  delete${Model}(id: ${id}) 
+   * }
+   * 
+   * 
+   * Where:
+   *  ${Model}: name (capitalized) of the model.
+   *  ${id}: Id of item that will be delete.
+   * 
+   * @param {String} url GraphQL Server url.
+   * @param {Object} modelNames Object with model names.
+   * @param {Number} itemId Model item id.
+   */
+  deleteItem(url, modelNames, itemId) {
+    /*
+      Get graphQL @query
+    */
+    var query = `mutation{ delete${modelNames.nameCp}(id: ${itemId}) }`;
+
+    /**
+     * Debug
+     */
+    console.log("deleteItem.query: gql:\n", query);
 
     //do request
     return requestGraphql({ url, query });

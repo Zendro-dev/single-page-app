@@ -66,6 +66,7 @@ export default {
      * @param {Object} model Object with model definition data
      * @param {String} url GraphQL Server url
      * @param {String} searchText Text string currently on search bar.
+     * @param {String} ops Object with adittional query options.
      */
     getCountItems (model, url, searchText, ops){
         return queriesGraphql.getCountItems(model, url, searchText, ops);
@@ -99,6 +100,7 @@ export default {
      * @param {String} orderDirection Text string: asc | desc.
      * @param {Number} paginationOffset Offset.
      * @param {Number} paginationLimit Max number of items to retreive.
+     * @param {String} ops Object with adittional query options.
      */
     getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops) {
         return queriesGraphql.getItems(model, url, searchText, orderBy, orderDirection, paginationOffset, paginationLimit, ops);
@@ -131,9 +133,10 @@ export default {
      * @param {String} sublabel Sublabel name.
      * @param {Number} paginationOffset Offset.
      * @param {Number} paginationLimit Max number of items to retreive.
+     * @param {String} ops Object with adittional query options.
      */
-    getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit) { 
-      return queriesGraphql.getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit);
+    getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit, ops) { 
+      return queriesGraphql.getAssociationFilter(url, modelNames, itemId, associationNames, searchText, paginationOffset, paginationLimit, ops);
     },
     /**
      * 
@@ -189,4 +192,58 @@ export default {
     createItem(url, modelNames, attributesValues, asssociationsIds) {
       return queriesGraphql.createItem(url, modelNames, attributesValues, asssociationsIds);
     },
+    /**
+     * updateItem
+     * 
+     * Construct query to update item. Then do the query-request 
+     * to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * mutation{
+     *  update${Model}(${attributesToUpdate}) {
+     *    ${attributesToGet}
+     *  } 
+     * }
+     * 
+     * 
+     * Where:
+     *  ${Model}: name (capitalized) of the model.
+     *  ${attributesToUpdate}: attributes to update.
+     *  ${attributesToGet}: attributes returned by mutation.
+     * 
+     * @param {String} url GraphQL Server url.
+     * @param {Object} modelNames Object with model names.
+     * @param {Number} itemId Model item id.
+     * @param {Array} attributesValues Array of objects with attributes names and values. 
+     * @param {Array} asssociationsIdsToAdd Array of objects with association names and ids to add.
+     * @param {Array} asssociationsIdsToRemove Array of objects with association names and ids to remove.
+     */
+    updateItem(url, modelNames, itemId, attributesValues, asssociationsIdsToAdd, asssociationsIdsToRemove) {
+      return queriesGraphql.updateItem(url, modelNames, itemId, attributesValues, asssociationsIdsToAdd, asssociationsIdsToRemove);
+    },
+    /**
+     * deleteItem
+     * 
+     * Construct query to delete an item. Then do the query-request 
+     * to GraphQL Server.
+     * 
+     * Query format:
+     * 
+     * mutation{
+     *  delete${Model}(id: ${id}) 
+     * }
+     * 
+     * 
+     * Where:
+     *  ${Model}: name (capitalized) of the model.
+     *  ${id}: Id of item that will be delete.
+     * 
+     * @param {String} url GraphQL Server url.
+     * @param {Object} modelNames Object with model names.
+     * @param {Number} itemId Model item id.
+     */
+    deleteItem(url, modelNames, itemId) {
+      return queriesGraphql.deleteItem(url, modelNames, itemId);
+    }
 }

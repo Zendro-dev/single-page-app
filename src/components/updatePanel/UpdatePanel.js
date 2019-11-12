@@ -68,7 +68,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function CreatePanel(props) {
+export default function UpdatePanel(props) {
   /*
     Styles
   */
@@ -273,10 +273,16 @@ export default function CreatePanel(props) {
   }
 
   function doSave(event) {
+    /**
+     * Debug
+     */
+    console.log("@@on doSave: idsToAdd: ", associationIdsToAdd.current);
+    console.log("@@on doSave: idsToRemove: ", associationIdsToRemove.current);
+
     /*
-      API Request: createItem
+      API Request: updateItem
     */
-    api[modelNames.name].createItem(graphqlServerUrl, modelNames, values.current, associationIdsToAdd.current)
+    api[modelNames.name].updateItem(graphqlServerUrl, modelNames, item.id, values.current, associationIdsToAdd.current, associationIdsToRemove.current)
       .then(response => {
         //Check response
         if (
@@ -400,7 +406,7 @@ export default function CreatePanel(props) {
     /*
       Check: not-acceptable fields
     */
-  if(areThereNotAcceptableFields()) {
+    if(areThereNotAcceptableFields()) {
       /*
         Show confirmation dialog
       */
@@ -545,6 +551,36 @@ export default function CreatePanel(props) {
     }
   }
 
+  const handleTransferToRemove = (associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToRemove.current.length; ++i) {
+      if(associationIdsToRemove.current[i].key === associationKey) {
+        //push new id
+        associationIdsToRemove.current[i].ids.push(itemId);
+        //done
+        return;
+      }
+    }
+  }
+
+  const handleUntransferFromRemove =(associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToRemove.current.length; ++i) {
+      if(associationIdsToRemove.current[i].key === associationKey) {
+        //find
+        for(var j=0; j<associationIdsToRemove.current[i].ids.length; ++j)
+        {
+          if(associationIdsToRemove.current[i].ids[j] === itemId) {
+            //remove
+            associationIdsToRemove.current[i].ids.splice(j, 1);
+            //done
+            return;
+          }
+        }
+      }
+    }
+  }
+
   /*
     Render
   */
@@ -611,8 +647,11 @@ export default function CreatePanel(props) {
               toOnes={toOnes}
               toManys={toManys}
               associationIdsToAdd={associationIdsToAdd.current}
+              associationIdsToRemove={associationIdsToRemove.current}
               handleTransferToAdd={handleTransferToAdd}
               handleUntransferFromAdd={handleUntransferFromAdd}
+              handleTransferToRemove={handleTransferToRemove}
+              handleUntransferFromRemove={handleUntransferFromRemove}
             />
 
           </Grid>

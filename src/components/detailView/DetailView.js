@@ -33,7 +33,13 @@ export default function DetailView(props) {
   /*
     Properties
   */
-  const { headCells, item } = props;
+  const {
+    modelNames,
+    item, 
+    headCells,
+    toOnes,
+    toManys,
+  } = props;
   const minListHeight = 200;
   const maxListHeight = 450;
   const defaultRowHeight = 50;

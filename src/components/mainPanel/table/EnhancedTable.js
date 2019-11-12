@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -8,6 +8,8 @@ import EnhancedTableToolbar from './components/EnhancedTableToolbar'
 import EnhancedTableRow from './components/row/EnhancedTableRow'
 import CreatePanel from '../../createPanel/CreatePanel'
 import UpdatePanel from '../../updatePanel/UpdatePanel'
+import DetailPanel from '../../detailPanel/DetailPanel'
+import DeleteConfirmationDialog from './components/DeleteConfirmationDialog'
 
 /*
   Material-UI components
@@ -36,7 +38,7 @@ import Popover from '@material-ui/core/Popover';
 */
 import Delete from '@material-ui/icons/DeleteOutline';
 import Edit from '@material-ui/icons/Edit';
-import ArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import SeeInfo from '@material-ui/icons/VisibilityTwoTone';
 
 /*
   Styles
@@ -73,7 +75,7 @@ export default function EnhancedTable(props) {
     const [expanded, setExpanded] = useState([]);
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [isOnApiRequest, setIsOnApiRequest] = useState(true);
     const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
     const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
@@ -81,6 +83,15 @@ export default function EnhancedTable(props) {
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
     const [updateItem, setUpdateItem] = useState(undefined);
+    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+    const [detailItem, setDetailItem] = useState(undefined);
+    const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] = useState(false);
+    const [deleteConfirmationItem, setDeleteConfirmationItem] = useState(undefined);
+
+    /*
+      Refs
+    */
+
     /*
       Store selectors
     */
@@ -97,8 +108,14 @@ export default function EnhancedTable(props) {
         //return on init
         if(isGettingFirstData) return;
 
-        //get data
-        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        if(page === 0) {
+          //get data
+          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        } else {
+          //update state
+          setPage(0); //search will occur or hook[page]
+        }
+
     }, [search]);
 
     useEffect(() => {
@@ -106,8 +123,13 @@ export default function EnhancedTable(props) {
         //return on init
         if(isGettingFirstData) return;
 
-        //get data
-        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        if(page === 0) {
+          //get data
+          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        } else {
+          //update state
+          setPage(0); //search will occur or hook[page]
+        }
 
     }, [order]);
 
@@ -116,30 +138,39 @@ export default function EnhancedTable(props) {
         //return on init
         if(isGettingFirstData) return;
 
-        //get data
-        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        if(page === 0) {
+          //get data
+          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        } else {
+          //update state
+          setPage(0); //search will occur or hook[page]
+        }
 
     }, [orderBy]);
-
-    useEffect(() => {
-        console.log("new page: ", page);
-        //return on init
-        if(isGettingFirstData) return;
-
-        //get data
-        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-
-    }, [page]);
 
     useEffect(() => {
         console.log("new rowsPerPage: ", rowsPerPage);
         //return on init
         if(isGettingFirstData) return;
 
-        //get data
-        if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        if(page === 0) {
+          //get data
+          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+        } else {
+          //update state
+          setPage(0); //search will occur or hook[page]
+        }
 
     }, [rowsPerPage]);
+
+    useEffect(() => {
+      console.log("new page: ", page);
+      //return on init
+      if(isGettingFirstData) return;
+
+      //get data
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    }, [page]);
 
     useEffect(() => {
       console.log("new isOnApiRequest: ", isOnApiRequest);
@@ -162,6 +193,24 @@ export default function EnhancedTable(props) {
       setUpdateDialogOpen(true);
     }
   }, [updateItem]);
+
+  useEffect(() => {
+    console.log("new detailItem: ", detailItem);
+
+    if (detailItem !== undefined) {
+      //update state
+      setDetailDialogOpen(true);
+    }
+  }, [detailItem]);
+
+  useEffect(() => {
+    console.log("new deleteConfirmationItem: ", deleteConfirmationItem);
+
+    if (deleteConfirmationItem !== undefined) {
+      //update state
+      setDeleteConfirmationDialogOpen(true);
+    }
+  }, [deleteConfirmationItem]);
 
     /*
       Methods
@@ -252,6 +301,21 @@ export default function EnhancedTable(props) {
                     var newCount = response.data.data['count'+model.names.namePlCp];
 
                     /*
+                      Check: empty page
+                    */
+                    if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
+                    {
+                      //update state
+                      setPage(page-1);
+                      setIsOnApiRequest(false);
+
+                      //done (getData will be invoked on hook[page])
+                      return;
+                    }
+                    //else
+
+
+                    /*
                       API Request: items
                     */
                     api[model.model].getItems(
@@ -323,6 +387,50 @@ export default function EnhancedTable(props) {
                 //done
                 return;
             });
+    }//end: getData()
+
+    function doDelete(event, item) {
+      /*
+        API Request: deleteItem
+      */
+      api[model.model].deleteItem(graphqlServerUrl, model.names, item.id)
+        .then(response => {
+          //Check response
+          if (
+            response.data &&
+            response.data.data
+          ) {
+            /**
+              * Debug
+              */
+            console.log(">> mutation.delete response: ", response.data.data);
+
+            //get data
+            getData();
+  
+            //done
+            return;
+  
+          } else {
+  
+            //error
+            console.log("error3")
+  
+            //done
+            return;
+          }
+        })
+        .catch(err => {
+  
+          //error
+          console.log("error4: ", err)
+  
+          //done
+          return;
+        });
+      
+      //close
+      //onClose(event);
     }
 
     /*
@@ -369,26 +477,10 @@ export default function EnhancedTable(props) {
     };
 
     const handleClickOnRow = (event, item) => {
+      console.log("clicked itemId: ", item.id);
 
-        console.log("clicked itemId: ", item.id);
-
-        // const selectedIndex = selected.indexOf(name);
-        // let newSelected = [];
-
-        // if (selectedIndex === -1) {
-        //   newSelected = newSelected.concat(selected, name);
-        // } else if (selectedIndex === 0) {
-        //   newSelected = newSelected.concat(selected.slice(1));
-        // } else if (selectedIndex === selected.length - 1) {
-        //   newSelected = newSelected.concat(selected.slice(0, -1));
-        // } else if (selectedIndex > 0) {
-        //   newSelected = newSelected.concat(
-        //     selected.slice(0, selectedIndex),
-        //     selected.slice(selectedIndex + 1),
-        //   );
-        // }
-
-        // setSelected(newSelected);
+        //update state item
+        setDetailItem(item);
     };
 
     const handleRowChecked = (event, item) => {
@@ -416,38 +508,12 @@ export default function EnhancedTable(props) {
         setSelected(newSelected);
     }
 
-    const handleRowExpanded = (event, item) => {
-
-        const expandedIndex = expanded.indexOf(item.id);
-        let newExpanded = [];
-
-        if (expandedIndex === -1) {
-            //select
-            newExpanded = newExpanded.concat(expanded, item.id);
-        } else if (expandedIndex === 0) {
-            //unselect unique item
-            newExpanded = newExpanded.concat(expanded.slice(1));
-        } else if (expandedIndex === expanded.length - 1) {
-            //unselect last item
-            newExpanded = newExpanded.concat(expanded.slice(0, -1));
-        } else if (expandedIndex > 0) {
-            //unselect item in the middle
-            newExpanded = newExpanded.concat(
-                expanded.slice(0, expandedIndex),
-                expanded.slice(expandedIndex + 1),
-            );
-        }
-        //update state
-        setExpanded(newExpanded);
-    }
-
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
 
     const handleChangeRowsPerPage = event => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
     };
 
     const handleCreateClicked = (event) => {
@@ -460,6 +526,11 @@ export default function EnhancedTable(props) {
     const handleUpdateClicked = (event, item) => {
       //update state
       setUpdateItem(item);
+    }
+
+    const handleDeleteClicked = (event, item) => {
+      //update state
+      setDeleteConfirmationItem(item);
     }
 
     const handleChangeDense = event => {
@@ -498,6 +569,52 @@ export default function EnhancedTable(props) {
         }, ms);
       });
     };
+
+    const handleDetailDialogClose = (event) => {
+      delayedCloseDetailPanel(event, 500);
+    }
+    const delayedCloseDetailPanel = async (event, ms) => {
+      await new Promise(resolve => {
+        //set timeout
+        window.setTimeout(function() {
+          //update state
+          setDetailDialogOpen(false);
+          setDetailItem(undefined);
+          //resolve
+          console.log("Delayed close: ok");
+          resolve("ok");
+        }, ms);
+      });
+    };
+
+    const handleDeleteConfirmationReject = (event) => {
+      delayedCloseDeleteConfirmation(event, 500);
+    }
+    const delayedCloseDeleteConfirmation = async (event, ms) => {
+      await new Promise(resolve => {
+        //set timeout
+        window.setTimeout(function() {
+          //update state
+          setDeleteConfirmationDialogOpen(false);
+          setDeleteConfirmationItem(undefined);
+          //resolve
+          console.log("Delayed close: ok");
+          resolve("ok");
+        }, ms);
+      });
+    };
+
+    const handleDeleteConfirmationAccept = (event, item) => {
+      //delete
+      doDelete(event, item);
+      //close
+      delayedCloseDeleteConfirmation(event, 500);
+    }
+
+    const handleCreateOk = () => {
+      //get data
+      getData();
+    }
 
 
     const isSelected = itemId => selected.indexOf(itemId) !== -1;
@@ -567,25 +684,24 @@ export default function EnhancedTable(props) {
                                                   selected={isItemSelected}
                                                 >
                                                   {/* Checkbox */}
-                                                  <TableCell padding="checkbox">
+                                                  {/* <TableCell padding="checkbox">
                                                     <Checkbox
                                                         checked={isItemSelected}
                                                         onChange={event => handleRowChecked(event, item)}
                                                     />
-                                                  </TableCell>
+                                                  </TableCell> */}
 
-                                                  {/* Expand icon */}
+                                                  {/* SeeInfo icon */}
                                                   <TableCell padding="checkbox">
-                                                    <Tooltip title="">
+                                                    <Tooltip title="View all info">
                                                       <IconButton
                                                           color="primary"
-                                                          style={{
-                                                              transition: 'all ease 200ms',
-                                                              transform: isItemExpanded ? 'rotate(90deg)' : 'none'
+                                                          onClick={event => {
+                                                            event.stopPropagation();
+                                                            handleClickOnRow(event, item);
                                                           }}
-                                                          onClick={event => handleRowExpanded(event, item)}
                                                       >
-                                                          <ArrowRight />
+                                                          <SeeInfo />
                                                       </IconButton>
                                                     </Tooltip>
                                                   </TableCell>
@@ -599,7 +715,10 @@ export default function EnhancedTable(props) {
                                                     <Tooltip title="Edit">
                                                         <IconButton 
                                                           color="primary"
-                                                          onClick={(event) => { handleUpdateClicked(event, item)} }
+                                                          onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleUpdateClicked(event, item);
+                                                          }}
                                                         >
                                                             <Edit fontSize="small" />
                                                         </IconButton>
@@ -609,7 +728,11 @@ export default function EnhancedTable(props) {
                                                   <TableCell padding='checkbox' align='center'>
                                                     <Tooltip title="Delete">
                                                         <IconButton 
-                                                          color="primary"
+                                                          color="secondary"
+                                                          onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleDeleteClicked(event, item);
+                                                          }}
                                                         >
                                                             <Delete fontSize="small" />
                                                         </IconButton>
@@ -712,9 +835,9 @@ export default function EnhancedTable(props) {
                           Pagination
                         */}
                         <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
+                            rowsPerPageOptions={[10, 25, 50, 100]}
                             component="div"
-                            count={items.length}
+                            count={count}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onChangePage={handleChangePage}
@@ -737,6 +860,7 @@ export default function EnhancedTable(props) {
                 toManys={model.toManys}
                 modelNames={model.names}
                 handleClose={handleCreateDialogClose}
+                handleOk={handleCreateOk}
               />
             )}
 
@@ -749,6 +873,32 @@ export default function EnhancedTable(props) {
                 toManys={model.toManys}
                 modelNames={model.names}
                 handleClose={handleUpdateDialogClose}
+              />
+            )}
+
+            {/* Dialog: Detail Panel */}
+            {(detailDialogOpen) && (
+              <DetailPanel 
+                headCells={headCells}
+                item={detailItem}
+                toOnes={model.toOnes}
+                toManys={model.toManys}
+                modelNames={model.names}
+                dialog={true}
+                handleClose={handleDetailDialogClose}
+              />
+            )}
+
+            {/* Dialog: Delete Confirmation */}
+            {(deleteConfirmationDialogOpen) && (
+              <DeleteConfirmationDialog 
+                headCells={headCells}
+                item={deleteConfirmationItem}
+                toOnes={model.toOnes}
+                toManys={model.toManys}
+                modelNames={model.names}
+                handleAccept={handleDeleteConfirmationAccept}
+                handleReject={handleDeleteConfirmationReject}
               />
             )}
 

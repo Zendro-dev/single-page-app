@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 /*
   Material-UI components
@@ -11,6 +11,10 @@ import Tab from '@material-ui/core/Tab';
   Styles
 */
 const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+  },
 }));
 
 export default function AssociationsPage(props) {
@@ -40,7 +44,6 @@ export default function AssociationsPage(props) {
     Hooks
   */
   useEffect(() => {
-    console.log("items: ", associationItems);
   }, []);
 
   /*

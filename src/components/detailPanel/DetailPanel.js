@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 import AttributesPage from './components/attributesPage/AttributesPage'
 import AssociationsPage from './components/associationsPage/AssociationsPage'
-import TabsA from './components/TabsA'
 import ConfirmationDialog from './components/ConfirmationDialog'
 import api from '../../requests/index';
 
 /*
   Material-UI components
 */
-import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
@@ -68,7 +67,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function CreatePanel(props) {
+export default function DetailPanel(props) {
   /*
     Styles
   */
@@ -78,22 +77,20 @@ export default function CreatePanel(props) {
     Properties
   */
   const { 
-    headCells,
-    toOnes,
-    toManys,
-    modelNames,
-    handleClose,
-    handleOk,
+    headCells, //current model attributes
+    item, //current item values
+    toOnes, //current model toOne associations
+    toManys, //current model toMany associations
+    modelNames, //current model names,
+    dialog,
+    handleClose 
   } = props;
   
   /*
     State
   */
   const [open, setOpen] = useState(true);
-  //state: tabsMenuA
-  const [tabsValue, setTabsValue] = useState(0);
-  //state: headCells
-  const [valueOkStates, setValueOkStates] = useState(getEditableItems().map(function(item){ return {key: item.key, valueOk: 0}}));
+  const [valueOkStates, setValueOkStates] = useState(getInitialValueOkStates());
   //state: confirmation dialog
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [confirmationTitle, setConfirmationTitle] = useState('');
@@ -108,7 +105,8 @@ export default function CreatePanel(props) {
   const handleAccept = useRef(undefined);
   const handleReject = useRef(undefined);
   const associationIdsToAdd = useRef(getAssociationsItems().map(function(item){ return {key: item.key, names: item.names, ids: []}}));
-  const values = useRef(getEditableItems().map(function(item){ return {key: item.key, name: item.name, value: ''}}));
+  const associationIdsToRemove = useRef(getAssociationsItems().map(function(item){ return {key: item.key, names: item.names, ids: []}}));
+  const values = useRef(getInitialValues());
 
   /*
       Store selectors
@@ -119,24 +117,12 @@ export default function CreatePanel(props) {
     Hooks
   */
   useEffect(() => {
-
-    console.log("#Create Panel: init");
-
     return function cleanup() {
-      console.log("##Create Pane: end");
     }
-
   }, []);
 
   useEffect(() => {
-    console.log("##- new: tabsValue: ", tabsValue);
-
-  }, [tabsValue]);
-
-  useEffect(() => {
-
     console.log("##-NEW valueOkStates: ", valueOkStates);
-
   }, [valueOkStates]);
   
   /*
@@ -159,10 +145,45 @@ export default function CreatePanel(props) {
     return itemsToOnes.concat(itemsToManys);
   }
 
+  function getInitialValueOkStates() {
+    let its = getEditableItems();
+    let initialValueOkStates = [];
+
+    //for each attribute
+    for(var i=0; i<its.length; ++i) {
+      //get
+      let o = {
+        key: its[i].key, 
+        valueOk: getAcceptableStatus(its[i].key, item[its[i].name])
+      };
+      //push
+      initialValueOkStates.push(o);
+    }
+    //done
+    return initialValueOkStates;
+  }
+
+  function getInitialValues() {
+    let its = getEditableItems();
+    let initialValues = [];
+
+    //for each attribute
+    for(var i=0; i<its.length; ++i) {
+      //get
+      let o = {
+        key: its[i].key,
+        name: its[i].name,
+        value: item[its[i].name]
+      };
+      //push
+      initialValues.push(o);
+    }
+    //done
+    return initialValues;
+  }
+
   function getEditableItems() {
-
     let its = Array.from(headCells);
-
     /*
       Remove no editable items:
         - name: id
@@ -174,7 +195,6 @@ export default function CreatePanel(props) {
         its.splice(i, 1);
       }
     }
-
     return its;
   }
 
@@ -252,10 +272,16 @@ export default function CreatePanel(props) {
   }
 
   function doSave(event) {
+    /**
+     * Debug
+     */
+    console.log("@@on doSave: idsToAdd: ", associationIdsToAdd.current);
+    console.log("@@on doSave: idsToRemove: ", associationIdsToRemove.current);
+
     /*
-      API Request: createItem
+      API Request: updateItem
     */
-    api[modelNames.name].createItem(graphqlServerUrl, modelNames, values.current, associationIdsToAdd.current)
+    api[modelNames.name].updateItem(graphqlServerUrl, modelNames, item.id, values.current, associationIdsToAdd.current, associationIdsToRemove.current)
       .then(response => {
         //Check response
         if (
@@ -266,9 +292,6 @@ export default function CreatePanel(props) {
             * Debug
             */
           console.log(">> mutation.add response: ", response.data.data);
-
-          //callback
-          handleOk();
 
           //done
           return;
@@ -321,10 +344,6 @@ export default function CreatePanel(props) {
   /*
     Handlers
   */
-  const handleTabsChange = (event, newValue) => {
-    setTabsValue(newValue);
-  };
-
   const handleFieldChange = (event, value, key) => {
     /*
       Update values ref
@@ -376,107 +395,8 @@ export default function CreatePanel(props) {
     }
   }
 
-  const handleSave = (event) => {
-    console.log("##- on.handleSave: values: ", valueOkStates);
-
-    /*
-      Check: not-acceptable fields
-    */
-  if(areThereNotAcceptableFields()) {
-      /*
-        Show confirmation dialog
-      */
-      //set state
-      setConfirmationTitle("Some fields are not valid! ");
-      setConfirmationText("To continue, please validate these fields.")
-      setConfirmationAcceptText("I UNDERSTAND");
-      setConfirmationRejectText("");
-      //set refs
-      handleAccept.current = () => {
-        console.log("#. accepting .#");
-        //hide
-        setConfirmationOpen(false);
-      }
-      handleReject.current = undefined;
-
-      //show
-      setConfirmationOpen(true);
-
-      //done
-      return;
-  }
-
-    /*
-      Check: incomplete fields
-    */
-    if(areThereIncompleteFields()) {
-      /*
-        Show confirmation dialog
-      */
-      //set state
-      setConfirmationTitle("Some fields are incomplete, want to continue anyway?");
-      setConfirmationText("If you are sure that this is correct, please continue.")
-      setConfirmationAcceptText("YES, SAVE THE FORM");
-      setConfirmationRejectText("BACK TO THE FORM");
-      //set refs
-      handleAccept.current = () => {
-        console.log("#. accepting .#");
-        //do save
-        doSave(event);
-        //hide
-        setConfirmationOpen(false);
-      }
-      handleReject.current = () => {
-        console.log("#. cancelling .#");
-        //hide
-        setConfirmationOpen(false);
-      }
-
-      //show
-      setConfirmationOpen(true);
-
-  } else {
-    //do save
-    doSave(event);
-  }
-
-  }
-
   const handleCancel = (event) => {
-    console.log("##- on.handleCancel: values: ", valueOkStates);
-    /*
-      Check: acceptable fields
-    */
-    if(areThereAcceptableFields()) {
-        /*
-          Show confirmation dialog
-        */
-        //set state
-        setConfirmationTitle("The information already captured will be lost!");
-        setConfirmationText("Some fields are already completed, if you continue, the information already captured will be lost, are you sure you want to continue?")
-        setConfirmationAcceptText("YES, CONTINUE");
-        setConfirmationRejectText("BACK TO THE FORM");
-        //set refs
-        handleAccept.current = () => {
-          console.log("#. accepting .#");
-          //hide
-          setConfirmationOpen(false);
-          onClose(event);
-        }
-        handleReject.current = () => {
-          console.log("#. cancelling .#");
-          //hide
-          setConfirmationOpen(false);
-        }
-
-        //show
-        setConfirmationOpen(true);
-
-        //done
-        return;
-    } else {
-      onClose(event);
-    }
+    onClose(event);
   }
 
   const onClose = (event) => {
@@ -527,89 +447,155 @@ export default function CreatePanel(props) {
     }
   }
 
+  const handleTransferToRemove = (associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToRemove.current.length; ++i) {
+      if(associationIdsToRemove.current[i].key === associationKey) {
+        //push new id
+        associationIdsToRemove.current[i].ids.push(itemId);
+        //done
+        return;
+      }
+    }
+  }
+
+  const handleUntransferFromRemove =(associationKey, itemId) => {
+    //find association key entry
+    for(var i=0; i<associationIdsToRemove.current.length; ++i) {
+      if(associationIdsToRemove.current[i].key === associationKey) {
+        //find
+        for(var j=0; j<associationIdsToRemove.current[i].ids.length; ++j)
+        {
+          if(associationIdsToRemove.current[i].ids[j] === itemId) {
+            //remove
+            associationIdsToRemove.current[i].ids.splice(j, 1);
+            //done
+            return;
+          }
+        }
+      }
+    }
+  }
+
   /*
     Render
   */
   return (
+    <div>
+      {(dialog !== undefined && dialog === true) && (
+        
+        <Dialog fullScreen open={open} onClose={handleCancel} TransitionComponent={Transition}>
+          <AppBar className={classes.appBar}>
+            <Toolbar>
+              <Tooltip title={"Cancel"}>
+                <IconButton 
+                  edge="start" 
+                  color="inherit" 
+                  onClick={handleCancel}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography variant="h6" className={classes.title}>
+                {modelNames.nameCp + ' Info'}
+              </Typography>
+            </Toolbar>
+          </AppBar>
     
-    <Dialog fullScreen open={open} onClose={handleCancel} TransitionComponent={Transition}>
-      <AppBar className={classes.appBar}>
-        <Toolbar>
-          <Tooltip title={"Cancel"}>
-            <IconButton 
-              edge="start" 
-              color="inherit" 
-              onClick={handleCancel}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
-          <Typography variant="h6" className={classes.title}>
-            {'New '+modelNames.nameCp}
-          </Typography>
-          <Tooltip title={"Save "+modelNames.name}>
-            <Fab 
-              color="secondary" 
-              className={classes.fabButton}
-              onClick={handleSave}
-            >
-              <SaveIcon />
-            </Fab>
-          </Tooltip>
-        </Toolbar>
-      </AppBar>
-
-      <div className={classes.root}>
-        <Grid container justify='center'>
-          <Grid item xs={12}>
-            
-            {/* TabsA: Menú */}
-            <div className={classes.tabsA}>
-            <TabsA
-              value={tabsValue}
-              handleChange={handleTabsChange}
-              handleCancel={handleCancel}
-              handleSave={handleSave}
+          <div className={classes.root}>
+            <Grid container justify='center'>
+              <Grid item xs={12}>
+                  
+                {/* Attributes Page [0] */}
+                <AttributesPage
+                  modelNames={modelNames}
+                  item={item}
+                  items={getEditableItems()}
+                  valueOkStates={valueOkStates}
+                  handleFieldChange={handleFieldChange}
+                  handleOkStateUpdate={handleOkStateUpdate}
+                />
+    
+                {/* Associations Page [1] */}
+                <AssociationsPage
+                  modelNames={modelNames}
+                  item={item}
+                  associationItems={getAssociationItems()}
+                  toOnes={toOnes}
+                  toManys={toManys}
+                  associationIdsToAdd={associationIdsToAdd.current}
+                  associationIdsToRemove={associationIdsToRemove.current}
+                  handleTransferToAdd={handleTransferToAdd}
+                  handleUntransferFromAdd={handleUntransferFromAdd}
+                  handleTransferToRemove={handleTransferToRemove}
+                  handleUntransferFromRemove={handleUntransferFromRemove}
+                />
+    
+              </Grid>
+            </Grid>
+    
+            {/* Confirmation Dialog */}
+            <ConfirmationDialog
+              open={confirmationOpen}
+              title={confirmationTitle}
+              text={confirmationText}
+              acceptText={confirmationAcceptText}
+              rejectText={confirmationRejectText}
+              handleAccept={handleConfirmationAccept}
+              handleReject={handleConfirmationReject}
             />
-            </div>
-              
-            {/* Attributes Page [0] */}
-            <AttributesPage
-              hidden={tabsValue !== 0}
-              modelNames={modelNames}
-              items={getEditableItems()}
-              valueOkStates={valueOkStates}
-              handleFieldChange={handleFieldChange}
-              handleOkStateUpdate={handleOkStateUpdate}
+          </div>
+        </Dialog>
+      )}
+
+      {/* No-Dialog Mode */}
+      {(dialog !== undefined && dialog === false) && (
+    
+          <div className={classes.root}>
+            <Grid container justify='center'>
+              <Grid item xs={12}>
+                  
+                {/* Attributes Page [0] */}
+                <AttributesPage
+                  modelNames={modelNames}
+                  item={item}
+                  items={getEditableItems()}
+                  valueOkStates={valueOkStates}
+                  handleFieldChange={handleFieldChange}
+                  handleOkStateUpdate={handleOkStateUpdate}
+                />
+    
+                {/* Associations Page [1] */}
+                <AssociationsPage
+                  modelNames={modelNames}
+                  item={item}
+                  associationItems={getAssociationItems()}
+                  toOnes={toOnes}
+                  toManys={toManys}
+                  associationIdsToAdd={associationIdsToAdd.current}
+                  associationIdsToRemove={associationIdsToRemove.current}
+                  handleTransferToAdd={handleTransferToAdd}
+                  handleUntransferFromAdd={handleUntransferFromAdd}
+                  handleTransferToRemove={handleTransferToRemove}
+                  handleUntransferFromRemove={handleUntransferFromRemove}
+                />
+    
+              </Grid>
+            </Grid>
+    
+            {/* Confirmation Dialog */}
+            <ConfirmationDialog
+              open={confirmationOpen}
+              title={confirmationTitle}
+              text={confirmationText}
+              acceptText={confirmationAcceptText}
+              rejectText={confirmationRejectText}
+              handleAccept={handleConfirmationAccept}
+              handleReject={handleConfirmationReject}
             />
-
-            {/* Associations Page [1] */}
-            <AssociationsPage
-              hidden={tabsValue !== 1}
-              associationItems={getAssociationItems()}
-              toOnes={toOnes}
-              toManys={toManys}
-              associationIdsToAdd={associationIdsToAdd.current}
-              handleTransferToAdd={handleTransferToAdd}
-              handleUntransferFromAdd={handleUntransferFromAdd}
-            />
-
-          </Grid>
-        </Grid>
-
-        {/* Confirmation Dialog */}
-        <ConfirmationDialog
-          open={confirmationOpen}
-          title={confirmationTitle}
-          text={confirmationText}
-          acceptText={confirmationAcceptText}
-          rejectText={confirmationRejectText}
-          handleAccept={handleConfirmationAccept}
-          handleReject={handleConfirmationReject}
-        />
-      </div>
-
-    </Dialog>
+          </div>
+      )}
+    </div>
   );
 }
 

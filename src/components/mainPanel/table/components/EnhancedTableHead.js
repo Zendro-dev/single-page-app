@@ -33,15 +33,15 @@ export default function EnhancedTableHead(props) {
             <TableRow>
 
                 {/* Checkbox */}
-                <TableCell padding="checkbox">
+                {/* <TableCell padding="checkbox">
                     <Checkbox
                         indeterminate={numSelected > 0 && numSelected < rowCount}
                         checked={numSelected === rowCount}
                         onChange={onSelectAllClick}
                     />
-                </TableCell>
+                </TableCell> */}
 
-                {/* Expanded icon */}
+                {/* See info icon */}
                 <TableCell padding="checkbox" />
 
                 {/* Actions */}

@@ -221,16 +221,26 @@ export default function AssociationToAddTransferView(props) {
     //return on init
     if(isGettingFirstData) return;
 
-    //get data
-    if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    if(page === 0) {
+      //get data
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      //update state
+      setPage(0); //search will occur or hook[page]
+    }
   }, [search]);
 
   useEffect(() => {
     //return on init
     if(isGettingFirstDataB) return;
 
-    //get data
-    if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+    if(page === 0) {
+      //get data
+      if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+    } else {
+      //update state
+      setPageB(0); //search will occur or hook[page]
+    }
   }, [searchB]);
 
   useEffect(() => {
@@ -324,7 +334,7 @@ export default function AssociationToAddTransferView(props) {
           values: {id: lidsToAdd.current}
         }]
       };
-    }
+    }    
 
     /*
       API Request: countItems
@@ -343,6 +353,19 @@ export default function AssociationToAddTransferView(props) {
 
           //set new count
           var newCount = response.data.data['count' + associationNames.relationNameCp];
+
+          /*
+            Check: empty page
+          */
+          if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
+          {
+            //update state
+            setPage(page-1);
+            setIsOnApiRequest(false);
+
+            //done (getData will be invoked on hook[page])
+            return;
+          }
 
           /*
             API Request: items
@@ -464,6 +487,19 @@ export default function AssociationToAddTransferView(props) {
 
           //set new count
           var newCount = response.data.data['count' + associationNames.relationNameCp];
+
+          /*
+            Check: empty page
+          */
+          if( (newCount === (pageB * rowsPerPageB)) && (pageB > 0) ) 
+          {
+            //update state
+            setPageB(pageB-1);
+            setIsOnApiRequestB(false);
+
+            //done (getData will be invoked on hook[page])
+            return;
+          }
 
           /*
             API Request: items

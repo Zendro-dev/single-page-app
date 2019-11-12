@@ -13,7 +13,7 @@ import Fade from '@material-ui/core/Fade';
   Styles
 */
 const useStyles = makeStyles(theme => ({
-  root1: {
+  root: {
     margin: theme.spacing(0),
   },
 }));
@@ -32,7 +32,6 @@ export default function AttributesPage(props) {
     item,
     items, 
     valueOkStates,
-    hidden,
     handleFieldChange,
     handleOkStateUpdate,
   } = props;
@@ -202,32 +201,30 @@ export default function AttributesPage(props) {
     Render
   */
   return (
-    <div hidden={hidden}>
-      <Fade in={!hidden} timeout={500}>
-        <Grid
-          className={classes.root1} 
-          container justify='center' 
-          alignItems='flex-start'
-          spacing={0}
-        > 
+    <Fade in={true} timeout={500}>
+      <Grid
+        className={classes.root} 
+        container justify='center' 
+        alignItems='flex-start'
+        spacing={0}
+      > 
 
-          {/* Attributes Form View */}
-          <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
-            <AttributesFormView
-              modelNames={modelNames}
-              item={item}
-              items={items}
-              valueOkStates={valueOkStates}
-              handleFocus={handleFieldFocus}
-              handleBlur={handleFieldBlur}
-              handleFieldReady={handleFieldReady}
-              handleChange={handleFieldChange}
-              handleKeyDown={handleFieldsKeyDown}
-            />
-          </Grid>
+        {/* Attributes Form View */}
+        <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
+          <AttributesFormView
+            modelNames={modelNames}
+            item={item}
+            items={items}
+            valueOkStates={valueOkStates}
+            handleFocus={handleFieldFocus}
+            handleBlur={handleFieldBlur}
+            handleFieldReady={handleFieldReady}
+            handleChange={handleFieldChange}
+            handleKeyDown={handleFieldsKeyDown}
+          />
         </Grid>
-      </Fade>
-    </div>
+      </Grid>
+    </Fade>
   );
 }
 

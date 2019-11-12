@@ -65,7 +65,8 @@ export default function AssociationsPage(props) {
         onChange={handleChange}
         indicatorColor="primary"
         textColor="primary"
-        variant="fullWidth"
+        variant="scrollable"
+        scrollButtons="auto"
       >
         {associationItems.map((item, index) => {
           return (

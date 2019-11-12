@@ -52,8 +52,11 @@ export default function AssociationsPage(props) {
     toOnes, 
     toManys,
     associationIdsToAdd,
+    associationIdsToRemove,
     handleTransferToAdd,
     handleUntransferFromAdd,
+    handleTransferToRemove,
+    handleUntransferFromRemove,
   } = props;
   
   /*
@@ -71,16 +74,12 @@ export default function AssociationsPage(props) {
     Hooks
   */
   useEffect(() => {
-
-    console.log("@@init@@: Associations IDs to ADD: ", associationIdsToAdd);
-
     //select first association
     if(associationItems.length > 0) {
       setAssociationTitle(associationItems[0].label);
       setAssociation(getAssociationNames(associationItems[0]));
       setAssociationSelected(0);
     }
-
   }, []);
 
   /*
@@ -117,10 +116,21 @@ export default function AssociationsPage(props) {
   }
 
   function getIdsToAdd() {
-    //find current association excluded ids
+    //find current association excluded ids to add
     for(var i=0; i<associationIdsToAdd.length; ++i) {
       if(associationIdsToAdd[i].key === association.targetModelLc) {
         return associationIdsToAdd[i].ids;
+      }
+    }
+    //if not found
+    return [];
+  }
+
+  function getIdsToRemove() {
+    //find current association excluded ids to remove
+    for(var i=0; i<associationIdsToRemove.length; ++i) {
+      if(associationIdsToRemove[i].key === association.targetModelLc) {
+        return associationIdsToRemove[i].ids;
       }
     }
     //if not found
@@ -146,34 +156,22 @@ export default function AssociationsPage(props) {
         <Grid
           className={classes.root} 
           container 
-          justify='flex-end'
+          justify='center'
           alignItems='flex-start'
           spacing={0}
         > 
-          {/* Menu List: Associations */}
-          {(!matchesDownXs) && (
-            <Grid item sm={2} className={classes.menu}>
-              <AssociationMenuList
-                associationItems={associationItems}
-                associationSelected={associationSelected}
-                handleClick={handleAssociationClick}
-              />
-            </Grid>
-          )}
 
           {/* Menu Tabs: Associations */}
-          {(matchesDownXs) && (
-            <Grid item xs={12} className={classes.menu}>
-              <AssociationMenuTabs
-                associationItems={associationItems}
-                associationSelected={associationSelected}
-                handleClick={handleAssociationClick}
-              />
-            </Grid>
-          )}
+          <Grid item xs={11} sm={9} className={classes.menu}>
+            <AssociationMenuTabs
+              associationItems={associationItems}
+              associationSelected={associationSelected}
+              handleClick={handleAssociationClick}
+            />
+          </Grid>
           
           {/* ToAdd Transfer Lists */}
-          <Grid item xs={11} sm={9}>
+          <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
             <AssociationToAddTransferView
               modelNames={modelNames}
               item={item}
@@ -187,16 +185,16 @@ export default function AssociationsPage(props) {
           </Grid>
 
           {/* ToRemove Transfer Lists */}
-          <Grid item xs={11} sm={9}>
+          <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
             <AssociationToRemoveTransferView
               modelNames={modelNames}
               item={item}
               title={associationTitle}
               titleB={associationTitle}
               associationNames={association}
-              idsToAdd={getIdsToAdd()}
-              handleTransfer={handleTransferToAdd}
-              handleUntransfer={handleUntransferFromAdd}
+              idsToAdd={getIdsToRemove()}
+              handleTransfer={handleTransferToRemove}
+              handleUntransfer={handleUntransferFromRemove}
             />
           </Grid>
 

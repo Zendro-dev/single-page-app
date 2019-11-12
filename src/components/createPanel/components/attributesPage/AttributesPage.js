@@ -210,21 +210,8 @@ export default function AttributesPage(props) {
           spacing={0}
         > 
 
-          {/* Chips View */}
-          {/* <Grid item xs={3}>
-            <ChipsView
-              hidden={false}
-              items={items}
-              itemFocusStates={itemFocusStates}
-              valueOkStates={valueOkStates}
-              deletable={false}
-              handleClick={handleChipClick}
-              onGetSearchAllowed={onGetSearchAllowed}
-            />
-          </Grid> */}
-
           {/* Attributes Form View */}
-          <Grid item xs={12} md={10} lg={8} xl={7}>
+          <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
             <AttributesFormView
               modelNames={modelNames}
               items={items}

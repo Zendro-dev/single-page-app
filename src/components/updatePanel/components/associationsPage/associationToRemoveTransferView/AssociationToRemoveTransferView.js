@@ -224,16 +224,26 @@ export default function AssociationToAddTransferView(props) {
     //return on init
     if(isGettingFirstData) return;
 
-    //get data
-    if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    if(page === 0) {
+      //get data
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      //update state
+      setPage(0); //search will occur or hook[page]
+    }
   }, [search]);
 
   useEffect(() => {
     //return on init
     if(isGettingFirstDataB) return;
 
-    //get data
-    if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+    if(page === 0) {
+      //get data
+      if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
+    } else {
+      //update state
+      setPageB(0); //search will occur or hook[page]
+    }
   }, [searchB]);
 
   useEffect(() => {
@@ -318,287 +328,87 @@ export default function AssociationToAddTransferView(props) {
       setIsGettingFirstData(false);
     }
 
-    //if ids associated needs to be fetched.
-    if(lidsAssociated.current === undefined || lidsAssociated.current.associationName !== associationNames.targetModelLc) {
-      /**
-       * Debug
-       */
-      console.log("@@- Getting ids associated first -@@");
-        
-      /*
-        API Request: associatedIds
-      */
-      api[modelNames.name].getAssociatedIds(graphqlServerUrl, modelNames, item.id, associationNames)
+    //set ops: excluded ids
+    let ops = null;
+    if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
+      ops = {
+        exclude: [{
+          type: 'Int',
+          values: {id: lidsToAdd.current}
+        }]
+      };
+    }
+
+    /*
+      API Request: associationFilter
+    */
+
+    /*
+      Get data
+    */
+    api[modelNames.name].getAssociationFilter(
+    graphqlServerUrl, 
+    modelNames, 
+    item.id, 
+    associationNames,
+    search,
+    page * rowsPerPage, //paginationOffset
+    rowsPerPage, //paginationLimit
+    ops
+  )
       .then(response => {
-        //Check response
-        if (
-          response.data &&
-          response.data.data
-        ) {
-          //set ids
-          let idso = response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`];
-          lidsAssociated.current = idso.map(function(item){ return item.id});
-
-          /**
-           * Debug
-           */
-          console.log("@@lidsToAdd.current: ", idso.map(function(item){ return item.id}));
-          console.log("@@lidsAssociated.current: ", lidsAssociated.current);
-          console.log("@@lidsToAdd.current: ", lidsToAdd.current);
-
-          //set ops: excluded ids: toAddIds + associatedIds
-          let ops = null;
-          let exIds = [];
-          if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
-            exIds = lidsToAdd.current;
-          }
-          if(lidsAssociated.current !== undefined && lidsAssociated.current.length > 0) {
-            exIds = exIds.concat(lidsAssociated.current);
-          }
-          if(exIds.length > 0) {
-            ops = {
-              exclude: [{
-                type: 'Int',
-                values: {id: lidsToAdd.current.concat(lidsAssociated.current)}
-              }]
-            };
-          }
-          console.log("@@ops: ", ops);
-
-          /*
-            API Request: countItems
-          */
-          api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search, ops)
-          .then(response => {
-            //Check response
-            if (
+          //Check response
+          if (
               response.data &&
               response.data.data
-            ) {
+          ) {
               /**
                * Debug
                */
-              console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
+              console.log("newData: ", response.data.data);
 
               //set new count
-              var newCount = response.data.data['count' + associationNames.relationNameCp];
+              var newCount = response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`];
 
               /*
-                API Request: items
+                Check: empty page
               */
-              api[associationNames.targetModelLc].getItems(
-                associationNames.targetModelLc,
-                graphqlServerUrl,
-                search,
-                null, //orderBy
-                null, //orderDirection
-                page * rowsPerPage, //paginationOffset
-                rowsPerPage, //paginationLimit
-                ops
-              )
-                .then(response => {
-                  //check response
-                  if (
-                    response.data &&
-                    response.data.data &&
-                    response.data.data[associationNames.relationName]) {
+              if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
+              {
+                //update state
+                setPage(page-1);
+                setIsOnApiRequest(false);
 
-                    /**
-                    * Debug
-                    */
-                    console.log("@@newCount: ", newCount);
-                    console.log("@@newItems: ", response.data.data[associationNames.relationName]);
-
-                    //update state
-                    setCount(newCount);
-                    setItems(response.data.data[associationNames.relationName]);
-                    setIsOnApiRequest(false);
-
-                    //done
-                    console.log("getData: done");
-                    return;
-
-                  } else {
-
-                    //error
-                    console.log("error3.1");
-
-                    //done
-                    return;
-                  }
-                })
-                .catch(err => {
-
-                  //error
-                  console.log("error3.2");
-
-                  //done
-                  return;
-                });
-
-              //done
-              return;
-
-            } else {
-
-              //error
-              console.log("error2.1")
-
-              //done
-              return;
-            }
-          })
-          .catch(err => {
-
-            //error
-            console.log("error2.2: ", err)
-
-            //done
-            return;
-          });
-
-        } else {
-          //error
-          console.log("error1.1")
-
-          //done
-          return;
-        }
-      })
-      .catch(err => {
-
-        //error
-        console.log("error1.2");
-
-        //done
-        return;
-      });
-
-    }//end: if lisdAssociated needs to be fetched
-    else { //do getData directly
-      /**
-       * Debug
-       */
-      console.log("@@- Getting data directly -@@");
-
-      /**
-       * Debug
-       */
-      console.log("@@lidsAssociated.current: ", lidsAssociated.current);
-      console.log("@@lidsToAdd.current: ", lidsToAdd.current);
-      
-      //set ops: excluded ids: toAddIds + associatedIds
-      let ops = null;
-      let exIds = [];
-      if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
-        exIds = lidsToAdd.current;
-      }
-      if(lidsAssociated.current !== undefined && lidsAssociated.current.length > 0) {
-        exIds = exIds.concat(lidsAssociated.current);
-      }
-      if(exIds.length > 0) {
-        ops = {
-          exclude: [{
-            type: 'Int',
-            values: {id: lidsToAdd.current.concat(lidsAssociated.current)}
-          }]
-        };
-      }
-      console.log("@@ops: ", ops);
-
-      /*
-        API Request: countItems
-      */
-      api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search, ops)
-        .then(response => {
-          //Check response
-          if (
-            response.data &&
-            response.data.data
-          ) {
-            /**
-             * Debug
-             */
-            console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
-
-            //set new count
-            var newCount = response.data.data['count' + associationNames.relationNameCp];
-
-            /*
-              API Request: items
-            */
-            api[associationNames.targetModelLc].getItems(
-              associationNames.targetModelLc,
-              graphqlServerUrl,
-              search,
-              null, //orderBy
-              null, //orderDirection
-              page * rowsPerPage, //paginationOffset
-              rowsPerPage, //paginationLimit
-              ops
-            )
-              .then(response => {
-                //check response
-                if (
-                  response.data &&
-                  response.data.data &&
-                  response.data.data[associationNames.relationName]) {
-
-                  /**
-                   * Debug
-                   */
-                  console.log("@@newCount: ", newCount);
-                  console.log("@@newItems: ", response.data.data[associationNames.relationName]);
-
-                  //update state
-                  setCount(newCount);
-                  setItems(response.data.data[associationNames.relationName]);
-                  setIsOnApiRequest(false);
-
-                  //done
-                  console.log("getData: done");
-                  return;
-
-                } else {
-
-                  //error
-                  console.log("error1");
-
-                  //done
-                  return;
-                }
-              })
-              .catch(err => {
-
-                //error
-                console.log("error2");
-
-                //done
+                //done (getData will be invoked on hook[page])
                 return;
-              });
+              }
+              //else
 
-            //done
-            return;
+              //update state
+              setCount(newCount);
+              setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
+              setIsOnApiRequest(false);
+
+              //done
+              return;
 
           } else {
 
-            //error
-            console.log("error3")
+              //error
+              console.log("error3")
 
-            //done
-            return;
+              //done
+              return;
           }
-        })
-        .catch(err => {
+      })
+      .catch(err => {
 
           //error
           console.log("error4: ", err)
 
           //done
           return;
-        });
-
-    }//end: else: do getData directly
+      });
   }
 
   /**
@@ -646,6 +456,19 @@ export default function AssociationToAddTransferView(props) {
 
           //set new count
           var newCount = response.data.data['count' + associationNames.relationNameCp];
+
+          /*
+            Check: empty page
+          */
+          if( (newCount === (pageB * rowsPerPageB)) && (pageB > 0) ) 
+          {
+            //update state
+            setPageB(pageB-1);
+            setIsOnApiRequestB(false);
+
+            //done (getData will be invoked on hook[page])
+            return;
+          }
 
           /*
             API Request: items
