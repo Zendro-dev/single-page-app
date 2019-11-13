@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import api from '../../../requests/index'
+import api from '../../requests/index'
 import EnhancedTableHead from './components/EnhancedTableHead'
 import EnhancedTableToolbar from './components/EnhancedTableToolbar'
-import EnhancedTableRow from './components/row/EnhancedTableRow'
-import CreatePanel from '../../createPanel/CreatePanel'
-import UpdatePanel from '../../updatePanel/UpdatePanel'
-import DetailPanel from '../../detailPanel/DetailPanel'
+import CreatePanel from '../createPanel/CreatePanel'
+import UpdatePanel from '../updatePanel/UpdatePanel'
+import DetailPanel from '../detailPanel/DetailPanel'
 import DeleteConfirmationDialog from './components/DeleteConfirmationDialog'
+import UploadFileDialog from './components/UploadFileDialog'
 
 /*
   Material-UI components
@@ -20,17 +20,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
-import Slide from '@material-ui/core/Slide';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
-import Popover from '@material-ui/core/Popover';
 
 
 /*
@@ -50,7 +45,11 @@ const useStyles = makeStyles(theme => ({
     paper: {
         marginBottom: theme.spacing(2),
         overflowX: 'auto',
-    }
+    },
+    tableWrapper: {
+      maxHeight: '74vh',
+      overflow: 'auto',
+    },
 }));
 
 export default function EnhancedTable(props) {
@@ -87,6 +86,7 @@ export default function EnhancedTable(props) {
     const [detailItem, setDetailItem] = useState(undefined);
     const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] = useState(false);
     const [deleteConfirmationItem, setDeleteConfirmationItem] = useState(undefined);
+    const [uploadFileDialogOpen, setUploadFileDialogOpen] = useState(false);
 
     /*
       Refs
@@ -523,6 +523,11 @@ export default function EnhancedTable(props) {
       setCreateDialogOpen(true);
     }
 
+    const handleBulkImportClicked = (event) => {
+      //update state
+      setUploadFileDialogOpen(true);
+    }
+
     const handleUpdateClicked = (event, item) => {
       //update state
       setUpdateItem(item);
@@ -547,7 +552,6 @@ export default function EnhancedTable(props) {
           //update state
           setCreateDialogOpen(false);
           //resolve
-          console.log("Delayed close: ok");
           resolve("ok");
         }, ms);
       });
@@ -564,7 +568,6 @@ export default function EnhancedTable(props) {
           setUpdateDialogOpen(false);
           setUpdateItem(undefined);
           //resolve
-          console.log("Delayed close: ok");
           resolve("ok");
         }, ms);
       });
@@ -581,7 +584,6 @@ export default function EnhancedTable(props) {
           setDetailDialogOpen(false);
           setDetailItem(undefined);
           //resolve
-          console.log("Delayed close: ok");
           resolve("ok");
         }, ms);
       });
@@ -598,7 +600,27 @@ export default function EnhancedTable(props) {
           setDeleteConfirmationDialogOpen(false);
           setDeleteConfirmationItem(undefined);
           //resolve
-          console.log("Delayed close: ok");
+          resolve("ok");
+        }, ms);
+      });
+    };
+
+    const handleBulkUploadCancel = (event) => {
+      delayedCloseBulkUploadDialog(event, 500);
+    }
+    const handleBulkUploadDone = (event) => {
+      delayedCloseBulkUploadDialog(event, 500);
+
+      //get data
+      getData();
+    }
+    const delayedCloseBulkUploadDialog = async (event, ms) => {
+      await new Promise(resolve => {
+        //set timeout
+        window.setTimeout(function() {
+          //update state
+          setUploadFileDialogOpen(false);
+          //resolve
           resolve("ok");
         }, ms);
       });
@@ -629,20 +651,23 @@ export default function EnhancedTable(props) {
     return (
         <div className={classes.root}>
             <Grid container justify='center'>
-                <Grid item xs={9} md={11} lg={12}>
+                <Grid item sm={12} md={11} lg={10}>
                     <Paper className={classes.paper}>
 
                         {/* Toolbar */}
                         <EnhancedTableToolbar
+                            modelName={model.names.name}
                             numSelected={selected.length}
                             search={search}
                             title={model.names.namePlCp}
                             onSearchEnter={handleSearchEnter}
                             handleAddClicked={handleCreateClicked}
+                            handleBulkImportClicked={handleBulkImportClicked}
                         />
 
                         {/* Table */}
-                        <Table size={dense ? 'small' : 'medium'}>
+                        <div className={classes.tableWrapper}>
+                        <Table stickyHeader size={dense ? 'small' : 'medium'}>
                             
                             {/* Table Head */}
                             <EnhancedTableHead
@@ -683,13 +708,6 @@ export default function EnhancedTable(props) {
                                                   key={item.id}
                                                   selected={isItemSelected}
                                                 >
-                                                  {/* Checkbox */}
-                                                  {/* <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        checked={isItemSelected}
-                                                        onChange={event => handleRowChecked(event, item)}
-                                                    />
-                                                  </TableCell> */}
 
                                                   {/* SeeInfo icon */}
                                                   <TableCell padding="checkbox">
@@ -754,30 +772,9 @@ export default function EnhancedTable(props) {
                                                   ))}
 
                                                 </TableRow>,
-                                                /*
-                                                  Detail Row
-                                                */
-                                                (isItemExpanded) && (
-                                                  <TableRow key={"detail-row-" + item.id}>
-                                                    <TableCell colSpan={4 + headCells.length} padding="none">
-                                                      <EnhancedTableRow
-                                                          item={item}
-                                                          headCells={headCells}
-                                                          toOnes={model.toOnes}
-                                                          toManys={model.toManys}
-                                                          modelNames={model.names}
-                                                      />
-                                                    </TableCell>
-                                                  </TableRow>
-                                                )
                                             ]);
                                         })
                                     }
-                                    {/* {emptyRows > 0 && (
-                                        <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                                            <TableCell colSpan={4 + headCells.length} />
-                                        </TableRow>
-                                    )} */}
                                 </TableBody>
                               </Fade>
                             )}
@@ -830,6 +827,7 @@ export default function EnhancedTable(props) {
                               </Fade>
                             )}
                         </Table>
+                        </div>
 
                         {/*
                           Pagination
@@ -844,11 +842,6 @@ export default function EnhancedTable(props) {
                             onChangeRowsPerPage={handleChangeRowsPerPage}
                         />
                     </Paper>
-                    
-                    <FormControlLabel
-                        control={<Switch checked={dense} onChange={handleChangeDense} />}
-                        label="Dense padding"
-                    />
                 </Grid>
             </Grid>
 
@@ -899,6 +892,15 @@ export default function EnhancedTable(props) {
                 modelNames={model.names}
                 handleAccept={handleDeleteConfirmationAccept}
                 handleReject={handleDeleteConfirmationReject}
+              />
+            )}
+
+            {/* Dialog: Upload File */}
+            {(uploadFileDialogOpen) && (
+              <UploadFileDialog
+                modelNames={model.names}
+                handleCancel={handleBulkUploadCancel}
+                handleDone={handleBulkUploadDone}
               />
             )}
 

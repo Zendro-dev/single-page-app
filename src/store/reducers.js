@@ -13,7 +13,21 @@ function urls(
     //set initial state.login if 'undefined'
     state = {
         graphqlServerUrl: "http://localhost:3000/graphql",
-        loginServerUrl: "http://localhost:3000/login"
+        loginServerUrl: "http://localhost:3000/login",
+        exportServerUrl: "http://localhost:3000/export"
+    }, 
+    action) {
+        switch (action.type) {
+            
+            default:
+            return state;
+        }
+    }//end: urls()
+
+function limits(
+    //set initial state.limit if 'undefined'
+    state = {
+        appMaxUploadSize: 500
     }, 
     action) {
         switch (action.type) {
@@ -85,6 +99,7 @@ function login(
 //root reducer
 const rootReducer = combineReducers({
     urls,
+    limits,
     login
 })
   

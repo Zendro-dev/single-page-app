@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -77,16 +78,23 @@ export default function EnhancedTableToolbar(props) {
     */
     const classes = useToolbarStyles();
     const {
+        modelName,
         numSelected,
         search,
         title,
         onSearchEnter,
         handleAddClicked,
+        handleBulkImportClicked,
     } = props;
     /*
       State
     */
     const [displayedSearch, setDisplayedSearch] = useState('');
+
+    /*
+      Store selectors
+    */
+   const exportServerUrl = useSelector(state => state.urls.exportServerUrl)
 
     /*
       Render
@@ -225,17 +233,23 @@ export default function EnhancedTableToolbar(props) {
                                                                 </Grid>
                                                                 <Grid item>
                                                                     <Tooltip title="Import from CSV">
-                                                                        <IconButton color="primary" aria-label="import">
+                                                                        <IconButton 
+                                                                          color="primary"
+                                                                          onClick={(event) => { handleBulkImportClicked(event)} } 
+                                                                        >
                                                                             <Import />
                                                                         </IconButton>
                                                                     </Tooltip>
                                                                 </Grid>
                                                                 <Grid item>
+                                                                  <form action={exportServerUrl}>
+                                                                    <input type="hidden" name="model" value={modelName} />
                                                                     <Tooltip title="Export to CSV">
-                                                                        <IconButton color="primary" aria-label="export">
-                                                                            <Export />
+                                                                        <IconButton color="primary" type="submit">     
+                                                                          <Export />
                                                                         </IconButton>
                                                                     </Tooltip>
+                                                                  </form>
                                                                 </Grid>
                                                             </Grid>
                                                         </Grid>
@@ -261,6 +275,7 @@ export default function EnhancedTableToolbar(props) {
   PropTypes
 */
 EnhancedTableToolbar.propTypes = {
+    modelName: PropTypes.string.isRequired,
     numSelected: PropTypes.number.isRequired,
     search: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

@@ -1,6 +1,6 @@
 import React from 'react';
 import model from '../../../../models/user'
-import EnhancedTable from '../../table/EnhancedTable'
+import EnhancedTable from '../../../enhancedTable/EnhancedTable'
 
 export default function UserTable() {
 
