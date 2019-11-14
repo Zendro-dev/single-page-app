@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { lighten, makeStyles } from '@material-ui/core/styles';
-
+import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,29 +16,10 @@ import AddList from '@material-ui/icons/AddToPhotosTwoTone';
 
 const useToolbarStyles = makeStyles(theme => ({
     root: {
-        padding: theme.spacing(2),
-        margin: theme.spacing(0),
+      padding: theme.spacing(2),
     },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.main,
-                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-            }
-            : {
-                color: theme.palette.text.primary,
-                backgroundColor: theme.palette.secondary.dark,
-            },
     headers: {
-      paddingLeft: theme.spacing(0),
-      paddingRight: theme.spacing(0),
       paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(0),
-    },
-    dividerV: {
-      height: 30,
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
     },
 }));
 
@@ -77,7 +57,6 @@ export default function RolesToAddTransferViewToolbar(props) {
                 </Grid>
               </Grid>
             </Grid>
-
 
             {/* SearchField + Actions */}
             <Grid item xs={12}>
@@ -124,7 +103,6 @@ export default function RolesToAddTransferViewToolbar(props) {
                     }}
                     onKeyPress={event => {
                       if (event.key === 'Enter') {
-                        console.log('Enter key pressed, value: ', displayedSearch);
                         onSearchEnter(displayedSearch);
                       }
                     }}
@@ -165,9 +143,6 @@ export default function RolesToAddTransferViewToolbar(props) {
     </div>
   );
 };
-/*
-  PropTypes
-*/
 RolesToAddTransferViewToolbar.propTypes = {
     search: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

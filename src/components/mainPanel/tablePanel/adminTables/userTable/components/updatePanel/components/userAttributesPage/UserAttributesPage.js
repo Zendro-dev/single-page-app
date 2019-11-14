@@ -62,14 +62,11 @@ export default function UserAttributesPage(props) {
   };
 
   const handleFieldFocus = (event, value, key) => {
-    //make new focus state object
     let o = {key: key, focus: true};
     let i = -1;
-    //find index
     if(itemFocusStates.length > 0) {
       i = itemFocusStates.findIndex(itemHasKey, {key:key});
     }
-    //update state
     if(i !== -1) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
@@ -78,44 +75,34 @@ export default function UserAttributesPage(props) {
   };
 
   const handleFieldBlur = (event, name, value, key) => {
-    //make new focus state object
     let o = {key: key, focus: false};
     let i = -1;
-    //find index
     if(itemFocusStates.length > 0) {
       i = itemFocusStates.findIndex(itemHasKey, {key:key});
     }
-    //update state
     if(i !== -1) {
       let newItemFocusStates = Array.from(itemFocusStates);
       newItemFocusStates[i] = o;
       setItemFocusStates(newItemFocusStates);
     }
-    //callback
     handleOkStateUpdate(name, value, key);
   };
 
   const handleFieldReady = (key, textFieldRef, inputRef) => {
-    //make new ref object
     let o = {key: key, textFieldRef: textFieldRef, inputRef: inputRef};
-    //find index ref
     let i = -1;
     if(fieldRefs.current.length > 0) {
       i = fieldRefs.current.findIndex(itemHasKey, {key: key}); 
     }
-    //if ref already exists
     if(i !== -1) {
-      //update ref
       fieldRefs.current[i] = o;
     } else {
-      //push new ref
       fieldRefs.current.push(o);
     }
   };
 
   const handleFieldsKeyDown = (event, name, value, key) => {
     if(event.key === 'Enter') {
-        //callback
         handleOkStateUpdate(name, value, key);
     }
   };
@@ -146,9 +133,6 @@ export default function UserAttributesPage(props) {
     </div>
   );
 }
-/*
-  PropTypes
-*/
 UserAttributesPage.propTypes = {
   item: PropTypes.object.isRequired,
   valueOkStates: PropTypes.array.isRequired,

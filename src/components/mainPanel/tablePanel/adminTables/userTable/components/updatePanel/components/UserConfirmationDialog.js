@@ -25,12 +25,10 @@ export default function UserConfirmationDialog(props) {
 
   let onAccept = async (event, ms) => {
     await new Promise(resolve => {
-      //set timeout
       window.setTimeout(function() {
         if(handleAccept !== undefined) {
           handleAccept();
         }
-        //resolve
         resolve("ok");
       }, ms);
     });
@@ -38,12 +36,10 @@ export default function UserConfirmationDialog(props) {
 
   let onReject = async (event, ms) => {
     await new Promise(resolve => {
-      //set timeout
       window.setTimeout(function() {
         if(handleReject !== undefined) {
           handleReject();
         }
-        //resolve
         resolve("ok");
       }, ms);
     });
@@ -96,9 +92,6 @@ export default function UserConfirmationDialog(props) {
     </div>
   );
 }
-/*
-  PropTypes
-*/
 UserConfirmationDialog.propTypes = {
   open: PropTypes.boolean.isRequired,
   title: PropTypes.string.isRequired,

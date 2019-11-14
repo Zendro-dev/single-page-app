@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import UserAttributesPage from './components/userAttributesPage/UserAttributesPage'
 import UserAssociationsPage from './components/userAssociationsPage/UserAssociationsPage'
 import UserTabsA from './components/TabsA'
 import UserConfirmationDialog from './components/UserConfirmationDialog'
 import api from '../../requests/index';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
@@ -260,7 +260,6 @@ export default function UserUpdatePanel(props) {
   }
 
   const handleSave = (event) => {
-
     if(areThereNotAcceptableFields()) {
       setConfirmationTitle("Some fields are not valid");
       setConfirmationText("To continue, please validate these fields.")
@@ -280,7 +279,6 @@ export default function UserUpdatePanel(props) {
       setConfirmationAcceptText("YES, SAVE");
       setConfirmationRejectText("DON'T SAVE YET");
       handleAccept.current = () => {
-        console.log("#. accepting .#");
         doSave(event);
         setConfirmationOpen(false);
       }
@@ -291,7 +289,6 @@ export default function UserUpdatePanel(props) {
     } else {
       doSave(event);
     }
-
   }
 
   const handleCancel = (event) => {
@@ -456,9 +453,6 @@ export default function UserUpdatePanel(props) {
     </Dialog>
   );
 }
-/*
-  PropTypes
-*/
 UserUpdatePanel.propTypes = {
   item: PropTypes.object.isRequired,
   handleClose: PropTypes.function.isRequired

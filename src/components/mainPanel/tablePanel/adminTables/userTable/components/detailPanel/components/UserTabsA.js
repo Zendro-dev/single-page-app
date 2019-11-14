@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-
-/*
-  Material-UI components
-*/
 import { makeStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 
-/*
-  Styles
-*/
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
@@ -26,20 +18,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function SimpleTabs(props) {
-  /*
-    Styles
-  */
+export default function UserTabsA(props) {
   const classes = useStyles();
-
-  /*
-    Properties
-  */
   const { 
     value, 
     handleChange,
-    handleCancel, 
-    handleSave,
   } = props;
 
   return (
@@ -85,3 +68,7 @@ export default function SimpleTabs(props) {
     </div>
   );
 }
+UserTabsA.propTypes = {
+  value: PropTypes.number.isRequired,
+  handleChange: PropTypes.function.isRequired,
+};

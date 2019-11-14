@@ -7,18 +7,12 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 
-/*
-Transition
-*/
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function ConfirmationDialog(props) {
+export default function UserConfirmationDialog(props) {
 
-  /*
-    Properties
-  */
   const {
     open,
     title,
@@ -29,17 +23,12 @@ export default function ConfirmationDialog(props) {
     handleReject,
   } = props
 
-  /*
-    Methods
-  */
   let onAccept = async (event, ms) => {
     await new Promise(resolve => {
-      //set timeout
       window.setTimeout(function() {
         if(handleAccept !== undefined) {
           handleAccept();
         }
-        //resolve
         resolve("ok");
       }, ms);
     });
@@ -47,20 +36,15 @@ export default function ConfirmationDialog(props) {
 
   let onReject = async (event, ms) => {
     await new Promise(resolve => {
-      //set timeout
       window.setTimeout(function() {
         if(handleReject !== undefined) {
           handleReject();
         }
-        //resolve
         resolve("ok");
       }, ms);
     });
   };
 
-  /*
-    Render
-  */
   return (
     <div>
       <Dialog
@@ -84,7 +68,8 @@ export default function ConfirmationDialog(props) {
           {/* Action: Accept */}
           {(acceptText !== '' && acceptText !== null && acceptText !== undefined) &&
             <Button
-              color="primary" 
+              color="primary"
+              variant='contained'
               onClick={(event) => onAccept(event, 400)} 
             >
               {acceptText}
@@ -107,3 +92,12 @@ export default function ConfirmationDialog(props) {
     </div>
   );
 }
+UserConfirmationDialog.propTypes = {
+  open: PropTypes.boolean.isRequired,
+  title: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+  acceptText: PropTypes.string.isRequired,
+  rejectText: PropTypes.string.isRequired,
+  handleAccept: PropTypes.function.isRequired,
+  handleReject: PropTypes.function.isRequired,
+};

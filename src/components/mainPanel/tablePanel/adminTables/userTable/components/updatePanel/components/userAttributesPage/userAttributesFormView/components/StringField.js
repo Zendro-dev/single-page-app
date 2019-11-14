@@ -1,12 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-
-/*
-  Material-UI components
-*/
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-//icons
 import CheckIcon from '@material-ui/icons/Check';
 
 const useStyles = makeStyles(theme => ({
@@ -19,9 +14,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function StringField(props) {
-  /*
-    Properties
-  */
   const classes = useStyles();
   const {
     itemKey,
@@ -35,30 +27,15 @@ export default function StringField(props) {
     handleReady,
     handleKeyDown,
   } = props;
-  
-  /*
-    State
-  */
+ 
   const [value, setValue] = React.useState('');
-
-  /*
-    Refs
-  */
   const inputRef = useRef(null);
   const textFieldRef = useRef(null);
 
-  /*
-    Hooks
-  */
   useEffect(() => {
-    console.log("!!- init ftxt: ", label, " txt: ", text);
-
     if(text !== undefined && text !== null && text !== '') {
-      //update state
       setValue(text);
     }
-
-    //run callback
     if(handleReady !== undefined) {
       handleReady(itemKey, textFieldRef, inputRef);
     }
@@ -84,28 +61,22 @@ export default function StringField(props) {
               </InputAdornment>
           }}
           onChange={(event) => {
-            //update state
             setValue(event.target.value);
-
-            //run callback
             if(handleChange !== undefined) {
               handleChange(event, event.target.value, itemKey);
             }
           }}
           onFocus={(event) => {
-            //run callback
             if(handleFocus !== undefined) {
               handleFocus(event, event.target.value, itemKey);
             }
           }}
           onBlur={(event) => {
-            //run callback
             if(handleBlur !== undefined) {
               handleBlur(event, event.target.value, itemKey);
             }
           }}
           onKeyDown={(event) => {
-            //run callback
             if(handleKeyDown !== undefined) {
               handleKeyDown(event, event.target.value, itemKey);
             }
@@ -113,3 +84,15 @@ export default function StringField(props) {
         />
   );
 }
+StringField.propTypes = {
+  itemKey: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  label: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+  valueOk: PropTypes.bool.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  handleFocus: PropTypes.func.isRequired,
+  handleBlur: PropTypes.func.isRequired,
+  handleReady: PropTypes.func.isRequired,
+  handleKeyDown: PropTypes.func.isRequired
+};

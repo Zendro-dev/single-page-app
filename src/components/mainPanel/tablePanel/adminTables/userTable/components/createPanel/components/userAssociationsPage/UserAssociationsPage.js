@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import RoleTransferLists from './RoleTransferLists/RoleTransferLists'
-import UserAssociationMenuTabs from './UserAssociationsMenuTabs'
-import { makeStyles } from '@material-ui/core/styles';
+import UserAssociationMenuTabs from './UserAssociationsMenuTabsbs'
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
-
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -20,30 +20,17 @@ export default function UserAssociationsPage(props) {
 
   const {
     hidden,
-    item,
     associationIdsToAdd,
-    associationIdsToRemove,
     handleTransferToAdd,
     handleUntransferFromAdd,
-    handleTransferToRemove,
-    handleUntransferFromRemove,
   } = props;
-
+  
   const [associationSelected, setAssociationSelected] = React.useState('');
 
   function getIdsToAdd(associationName) {
     for(var i=0; i<associationIdsToAdd.length; ++i) {
       if(associationIdsToAdd[i].key === associationName) {
         return associationIdsToAdd[i].ids;
-      }
-    }
-    return [];
-  }
-
-  function getIdsToRemove(associationName) {
-    for(var i=0; i<associationIdsToRemove.length; ++i) {
-      if(associationIdsToRemove[i].key === associationName) {
-        return associationIdsToRemove[i].ids;
       }
     }
     return [];
@@ -71,7 +58,7 @@ export default function UserAssociationsPage(props) {
               handleClick={handleAssociationClick}
             />
           </Grid>
-
+          
           {/* Role Transfer List */}
           {(associationSelected === 'role' || associationSelected === '') && (
             <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
@@ -94,11 +81,8 @@ export default function UserAssociationsPage(props) {
 }
 UserAssociationsPage.propTypes = {
   hidden: PropTypes.bool.bool.isRequired,
-  item: PropTypes.object.isRequired,
   associationIdsToAdd: PropTypes.array.isRequired,
-  associationIdsToRemove: PropTypes.array.isRequired,
   handleTransferToAdd: PropTypes.function.isRequired,
   handleUntransferFromAdd: PropTypes.function.isRequired,
-  handleTransferToRemove: PropTypes.function.isRequired,
-  handleUntransferFromRemove: PropTypes.function.isRequired,
+
 };

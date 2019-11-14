@@ -1,6 +1,5 @@
 import React from 'react';
 import RolesToAddTransferView from './rolesToAddTransferView/RolesToAddTransferView'
-import RolesToRemoveTransferView from './rolesToRemoveTransferView/RolesToRemoveTransferView'
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
@@ -15,13 +14,9 @@ export default function RoleTransferLists(props) {
   const classes = useStyles();
 
   const {
-    item,
     idsToAdd,
-    idsToRemove,
     handleTransferToAdd,
     handleUntransferFromAdd,
-    handleTransferToRemove,
-    handleUntransferFromRemove,
   } = props;
   
   return (
@@ -44,15 +39,6 @@ export default function RoleTransferLists(props) {
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <RolesToRemoveTransferView
-              item={item}
-              idsToRemove={idsToRemove}
-              handleTransfer={handleTransferToRemove}
-              handleUntransfer={handleUntransferFromRemove}
-            />
-          </Grid>
-
         </Grid>
       </Fade>
     </div>
@@ -61,9 +47,6 @@ export default function RoleTransferLists(props) {
 RoleTransferLists.propTypes = {
   item: PropTypes.object.isRequired,
   idsToAdd: PropTypes.array.isRequired,
-  idsToRemove: PropTypes.array.isRequired,
   handleTransferToAdd: PropTypes.function.isRequired,
   handleUntransferFromAdd: PropTypes.function.isRequired,
-  handleTransferToRemove: PropTypes.function.isRequired,
-  handleUntransferFromRemove: PropTypes.function.isRequired,
 };

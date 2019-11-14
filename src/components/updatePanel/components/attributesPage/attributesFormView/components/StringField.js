@@ -25,7 +25,6 @@ export default function StringField(props) {
   const classes = useStyles();
   const {
     itemKey,
-    name,
     label,
     text,
     valueOk,

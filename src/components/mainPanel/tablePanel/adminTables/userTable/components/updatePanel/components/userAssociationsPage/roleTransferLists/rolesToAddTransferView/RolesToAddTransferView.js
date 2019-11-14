@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import api from '../../../../../requests/index';
 import RolesToAddTransferViewToolbar from './components/RolesToAddTransferViewToolbar';
-
 import TablePagination from '@material-ui/core/TablePagination';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -60,7 +59,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function RolesToAddTransferView(props) {
   const classes = useStyles();
-
   const {
     item,
     idsToAdd,
@@ -78,7 +76,7 @@ export default function RolesToAddTransferView(props) {
   const [rowsPerPage, setRowsPerPage] = useState(50);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
-  const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstData, setIsGettingFirstData] = useState(true);
   const [isCountReady, setIsCountReady] = useState(false);
   const [areItemsReady, setAreItemsReady] = useState(false);
   /*
@@ -91,13 +89,13 @@ export default function RolesToAddTransferView(props) {
   const [rowsPerPageB, setRowsPerPageB] = useState(50);
   const [isOnApiRequestB, setIsOnApiRequestB] = useState(true);
   const [isPendingApiRequestB, setIsPendingApiRequestB] = useState(false);
-  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true);
   const [isCountReadyB, setIsCountReadyB] = useState(false);
   const [areItemsReadyB, setAreItemsReadyB] = useState(false);
 
   const [thereAreItemsToAdd, setThereAreItemsToAdd] = useState(false);
   const lidsToAdd = useRef([]);
-  const lidsAssociated = useRef(undefined); //contains name & records ids of current associaton, owned by current item.
+  const lidsAssociated = useRef(undefined);
   const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
 
   useEffect(() => {
@@ -229,10 +227,8 @@ export default function RolesToAddTransferView(props) {
    * 
    */
   function getData() {
-    //set state flag
     setIsOnApiRequest(true);
 
-    //reset
     if (isGettingFirstData) {
       setIsGettingFirstData(false);
     }
@@ -282,23 +278,16 @@ export default function RolesToAddTransferView(props) {
               }]
             };
           }
-          console.log("@@ops: ", ops);
 
           /*
             API Request: countItems
           */
           api.role.getCountItems(graphqlServerUrl, search, ops)
           .then(response => {
-            //Check response
             if (
               response.data &&
               response.data.data
             ) {
-              /**
-               * Debug
-               */
-              console.log("newCount: ", response.data.data.countRoles);
-
               //set new count
               var newCount = response.data.data.countRoles;
 
@@ -307,11 +296,8 @@ export default function RolesToAddTransferView(props) {
               */
               if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
               {
-                //update state
                 setPage(page-1);
                 setIsOnApiRequest(false);
-
-                //done (getData will be invoked on hook[page])
                 return;
               }
 
@@ -328,7 +314,6 @@ export default function RolesToAddTransferView(props) {
                 ops
               )
                 .then(response => {
-                  //check response
                   if (
                     response.data &&
                     response.data.data &&
@@ -340,12 +325,9 @@ export default function RolesToAddTransferView(props) {
                     console.log("@@newCount: ", newCount);
                     console.log("@@newItems: ", response.data.data.roles);
 
-                    //update state
                     setCount(newCount);
                     setItems(response.data.data.roles);
                     setIsOnApiRequest(false);
-
-                    //done
                     return;
 
                   } else {
@@ -551,10 +533,8 @@ export default function RolesToAddTransferView(props) {
    * 
    */
   function getDataB() {
-    //set state flag
     setIsOnApiRequestB(true);
 
-    //reset
     if(isGettingFirstDataB) {
       setIsGettingFirstDataB(false);
     }
@@ -580,11 +560,6 @@ export default function RolesToAddTransferView(props) {
           response.data &&
           response.data.data
         ) {
-          /**
-           * Debug
-           */
-          console.log("newCount: ", response.data.data.countRoles);
-
           //set new count
           var newCount = response.data.data.countRoles;
 
@@ -593,11 +568,8 @@ export default function RolesToAddTransferView(props) {
           */
           if( (newCount === (pageB * rowsPerPageB)) && (pageB > 0) ) 
           {
-            //update state
             setPageB(pageB-1);
             setIsOnApiRequestB(false);
-
-            //done (getData will be invoked on hook[page])
             return;
           }
 
@@ -630,9 +602,6 @@ export default function RolesToAddTransferView(props) {
                 setCountB(newCount);
                 setItemsB(response.data.data.roles);
                 setIsOnApiRequestB(false);
-
-                //done
-                console.log("getData: done");
                 return;
 
               } else {
@@ -675,14 +644,6 @@ export default function RolesToAddTransferView(props) {
       });
   }
   
-  /*
-      Handlers
-  */
-  /**
-   * On search text enter handler.
-   * 
-   * @param {String} value New search text value.
-   */
   const handleSearchEnter = text => {
     setSearch(text);
   };
@@ -717,8 +678,6 @@ export default function RolesToAddTransferView(props) {
 
     getData();
     getDataB();
-
-    //callback
     handleTransfer('role', item.id);
   };
 
@@ -737,8 +696,6 @@ export default function RolesToAddTransferView(props) {
     
     getDataB();
     getData();
-
-    //callback
     handleUntransfer('role', item.id);
   };
 
@@ -894,7 +851,6 @@ export default function RolesToAddTransferView(props) {
             </Card>
           )}
         </Grid>
-
 
         {/*
           * To add list (B) 
@@ -1066,9 +1022,6 @@ export default function RolesToAddTransferView(props) {
     </div>
   );
 }
-/*
-  PropTypes
-*/
 RolesToAddTransferView.propTypes = {
   item: PropTypes.object.isRequired,
   idsToAdd: PropTypes.array.isRequired,

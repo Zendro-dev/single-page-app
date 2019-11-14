@@ -68,9 +68,6 @@ export default function UserTabsA(props) {
     </div>
   );
 }
-/*
-  PropTypes
-*/
 UserTabsA.propTypes = {
   value: PropTypes.number.isRequired,
   handleChange: PropTypes.function.isRequired,

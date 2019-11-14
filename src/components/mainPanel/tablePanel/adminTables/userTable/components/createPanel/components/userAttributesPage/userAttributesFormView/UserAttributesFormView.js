@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function UserAttributesFormView(props) {
   const classes = useStyles();
-  const { item, valueOkStates, 
+  const { valueOkStates, 
           handleFocus, handleBlur, 
           handleFieldReady, handleChange,
           handleKeyDown,
@@ -46,12 +46,27 @@ export default function UserAttributesFormView(props) {
     return countOk;
   }
 
+  function getValueOkStatus(key) {
+    let it = undefined;
+
+    //find index
+    if(valueOkStates.length > 0) {
+      it = valueOkStates.find(itemHasKey, {key:key});
+    }
+    //return status
+    if(it !== undefined) {
+      return it.valueOk;
+    } else {
+      return 0;
+    }
+  }
+
   return (
     <div className={classes.root}>
       <Grid container justify='center'>
         <Grid item xs={12}>
           <Card className={classes.card}>
-            
+
             {/* Header */}
             <CardHeader
               avatar={
@@ -82,8 +97,7 @@ export default function UserAttributesFormView(props) {
                 itemKey='name'
                 name='name'
                 label='Name'
-                text={item.name}
-                valueOk={valueOk}
+                valueOk={getValueOkStatus('name')}
                 handleFocus={handleFocus}
                 handleBlur={handleBlur}
                 handleReady={handleFieldReady}
@@ -98,8 +112,7 @@ export default function UserAttributesFormView(props) {
                 itemKey='description'
                 name='description'
                 label='Description'
-                text={item.description}
-                valueOk={valueOk}
+                valueOk={getValueOkStatus('description')}
                 handleFocus={handleFocus}
                 handleBlur={handleBlur}
                 handleReady={handleFieldReady}
@@ -115,7 +128,6 @@ export default function UserAttributesFormView(props) {
   );
 }
 UserAttributesFormView.propTypes = {
-  item: PropTypes.object.isRequired,
   valueOkStates: PropTypes.array.isRequired,
   handleFocus: PropTypes.function.isRequired,
   handleBlur: PropTypes.function.isRequired,
@@ -123,4 +135,3 @@ UserAttributesFormView.propTypes = {
   handleChange: PropTypes.function.isRequired,
   handleKeyDown: PropTypes.function.isRequired,
 };
-

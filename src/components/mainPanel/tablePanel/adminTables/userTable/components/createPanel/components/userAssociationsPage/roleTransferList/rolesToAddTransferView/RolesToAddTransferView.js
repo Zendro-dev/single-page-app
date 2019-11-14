@@ -4,11 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import api from '../../../../../requests/index';
 import AssociationToAddTransferViewToolbar from './components/AssociationToAddTransferViewToolbar';
-
-
-/*
-  Material-UI components
-*/
 import TablePagination from '@material-ui/core/TablePagination';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -21,15 +16,9 @@ import Divider from '@material-ui/core/Divider';
 import Fade from '@material-ui/core/Fade';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-//icons
 import Add from '@material-ui/icons/AddCircle';
 import Remove from '@material-ui/icons/RemoveCircle';
 
-
-
-/*
-  Styles
-*/
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
@@ -38,53 +27,39 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     margin: theme.spacing(1),
-    maxHeight: '77vh',
+    height: '43vh',
+    maxHeight: '43vh',
     overflow: 'auto',
   },
   listBox: {
+    height: '43vh',
     maxHeight: '43vh',
     overflowY: 'auto',
     overflowX: 'hidden'
   },
   noDataBox: {
     width: "100%",
-    height:200,
+    height: '43vh',
+    maxHeight: '43vh',
   },
   loadingBox: {
     width: "100%",
-    height:200,
-  },
-  line: {
-    display: "inline",
+    height: '43vh',
+    maxHeight: '43vh',
   },
   row: {
     maxHeight: 70,
-  },
-  idCell: {
-    minWidth: 50,
   },
   dividerV: {
     height: 50,
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
-  rowPopover: {
-    pointerEvents: 'none',
-  },
 }));
 
-export default function AssociationToAddTransferView(props) {
-  /*
-    Styles
-  */
+export default function RolesToAddTransferView(props) {
   const classes = useStyles();
-  /*
-    Properties
-  */
   const {
-    title,
-    titleB,
-    associationNames,
     idsToAdd,
     handleTransfer,
     handleUntransfer,
@@ -96,13 +71,11 @@ export default function AssociationToAddTransferView(props) {
   const [items, setItems] = useState([]);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState('');
-  const [selectedItems, setSelectedItems] = useState([]);
-  //table
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
-  const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstData, setIsGettingFirstData] = useState(true);
   const [isCountReady, setIsCountReady] = useState(false);
   const [areItemsReady, setAreItemsReady] = useState(false);
 
@@ -112,35 +85,18 @@ export default function AssociationToAddTransferView(props) {
   const [itemsB, setItemsB] = useState([]);
   const [countB, setCountB] = useState(0);
   const [searchB, setSearchB] = useState('');
-  const [selectedItemsB, setSelectedItemsB] = useState([]);
-  //table
   const [pageB, setPageB] = useState(0);
-  const [rowsPerPageB, setRowsPerPageB] = useState(10);
+  const [rowsPerPageB, setRowsPerPageB] = useState(50);
   const [isOnApiRequestB, setIsOnApiRequestB] = useState(true);
   const [isPendingApiRequestB, setIsPendingApiRequestB] = useState(false);
-  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true);
   const [isCountReadyB, setIsCountReadyB] = useState(false);
   const [areItemsReadyB, setAreItemsReadyB] = useState(false);
 
-  /*
-    State
-  */
   const [thereAreItemsToAdd, setThereAreItemsToAdd] = useState(false);
-
-  /*
-    Refs
-  */
-  const itemHeights = useRef([]);
   const lidsToAdd = useRef([]);
-
-  /*
-      Store selectors
-  */
   const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
 
-  /*
-    Effects
-  */
   useEffect(() => {
     /**
      * Debug
@@ -148,166 +104,121 @@ export default function AssociationToAddTransferView(props) {
     console.log("@@-- hook: associationNames: ", associationNames);
     console.log("@@-- hook: idsToAdd: ", idsToAdd);
 
-    //set ids to add
     if(idsToAdd !== undefined && idsToAdd.length > 0) {
-      
-      //concat items
       lidsToAdd.current.concat(idsToAdd);
-
-      //update state
       setThereAreItemsToAdd(true);
-
-      //get data B
       getDataB();
     } else {
-      //update state
       setIsGettingFirstDataB(false);
     }
 
-
-    //get data
     if(associationNames !== undefined){
-      //get data A 
       getData(); 
     } else {
-      //update state
       setIsGettingFirstData(false);
     }
   }, []);
 
   useEffect(() => {
-    //update state
     if(items.length > 0) { 
       setAreItemsReady(true); 
     } else { 
       setAreItemsReady(false); 
     }
-
   }, [items]);
 
   useEffect(() => {
-    //update state
     if(itemsB.length > 0) { 
       setAreItemsReadyB(true); 
     } else { 
       setAreItemsReadyB(false); 
     }
-
   }, [itemsB]);
 
   useEffect(() => {
     if(count === 0) {
-      //update state
       setIsCountReady(false);
-
     } else {
-      //update state
       setIsCountReady(true);
     }
   }, [count]);
 
   useEffect(() => {
     if(countB === 0) {
-      //update state
       setIsCountReadyB(false);
-
     } else {
-      //update state
       setIsCountReadyB(true);
     }
   }, [countB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
     if(page === 0) {
-      //get data
       if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
     } else {
-      //update state
-      setPage(0); //search will occur or hook[page]
+      setPage(0);
     }
   }, [search]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
     if(page === 0) {
-      //get data
       if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
     } else {
-      //update state
-      setPageB(0); //search will occur or hook[page]
+      setPageB(0);
     }
   }, [searchB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
-    //get data
     if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
   }, [page]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
-    //get data
     if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
   }, [pageB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
     if(page !== 0) {
-      //update state
       setPage(0);
     } else {
-      //get data
       if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
     }
   }, [rowsPerPage]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
     if(pageB !== 0) {
-      //update state
       setPageB(0);
     } else {
-      //get data
       if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
     }
   }, [rowsPerPageB]);
 
   useEffect(() => {
     if (!isOnApiRequest && isPendingApiRequest) {
-      //reset
       setIsPendingApiRequest(false);
 
-      //get data  
       getData();
     }
   }, [isOnApiRequest]);
+
   useEffect(() => {
     if (!isOnApiRequestB && isPendingApiRequestB) {
-      //reset
       setIsPendingApiRequestB(false);
 
-      //get data  
       getDataB();
     }
   }, [isOnApiRequestB]);
 
-
-  /*
-      Methods
-  */
   /**
    * getData
    * 
@@ -317,15 +228,12 @@ export default function AssociationToAddTransferView(props) {
    * 
    */
   function getData() {
-    //set state flag
     setIsOnApiRequest(true);
 
-    //reset
     if (isGettingFirstData) {
       setIsGettingFirstData(false);
     }
 
-    //set ops: excluded ids
     let ops = null;
     if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
       ops = {
@@ -339,39 +247,28 @@ export default function AssociationToAddTransferView(props) {
     /*
       API Request: countItems
     */
-    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search, ops)
+    api.role.getCountItems(graphqlServerUrl, search, ops)
       .then(response => {
-        //Check response
         if (
           response.data &&
           response.data.data
         ) {
-          /**
-           * Debug
-           */
-          console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
-
-          //set new count
-          var newCount = response.data.data['count' + associationNames.relationNameCp];
+          var newCount = response.data.data.countRoles;
 
           /*
             Check: empty page
           */
           if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
           {
-            //update state
             setPage(page-1);
             setIsOnApiRequest(false);
-
-            //done (getData will be invoked on hook[page])
             return;
           }
 
           /*
             API Request: items
           */
-          api[associationNames.targetModelLc].getItems(
-            associationNames.targetModelLc,
+         api.role.getItems(
             graphqlServerUrl,
             search,
             null, //orderBy
@@ -381,7 +278,6 @@ export default function AssociationToAddTransferView(props) {
             ops
           )
             .then(response => {
-              //check response
               if (
                 response.data &&
                 response.data.data &&
@@ -393,13 +289,9 @@ export default function AssociationToAddTransferView(props) {
                 console.log("@@newCount: ", newCount);
                 console.log("@@newItems: ", response.data.data[associationNames.relationName]);
 
-                //update state
                 setCount(newCount);
                 setItems(response.data.data[associationNames.relationName]);
                 setIsOnApiRequest(false);
-
-                //done
-                console.log("getData: done");
                 return;
 
               } else {
@@ -451,10 +343,8 @@ export default function AssociationToAddTransferView(props) {
    * 
    */
   function getDataB() {
-    //set state flag
     setIsOnApiRequestB(true);
 
-    //reset
     if(isGettingFirstDataB) {
       setIsGettingFirstDataB(false);
     }
@@ -473,39 +363,29 @@ export default function AssociationToAddTransferView(props) {
     /*
       API Request: countItems
     */
-    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, searchB, ops)
+    api.role.getCountItems(graphqlServerUrl, searchB, ops)
       .then(response => {
-        //Check response
         if (
           response.data &&
           response.data.data
         ) {
-          /**
-           * Debug
-           */
-          console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
-
           //set new count
-          var newCount = response.data.data['count' + associationNames.relationNameCp];
+          var newCount = response.data.data.countRoles;
 
           /*
             Check: empty page
           */
           if( (newCount === (pageB * rowsPerPageB)) && (pageB > 0) ) 
           {
-            //update state
             setPageB(pageB-1);
             setIsOnApiRequestB(false);
-
-            //done (getData will be invoked on hook[page])
             return;
           }
 
           /*
             API Request: items
           */
-          api[associationNames.targetModelLc].getItems(
-            associationNames.targetModelLc,
+          api.role.getItems(
             graphqlServerUrl,
             searchB,
             null, //orderBy
@@ -515,25 +395,20 @@ export default function AssociationToAddTransferView(props) {
             ops
           )
             .then(response => {
-              //check response
               if (
                 response.data &&
                 response.data.data &&
-                response.data.data[associationNames.relationName]) {
+                response.data.data.roles) {
 
                 /**
                  * Debug
                  */
                 console.log("@@newCount: ", newCount);
-                console.log("@@newItems: ", response.data.data[associationNames.relationName]);
+                console.log("@@newItems: ", response.data.data.roles);
 
-                //update state
                 setCountB(newCount);
-                setItemsB(response.data.data[associationNames.relationName]);
+                setItemsB(response.data.data.roles);
                 setIsOnApiRequestB(false);
-
-                //done
-                console.log("getData: done");
                 return;
 
               } else {
@@ -575,83 +450,61 @@ export default function AssociationToAddTransferView(props) {
         return;
       });
   }
-  
-  /*
-      Handlers
-  */
-  /**
-   * On search text enter handler.
-   * 
-   * @param {String} value New search text value.
-   */
+
   const handleSearchEnter = text => {
     setSearch(text);
-  }
+  };
+
   const handleSearchEnterB = text => {
     setSearchB(text);
-  }
+  };
 
   const handleChangePage = (event, newPage) => {
-    //update state
     setPage(newPage);
   };
+
   const handleChangePageB = (event, newPage) => {
-    //update state
     setPageB(newPage);
   };
 
   const handleChangeRowsPerPage = event => {
       setRowsPerPage(parseInt(event.target.value, 10));
   };
+
   const handleChangeRowsPerPageB = event => {
     setRowsPerPageB(parseInt(event.target.value, 10));
   };
 
   const handleRowClicked = (event, item) => {
     console.log("clicked: ", item);
-  }
+  };
 
   const handleAddItem = (event, item) => {
-    //push id to add
     lidsToAdd.current.push(item.id);
-
-    //update state
     setThereAreItemsToAdd(true);
 
-    //get data A
     getData();
-    //get data B
     getDataB();
-
-    //callback
-    handleTransfer(associationNames.targetModelLc, item.id);
-  }
+    handleTransfer('role', item.id);
+  };
 
   const handleRemoveItem = (event, item) => {
-    
-    //find
     for(var i=0; i<lidsToAdd.current.length; ++i)
     {
       if(lidsToAdd.current[i] === item.id) {
-        //remove
         lidsToAdd.current.splice(i, 1);
         break;
       }
     }
 
     if(lidsToAdd.current.length === 0) {
-      //update state
       setThereAreItemsToAdd(false);
     }
-    
-    //get data B
-    getDataB();
-    //get data A
-    getData();
 
-    //callback
-    handleUntransfer(associationNames.targetModelLc, item.id);
-  }
+    getDataB();
+    getData();
+    handleUntransfer('role', item.id);
+  };
 
   return (
     <div className={classes.root}>
@@ -665,9 +518,8 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={title + " to choose"}
+                title={'Available roles'}
                 search={search}
-                associationNames={associationNames}
                 onSearchEnter={handleSearchEnter}
               />
 
@@ -704,10 +556,8 @@ export default function AssociationToAddTransferView(props) {
                     <List dense component="div" role="list" >
                       {items.map(item => {
                         let key = item.id;
-                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                        let sublabel = (associationNames.sublabel !== 'id' && 
-                                        associationNames.sublabel !== associationNames.label) ? 
-                                          item[associationNames.sublabel] : null;
+                        let label = item.name;
+                        let sublabel = item.description;
 
                         return (
                           <ListItem key={key} 
@@ -747,7 +597,7 @@ export default function AssociationToAddTransferView(props) {
                                   <Grid item xs={2}>
                                     <Grid container justify='flex-end'>
                                       <Grid item>
-                                        <Tooltip title="Add to chosen list">
+                                        <Tooltip title="Send to add list">
                                           <IconButton
                                             color="primary"
                                             className={classes.iconButton}
@@ -809,7 +659,6 @@ export default function AssociationToAddTransferView(props) {
           )}
         </Grid>
 
-
         {/*
           * To add list (B) 
           */}
@@ -819,10 +668,9 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={titleB + " chosen"}
+                title={'Roles to add'}
                 titleIcon={true}
                 search={searchB}
-                associationNames={associationNames}
                 onSearchEnter={handleSearchEnterB}
 
               />
@@ -881,10 +729,8 @@ export default function AssociationToAddTransferView(props) {
                     <List dense component="div" role="list">
                       {itemsB.map(item => {
                         let key = item.id;
-                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                        let sublabel = (associationNames.sublabel !== 'id' && 
-                                        associationNames.sublabel !== associationNames.label) ? 
-                                          item[associationNames.sublabel] : null;
+                        let label = item.name;
+                        let sublabel = item.description;
 
                         return (
                           <ListItem key={key} 
@@ -922,7 +768,7 @@ export default function AssociationToAddTransferView(props) {
 
                                   {/* Button: Add */}
                                   <Grid item xs={2}>
-                                    <Tooltip title="Remove from chosen list">
+                                    <Tooltip title="Remove from to-add list">
                                       <IconButton
                                         color="primary"
                                         onClick={(event) => {
@@ -984,11 +830,8 @@ export default function AssociationToAddTransferView(props) {
     </div>
   );
 }
-
-/*
-  PropTypes
-*/
-AssociationToAddTransferView.propTypes = {
-    title: PropTypes.string,
-    associationNames: PropTypes.object,
+RolesToAddTransferView.propTypes = {
+  idsToAdd: PropTypes.array.isRequired,
+  handleTransfer: PropTypes.func.isRequired,
+  handleUntransfer: PropTypes.func.isRequired,
 };
