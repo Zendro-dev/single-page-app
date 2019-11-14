@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import api from '../../../../../requests/index';
-import AssociationToRemoveTransferViewToolbar from './components/AssociationToRemoveTransferViewToolbar';
+import AssociationToAddTransferViewToolbar from './components/AssociationToAddTransferViewToolbar';
 
 
 /*
@@ -38,7 +38,6 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     margin: theme.spacing(1),
-    height: '77vh',
     maxHeight: '77vh',
     overflow: 'auto',
   },
@@ -83,11 +82,9 @@ export default function AssociationToAddTransferView(props) {
     Properties
   */
   const {
-    modelNames,
-    item,
     title,
     titleB,
-    associationNames, //current
+    associationNames,
     idsToAdd,
     handleTransfer,
     handleUntransfer,
@@ -135,7 +132,6 @@ export default function AssociationToAddTransferView(props) {
   */
   const itemHeights = useRef([]);
   const lidsToAdd = useRef([]);
-  const lidsAssociated = useRef(undefined); //contains name & records ids of current associaton, owned by current item.
 
   /*
       Store selectors
@@ -338,77 +334,111 @@ export default function AssociationToAddTransferView(props) {
           values: {id: lidsToAdd.current}
         }]
       };
-    }
+    }    
 
     /*
-      API Request: associationFilter
+      API Request: countItems
     */
-
-    /*
-      Get data
-    */
-    api[modelNames.name].getAssociationFilter(
-    graphqlServerUrl, 
-    modelNames, 
-    item.id, 
-    associationNames,
-    search,
-    page * rowsPerPage, //paginationOffset
-    rowsPerPage, //paginationLimit
-    ops
-  )
+    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, search, ops)
       .then(response => {
-          //Check response
-          if (
-              response.data &&
-              response.data.data
-          ) {
-              /**
-               * Debug
-               */
-              console.log("newData: ", response.data.data);
+        //Check response
+        if (
+          response.data &&
+          response.data.data
+        ) {
+          /**
+           * Debug
+           */
+          console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
 
-              //set new count
-              var newCount = response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`];
+          //set new count
+          var newCount = response.data.data['count' + associationNames.relationNameCp];
 
-              /*
-                Check: empty page
-              */
-              if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
-              {
+          /*
+            Check: empty page
+          */
+          if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
+          {
+            //update state
+            setPage(page-1);
+            setIsOnApiRequest(false);
+
+            //done (getData will be invoked on hook[page])
+            return;
+          }
+
+          /*
+            API Request: items
+          */
+          api[associationNames.targetModelLc].getItems(
+            associationNames.targetModelLc,
+            graphqlServerUrl,
+            search,
+            null, //orderBy
+            null, //orderDirection
+            page * rowsPerPage, //paginationOffset
+            rowsPerPage, //paginationLimit
+            ops
+          )
+            .then(response => {
+              //check response
+              if (
+                response.data &&
+                response.data.data &&
+                response.data.data[associationNames.relationName]) {
+
+                /**
+                 * Debug
+                 */
+                console.log("@@newCount: ", newCount);
+                console.log("@@newItems: ", response.data.data[associationNames.relationName]);
+
                 //update state
-                setPage(page-1);
+                setCount(newCount);
+                setItems(response.data.data[associationNames.relationName]);
                 setIsOnApiRequest(false);
 
-                //done (getData will be invoked on hook[page])
+                //done
+                console.log("getData: done");
+                return;
+
+              } else {
+
+                //error
+                console.log("error1");
+
+                //done
                 return;
               }
-              //else
-
-              //update state
-              setCount(newCount);
-              setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
-              setIsOnApiRequest(false);
-
-              //done
-              return;
-
-          } else {
+            })
+            .catch(err => {
 
               //error
-              console.log("error3")
+              console.log("error2");
 
               //done
               return;
-          }
-      })
-      .catch(err => {
-
-          //error
-          console.log("error4: ", err)
+            });
 
           //done
           return;
+
+        } else {
+
+          //error
+          console.log("error3")
+
+          //done
+          return;
+        }
+      })
+      .catch(err => {
+
+        //error
+        console.log("error4: ", err)
+
+        //done
+        return;
       });
   }
 
@@ -634,7 +664,7 @@ export default function AssociationToAddTransferView(props) {
             <Card className={classes.card}>
 
               {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
+              <AssociationToAddTransferViewToolbar 
                 title={title + " to choose"}
                 search={search}
                 associationNames={associationNames}
@@ -788,7 +818,7 @@ export default function AssociationToAddTransferView(props) {
             <Card className={classes.card}>
 
               {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
+              <AssociationToAddTransferViewToolbar 
                 title={titleB + " chosen"}
                 titleIcon={true}
                 search={searchB}

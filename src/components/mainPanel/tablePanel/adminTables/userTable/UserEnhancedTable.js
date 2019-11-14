@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import api from '../../requests/index'
-import EnhancedTableHead from './components/EnhancedTableHead'
-import EnhancedTableToolbar from './components/EnhancedTableToolbar'
-import CreatePanel from '../createPanel/CreatePanel'
-import UpdatePanel from '../updatePanel/UpdatePanel'
-import DetailPanel from '../detailPanel/DetailPanel'
-import DeleteConfirmationDialog from './components/DeleteConfirmationDialog'
-import UploadFileDialog from './components/UploadFileDialog'
+import UserEnhancedTableHead from './components/UserEnhancedTableHead'
+import UserEnhancedTableToolbar from './components/UserEnhancedTableToolbar'
+import UserCreatePanel from './components/userCreatePanel/UserCreatePanel'
+import UserUpdatePanel from './components/userUpdatePanel/UserUpdatePanel'
+import UserDetailPanel from './components/userDetailPanel/UserDetailPanel'
+import UserDeleteConfirmationDialog from './components/UserDeleteConfirmationDialog'
+import UserUploadFileDialog from './components/UserUploadFileDialog'
 
 /*
   Material-UI components
@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function EnhancedTable(props) {
+export default function UserEnhancedTable(props) {
     /*
       Styles
     */
@@ -285,7 +285,7 @@ export default function EnhancedTable(props) {
         /*
           API Request: countItems
         */
-        api[model.model].getCountItems(model.model, graphqlServerUrl, search)
+        api.user.getCountItems(graphqlServerUrl, search)
             .then(response => {
                 //Check response
                 if (
@@ -295,10 +295,10 @@ export default function EnhancedTable(props) {
                     /**
                      * Debug
                      */
-                    console.log("newCount: ", response.data.data['count'+model.names.namePlCp]);
+                    console.log("newCount: ", response.data.data.countUsers);
 
                     //set new count
-                    var newCount = response.data.data['count'+model.names.namePlCp];
+                    var newCount = response.data.data.countUsers;
 
                     /*
                       Check: empty page
@@ -318,8 +318,7 @@ export default function EnhancedTable(props) {
                     /*
                       API Request: items
                     */
-                    api[model.model].getItems(
-                        model.model,
+                    api.user.getItems(
                         graphqlServerUrl,
                         search,
                         orderBy,
@@ -332,18 +331,18 @@ export default function EnhancedTable(props) {
                             if (
                                 response.data &&
                                 response.data.data &&
-                                response.data.data[model.names.namePl]) {
+                                response.data.data.users) {
 
                                 /**
                                  * Debug
                                  */
                                 console.log("@@newCount: ", newCount);
-                                console.log("@@newItems: ", response.data.data[model.names.namePl]);
+                                console.log("@@newItems: ", response.data.data.users);
 
                                 //update state
                                 setIsOnApiRequest(false);
                                 setCount(newCount);
-                                setItems(response.data.data[model.names.namePl]);
+                                setItems(response.data.data.users);
 
                                 //done
                                 console.log("getData: done");
@@ -393,7 +392,7 @@ export default function EnhancedTable(props) {
       /*
         API Request: deleteItem
       */
-      api[model.model].deleteItem(graphqlServerUrl, model.names, item.id)
+      api.users.deleteItem(graphqlServerUrl, item.id)
         .then(response => {
           //Check response
           if (
@@ -655,7 +654,7 @@ export default function EnhancedTable(props) {
                     <Paper className={classes.paper}>
 
                         {/* Toolbar */}
-                        <EnhancedTableToolbar
+                        <UserEnhancedTableToolbar
                             modelName={model.names.name}
                             numSelected={selected.length}
                             search={search}

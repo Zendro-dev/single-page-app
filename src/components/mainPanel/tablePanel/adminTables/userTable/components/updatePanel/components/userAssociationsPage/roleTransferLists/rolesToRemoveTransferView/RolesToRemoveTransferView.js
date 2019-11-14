@@ -3,12 +3,8 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import api from '../../../../../requests/index';
-import AssociationToRemoveTransferViewToolbar from './components/AssociationToRemoveTransferViewToolbar';
+import RolesToRemoveTransferViewToolbar from './components/RolesToRemoveTransferViewToolbar';
 
-
-/*
-  Material-UI components
-*/
 import TablePagination from '@material-ui/core/TablePagination';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -21,15 +17,9 @@ import Divider from '@material-ui/core/Divider';
 import Fade from '@material-ui/core/Fade';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-//icons
 import Add from '@material-ui/icons/AddCircle';
 import Remove from '@material-ui/icons/RemoveCircle';
 
-
-
-/*
-  Styles
-*/
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
@@ -38,280 +28,192 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     margin: theme.spacing(1),
-    height: '77vh',
-    maxHeight: '77vh',
+    height: '43vh',
+    maxHeight: '43vh',
     overflow: 'auto',
   },
   listBox: {
+    height: '43vh',
     maxHeight: '43vh',
     overflowY: 'auto',
     overflowX: 'hidden'
   },
   noDataBox: {
     width: "100%",
-    height:200,
+    height: '43vh',
+    maxHeight: '43vh',
   },
   loadingBox: {
     width: "100%",
-    height:200,
-  },
-  line: {
-    display: "inline",
+    height: '43vh',
+    maxHeight: '43vh',
   },
   row: {
     maxHeight: 70,
-  },
-  idCell: {
-    minWidth: 50,
   },
   dividerV: {
     height: 50,
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
-  rowPopover: {
-    pointerEvents: 'none',
-  },
 }));
 
-export default function AssociationToAddTransferView(props) {
-  /*
-    Styles
-  */
+export default function RolesToRemoveTransferView(props) {
   const classes = useStyles();
-  /*
-    Properties
-  */
   const {
-    modelNames,
     item,
-    title,
-    titleB,
-    associationNames, //current
-    idsToAdd,
+    idsToRemove,
     handleTransfer,
     handleUntransfer,
   } = props;
 
   /*
-    State A (selectable list)
+    State Table A (associated)
   */
   const [items, setItems] = useState([]);
   const [count, setCount] = useState(0);
   const [search, setSearch] = useState('');
-  const [selectedItems, setSelectedItems] = useState([]);
-  //table
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
-  const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstData, setIsGettingFirstData] = useState(true);
   const [isCountReady, setIsCountReady] = useState(false);
   const [areItemsReady, setAreItemsReady] = useState(false);
-
   /*
-    State B (to add list)
+    State Table B (to remove)
   */
   const [itemsB, setItemsB] = useState([]);
-  const [countB, setCountB] = useState(0);
+  const [countB, setCountB] = useState(50);
   const [searchB, setSearchB] = useState('');
-  const [selectedItemsB, setSelectedItemsB] = useState([]);
-  //table
   const [pageB, setPageB] = useState(0);
   const [rowsPerPageB, setRowsPerPageB] = useState(10);
   const [isOnApiRequestB, setIsOnApiRequestB] = useState(true);
   const [isPendingApiRequestB, setIsPendingApiRequestB] = useState(false);
-  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true); //to avoid repeat initial fetch
+  const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true);
   const [isCountReadyB, setIsCountReadyB] = useState(false);
   const [areItemsReadyB, setAreItemsReadyB] = useState(false);
 
-  /*
-    State
-  */
   const [thereAreItemsToAdd, setThereAreItemsToAdd] = useState(false);
-
-  /*
-    Refs
-  */
-  const itemHeights = useRef([]);
-  const lidsToAdd = useRef([]);
-  const lidsAssociated = useRef(undefined); //contains name & records ids of current associaton, owned by current item.
-
-  /*
-      Store selectors
-  */
+  const lidsToRemove = useRef([]);
   const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
 
-  /*
-    Effects
-  */
   useEffect(() => {
-    /**
-     * Debug
-     */
-    console.log("@@-- hook: associationNames: ", associationNames);
-    console.log("@@-- hook: idsToAdd: ", idsToAdd);
-
-    //set ids to add
-    if(idsToAdd !== undefined && idsToAdd.length > 0) {
-      
-      //concat items
-      lidsToAdd.current.concat(idsToAdd);
-
-      //update state
+    if(idsToRemove !== undefined && idsToRemove.length > 0) {
+      lidsToRemove.current.concat(idsToRemove);
       setThereAreItemsToAdd(true);
-
-      //get data B
       getDataB();
     } else {
-      //update state
       setIsGettingFirstDataB(false);
     }
 
-
-    //get data
-    if(associationNames !== undefined){
-      //get data A 
+    if(item !== undefined){
       getData(); 
     } else {
-      //update state
       setIsGettingFirstData(false);
     }
   }, []);
 
   useEffect(() => {
-    //update state
     if(items.length > 0) { 
       setAreItemsReady(true); 
     } else { 
       setAreItemsReady(false); 
     }
-
   }, [items]);
 
   useEffect(() => {
-    //update state
     if(itemsB.length > 0) { 
       setAreItemsReadyB(true); 
     } else { 
       setAreItemsReadyB(false); 
     }
-
   }, [itemsB]);
 
   useEffect(() => {
     if(count === 0) {
-      //update state
       setIsCountReady(false);
 
     } else {
-      //update state
       setIsCountReady(true);
     }
   }, [count]);
 
   useEffect(() => {
     if(countB === 0) {
-      //update state
       setIsCountReadyB(false);
 
     } else {
-      //update state
       setIsCountReadyB(true);
     }
   }, [countB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
     if(page === 0) {
-      //get data
       if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
     } else {
-      //update state
-      setPage(0); //search will occur or hook[page]
+      setPage(0);
     }
   }, [search]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
     if(page === 0) {
-      //get data
       if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
     } else {
-      //update state
-      setPageB(0); //search will occur or hook[page]
+      setPageB(0);
     }
   }, [searchB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
-    //get data
     if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
   }, [page]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
-    //get data
     if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
   }, [pageB]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstData) return;
 
     if(page !== 0) {
-      //update state
       setPage(0);
     } else {
-      //get data
       if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
     }
   }, [rowsPerPage]);
 
   useEffect(() => {
-    //return on init
     if(isGettingFirstDataB) return;
 
     if(pageB !== 0) {
-      //update state
       setPageB(0);
     } else {
-      //get data
       if (!isOnApiRequestB) { getDataB(); } else { setIsPendingApiRequestB(true); }
     }
   }, [rowsPerPageB]);
 
   useEffect(() => {
     if (!isOnApiRequest && isPendingApiRequest) {
-      //reset
       setIsPendingApiRequest(false);
-
-      //get data  
       getData();
     }
   }, [isOnApiRequest]);
+  
   useEffect(() => {
     if (!isOnApiRequestB && isPendingApiRequestB) {
-      //reset
       setIsPendingApiRequestB(false);
-
-      //get data  
       getDataB();
     }
   }, [isOnApiRequestB]);
 
-
-  /*
-      Methods
-  */
   /**
    * getData
    * 
@@ -331,11 +233,11 @@ export default function AssociationToAddTransferView(props) {
 
     //set ops: excluded ids
     let ops = null;
-    if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
+    if(lidsToRemove.current !== undefined && lidsToRemove.current.length > 0) {
       ops = {
         exclude: [{
           type: 'Int',
-          values: {id: lidsToAdd.current}
+          values: {id: lidsToRemove.current}
         }]
       };
     }
@@ -343,15 +245,9 @@ export default function AssociationToAddTransferView(props) {
     /*
       API Request: associationFilter
     */
-
-    /*
-      Get data
-    */
-    api[modelNames.name].getAssociationFilter(
+    api.user.getAssociationFilter(
     graphqlServerUrl, 
-    modelNames, 
     item.id, 
-    associationNames,
     search,
     page * rowsPerPage, //paginationOffset
     rowsPerPage, //paginationLimit
@@ -363,13 +259,8 @@ export default function AssociationToAddTransferView(props) {
               response.data &&
               response.data.data
           ) {
-              /**
-               * Debug
-               */
-              console.log("newData: ", response.data.data);
-
               //set new count
-              var newCount = response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`];
+              var newCount = response.data.data.readOneUser.countFilteredRoles;
 
               /*
                 Check: empty page
@@ -387,7 +278,7 @@ export default function AssociationToAddTransferView(props) {
 
               //update state
               setCount(newCount);
-              setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
+              setItems(response.data.data.readOneUser.rolesFilter);
               setIsOnApiRequest(false);
 
               //done
@@ -431,11 +322,11 @@ export default function AssociationToAddTransferView(props) {
 
     //set ops: only ids
     let ops = null;
-    if(lidsToAdd.current !== undefined && lidsToAdd.current.length > 0) {
+    if(lidsToRemove.current !== undefined && lidsToRemove.current.length > 0) {
       ops = {
         only: [{
           type: 'Int',
-          values: {id: lidsToAdd.current}
+          values: {id: lidsToRemove.current}
         }]
       };
     }
@@ -443,20 +334,16 @@ export default function AssociationToAddTransferView(props) {
     /*
       API Request: countItems
     */
-    api[associationNames.targetModelLc].getCountItems(associationNames.targetModelLc, graphqlServerUrl, searchB, ops)
+    api.role.getCountItems(graphqlServerUrl, searchB, ops)
       .then(response => {
         //Check response
         if (
           response.data &&
           response.data.data
         ) {
-          /**
-           * Debug
-           */
-          console.log("newCount: ", response.data.data['count' + associationNames.relationNameCp]);
 
           //set new count
-          var newCount = response.data.data['count' + associationNames.relationNameCp];
+          var newCount = response.data.data.countRoles;
 
           /*
             Check: empty page
@@ -474,8 +361,7 @@ export default function AssociationToAddTransferView(props) {
           /*
             API Request: items
           */
-          api[associationNames.targetModelLc].getItems(
-            associationNames.targetModelLc,
+          api.role.getItems(
             graphqlServerUrl,
             searchB,
             null, //orderBy
@@ -489,17 +375,17 @@ export default function AssociationToAddTransferView(props) {
               if (
                 response.data &&
                 response.data.data &&
-                response.data.data[associationNames.relationName]) {
+                response.data.data.roles) {
 
                 /**
                  * Debug
                  */
                 console.log("@@newCount: ", newCount);
-                console.log("@@newItems: ", response.data.data[associationNames.relationName]);
+                console.log("@@newItems: ", response.data.data.roles);
 
                 //update state
                 setCountB(newCount);
-                setItemsB(response.data.data[associationNames.relationName]);
+                setItemsB(response.data.data.roles);
                 setIsOnApiRequestB(false);
 
                 //done
@@ -546,81 +432,63 @@ export default function AssociationToAddTransferView(props) {
       });
   }
   
-  /*
-      Handlers
-  */
-  /**
-   * On search text enter handler.
-   * 
-   * @param {String} value New search text value.
-   */
   const handleSearchEnter = text => {
     setSearch(text);
-  }
+  };
+
   const handleSearchEnterB = text => {
     setSearchB(text);
-  }
+  };
 
   const handleChangePage = (event, newPage) => {
-    //update state
     setPage(newPage);
   };
+
   const handleChangePageB = (event, newPage) => {
-    //update state
     setPageB(newPage);
   };
 
   const handleChangeRowsPerPage = event => {
       setRowsPerPage(parseInt(event.target.value, 10));
   };
+
   const handleChangeRowsPerPageB = event => {
     setRowsPerPageB(parseInt(event.target.value, 10));
   };
 
   const handleRowClicked = (event, item) => {
     console.log("clicked: ", item);
-  }
+  };
 
   const handleAddItem = (event, item) => {
-    //push id to add
-    lidsToAdd.current.push(item.id);
-
-    //update state
+    lidsToRemove.current.push(item.id);
     setThereAreItemsToAdd(true);
 
-    //get data A
     getData();
-    //get data B
     getDataB();
 
     //callback
-    handleTransfer(associationNames.targetModelLc, item.id);
-  }
+    handleTransfer('role', item.id);
+  };
 
   const handleRemoveItem = (event, item) => {
-    
-    //find
-    for(var i=0; i<lidsToAdd.current.length; ++i)
+    for(var i=0; i<lidsToRemove.current.length; ++i)
     {
-      if(lidsToAdd.current[i] === item.id) {
-        //remove
-        lidsToAdd.current.splice(i, 1);
+      if(lidsToRemove.current[i] === item.id) {
+        lidsToRemove.current.splice(i, 1);
         break;
       }
     }
 
-    if(lidsToAdd.current.length === 0) {
-      //update state
+    if(lidsToRemove.current.length === 0) {
       setThereAreItemsToAdd(false);
     }
-    
-    //get data B
+
     getDataB();
-    //get data A
     getData();
 
     //callback
-    handleUntransfer(associationNames.targetModelLc, item.id);
+    handleUntransfer('role', item.id);
   }
 
   return (
@@ -630,14 +498,13 @@ export default function AssociationToAddTransferView(props) {
           * Selectable list (A)
           */}
         <Grid item xs={12} sm={6} >
-          {(associationNames!==undefined) && (
+          {(item!==undefined) && (
             <Card className={classes.card}>
 
               {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
-                title={title + " to choose"}
+              <RolesToRemoveTransferViewToolbar 
+                title={'Associated roles'}
                 search={search}
-                associationNames={associationNames}
                 onSearchEnter={handleSearchEnter}
               />
 
@@ -674,10 +541,8 @@ export default function AssociationToAddTransferView(props) {
                     <List dense component="div" role="list" >
                       {items.map(item => {
                         let key = item.id;
-                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                        let sublabel = (associationNames.sublabel !== 'id' && 
-                                        associationNames.sublabel !== associationNames.label) ? 
-                                          item[associationNames.sublabel] : null;
+                        let label = item.name;
+                        let sublabel = item.description;
 
                         return (
                           <ListItem key={key} 
@@ -717,7 +582,7 @@ export default function AssociationToAddTransferView(props) {
                                   <Grid item xs={2}>
                                     <Grid container justify='flex-end'>
                                       <Grid item>
-                                        <Tooltip title="Add to chosen list">
+                                        <Tooltip title="Send to remove list">
                                           <IconButton
                                             color="primary"
                                             className={classes.iconButton}
@@ -726,7 +591,7 @@ export default function AssociationToAddTransferView(props) {
                                               handleAddItem(event, item);
                                             }}
                                           >
-                                            <Add color="primary" />
+                                            <Remove color="secondary" />
                                           </IconButton>
                                         </Tooltip>
                                       </Grid>
@@ -784,17 +649,15 @@ export default function AssociationToAddTransferView(props) {
           * To add list (B) 
           */}
         <Grid item xs={12} sm={6} >
-          {(associationNames!==undefined) && (
+          {(item!==undefined) && (
             <Card className={classes.card}>
 
               {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
-                title={titleB + " chosen"}
+              <RolesToRemoveTransferViewToolbar 
+                title={'Roles to remove'}
                 titleIcon={true}
                 search={searchB}
-                associationNames={associationNames}
                 onSearchEnter={handleSearchEnterB}
-
               />
 
               {/* Case: no items added */}
@@ -851,15 +714,13 @@ export default function AssociationToAddTransferView(props) {
                     <List dense component="div" role="list">
                       {itemsB.map(item => {
                         let key = item.id;
-                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                        let sublabel = (associationNames.sublabel !== 'id' && 
-                                        associationNames.sublabel !== associationNames.label) ? 
-                                          item[associationNames.sublabel] : null;
+                        let label = item.name;
+                        let sublabel = item.description;
 
                         return (
                           <ListItem key={key} 
-                            role="listitem" 
-                            button 
+                            role="listitem"
+                            button
                             className={classes.row}
                             onClick={(event) => {
                               handleRowClicked(event, item);
@@ -892,7 +753,7 @@ export default function AssociationToAddTransferView(props) {
 
                                   {/* Button: Add */}
                                   <Grid item xs={2}>
-                                    <Tooltip title="Remove from chosen list">
+                                    <Tooltip title="Send to associated list">
                                       <IconButton
                                         color="primary"
                                         onClick={(event) => {
@@ -900,7 +761,7 @@ export default function AssociationToAddTransferView(props) {
                                           handleRemoveItem(event, item);
                                         }}
                                       >
-                                        <Remove color="secondary" />
+                                        <Add color="primary" />
                                       </IconButton>
                                     </Tooltip>
                                   </Grid>
@@ -954,11 +815,12 @@ export default function AssociationToAddTransferView(props) {
     </div>
   );
 }
-
 /*
   PropTypes
 */
-AssociationToAddTransferView.propTypes = {
-    title: PropTypes.string,
-    associationNames: PropTypes.object,
+RolesToAddTransferView.propTypes = {
+    item: PropTypes.object.isRequired,
+    idsToRemove: PropTypes.array.isRequired,
+    handleTransfer: PropTypes.function.isRequired,
+    handleUntransfer: PropTypes.function.isRequired,
 };

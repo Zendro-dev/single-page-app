@@ -25,11 +25,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Add from '@material-ui/icons/AddCircle';
 import Remove from '@material-ui/icons/RemoveCircle';
 
-
-
-/*
-  Styles
-*/
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
@@ -38,21 +33,25 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     margin: theme.spacing(1),
-    maxHeight: '77vh',
+    height: '67vh',
+    maxHeight: '67vh',
     overflow: 'auto',
   },
   listBox: {
+    height: '43vh',
     maxHeight: '43vh',
     overflowY: 'auto',
     overflowX: 'hidden'
   },
   noDataBox: {
     width: "100%",
-    height:200,
+    height: '43vh',
+    maxHeight: '43vh',
   },
   loadingBox: {
     width: "100%",
-    height:200,
+    height: '43vh',
+    maxHeight: '43vh',
   },
   line: {
     display: "inline",
@@ -101,7 +100,7 @@ export default function AssociationToAddTransferView(props) {
   const [selectedItems, setSelectedItems] = useState([]);
   //table
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [isOnApiRequest, setIsOnApiRequest] = useState(true);
   const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
   const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
@@ -117,7 +116,7 @@ export default function AssociationToAddTransferView(props) {
   const [selectedItemsB, setSelectedItemsB] = useState([]);
   //table
   const [pageB, setPageB] = useState(0);
-  const [rowsPerPageB, setRowsPerPageB] = useState(10);
+  const [rowsPerPageB, setRowsPerPageB] = useState(100);
   const [isOnApiRequestB, setIsOnApiRequestB] = useState(true);
   const [isPendingApiRequestB, setIsPendingApiRequestB] = useState(false);
   const [isGettingFirstDataB, setIsGettingFirstDataB] = useState(true); //to avoid repeat initial fetch
@@ -860,7 +859,7 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={title + " to choose"}
+                title={title + " "}
                 search={search}
                 associationNames={associationNames}
                 onSearchEnter={handleSearchEnter}
@@ -1014,7 +1013,7 @@ export default function AssociationToAddTransferView(props) {
 
               {/* Toolbar */}
               <AssociationToAddTransferViewToolbar 
-                title={titleB + " chosen"}
+                title={titleB + " to add"}
                 titleIcon={true}
                 search={searchB}
                 associationNames={associationNames}

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import api from '../../../../../requests/index';
-import AssociationToRemoveTransferViewToolbar from './components/AssociationToRemoveTransferViewToolbar';
+import AssociationCompactViewToolbar from './components/AssociationCompactViewToolbar';
 
 
 /*
@@ -23,7 +23,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 //icons
 import Add from '@material-ui/icons/AddCircle';
-import Remove from '@material-ui/icons/RemoveCircle';
 
 
 
@@ -32,13 +31,12 @@ import Remove from '@material-ui/icons/RemoveCircle';
 */
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(1),
+    margin: theme.spacing(2),
     minWidth: 200,
-    maxWidth: 477*2+20,
+    //maxWidth: 477*2+20,
   },
   card: {
     margin: theme.spacing(1),
-    height: '77vh',
     maxHeight: '77vh',
     overflow: 'auto',
   },
@@ -246,6 +244,7 @@ export default function AssociationToAddTransferView(props) {
       setPageB(0); //search will occur or hook[page]
     }
   }, [searchB]);
+  
 
   useEffect(() => {
     //return on init
@@ -368,25 +367,8 @@ export default function AssociationToAddTransferView(props) {
                */
               console.log("newData: ", response.data.data);
 
-              //set new count
-              var newCount = response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`];
-
-              /*
-                Check: empty page
-              */
-              if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
-              {
-                //update state
-                setPage(page-1);
-                setIsOnApiRequest(false);
-
-                //done (getData will be invoked on hook[page])
-                return;
-              }
-              //else
-
               //update state
-              setCount(newCount);
+              setCount(response.data.data[`readOne${modelNames.nameCp}`][`countFiltered${associationNames.targetModelPlCp}`]);
               setItems(response.data.data[`readOne${modelNames.nameCp}`][`${associationNames.targetModelPlLc}Filter`]);
               setIsOnApiRequest(false);
 
@@ -457,19 +439,6 @@ export default function AssociationToAddTransferView(props) {
 
           //set new count
           var newCount = response.data.data['count' + associationNames.relationNameCp];
-
-          /*
-            Check: empty page
-          */
-          if( (newCount === (pageB * rowsPerPageB)) && (pageB > 0) ) 
-          {
-            //update state
-            setPageB(pageB-1);
-            setIsOnApiRequestB(false);
-
-            //done (getData will be invoked on hook[page])
-            return;
-          }
 
           /*
             API Request: items
@@ -625,17 +594,17 @@ export default function AssociationToAddTransferView(props) {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={4}>
+      <Grid container>
         {/*
           * Selectable list (A)
           */}
-        <Grid item xs={12} sm={6} >
+        <Grid item xs={12} >
           {(associationNames!==undefined) && (
             <Card className={classes.card}>
 
               {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
-                title={title + " to choose"}
+              <AssociationCompactViewToolbar 
+                title={title}
                 search={search}
                 associationNames={associationNames}
                 onSearchEnter={handleSearchEnter}
@@ -700,7 +669,7 @@ export default function AssociationToAddTransferView(props) {
                                   {/* Divider */}
                                   <Divider className={classes.dividerV} orientation="vertical" />
 
-                                  <Grid item xs={9}>
+                                  <Grid item xs={11}>
 
                                     {/* Label */}
                                     {(label !== undefined && label !== null) && (
@@ -711,26 +680,6 @@ export default function AssociationToAddTransferView(props) {
                                     {(sublabel !== undefined && sublabel !== null) && (
                                       <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
                                     )}
-                                  </Grid>
-
-                                  {/* Button: Add */}
-                                  <Grid item xs={2}>
-                                    <Grid container justify='flex-end'>
-                                      <Grid item>
-                                        <Tooltip title="Add to chosen list">
-                                          <IconButton
-                                            color="primary"
-                                            className={classes.iconButton}
-                                            onClick={(event) => {
-                                              event.stopPropagation();
-                                              handleAddItem(event, item);
-                                            }}
-                                          >
-                                            <Add color="primary" />
-                                          </IconButton>
-                                        </Tooltip>
-                                      </Grid>
-                                    </Grid>
                                   </Grid>
                                 </Grid>
                               </Grid>
@@ -774,178 +723,6 @@ export default function AssociationToAddTransferView(props) {
                   page={page}
                   onChangePage={handleChangePage}
                   onChangeRowsPerPage={handleChangeRowsPerPage}
-              />
-            </Card>
-          )}
-        </Grid>
-
-
-        {/*
-          * To add list (B) 
-          */}
-        <Grid item xs={12} sm={6} >
-          {(associationNames!==undefined) && (
-            <Card className={classes.card}>
-
-              {/* Toolbar */}
-              <AssociationToRemoveTransferViewToolbar 
-                title={titleB + " chosen"}
-                titleIcon={true}
-                search={searchB}
-                associationNames={associationNames}
-                onSearchEnter={handleSearchEnterB}
-
-              />
-
-              {/* Case: no items added */}
-              {(!thereAreItemsToAdd) && (
-                /* Label */
-                <Fade
-                  in={true}
-                  unmountOnExit
-                >
-                  <div>
-                    <Grid container>
-                      <Grid item xs={12}>
-                        <Grid className={classes.noDataBox} container justify="center" alignItems="center">
-                          <Grid item>
-                            <Typography variant="body1" > No items added </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </div>
-                </Fade>
-              )}
-
-              {/* Case: no data from search */}
-              {(thereAreItemsToAdd && !isOnApiRequestB && (!areItemsReadyB || !isCountReadyB)) && (
-                /* Label */
-                <Fade
-                  in={true}
-                  unmountOnExit
-                >
-                  <div>
-                    <Grid container>
-                      <Grid item xs={12}>
-                        <Grid className={classes.noDataBox} container justify="center" alignItems="center">
-                          <Grid item>
-                            <Typography variant="body1" > No data to display </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </div>
-                </Fade>
-              )}
-
-              {/* Case: data ready */}
-              {(thereAreItemsToAdd && !isOnApiRequestB && areItemsReadyB && isCountReadyB) && (
-              
-                /* List */
-                <Fade
-                  in={true}
-                  unmountOnExit
-                >
-                  <Box className={classes.listBox}>
-                    <List dense component="div" role="list">
-                      {itemsB.map(item => {
-                        let key = item.id;
-                        let label = (associationNames.label !== 'id') ? item[associationNames.label] : null;
-                        let sublabel = (associationNames.sublabel !== 'id' && 
-                                        associationNames.sublabel !== associationNames.label) ? 
-                                          item[associationNames.sublabel] : null;
-
-                        return (
-                          <ListItem key={key} 
-                            role="listitem" 
-                            button 
-                            className={classes.row}
-                            onClick={(event) => {
-                              handleRowClicked(event, item);
-                            }}
-                          >
-                            <Grid container justify='flex-end' alignItems='center'>
-                              <Grid item xs={12}>
-                                <Grid container justify='space-evenly' alignItems='center' alignContent='stretch' wrap='nowrap'>
-                                  
-                                  {/* Id */}
-                                  <Grid item xs={1}>
-                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
-                                  </Grid>
-
-                                  {/* Divider */}
-                                  <Divider className={classes.dividerV} orientation="vertical" />
-
-                                  <Grid item xs={9}>
-
-                                    {/* Label */}
-                                    {(label !== undefined && label !== null) && (
-                                      <Typography variant="body1" display="block" noWrap={true}>{label}</Typography>
-                                    )}
-                                    
-                                    {/* Sublabel */}
-                                    {(sublabel !== undefined && sublabel !== null) && (
-                                      <Typography variant="caption" display="block" color='textSecondary' noWrap={true}>{sublabel}<b></b> </Typography>
-                                    )}
-                                  </Grid>
-
-                                  {/* Button: Add */}
-                                  <Grid item xs={2}>
-                                    <Tooltip title="Remove from chosen list">
-                                      <IconButton
-                                        color="primary"
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-                                          handleRemoveItem(event, item);
-                                        }}
-                                      >
-                                        <Remove color="secondary" />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </Grid>
-                                </Grid>
-                              </Grid>
-                            </Grid>
-                          </ListItem>
-                        );
-                      })}
-                      <ListItem />
-                    </List>
-                  </Box>
-                </Fade>
-              )}
-              {/* Case: loading */}
-              {( thereAreItemsToAdd && isOnApiRequestB) && (
-                /* Progress */
-                <Fade
-                  in={true}
-                  unmountOnExit
-                >
-                  <div>
-                    <Grid container>
-                      <Grid item xs={12}>
-                        <Grid container className={classes.loadingBox} justify="center" alignItems="center">
-                          <Grid item>
-                            <CircularProgress color='primary' disableShrink/>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </div>
-                </Fade>
-              )}
-
-              {/* Pagination */}
-              <TablePagination
-                  rowsPerPageOptions={[10, 25, 50, 100]}
-                  component="div"
-                  count={countB}
-                  rowsPerPage={rowsPerPageB}
-                  labelRowsPerPage='rows'
-                  page={pageB}
-                  onChangePage={handleChangePageB}
-                  onChangeRowsPerPage={handleChangeRowsPerPageB}
               />
             </Card>
           )}
