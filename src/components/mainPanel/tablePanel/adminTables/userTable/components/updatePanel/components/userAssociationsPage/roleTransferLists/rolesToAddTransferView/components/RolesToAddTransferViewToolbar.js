@@ -146,5 +146,6 @@ export default function RolesToAddTransferViewToolbar(props) {
 RolesToAddTransferViewToolbar.propTypes = {
     search: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    titleIcon: PropTypes.bool,
     onSearchEnter: PropTypes.func.isRequired,
 };

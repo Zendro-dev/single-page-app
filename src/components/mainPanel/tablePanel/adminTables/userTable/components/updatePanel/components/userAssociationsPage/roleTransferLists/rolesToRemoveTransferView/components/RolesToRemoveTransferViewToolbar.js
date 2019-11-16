@@ -16,31 +16,12 @@ import Search from '@material-ui/icons/Search';
 import DeleteList from '@material-ui/icons/DeleteTwoTone';
 
 const useToolbarStyles = makeStyles(theme => ({
-    root: {
-        padding: theme.spacing(2),
-        margin: theme.spacing(0),
-    },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.main,
-                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-            }
-            : {
-                color: theme.palette.text.primary,
-                backgroundColor: theme.palette.secondary.dark,
-            },
-    headers: {
-      paddingLeft: theme.spacing(0),
-      paddingRight: theme.spacing(0),
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(0),
-    },
-    dividerV: {
-      height: 30,
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    },
+  root: {
+    padding: theme.spacing(2),
+  },
+  headers: {
+    paddingTop: theme.spacing(2),
+  },
 }));
 
 export default function RolesToRemoveTransferViewToolbar(props) {
@@ -164,11 +145,9 @@ export default function RolesToRemoveTransferViewToolbar(props) {
     </div>
   );
 };
-/*
-  PropTypes
-*/
 RolesToRemoveTransferViewToolbar.propTypes = {
     search: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    titleIcon: PropTypes.bool,
     onSearchEnter: PropTypes.func.isRequired,
 };

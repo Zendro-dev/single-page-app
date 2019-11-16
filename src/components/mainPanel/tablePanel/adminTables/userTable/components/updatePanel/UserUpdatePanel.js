@@ -455,5 +455,5 @@ export default function UserUpdatePanel(props) {
 }
 UserUpdatePanel.propTypes = {
   item: PropTypes.object.isRequired,
-  handleClose: PropTypes.function.isRequired
+  handleClose: PropTypes.func.isRequired
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import RoleTransferLists from './RoleTransferLists/RoleTransferLists'
 import UserAssociationMenuTabs from './UserAssociationsMenuTabs'
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,7 +18,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function UserAssociationsPage(props) {
   const classes = useStyles();
-
   const {
     hidden,
     item,
@@ -28,7 +28,6 @@ export default function UserAssociationsPage(props) {
     handleTransferToRemove,
     handleUntransferFromRemove,
   } = props;
-
   const [associationSelected, setAssociationSelected] = React.useState('');
 
   function getIdsToAdd(associationName) {

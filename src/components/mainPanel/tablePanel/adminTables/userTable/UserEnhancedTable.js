@@ -655,10 +655,7 @@ export default function UserEnhancedTable(props) {
 
                         {/* Toolbar */}
                         <UserEnhancedTableToolbar
-                            modelName={model.names.name}
-                            numSelected={selected.length}
                             search={search}
-                            title={model.names.namePlCp}
                             onSearchEnter={handleSearchEnter}
                             handleAddClicked={handleCreateClicked}
                             handleBulkImportClicked={handleBulkImportClicked}
@@ -670,12 +667,9 @@ export default function UserEnhancedTable(props) {
                             
                             {/* Table Head */}
                             <EnhancedTableHead
-                                headCells={headCells}
-                                numSelected={selected.length}
                                 order={order}
                                 orderBy={orderBy}
                                 rowCount={count}
-                                onSelectAllClick={handleSelectAllClick}
                                 onRequestSort={handleRequestSort}
                             />
 
@@ -906,10 +900,6 @@ export default function UserEnhancedTable(props) {
         </div>
     );
 }
-
-/*
-  PropTypes
-*/
 EnhancedTable.propTypes = {
     model: PropTypes.PropTypes.exact({
         model: PropTypes.string,

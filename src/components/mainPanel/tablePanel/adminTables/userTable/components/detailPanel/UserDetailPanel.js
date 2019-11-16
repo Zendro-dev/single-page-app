@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import AttributesPage from './components/attributesPage/AttributesPage'
-import AssociationsPage from './components/associationsPage/AssociationsPage'
+import UserAttributesPage from './components/userAttributesPage/UserAttributesPage'
+import UserAssociationsPage from './components/userAssociationsPage/UserAssociationsPage'
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
@@ -115,13 +115,13 @@ export default function UserDetailPanel(props) {
               <Grid item xs={12}>
                   
                 {/* Attributes Page */}
-                <AttributesPage
+                <UserAttributesPage
                   item={item}
                   valueOkStates={valueOkStates}
                 />
     
                 {/* Associations Page */}
-                <AssociationsPage
+                <UserAssociationsPage
                   item={item}
                 />
     

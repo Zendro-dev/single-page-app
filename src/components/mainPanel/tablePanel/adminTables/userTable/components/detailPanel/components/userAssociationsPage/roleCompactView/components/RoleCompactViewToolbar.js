@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { lighten, makeStyles } from '@material-ui/core/styles';
-
-/*
-  Material-UI components
-*/
+import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,73 +8,32 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Checkbox from '@material-ui/core/Checkbox';
 import Divider from '@material-ui/core/Divider';
-
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-
-/*
-  Icons
-*/
 import ClearInactive from '@material-ui/icons/BackspaceOutlined';
 import ClearActive from '@material-ui/icons/Backspace';
 import Search from '@material-ui/icons/Search';
-import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import AddList from '@material-ui/icons/AddToPhotosTwoTone';
-import DeleteList from '@material-ui/icons/DeleteTwoTone';
+import AssociationIcon from '@material-ui/icons/HdrStrongTwoTone';
 
-/*
-  Styles
-*/
 const useToolbarStyles = makeStyles(theme => ({
-    root: {
-        padding: theme.spacing(2),
-        margin: theme.spacing(0),
-    },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.main,
-                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-            }
-            : {
-                color: theme.palette.text.primary,
-                backgroundColor: theme.palette.secondary.dark,
-            },
-    headers: {
-      paddingLeft: theme.spacing(0),
-      paddingRight: theme.spacing(0),
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(0),
-    },
-    dividerV: {
-      height: 30,
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    },
+  root: {
+    padding: theme.spacing(2),
+  },
+  headers: {
+    paddingTop: theme.spacing(2),
+  },
 }));
 
-export default function AssociationToAddTransferViewToolbar(props) {
-  /*
-    Properties
-  */
+export default function RoleCompactViewToolbar(props) {
   const classes = useToolbarStyles();
   const {
       search,
       title,
       titleIcon,
-      associationNames,
       onSearchEnter,
   } = props;
   
-  /*
-    State
-  */
   const [displayedSearch, setDisplayedSearch] = useState('');
 
-  /*
-    Render
-  */
   return (
     <div>
     <Toolbar className={classes.root}>
@@ -91,7 +46,7 @@ export default function AssociationToAddTransferViewToolbar(props) {
               <Grid container justify='flex-start' alignItems='center' wrap='nowrap' spacing={2}>
                 {(titleIcon !== undefined) && (
                   <Grid item>
-                    <DeleteList color="secondary" fontSize="small" />
+                    <AssociationIcon color="primary" fontSize="small" />
                   </Grid>
                 )}
                 
@@ -149,7 +104,6 @@ export default function AssociationToAddTransferViewToolbar(props) {
                     }}
                     onKeyPress={event => {
                       if (event.key === 'Enter') {
-                        console.log('Enter key pressed, value: ', displayedSearch);
                         onSearchEnter(displayedSearch);
                       }
                     }}
@@ -170,8 +124,7 @@ export default function AssociationToAddTransferViewToolbar(props) {
                 
                 {/* Label */}
                 <Grid item xs={9}>
-                  <Typography variant="caption" display="block" noWrap={true}>
-                    <b>&nbsp;&nbsp;{associationNames.label}</b></Typography>
+                  <Typography variant="caption" display="block" noWrap={true}><b>&nbsp;&nbsp;&nbsp;name</b></Typography>
                 </Grid>
               
               </Grid>
@@ -179,8 +132,8 @@ export default function AssociationToAddTransferViewToolbar(props) {
 
             <Grid container justify='center' alignItems='center' wrap='wrap'>
               <Grid item xs={12}>
-              {/* Divider */}
-              <Divider orientation="horizontal" />
+                {/* Divider */}
+                <Divider orientation="horizontal" />
               </Grid>
             </Grid>
 
@@ -191,12 +144,9 @@ export default function AssociationToAddTransferViewToolbar(props) {
     </div>
   );
 };
-
-/*
-  PropTypes
-*/
-AssociationToAddTransferViewToolbar.propTypes = {
-    search: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    onSearchEnter: PropTypes.func.isRequired,
+RolesCompactViewToolbar.propTypes = {
+  search: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  titleIcon: PropTypes.bool,
+  onSearchEnter: PropTypes.func.isRequired,
 };

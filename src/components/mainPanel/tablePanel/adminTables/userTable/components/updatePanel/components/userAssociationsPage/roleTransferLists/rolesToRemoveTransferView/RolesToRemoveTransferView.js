@@ -539,10 +539,10 @@ export default function RolesToRemoveTransferView(props) {
                 >
                   <Box className={classes.listBox}>
                     <List dense component="div" role="list" >
-                      {items.map(item => {
-                        let key = item.id;
-                        let label = item.name;
-                        let sublabel = item.description;
+                      {items.map(it => {
+                        let key = it.id;
+                        let label = it.name;
+                        let sublabel = it.description;
 
                         return (
                           <ListItem key={key} 
@@ -550,7 +550,7 @@ export default function RolesToRemoveTransferView(props) {
                             button 
                             className={classes.row}
                             onClick={(event) => {
-                              handleRowClicked(event, item);
+                              handleRowClicked(event, it);
                             }}
                           >
                             <Grid container justify='center' alignItems='center'>
@@ -559,7 +559,7 @@ export default function RolesToRemoveTransferView(props) {
                                   
                                   {/* Id */}
                                   <Grid item xs={1}>
-                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                    <Typography variant="caption" display="block" noWrap={true}>{it.id}</Typography>
                                   </Grid>
 
                                   {/* Divider */}
@@ -588,7 +588,7 @@ export default function RolesToRemoveTransferView(props) {
                                             className={classes.iconButton}
                                             onClick={(event) => {
                                               event.stopPropagation();
-                                              handleAddItem(event, item);
+                                              handleAddItem(event, it);
                                             }}
                                           >
                                             <Remove color="secondary" />
@@ -712,10 +712,10 @@ export default function RolesToRemoveTransferView(props) {
                 >
                   <Box className={classes.listBox}>
                     <List dense component="div" role="list">
-                      {itemsB.map(item => {
-                        let key = item.id;
-                        let label = item.name;
-                        let sublabel = item.description;
+                      {itemsB.map(it => {
+                        let key = it.id;
+                        let label = it.name;
+                        let sublabel = it.description;
 
                         return (
                           <ListItem key={key} 
@@ -723,7 +723,7 @@ export default function RolesToRemoveTransferView(props) {
                             button
                             className={classes.row}
                             onClick={(event) => {
-                              handleRowClicked(event, item);
+                              handleRowClicked(event, it);
                             }}
                           >
                             <Grid container justify='flex-end' alignItems='center'>
@@ -732,7 +732,7 @@ export default function RolesToRemoveTransferView(props) {
                                   
                                   {/* Id */}
                                   <Grid item xs={1}>
-                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                    <Typography variant="caption" display="block" noWrap={true}>{it.id}</Typography>
                                   </Grid>
 
                                   {/* Divider */}
@@ -758,7 +758,7 @@ export default function RolesToRemoveTransferView(props) {
                                         color="primary"
                                         onClick={(event) => {
                                           event.stopPropagation();
-                                          handleRemoveItem(event, item);
+                                          handleRemoveItem(event, it);
                                         }}
                                       >
                                         <Add color="primary" />

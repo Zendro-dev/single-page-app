@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StringField from './components/StringField'
+import IntField from './components/IntField'
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -23,37 +24,30 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(5),
     minWidth: 200,
   },
+  ibox: {
+    padding: theme.spacing(2),
+  },
 }));
 
 export default function UserAttributesFormView(props) {
   const classes = useStyles();
-  const { item, valueOkStates, 
-          handleFocus, handleBlur, 
-          handleFieldReady, handleChange,
-          handleKeyDown,
-        } = props;
+  const { item, valueOkStates } = props;
 
-  function getItemsOk() {
-    let countOk=0;
-    if(valueOkStates.length > 0) {
-      for(var i=0; i<valueOkStates.length; ++i)
-      {
-        if(valueOkStates[i].valueOk === 1) {
-          countOk++;
-        }
-      }
+ function itemHasKey(item, index) {
+    if(item !== undefined) {
+      return item.key === this.key;
+    } else {
+      return false;
     }
-    return countOk;
   }
 
   function getValueOkStatus(key) {
     let it = undefined;
 
-    //find index
     if(valueOkStates.length > 0) {
       it = valueOkStates.find(itemHasKey, {key:key});
     }
-    //return status
+
     if(it !== undefined) {
       return it.valueOk;
     } else {
@@ -66,7 +60,7 @@ export default function UserAttributesFormView(props) {
       <Grid container justify='center'>
         <Grid item xs={12}>
           <Card className={classes.card}>
-            
+
             {/* Header */}
             <CardHeader
               avatar={
@@ -77,10 +71,9 @@ export default function UserAttributesFormView(props) {
                   User attributes
                 </Typography>
               }
-              subheader={getItemsOk()+' / 2 completed'}
             >
             </CardHeader>
-            
+
             {/* 
               Fields 
             */}
@@ -132,10 +125,4 @@ export default function UserAttributesFormView(props) {
 UserAttributesFormView.propTypes = {
   item: PropTypes.object.isRequired,
   valueOkStates: PropTypes.array.isRequired,
-  handleFocus: PropTypes.function.isRequired,
-  handleBlur: PropTypes.function.isRequired,
-  handleFieldReady: PropTypes.function.isRequired,
-  handleChange: PropTypes.function.isRequired,
-  handleKeyDown: PropTypes.function.isRequired,
 };
-

@@ -1,96 +1,95 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-/*
-  Material-UI components
-*/
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
 
-export default function EnhancedTableHead(props) {
-    /*
-      Properties
-    */
-    const {
-        headCells,
-        numSelected,
-        order,
-        orderBy,
-        rowCount,
-        onSelectAllClick,
-        onRequestSort
-    } = props;
+export default function UserEnhancedTableHead(props) {
+  const {
+    order,
+    orderBy,
+    onRequestSort
+  } = props;
 
-    /*
-      Render
-    */
-    return (
-        <TableHead>
-            <TableRow>
+  return (
+    <TableHead>
+      <TableRow>
 
-                {/* Checkbox */}
-                {/* <TableCell padding="checkbox">
-                    <Checkbox
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                    />
-                </TableCell> */}
+        {/* See-info icon */}
+        <TableCell padding="checkbox" />
 
-                {/* See info icon */}
-                <TableCell padding="checkbox" />
+        {/* Actions */}
+        <TableCell padding="checkbox" align='center' size='small' colSpan={2}>
+          <Typography color="inherit" variant="overline">
+            Actions
+          </Typography>
+        </TableCell>
 
-                {/* Actions */}
-                <TableCell padding="checkbox" align='center' size='small' colSpan={2}>
-                    <Typography color="inherit" variant="overline">
-                        Actions
-                    </Typography>
-                </TableCell>
+        {/* 
+          Headers 
+        */}
 
-                {/* Headers */}
-                {headCells.map(headCell => (
-                    <TableCell
-                        key={headCell.key}
-                        align={
-                            (headCell.type === 'Int' || headCell.type === 'Float') ? 
-                            'right' : 'left'
-                        }
-                        padding="default"
-                        sortDirection={orderBy === headCell.name ? order : false}
-                    >
-                        <TableSortLabel
-                            active={orderBy === headCell.name}
-                            direction={order}
-                            onClick={(event) => {onRequestSort(event, headCell.name)}}
-                        >
-                            <Typography color="inherit" variant="overline">
-                                {headCell.label}
-                            </Typography>
-                        </TableSortLabel>
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-    );
+        {/* Id */}
+        <TableCell
+          key='id'
+          align='left'
+          padding="default"
+          sortDirection={orderBy === 'id' ? order : false}
+        >
+          <TableSortLabel
+            active={orderBy === 'id'}
+            direction={order}
+            onClick={(event) => { onRequestSort(event, 'id') }}
+          >
+            <Typography color="inherit" variant="overline">
+              Id
+            </Typography>
+          </TableSortLabel>
+        </TableCell>
+
+        {/* Email */}
+        <TableCell
+          key='email'
+          align='right'
+          padding="default"
+          sortDirection={orderBy === 'email' ? order : false}
+        >
+          <TableSortLabel
+            active={orderBy === 'email'}
+            direction={order}
+            onClick={(event) => { onRequestSort(event, 'email') }}
+          >
+            <Typography color="inherit" variant="overline">
+              Email
+            </Typography>
+          </TableSortLabel>
+        </TableCell>
+
+        {/* Password */}
+        <TableCell
+          key='password'
+          align='right'
+          padding="default"
+          sortDirection={orderBy === 'password' ? order : false}
+        >
+          <TableSortLabel
+            active={orderBy === 'password'}
+            direction={order}
+            onClick={(event) => { onRequestSort(event, 'password') }}
+          >
+            <Typography color="inherit" variant="overline">
+              Password
+            </Typography>
+          </TableSortLabel>
+        </TableCell>
+      </TableRow>
+    </TableHead>
+  );
 }
-/*
-  Proptypes
-*/
-EnhancedTableHead.propTypes = {
-    headCells: PropTypes.arrayOf(PropTypes.exact({
-        key: PropTypes.number,
-        name: PropTypes.string,
-        label: PropTypes.string,
-        type: PropTypes.string,
-    })).isRequired,
-    numSelected: PropTypes.number.isRequired,
-    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-    onSelectAllClick: PropTypes.func.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
+UserEnhancedTableHead.propTypes = {
+  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
+  orderBy: PropTypes.string.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
 };

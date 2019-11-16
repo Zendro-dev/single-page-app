@@ -8,7 +8,7 @@ export default function UserAssociationsMenuTabs(props) {
     associationSelected,
     handleClick,
   } = props;
-
+  
   return (
     <div>
       <Tabs

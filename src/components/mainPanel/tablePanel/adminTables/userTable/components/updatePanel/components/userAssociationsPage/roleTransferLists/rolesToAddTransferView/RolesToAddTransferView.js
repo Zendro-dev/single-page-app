@@ -99,12 +99,6 @@ export default function RolesToAddTransferView(props) {
   const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
 
   useEffect(() => {
-    /**
-     * Debug
-     */
-    console.log("@@-- hook: associationNames: ", associationNames);
-    console.log("@@-- hook: idsToAdd: ", idsToAdd);
-
     if(idsToAdd !== undefined && idsToAdd.length > 0) {
       lidsToAdd.current.concat(idsToAdd);
       setThereAreItemsToAdd(true);
@@ -113,7 +107,7 @@ export default function RolesToAddTransferView(props) {
       setIsGettingFirstDataB(false);
     }
 
-    if(associationNames !== undefined){
+    if(item !== undefined){
       getData(); 
     } else {
       setIsGettingFirstData(false);
@@ -234,7 +228,7 @@ export default function RolesToAddTransferView(props) {
     }
 
     //if ids associated needs to be fetched.
-    if(lidsAssociated.current === undefined || lidsAssociated.current.associationName !== associationNames.targetModelLc) {
+    if(lidsAssociated.current === undefined || lidsAssociated.current.associationName !== 'role') {
       /**
        * Debug
        */
@@ -711,7 +705,7 @@ export default function RolesToAddTransferView(props) {
 
               {/* Toolbar */}
               <RolesToAddTransferViewToolbar 
-                title={'Available roles'}
+                title='Available roles'
                 search={search}
                 onSearchEnter={handleSearchEnter}
               />
@@ -747,10 +741,10 @@ export default function RolesToAddTransferView(props) {
                 >
                   <Box className={classes.listBox}>
                     <List dense component="div" role="list" >
-                      {items.map(item => {
-                        let key = item.id;
-                        let label = item.name;
-                        let sublabel = item.description;
+                      {items.map(it => {
+                        let key = it.id;
+                        let label = it.name;
+                        let sublabel = it.description;
 
                         return (
                           <ListItem key={key} 
@@ -758,7 +752,7 @@ export default function RolesToAddTransferView(props) {
                             button 
                             className={classes.row}
                             onClick={(event) => {
-                              handleRowClicked(event, item);
+                              handleRowClicked(event, it);
                             }}
                           >
                             <Grid container justify='center' alignItems='center'>
@@ -767,7 +761,7 @@ export default function RolesToAddTransferView(props) {
                                   
                                   {/* Id */}
                                   <Grid item xs={1}>
-                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                    <Typography variant="caption" display="block" noWrap={true}>{it.id}</Typography>
                                   </Grid>
 
                                   {/* Divider */}
@@ -796,7 +790,7 @@ export default function RolesToAddTransferView(props) {
                                             className={classes.iconButton}
                                             onClick={(event) => {
                                               event.stopPropagation();
-                                              handleAddItem(event, item);
+                                              handleAddItem(event, it);
                                             }}
                                           >
                                             <Add color="primary" />
@@ -856,7 +850,7 @@ export default function RolesToAddTransferView(props) {
           * To add list (B) 
           */}
         <Grid item xs={12} sm={6} >
-          {(associationNames!==undefined) && (
+          {(item!==undefined) && (
             <Card className={classes.card}>
 
               {/* Toolbar */}
@@ -919,10 +913,10 @@ export default function RolesToAddTransferView(props) {
                 >
                   <Box className={classes.listBox}>
                     <List dense component="div" role="list">
-                      {itemsB.map(item => {
-                        let key = item.id;
-                        let label = item.name;
-                        let sublabel = item.description;
+                      {itemsB.map(it => {
+                        let key = it.id;
+                        let label = it.name;
+                        let sublabel = it.description;
 
                         return (
                           <ListItem key={key} 
@@ -930,7 +924,7 @@ export default function RolesToAddTransferView(props) {
                             button
                             className={classes.row}
                             onClick={(event) => {
-                              handleRowClicked(event, item);
+                              handleRowClicked(event, it);
                             }}
                           >
                             <Grid container justify='flex-end' alignItems='center'>
@@ -939,7 +933,7 @@ export default function RolesToAddTransferView(props) {
                                   
                                   {/* Id */}
                                   <Grid item xs={1}>
-                                    <Typography variant="caption" display="block" noWrap={true}>{item.id}</Typography>
+                                    <Typography variant="caption" display="block" noWrap={true}>{it.id}</Typography>
                                   </Grid>
 
                                   {/* Divider */}
@@ -965,7 +959,7 @@ export default function RolesToAddTransferView(props) {
                                         color="primary"
                                         onClick={(event) => {
                                           event.stopPropagation();
-                                          handleRemoveItem(event, item);
+                                          handleRemoveItem(event, it);
                                         }}
                                       >
                                         <Remove color="secondary" />
