@@ -134,7 +134,7 @@ export default function UserEnhancedTableToolbar(props) {
                             </Grid>
                             <Grid item>
                               <form action={exportServerUrl}>
-                                <input type="hidden" name="model" value={modelName} />
+                                <input type="hidden" name="model" value='user' />
                                 <Tooltip title="Export to CSV">
                                   <IconButton color="primary" type="submit">
                                     <Export />

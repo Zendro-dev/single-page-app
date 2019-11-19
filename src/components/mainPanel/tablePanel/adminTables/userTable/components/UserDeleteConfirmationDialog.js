@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import DetailPanel from '../../detailPanel/DetailPanel'
+import UserDetailPanel from './userDetailPanel/UserDetailPanel'
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -46,9 +46,10 @@ export default function UserDeleteConfirmationDialog(props) {
       </DialogTitle>
 
       <DialogContent dividers>
-        <DetailPanel 
+        <UserDetailPanel 
           item={item}
           dialog={false}
+          handleClose={handleCancel}
         />
       </DialogContent>
 

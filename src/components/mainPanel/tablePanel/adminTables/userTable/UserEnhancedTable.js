@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import api from '../../requests/index'
+import api from '../../../../../requests/index'
 import UserEnhancedTableHead from './components/UserEnhancedTableHead'
 import UserEnhancedTableToolbar from './components/UserEnhancedTableToolbar'
 import UserCreatePanel from './components/userCreatePanel/UserCreatePanel'
@@ -10,10 +9,6 @@ import UserUpdatePanel from './components/userUpdatePanel/UserUpdatePanel'
 import UserDetailPanel from './components/userDetailPanel/UserDetailPanel'
 import UserDeleteConfirmationDialog from './components/UserDeleteConfirmationDialog'
 import UserUploadFileDialog from './components/UserUploadFileDialog'
-
-/*
-  Material-UI components
-*/
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -26,888 +21,628 @@ import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
-
-
-/*
-  Icons
-*/
 import Delete from '@material-ui/icons/DeleteOutline';
 import Edit from '@material-ui/icons/Edit';
 import SeeInfo from '@material-ui/icons/VisibilityTwoTone';
 
-/*
-  Styles
-*/
 const useStyles = makeStyles(theme => ({
     root: {
         marginTop: theme.spacing(7),
     },
     paper: {
-        marginBottom: theme.spacing(2),
         overflowX: 'auto',
     },
     tableWrapper: {
-      maxHeight: '74vh',
+      height: '65vh',
+      maxHeight: '65vh',
       overflow: 'auto',
+    },
+    loading: {
+      height: '65vh',
+      maxHeight: '65vh',
+    },
+    noData: {
+      height: '65vh',
+      maxHeight: '65vh',
     },
 }));
 
-export default function UserEnhancedTable(props) {
-    /*
-      Styles
-    */
-    const classes = useStyles();
-    /*
-      Properties
-    */
-    const { model } = props;
-    const headCells = makeHeadCells(props.model.attributes);
-    /*
-      State
-    */
-    const [items, setItems] = useState([]);
-    const [count, setCount] = useState(0);
-    const [search, setSearch] = useState('');
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('id');
-    const [selected, setSelected] = useState([]);
-    const [expanded, setExpanded] = useState([]);
-    const [page, setPage] = useState(0);
-    const [dense, setDense] = useState(false);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [isOnApiRequest, setIsOnApiRequest] = useState(true);
-    const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
-    const [isGettingFirstData, setIsGettingFirstData] = useState(true); //to avoid repeat initial fetch
-    //actions
-    const [createDialogOpen, setCreateDialogOpen] = useState(false);
-    const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-    const [updateItem, setUpdateItem] = useState(undefined);
-    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-    const [detailItem, setDetailItem] = useState(undefined);
-    const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] = useState(false);
-    const [deleteConfirmationItem, setDeleteConfirmationItem] = useState(undefined);
-    const [uploadFileDialogOpen, setUploadFileDialogOpen] = useState(false);
+export default function UserEnhancedTable() {
+  const classes = useStyles();
 
-    /*
-      Refs
-    */
+  const [items, setItems] = useState([]);
+  const [count, setCount] = useState(0);
+  const [search, setSearch] = useState('');
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('id');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
+  const [isOnApiRequest, setIsOnApiRequest] = useState(true);
+  const [isPendingApiRequest, setIsPendingApiRequest] = useState(false);
+  const [isGettingFirstData, setIsGettingFirstData] = useState(true);
+ 
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [updateItem, setUpdateItem] = useState(undefined);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState(undefined);
+  const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] = useState(false);
+  const [deleteConfirmationItem, setDeleteConfirmationItem] = useState(undefined);
+  const [uploadFileDialogOpen, setUploadFileDialogOpen] = useState(false);
 
-    /*
-      Store selectors
-    */
-    const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
-    /*
-      Effects
-    */
-    useEffect(() => {
-        getData();
-    }, []);
-
-    useEffect(() => {
-        console.log("new search: ", search, " isGettingFirstData: ", isGettingFirstData);
-        //return on init
-        if(isGettingFirstData) return;
-
-        if(page === 0) {
-          //get data
-          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-        } else {
-          //update state
-          setPage(0); //search will occur or hook[page]
-        }
-
-    }, [search]);
-
-    useEffect(() => {
-        console.log("new order: ", order);
-        //return on init
-        if(isGettingFirstData) return;
-
-        if(page === 0) {
-          //get data
-          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-        } else {
-          //update state
-          setPage(0); //search will occur or hook[page]
-        }
-
-    }, [order]);
-
-    useEffect(() => {
-        console.log("new orderBy: ", orderBy);
-        //return on init
-        if(isGettingFirstData) return;
-
-        if(page === 0) {
-          //get data
-          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-        } else {
-          //update state
-          setPage(0); //search will occur or hook[page]
-        }
-
-    }, [orderBy]);
-
-    useEffect(() => {
-        console.log("new rowsPerPage: ", rowsPerPage);
-        //return on init
-        if(isGettingFirstData) return;
-
-        if(page === 0) {
-          //get data
-          if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-        } else {
-          //update state
-          setPage(0); //search will occur or hook[page]
-        }
-
-    }, [rowsPerPage]);
-
-    useEffect(() => {
-      console.log("new page: ", page);
-      //return on init
-      if(isGettingFirstData) return;
-
-      //get data
-      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
-    }, [page]);
-
-    useEffect(() => {
-      console.log("new isOnApiRequest: ", isOnApiRequest);
-      console.log("isPendingApiRequest: ", isPendingApiRequest);
-      
-      if (!isOnApiRequest && isPendingApiRequest) {
-        //reset
-        setIsPendingApiRequest(false);
-
-        //get data  
-        getData();
-      }
-    }, [isOnApiRequest]);
+  const graphqlServerUrl = useSelector(state => state.urls.graphqlServerUrl)
 
   useEffect(() => {
-    console.log("new updateItem: ", updateItem);
+      getData();
+  }, []);
 
+  useEffect(() => {
+    if(isGettingFirstData) return;
+
+    if(page === 0) {
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      setPage(0);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    if(isGettingFirstData) return;
+
+    if(page === 0) {
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      setPage(0);
+    }
+  }, [order]);
+
+  useEffect(() => {
+    if(isGettingFirstData) return;
+
+    if(page === 0) {
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      setPage(0);
+    }
+  }, [orderBy]);
+
+  useEffect(() => {
+    if(isGettingFirstData) return;
+
+    if(page === 0) {
+      if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+    } else {
+      setPage(0);
+    }
+  }, [rowsPerPage]);
+
+  useEffect(() => {
+    if(isGettingFirstData) return;
+
+    if (!isOnApiRequest) { getData(); } else { setIsPendingApiRequest(true); }
+  }, [page]);
+
+  useEffect(() => {      
+    if (!isOnApiRequest && isPendingApiRequest) {
+      setIsPendingApiRequest(false);
+      getData();
+    }
+  }, [isOnApiRequest]);
+
+  useEffect(() => {
     if (updateItem !== undefined) {
-      //update state
       setUpdateDialogOpen(true);
     }
   }, [updateItem]);
 
   useEffect(() => {
-    console.log("new detailItem: ", detailItem);
-
     if (detailItem !== undefined) {
-      //update state
       setDetailDialogOpen(true);
     }
   }, [detailItem]);
 
   useEffect(() => {
-    console.log("new deleteConfirmationItem: ", deleteConfirmationItem);
-
     if (deleteConfirmationItem !== undefined) {
-      //update state
       setDeleteConfirmationDialogOpen(true);
     }
   }, [deleteConfirmationItem]);
 
-    /*
-      Methods
-    */
-    /**
-     * makeHeadCells
-     *
-     * @param {Object} attributes Model attributes object.
-     */
-    function makeHeadCells(attributes) {
+  /**
+   * getData
+   * 
+   * Get @items and @count from GrahpQL Server.
+   * Uses current state properties to fill query request.
+   * Updates state to inform new @items and @count retreived.
+   * 
+   */
+  function getData() {
+      setIsOnApiRequest(true);
+      
+      if(isGettingFirstData) {
+        setIsGettingFirstData(false);
+      }
 
-        var headCells = [];
-        var attributesKeys = Object.keys(attributes);
-
-        //make id cell
-        headCells.push({ key: 0, name: "id", label: "Id", type: "Int" });
-
-        //make attributes cells
-        for (var i = 0; i < attributesKeys.length; i++) {
-            var o = {};
-
-            //add key
-            o.key = i + 1;
-
-            //add name
-            o.name = attributesKeys[i];
-
-            //add label
-            o.label = makeCellLabel(attributesKeys[i]);
-
-            //add type
-            o.type = attributes[attributesKeys[i]];
-
-            //push
-            headCells.push(o);
-        }
-        return headCells;
-    }
-
-    function makeCellLabel(text) {
-
-        //capitalize first letter
-        var label = text[0].toUpperCase() + text.slice(1);
-
-        return label;
-    }
-    /**
-     * getData
-     * 
-     * Get @items and @count from GrahpQL Server.
-     * Uses current state properties to fill query request.
-     * Updates state to inform new @items and @count retreived.
-     * 
-     */
-    function getData() {
-        /**
-         * Debug
-         */
-        console.log("@@getData() with: ");
-        console.log("@@url: ", graphqlServerUrl);
-        console.log("@@search: ", search);
-        console.log("@@onApiRequest: ", isOnApiRequest);
-
-        //set state flag
-        setIsOnApiRequest(true);
-
-        //reset
-        if(isGettingFirstData) {
-          setIsGettingFirstData(false);
-        }
-
-        /*
-          API Request: countItems
-        */
-        api.user.getCountItems(graphqlServerUrl, search)
-            .then(response => {
-                //Check response
-                if (
-                    response.data &&
-                    response.data.data
-                ) {
-                    /**
-                     * Debug
-                     */
-                    console.log("newCount: ", response.data.data.countUsers);
-
-                    //set new count
-                    var newCount = response.data.data.countUsers;
-
-                    /*
-                      Check: empty page
-                    */
-                    if( (newCount === (page * rowsPerPage)) && (page > 0) ) 
-                    {
-                      //update state
-                      setPage(page-1);
-                      setIsOnApiRequest(false);
-
-                      //done (getData will be invoked on hook[page])
-                      return;
-                    }
-                    //else
-
-
-                    /*
-                      API Request: items
-                    */
-                    api.user.getItems(
-                        graphqlServerUrl,
-                        search,
-                        orderBy,
-                        order,
-                        page * rowsPerPage, //paginationOffset
-                        rowsPerPage, //paginationLimit
-                    )
-                        .then(response => {
-                            //check response
-                            if (
-                                response.data &&
-                                response.data.data &&
-                                response.data.data.users) {
-
-                                /**
-                                 * Debug
-                                 */
-                                console.log("@@newCount: ", newCount);
-                                console.log("@@newItems: ", response.data.data.users);
-
-                                //update state
-                                setIsOnApiRequest(false);
-                                setCount(newCount);
-                                setItems(response.data.data.users);
-
-                                //done
-                                console.log("getData: done");
-                                return;
-
-                            } else {
-
-                                //error
-                                console.log("error1");
-
-                                //done
-                                return;
-                            }
-                        })
-                        .catch(err => {
-
-                            //error
-                            console.log("error2");
-
-                            //done
-                            return;
-                        });
-
-                    //done
-                    return;
-
-                } else {
-
-                    //error
-                    console.log("error3")
-
-                    //done
-                    return;
-                }
-            })
-            .catch(err => {
-
-                //error
-                console.log("error4: ", err)
-
-                //done
-                return;
-            });
-    }//end: getData()
-
-    function doDelete(event, item) {
       /*
-        API Request: deleteItem
+        API Request: countItems
       */
-      api.users.deleteItem(graphqlServerUrl, item.id)
+      api.userB.getCountItems(graphqlServerUrl, search)
         .then(response => {
-          //Check response
-          if (
+          if(
             response.data &&
             response.data.data
           ) {
-            /**
-              * Debug
-              */
-            console.log(">> mutation.delete response: ", response.data.data);
+            var newCount = response.data.data.countUsers;
 
-            //get data
-            getData();
-  
-            //done
+            /*
+              Check: empty page
+            */
+            if((newCount === (page * rowsPerPage)) && (page > 0)) {
+              setPage(page - 1);
+              setIsOnApiRequest(false);
+              return;
+            }
+
+            /*
+              API Request: items
+            */
+            api.userB.getItems(
+              graphqlServerUrl,
+              search,
+              orderBy,
+              order,
+              page * rowsPerPage, //paginationOffset
+              rowsPerPage, //paginationLimit
+            )
+              .then(response => {
+                if (
+                  response.data &&
+                  response.data.data &&
+                  response.data.data.users) {
+
+                  /**
+                   * Debug
+                   */
+                  console.log("@@newCount: ", newCount);
+                  console.log("@@newItems: ", response.data.data.users);
+
+                  //set new data
+                  setIsOnApiRequest(false);
+                  setCount(newCount);
+                  setItems(response.data.data.users);
+                  return;
+
+                } else {
+
+                  //error
+                  console.log("error1");
+                  return;
+                }
+              })
+              .catch(err => {
+
+                //error
+                console.log("error2");
+                return;
+              });
+
             return;
-  
+
           } else {
-  
+
             //error
             console.log("error3")
-  
-            //done
             return;
           }
         })
-        .catch(err => {
-  
-          //error
-          console.log("error4: ", err)
-  
-          //done
+      .catch(err => {
+
+        //error
+        console.log("error4: ", err)
+        return;
+      });
+  }//end: getData()
+
+  function doDelete(event, item) {
+    /*
+      API Request: deleteItem
+    */
+    api.userB.deleteItem(graphqlServerUrl, item.id)
+      .then(response => {
+        if(
+          response.data &&
+          response.data.data
+        ) {
+          /**
+            * Debug
+            */
+          console.log(">> mutation.delete response: ", response.data.data);
+          getData();
           return;
-        });
-      
-      //close
-      //onClose(event);
-    }
 
-    /*
-      Handlers
-    */
+        } else {
 
-    /**
-     * On search text enter handler.
-     * 
-     * @param {String} value New search text value.
-     */
-    const handleSearchEnter = text => {
-      console.log("on HSC: text: ", text);
-      
-      setSearch(text);
-    }
-
-
-    const handleNewData = ( newCount, newItems) => {
-        setCount(newCount); 
-        setItems(newItems);
-    }
-
-    const handleRequestSort = (event, property) => {
-        //invert order
-        const isDesc = (order === 'desc');
-        setOrder(isDesc ? 'asc' : 'desc');
-
-        if (orderBy !== property) {
-            //set new orderBy
-            setOrderBy(property);
+          //error
+          console.log("error3")
+          return;
         }
-    };
+      })
+      .catch(err => {
 
-    const handleSelectAllClick = event => {
-        if (event.target.checked) {
-            const newSelecteds = items.map(item => item.id);
-            setSelected(newSelecteds);
-            return;
-        }
-        else {
-            setSelected([]);
-        }
-    };
-
-    const handleClickOnRow = (event, item) => {
-      console.log("clicked itemId: ", item.id);
-
-        //update state item
-        setDetailItem(item);
-    };
-
-    const handleRowChecked = (event, item) => {
-
-        const selectedIndex = selected.indexOf(item.id);
-        let newSelected = [];
-
-        if (selectedIndex === -1) {
-            //select
-            newSelected = newSelected.concat(selected, item.id);
-        } else if (selectedIndex === 0) {
-            //unselect unique item
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            //unselect last item
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            //unselect item in the middle
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
-            );
-        }
-        //update state
-        setSelected(newSelected);
-    }
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = event => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-    };
-
-    const handleCreateClicked = (event) => {
-      console.log("@@on:-- create clicked");
-
-      //update state
-      setCreateDialogOpen(true);
-    }
-
-    const handleBulkImportClicked = (event) => {
-      //update state
-      setUploadFileDialogOpen(true);
-    }
-
-    const handleUpdateClicked = (event, item) => {
-      //update state
-      setUpdateItem(item);
-    }
-
-    const handleDeleteClicked = (event, item) => {
-      //update state
-      setDeleteConfirmationItem(item);
-    }
-
-    const handleChangeDense = event => {
-        setDense(event.target.checked);
-    };
-
-    const handleCreateDialogClose = (event) => {
-      delayedCloseCreatePanel(event, 500);
-    }
-    const delayedCloseCreatePanel = async (event, ms) => {
-      await new Promise(resolve => {
-        //set timeout
-        window.setTimeout(function() {
-          //update state
-          setCreateDialogOpen(false);
-          //resolve
-          resolve("ok");
-        }, ms);
+        //error
+        console.log("error4: ", err)
+        return;
       });
-    };
+  }
 
-    const handleUpdateDialogClose = (event) => {
-      delayedCloseUpdatePanel(event, 500);
+  const handleSearchEnter = text => {
+    setSearch(text);
+  }
+
+  const handleRequestSort = (event, property) => {
+    const isDesc = (order === 'desc');
+    setOrder(isDesc ? 'asc' : 'desc');
+
+    if (orderBy !== property) {
+      setOrderBy(property);
     }
-    const delayedCloseUpdatePanel = async (event, ms) => {
-      await new Promise(resolve => {
-        //set timeout
-        window.setTimeout(function() {
-          //update state
-          setUpdateDialogOpen(false);
-          setUpdateItem(undefined);
-          //resolve
-          resolve("ok");
-        }, ms);
-      });
-    };
+  };
 
-    const handleDetailDialogClose = (event) => {
-      delayedCloseDetailPanel(event, 500);
-    }
-    const delayedCloseDetailPanel = async (event, ms) => {
-      await new Promise(resolve => {
-        //set timeout
-        window.setTimeout(function() {
-          //update state
-          setDetailDialogOpen(false);
-          setDetailItem(undefined);
-          //resolve
-          resolve("ok");
-        }, ms);
-      });
-    };
+  const handleClickOnRow = (event, item) => {
+    setDetailItem(item);
+  };
 
-    const handleDeleteConfirmationReject = (event) => {
-      delayedCloseDeleteConfirmation(event, 500);
-    }
-    const delayedCloseDeleteConfirmation = async (event, ms) => {
-      await new Promise(resolve => {
-        //set timeout
-        window.setTimeout(function() {
-          //update state
-          setDeleteConfirmationDialogOpen(false);
-          setDeleteConfirmationItem(undefined);
-          //resolve
-          resolve("ok");
-        }, ms);
-      });
-    };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-    const handleBulkUploadCancel = (event) => {
-      delayedCloseBulkUploadDialog(event, 500);
-    }
-    const handleBulkUploadDone = (event) => {
-      delayedCloseBulkUploadDialog(event, 500);
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
 
-      //get data
-      getData();
-    }
-    const delayedCloseBulkUploadDialog = async (event, ms) => {
-      await new Promise(resolve => {
-        //set timeout
-        window.setTimeout(function() {
-          //update state
-          setUploadFileDialogOpen(false);
-          //resolve
-          resolve("ok");
-        }, ms);
-      });
-    };
+  const handleCreateClicked = (event) => {
+    setCreateDialogOpen(true);
+  }
 
-    const handleDeleteConfirmationAccept = (event, item) => {
-      //delete
-      doDelete(event, item);
-      //close
-      delayedCloseDeleteConfirmation(event, 500);
-    }
+  const handleBulkImportClicked = (event) => {
+    setUploadFileDialogOpen(true);
+  }
 
-    const handleCreateOk = () => {
-      //get data
-      getData();
-    }
+  const handleUpdateClicked = (event, item) => {
+    setUpdateItem(item);
+  }
 
+  const handleDeleteClicked = (event, item) => {
+    setDeleteConfirmationItem(item);
+  }
 
-    const isSelected = itemId => selected.indexOf(itemId) !== -1;
+  const handleCreateDialogClose = (event) => {
+    delayedCloseCreatePanel(event, 500);
+  }
 
-    const isExpanded = itemId => expanded.indexOf(itemId) !== -1;
+  const delayedCloseCreatePanel = async (event, ms) => {
+    await new Promise(resolve => {
+      //set timeout
+      window.setTimeout(function() {
+        setCreateDialogOpen(false);
+        resolve("ok");
+      }, ms);
+    });
+  };
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
+  const handleUpdateDialogClose = (event) => {
+    delayedCloseUpdatePanel(event, 500);
+  }
 
-    /*
-      Render
-    */
-    return (
-        <div className={classes.root}>
-            <Grid container justify='center'>
-                <Grid item sm={12} md={11} lg={10}>
-                    <Paper className={classes.paper}>
+  const delayedCloseUpdatePanel = async (event, ms) => {
+    await new Promise(resolve => {
+      //set timeout
+      window.setTimeout(function() {
+        setUpdateDialogOpen(false);
+        setUpdateItem(undefined);
+        resolve("ok");
+      }, ms);
+    });
+  };
 
-                        {/* Toolbar */}
-                        <UserEnhancedTableToolbar
-                            search={search}
-                            onSearchEnter={handleSearchEnter}
-                            handleAddClicked={handleCreateClicked}
-                            handleBulkImportClicked={handleBulkImportClicked}
-                        />
+  const handleDetailDialogClose = (event) => {
+    delayedCloseDetailPanel(event, 500);
+  }
 
-                        {/* Table */}
-                        <div className={classes.tableWrapper}>
-                        <Table stickyHeader size={dense ? 'small' : 'medium'}>
-                            
-                            {/* Table Head */}
-                            <EnhancedTableHead
-                                order={order}
-                                orderBy={orderBy}
-                                rowCount={count}
-                                onRequestSort={handleRequestSort}
-                            />
+  const delayedCloseDetailPanel = async (event, ms) => {
+    await new Promise(resolve => {
+      //set timeout
+      window.setTimeout(function() {
+        setDetailDialogOpen(false);
+        setDetailItem(undefined);
+        resolve("ok");
+      }, ms);
+    });
+  };
 
-                            {/* Table Body */}
+  const handleDeleteConfirmationReject = (event) => {
+    delayedCloseDeleteConfirmation(event, 500);
+  }
 
-                            {/* Case: show table body */}
-                            {(!isOnApiRequest && count > 0) && (                            
-                              <Fade
-                                in={true}
-                                unmountOnExit
+  const delayedCloseDeleteConfirmation = async (event, ms) => {
+    await new Promise(resolve => {
+      //set timeout
+      window.setTimeout(function() {
+        setDeleteConfirmationDialogOpen(false);
+        setDeleteConfirmationItem(undefined);
+        resolve("ok");
+      }, ms);
+    });
+  };
+
+  const handleBulkUploadCancel = (event) => {
+    delayedCloseBulkUploadDialog(event, 500);
+  }
+
+  const handleBulkUploadDone = (event) => {
+    delayedCloseBulkUploadDialog(event, 500);
+    getData();
+  }
+
+  const delayedCloseBulkUploadDialog = async (event, ms) => {
+    await new Promise(resolve => {
+      //set timeout
+      window.setTimeout(function() {
+        setUploadFileDialogOpen(false);
+        resolve("ok");
+      }, ms);
+    });
+  };
+
+  const handleDeleteConfirmationAccept = (event, item) => {
+    doDelete(event, item);
+    delayedCloseDeleteConfirmation(event, 500);
+  }
+
+  const handleCreateOk = () => {
+    getData();
+  }
+
+  return (
+    <div className={classes.root}>
+      <Grid container justify='center'>
+        <Grid item xs={12} md={11} lg={10}>
+          <Paper className={classes.paper}>
+
+            {/* Toolbar */}
+            <UserEnhancedTableToolbar
+              search={search}
+              onSearchEnter={handleSearchEnter}
+              handleAddClicked={handleCreateClicked}
+              handleBulkImportClicked={handleBulkImportClicked}
+            />
+
+            {/* Table */}
+            <div className={classes.tableWrapper}>
+              <Table stickyHeader size='medium'>
+
+                {/* Table Head */}
+                <UserEnhancedTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={count}
+                  onRequestSort={handleRequestSort}
+                />
+
+                {/* Table Body */}
+
+                {/* Case: show table body */}
+                {(!isOnApiRequest && count > 0) && (
+                  <Fade
+                    in={true}
+                    unmountOnExit
+                  >
+                    <TableBody>
+                      {
+                        items.map((item, index) => {
+                          return ([
+                            /*
+                              Table Row
+                            */
+                            <TableRow
+                              hover
+                              onClick={event => handleClickOnRow(event, item)}
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={item.id}
+                            >
+
+                              {/* SeeInfo icon */}
+                              <TableCell padding="checkbox">
+                                <Tooltip title="View all info">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={event => {
+                                      event.stopPropagation();
+                                      handleClickOnRow(event, item);
+                                    }}
+                                  >
+                                    <SeeInfo />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+
+                              {/*
+                                Actions:
+                                - Edit
+                                - Delete
+                              */}
+                              <TableCell padding='checkbox' align='center'>
+                                <Tooltip title="Edit">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleUpdateClicked(event, item);
+                                    }}
+                                  >
+                                    <Edit fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+
+                              <TableCell padding='checkbox' align='center'>
+                                <Tooltip title="Delete">
+                                  <IconButton
+                                    color="secondary"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeleteClicked(event, item);
+                                    }}
+                                  >
+                                    <Delete fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+
+                              {/* Item fields */}
+
+                              {/* id */}
+                              <TableCell
+                                key='id'
+                                align='right'
+                                padding="default"
                               >
-                                <TableBody>
-                                    {
-                                        items.map((item, index) => {
-                                            const isItemSelected = isSelected(item.id);
-                                            const isItemExpanded = isExpanded(item.id);
-                                            const itemKeys = Object.keys(item);
+                                {item.id}
+                              </TableCell>
 
-                                            return ([
-                                                /*
-                                                  Table Row
-                                                */
-                                                <TableRow
-                                                  hover
-                                                  onClick={event => handleClickOnRow(event, item)}
-                                                  role="checkbox"
-                                                  aria-checked={isItemSelected}
-                                                  tabIndex={-1}
-                                                  key={item.id}
-                                                  selected={isItemSelected}
-                                                >
-
-                                                  {/* SeeInfo icon */}
-                                                  <TableCell padding="checkbox">
-                                                    <Tooltip title="View all info">
-                                                      <IconButton
-                                                          color="primary"
-                                                          onClick={event => {
-                                                            event.stopPropagation();
-                                                            handleClickOnRow(event, item);
-                                                          }}
-                                                      >
-                                                          <SeeInfo />
-                                                      </IconButton>
-                                                    </Tooltip>
-                                                  </TableCell>
-
-                                                  {/*
-                                                      Actions:
-                                                      - Edit
-                                                      - Delete
-                                                  */}
-                                                  <TableCell padding='checkbox' align='center'>
-                                                    <Tooltip title="Edit">
-                                                        <IconButton 
-                                                          color="primary"
-                                                          onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            handleUpdateClicked(event, item);
-                                                          }}
-                                                        >
-                                                            <Edit fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                  </TableCell>
-
-                                                  <TableCell padding='checkbox' align='center'>
-                                                    <Tooltip title="Delete">
-                                                        <IconButton 
-                                                          color="secondary"
-                                                          onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            handleDeleteClicked(event, item);
-                                                          }}
-                                                        >
-                                                            <Delete fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                  </TableCell>
-
-                                                  {/* Item fields */}
-                                                  {headCells.map(head => (
-                                                    <TableCell
-                                                        key={head.name + item.id}
-                                                        align={
-                                                            (head.type === 'Int' || head.type === 'Float') ?
-                                                                'right' : 'left'
-                                                        }
-                                                        padding="default"
-                                                    >
-                                                        {item[head.name]}
-                                                    </TableCell>
-                                                  ))}
-
-                                                </TableRow>,
-                                            ]);
-                                        })
-                                    }
-                                </TableBody>
-                              </Fade>
-                            )}
-
-                            {/* Case: loading */}
-                            {(isOnApiRequest) && (
-                              <Fade
-                                in={true}
-                                unmountOnExit
+                              {/* email */}
+                              <TableCell
+                                key='email'
+                                align='left'
+                                padding="default"
                               >
-                                <TableBody>
-                                  <TableRow style={{ height: 53 * 4 }}>
-                                    <TableCell colSpan={4 + headCells.length}>
-                                      <Grid container>
-                                        <Grid item xs={12}>
-                                          <Grid container justify="center">
-                                            <Grid item>
-                                              <CircularProgress color='primary' disableShrink/>
-                                            </Grid>
-                                          </Grid>
-                                        </Grid>
-                                      </Grid>
-                                    </TableCell>
-                                  </TableRow>
-                                </TableBody>
-                              </Fade>
-                            )}
+                                {item.email}
+                              </TableCell>
 
-                            {/* Case: No data */}
-                            {(!isOnApiRequest && count===0) && (
-                              <Fade
-                                in={true}
-                                unmountOnExit
+                              {/* password */}
+                              <TableCell
+                                key='password'
+                                align='left'
+                                padding="default"
                               >
-                                <TableBody>
-                                  <TableRow style={{ height: 53 * 4 }}>
-                                    <TableCell colSpan={4 + headCells.length}>
-                                      <Grid container>
-                                        <Grid item xs={12}>
-                                          <Grid container justify="center">
-                                            <Grid item>
-                                            <Typography variant="body1" > No data to display </Typography>
-                                            </Grid>
-                                          </Grid>
-                                        </Grid>
-                                      </Grid>
-                                    </TableCell>
-                                  </TableRow>
-                                </TableBody>
-                              </Fade>
-                            )}
-                        </Table>
-                        </div>
+                                {item.password}
+                              </TableCell>
+                            </TableRow>,
+                          ]);
+                        })
+                      }
+                    </TableBody>
+                  </Fade>
+                )}
 
-                        {/*
-                          Pagination
-                        */}
-                        <TablePagination
-                            rowsPerPageOptions={[10, 25, 50, 100]}
-                            component="div"
-                            count={count}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                        />
-                    </Paper>
-                </Grid>
-            </Grid>
+                {/* Case: loading */}
+                {(isOnApiRequest) && (
+                  <Fade
+                    in={true}
+                    unmountOnExit
+                  >
+                    <TableBody>
+                      <TableRow className={classes.loading}>
+                        <TableCell colSpan={3 + 3}>
+                          <Grid container>
+                            <Grid item xs={12}>
+                              <Grid container justify="center">
+                                <Grid item>
+                                  <CircularProgress color='primary' disableShrink />
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Fade>
+                )}
 
-            {/* Dialog: Create Panel */}
-            {(createDialogOpen) && (
-              <CreatePanel 
-                headCells={headCells}
-                toOnes={model.toOnes}
-                toManys={model.toManys}
-                modelNames={model.names}
-                handleClose={handleCreateDialogClose}
-                handleOk={handleCreateOk}
-              />
-            )}
+                {/* Case: No data */}
+                {(!isOnApiRequest && count === 0) && (
+                  <Fade
+                    in={true}
+                    unmountOnExit
+                  >
+                    <TableBody>
+                      <TableRow className={classes.noData}>
+                        <TableCell colSpan={3 + 3}>
+                          <Grid container>
+                            <Grid item xs={12}>
+                              <Grid container justify="center">
+                                <Grid item>
+                                  <Typography variant="body1" > No data to display </Typography>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Fade>
+                )}
+              </Table>
+            </div>
 
-            {/* Dialog: Update Panel */}
-            {(updateDialogOpen) && (
-              <UpdatePanel 
-                headCells={headCells}
-                item={updateItem}
-                toOnes={model.toOnes}
-                toManys={model.toManys}
-                modelNames={model.names}
-                handleClose={handleUpdateDialogClose}
-              />
-            )}
+            {/*
+              Pagination
+            */}
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              component="div"
+              count={count}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </Grid>
+      </Grid>
 
-            {/* Dialog: Detail Panel */}
-            {(detailDialogOpen) && (
-              <DetailPanel 
-                headCells={headCells}
-                item={detailItem}
-                toOnes={model.toOnes}
-                toManys={model.toManys}
-                modelNames={model.names}
-                dialog={true}
-                handleClose={handleDetailDialogClose}
-              />
-            )}
+      {/* Dialog: Create Panel */}
+      {(createDialogOpen) && (
+        <UserCreatePanel
+          handleClose={handleCreateDialogClose}
+          handleOk={handleCreateOk}
+        />
+      )}
 
-            {/* Dialog: Delete Confirmation */}
-            {(deleteConfirmationDialogOpen) && (
-              <DeleteConfirmationDialog 
-                headCells={headCells}
-                item={deleteConfirmationItem}
-                toOnes={model.toOnes}
-                toManys={model.toManys}
-                modelNames={model.names}
-                handleAccept={handleDeleteConfirmationAccept}
-                handleReject={handleDeleteConfirmationReject}
-              />
-            )}
+      {/* Dialog: Update Panel */}
+      {(updateDialogOpen) && (
+        <UserUpdatePanel
+          item={updateItem}
+          handleClose={handleUpdateDialogClose}
+          handleOk={handleCreateOk}
+        />
+      )}
 
-            {/* Dialog: Upload File */}
-            {(uploadFileDialogOpen) && (
-              <UploadFileDialog
-                modelNames={model.names}
-                handleCancel={handleBulkUploadCancel}
-                handleDone={handleBulkUploadDone}
-              />
-            )}
+      {/* Dialog: Detail Panel */}
+      {(detailDialogOpen) && (
+        <UserDetailPanel
+          item={detailItem}
+          dialog={true}
+          handleClose={handleDetailDialogClose}
+        />
+      )}
 
-        </div>
-    );
+      {/* Dialog: Delete Confirmation */}
+      {(deleteConfirmationDialogOpen) && (
+        <UserDeleteConfirmationDialog
+          item={deleteConfirmationItem}
+          handleAccept={handleDeleteConfirmationAccept}
+          handleReject={handleDeleteConfirmationReject}
+        />
+      )}
+
+      {/* Dialog: Upload File */}
+      {(uploadFileDialogOpen) && (
+        <UserUploadFileDialog
+          handleCancel={handleBulkUploadCancel}
+          handleDone={handleBulkUploadDone}
+        />
+      )}
+    </div>
+  );
 }
-EnhancedTable.propTypes = {
-    model: PropTypes.PropTypes.exact({
-        model: PropTypes.string,
-        storageType: PropTypes.string,
-        attributes: PropTypes.object,
-        associations: PropTypes.object,
-        names: PropTypes.object,
-        toManys: PropTypes.array,
-        toOnes: PropTypes.array,
-    }).isRequired,
-};

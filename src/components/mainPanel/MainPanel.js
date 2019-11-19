@@ -117,7 +117,13 @@ function MainPanel({ dispatch }) {
       id: 1,
       title: 'role',
       url: '/main/admin/role',
+    },
+    {
+      id: 2,
+      title: 'userB',
+      url: '/main/admin/userB',
     }
+
   ];
   const history = useHistory();
 

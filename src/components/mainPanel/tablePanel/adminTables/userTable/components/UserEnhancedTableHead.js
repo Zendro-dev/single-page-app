@@ -34,7 +34,7 @@ export default function UserEnhancedTableHead(props) {
         {/* Id */}
         <TableCell
           key='id'
-          align='left'
+          align='right'
           padding="default"
           sortDirection={orderBy === 'id' ? order : false}
         >
@@ -52,7 +52,7 @@ export default function UserEnhancedTableHead(props) {
         {/* Email */}
         <TableCell
           key='email'
-          align='right'
+          align='left'
           padding="default"
           sortDirection={orderBy === 'email' ? order : false}
         >
@@ -70,7 +70,7 @@ export default function UserEnhancedTableHead(props) {
         {/* Password */}
         <TableCell
           key='password'
-          align='right'
+          align='left'
           padding="default"
           sortDirection={orderBy === 'password' ? order : false}
         >
