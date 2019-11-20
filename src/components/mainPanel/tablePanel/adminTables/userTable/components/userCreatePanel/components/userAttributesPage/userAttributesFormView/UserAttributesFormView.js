@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import StringField from './components/StringField'
 import DateField from './components/DateField'
+import TimeField from './components/TimeField'
+import BoolField from './components/BoolField'
+import DateTimeField from './components/DateTimeField'
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -132,6 +135,54 @@ export default function UserAttributesFormView(props) {
                 label='Date'
                 text='2019-11-20'
                 valueOk={1}
+                autoFocus={false}
+                handleBlur={handleBlur}
+                handleReady={handleFieldReady}
+                handleChange={handleChange}
+                handleKeyDown={handleKeyDown}
+              />
+            </CardContent>
+
+            {/* Time test */}
+            <CardContent key='time' className={classes.cardContent} >
+              <TimeField
+                itemKey='time'
+                name='time'
+                label='Time'
+                //text='2019-11-20'
+                valueOk={1}
+                autoFocus={true}
+                handleBlur={handleBlur}
+                handleReady={handleFieldReady}
+                handleChange={handleChange}
+                handleKeyDown={handleKeyDown}
+              />
+            </CardContent>
+
+            {/* DateTime test */}
+            <CardContent key='datetime' className={classes.cardContent} >
+              <DateTimeField
+                itemKey='datetime'
+                name='datetime'
+                label='Datetime'
+                //text='2019-11-20'
+                valueOk={1}
+                autoFocus={true}
+                handleBlur={handleBlur}
+                handleReady={handleFieldReady}
+                handleChange={handleChange}
+                handleKeyDown={handleKeyDown}
+              />
+            </CardContent>
+
+            {/* Bool test */}
+            <CardContent key='bool' className={classes.cardContent} >
+              <BoolField
+                itemKey='bool'
+                name='bool'
+                label='Bool'
+                //text='2019-11-20'
+                valueOk={0}
                 autoFocus={true}
                 handleBlur={handleBlur}
                 handleReady={handleFieldReady}

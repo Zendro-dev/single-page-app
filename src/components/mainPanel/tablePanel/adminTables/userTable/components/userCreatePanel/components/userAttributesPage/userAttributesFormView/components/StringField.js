@@ -31,53 +31,53 @@ export default function StringField(props) {
   
   const [value, setValue] = React.useState('');
   const inputRef = useRef(null);
-  const textFieldRef = useRef(null);
+  const fieldRef = useRef(null);
 
   useEffect(() => {
     if(text !== undefined && text !== null && text !== '') {
       setValue(text);
     }
     if(handleReady !== undefined) {
-      handleReady(itemKey, textFieldRef, inputRef);
+      handleReady(itemKey, fieldRef, inputRef);
     }
   }, []);
 
   return (
-        <TextField
-          id={"string-field-"+itemKey+'-'+label}
-          label={label}
-          ref={textFieldRef}
-          inputRef={inputRef}
-          multiline
-          rowsMax="4"
-          value={value}
-          className={classes.textField}
-          margin="normal"
-          variant="filled"
-          autoFocus={autoFocus!==undefined&&autoFocus===true ? true : false}
-          InputProps={{
-            endAdornment:
-              <InputAdornment position="end">
-                {(valueOk!==undefined&&valueOk===1) ? <CheckIcon color="primary" fontSize="small" /> : ''}
-              </InputAdornment>
-          }}
-          onChange={(event) => {
-            setValue(event.target.value);
-            if(handleChange !== undefined) {
-              handleChange(event, event.target.value, itemKey);
-            }
-          }}
-          onBlur={(event) => {
-            if(handleBlur !== undefined) {
-              handleBlur(event, event.target.value, itemKey);
-            }
-          }}
-          onKeyDown={(event) => {
-            if(handleKeyDown !== undefined) {
-              handleKeyDown(event, event.target.value, itemKey);
-            }
-          }}
-        />
+    <TextField
+      id={"string-field-"+itemKey+'-'+label}
+      label={label}
+      ref={fieldRef}
+      inputRef={inputRef}
+      multiline
+      rowsMax="4"
+      value={value}
+      className={classes.textField}
+      margin="normal"
+      variant="filled"
+      autoFocus={autoFocus!==undefined&&autoFocus===true ? true : false}
+      InputProps={{
+        endAdornment:
+          <InputAdornment position="end">
+            {(valueOk!==undefined&&valueOk===1) ? <CheckIcon color="primary" fontSize="small" /> : ''}
+          </InputAdornment>
+      }}
+      onChange={(event) => {
+        setValue(event.target.value);
+        if(handleChange !== undefined) {
+          handleChange(event, event.target.value, itemKey);
+        }
+      }}
+      onBlur={(event) => {
+        if(handleBlur !== undefined) {
+          handleBlur(event, event.target.value, itemKey);
+        }
+      }}
+      onKeyDown={(event) => {
+        if(handleKeyDown !== undefined) {
+          handleKeyDown(event, event.target.value, itemKey);
+        }
+      }}
+    />
   );
 }
 StringField.propTypes = {

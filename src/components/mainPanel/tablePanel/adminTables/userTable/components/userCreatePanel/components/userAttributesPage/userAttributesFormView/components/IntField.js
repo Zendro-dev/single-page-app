@@ -31,54 +31,54 @@ export default function IntField(props) {
 
   const [value, setValue] = React.useState('');
   const inputRef = useRef(null);
-  const textFieldRef = useRef(null);
+  const fieldRef = useRef(null);
 
   useEffect(() => {
     if(text !== undefined && text !== null && text !== '') {
       setValue(text);
     }
     if(handleReady !== undefined) {
-      handleReady(itemKey, textFieldRef, inputRef);
+      handleReady(itemKey, fieldRef, inputRef);
     }
 
   }, []);
 
   return (
-        <TextField
-          id={"int-field-"+itemKey+'-'+label}
-          label={label}
-          ref={textFieldRef}
-          inputRef={inputRef}
-          type="number"
-          value={value}
-          className={classes.textField}
-          margin="normal"
-          variant="standard"
-          autoFocus={autoFocus!==undefined&&autoFocus===true ? true : false}
-          InputProps={{
-            endAdornment:
-              <InputAdornment position="end">
-                {(valueOk!==undefined&&valueOk===1) ? <CheckIcon color="primary" fontSize="small" /> : ''}
-              </InputAdornment>
-          }}
-          onChange={(event) => {
-            setValue(event.target.value);
+    <TextField
+      id={"int-field-"+itemKey+'-'+label}
+      label={label}
+      ref={fieldRef}
+      inputRef={inputRef}
+      type="number"
+      value={value}
+      className={classes.textField}
+      margin="normal"
+      variant="standard"
+      autoFocus={autoFocus!==undefined&&autoFocus===true ? true : false}
+      InputProps={{
+        endAdornment:
+          <InputAdornment position="end">
+            {(valueOk!==undefined&&valueOk===1) ? <CheckIcon color="primary" fontSize="small" /> : ''}
+          </InputAdornment>
+      }}
+      onChange={(event) => {
+        setValue(event.target.value);
 
-            if(handleChange !== undefined) {
-              handleChange(event, event.target.value, itemKey);
-            }
-          }}
-          onBlur={(event) => {
-            if(handleBlur !== undefined) {
-              handleBlur(event, event.target.value, itemKey);
-            }
-          }}
-          onKeyDown={(event) => {
-            if(handleKeyDown !== undefined) {
-              handleKeyDown(event, event.target.value, itemKey);
-            }
-          }}
-        />
+        if(handleChange !== undefined) {
+          handleChange(event, event.target.value, itemKey);
+        }
+      }}
+      onBlur={(event) => {
+        if(handleBlur !== undefined) {
+          handleBlur(event, event.target.value, itemKey);
+        }
+      }}
+      onKeyDown={(event) => {
+        if(handleKeyDown !== undefined) {
+          handleKeyDown(event, event.target.value, itemKey);
+        }
+      }}
+    />
   );
 }
 IntField.propTypes = {
