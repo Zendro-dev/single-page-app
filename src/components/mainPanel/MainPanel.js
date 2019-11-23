@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { logoutRequest } from '../../store/actions.js';
 import { useHistory } from "react-router-dom";
+import { logoutRequest } from '../../store/actions';
+import models from '../../routes/routes'
 import MainSwitch from './MainSwitch'
-
-/*
-  Material-UI components
-*/
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Fade from '@material-ui/core/Fade';
@@ -27,12 +24,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import HomeIcon from '@material-ui/icons/HomeOutlined';
-//import ModelsIcon from '@material-ui/icons/SelectAllOutlined';
 import ModelsIcon from '@material-ui/icons/BubbleChart';
-import CircleIconOutlined from '@material-ui/icons/FiberManualRecordOutlined';
-import CircleIconFilled from '@material-ui/icons/FiberManualRecord';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Accounts from '@material-ui/icons/SupervisorAccountRounded';
 
 const drawerWidth = 240;
 
@@ -96,55 +91,35 @@ const useStyles = makeStyles(theme => ({
   nested: {
     paddingLeft: theme.spacing(4),
   },
+  inline: {
+    display: 'inline',
+  },
 }));
 
-/*
-    Component: MainPanel
-*/
 function MainPanel({ dispatch }) {
-  /*
-    Properties
-  */
   const classes = useStyles();
   const theme = useTheme();
-  const adminItems = [
+  const accountModels = [
     {
-      id: 0,
-      title: 'user',
+      id: -1,
+      name: 'user',
+      title: 'Users',
       url: '/main/admin/user',
     },
     {
-      id: 1,
-      title: 'role',
+      id: -2,
+      name: 'role',
+      title: 'Roles',
       url: '/main/admin/role',
     },
-    {
-      id: 2,
-      title: 'userB',
-      url: '/main/admin/userB',
-    }
-
   ];
   const history = useHistory();
-
-  /*
-    State
-  */
   const [openDrawer, setOpenDrawer] = useState(true);
   const [openModelsList, setOpenModelsList] = useState(true);
-  const [modelsList, setModelsList] = useState([]);
-  const [openAdminList, setOpenAdminList] = useState(true);
+  const [modelsList, setModelsList] = useState(models);
+  const [openAccountsList, setOpenAccountsList] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-
-  //hook:
-  useEffect(() => {
-    updateModelList();
-  }, []);
-
-  /*
-    Handlers
-  */
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
@@ -156,16 +131,9 @@ function MainPanel({ dispatch }) {
   const handleModelsListClick = () => {
     setOpenModelsList(!openModelsList);
   };
-  const handleAdminListClick = () => {
-    setOpenAdminList(!openAdminList);
+  const handleAccountsListClick = () => {
+    setOpenAccountsList(!openAccountsList);
   };
-
-  /*
-    Methods
-  */
-  function updateModelList() {
-    setModelsList(['Model1', 'Model2', 'Model3']);
-  }
 
   return (
     <Fade in={true} timeout={500}>
@@ -179,10 +147,6 @@ function MainPanel({ dispatch }) {
           })}
         >
           <Toolbar>
-            
-            {/* 
-              Button: Menu Open/Close 
-            */}
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -192,18 +156,12 @@ function MainPanel({ dispatch }) {
             >
               <MenuIcon />
             </IconButton>
-            
-            {/* 
-              Title 
-            */}
+
             <Typography variant="h6" noWrap>
               Cenzontle
             </Typography>
 
             <div className={classes.toolbarLeftButtons}>
-              {/* 
-                Button: Logout 
-              */}
               <Button
                 color="inherit"
                 onClick={() => {
@@ -217,6 +175,7 @@ function MainPanel({ dispatch }) {
 
           </Toolbar>
         </AppBar>
+        
         <Drawer
           className={classes.drawer}
           variant="persistent"
@@ -226,128 +185,164 @@ function MainPanel({ dispatch }) {
             paper: classes.drawerPaper,
           }}
         >
+
+          {/* Header */}  
           <div className={classes.drawerHeader}>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>
           </div>
-          <Divider />
+
+          {/* Menu */}
           <List>
-            <ListItem button>
+
+            {/* Home */}
+            <ListItem 
+              button
+              onClick={() => {
+                setSelectedIndex(-3);
+                history.push('/main/home');
+              }}
+            >
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
-              <ListItemText primary='Home' />
+              <ListItemText primary={
+                  <React.Fragment>
+                    <Typography
+                      component="span"
+                      variant='body1'
+                      display='block'
+                      noWrap={true}
+                      color="textPrimary"
+                    >
+                      <b>Home</b>
+                    </Typography>
+                  </React.Fragment>
+                } />
             </ListItem>
+            
+            <Divider />
+          
+            {/* Models */}
+            <ListItem button onClick={handleModelsListClick}>
+              <ListItemIcon><ModelsIcon /></ListItemIcon>
+              <ListItemText primary={
+                  <React.Fragment>
+                    <Typography
+                      component="span"
+                      variant='body1'
+                      display='block'
+                      noWrap={true}
+                      color="textPrimary"
+                    >
+                      <b>Models</b>
+                    </Typography>
+                  </React.Fragment>
+                } />
+              {openModelsList ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+
+            <Collapse in={openModelsList} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {modelsList.map((model) => (
+                  <ListItem 
+                    button 
+                    className={classes.nested} 
+                    key={model.id+'-'+model.name}
+                    selected={selectedIndex === model.id}
+                    onClick={() => {
+                      setSelectedIndex(model.id);
+                      history.push(model.url);
+                    }}
+                  >
+                    <ListItemText primary={
+                      <React.Fragment>
+                        <Typography
+                          component="span"
+                          variant='body2'
+                          display='block'
+                          noWrap={true}
+                          color="textPrimary"
+                        >
+                          {model.title}
+                        </Typography>
+                      </React.Fragment>
+                    }/>
+                  </ListItem>
+                ))}
+              </List>
+            </Collapse>
+
+            <Divider />
+
+          
+            {/* Accounts */}
+            <ListItem button onClick={handleAccountsListClick}>
+              <ListItemIcon><Accounts /></ListItemIcon> 
+              <ListItemText primary={
+                  <React.Fragment>
+                    <Typography
+                      component="span"
+                      variant='body1'
+                      display='block'
+                      noWrap={true}
+                      color="textPrimary"
+                    >
+                      <b>Accounts</b>
+                    </Typography>
+                  </React.Fragment>
+                } 
+              /> 
+              {openAccountsList ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+
+            <Collapse in={openAccountsList} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {accountModels.map((model) => (
+                  <ListItem
+                    button
+                    className={classes.nested}
+                    key={model.id+'-'+model.name}
+                    selected={selectedIndex === model.id}
+                    onClick={() => {
+                      setSelectedIndex(model.id);
+                      history.push(model.url);
+                    }}
+                  >
+                    <ListItemText primary={
+                      <React.Fragment>
+                        <Typography
+                          component="span"
+                          variant='body2'
+                          display='block'
+                          noWrap={true}
+                          color="textPrimary"
+                        >
+                          {model.title}
+                        </Typography>
+                      </React.Fragment>
+                    }/>
+
+                  </ListItem>
+                ))}
+              </List>
+            </Collapse>
           </List>
-          <Divider />
-          <ListItem button onClick={handleModelsListClick}>
-            <ListItemIcon>
-              <ModelsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Models" />
-            {openModelsList ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openModelsList} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {modelsList.map((text, index) => (
-                <ListItem button className={classes.nested} key={text}>
-                  <ListItemIcon>
-                    <CircleIconOutlined color="primary" />
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
-
-          <Divider />
-
-          {/* 
-                    Admin List 
-                */}
-          <ListItem button onClick={handleAdminListClick}>
-
-            {/* 
-                        Icon 
-                    */}
-            <ListItemIcon>
-              <ModelsIcon />
-            </ListItemIcon>
-            {/* 
-                        List Item Text & Expand Indicator 
-                    */}
-            <ListItemText primary="Admin" /> {openAdminList ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          {/* 
-                    Collapsing List 
-                */}
-          <Collapse in={openAdminList} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-
-              {/*
-                            Map ListItems 
-                        */}
-              {adminItems.map((item) => (
-                /*
-                  Item
-                */
-                <ListItem
-                  button
-                  className={classes.nested}
-                  key={item.id}
-                  onClick={() => {
-
-                    //set selected index
-                    setSelectedIndex(item.id);
-
-                    //push item's url
-                    console.log("@pushing: ", item.url);
-                    history.push(item.url);
-
-                  }}
-                  selected={selectedIndex === item.id}
-                >
-                  {/*
-                                    Item.Icon 
-                                */}
-                  <ListItemIcon>
-                    {
-                      (selectedIndex === item.id) ?
-                        <CircleIconFilled color="primary" /> :
-                        <CircleIconOutlined />
-                    }
-                  </ListItemIcon>
-                  {/*
-                                    Item.Text
-                                */}
-                  <ListItemText primary={item.title} />
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
         </Drawer>
+        
+        {/* Main */}
         <main
           className={clsx(classes.content, {
             [classes.contentShift]: openDrawer,
           })}
         >
-          {/*
-                    MainSwitch
-                */}
           <MainSwitch />
+
         </main>
       </div>
     </Fade>
   );
 }
 
-/*
-  Methods
-*/
-
-
-/*
-  Make connection
-*/
 export default connect()(MainPanel)

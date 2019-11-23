@@ -22,6 +22,10 @@ function StackView() {
                       <TablesSwitch />
                   </Route>
 
+                  <Route path="/main/model">
+                      <TablesSwitch />
+                  </Route>
+
                   <Route path="/main">
                       <NotFoundSectionPage />
                   </Route>
