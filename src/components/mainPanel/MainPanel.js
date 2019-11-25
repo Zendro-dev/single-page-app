@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from "react-router-dom";
 import { logoutRequest } from '../../store/actions';
-import models from '../../routes/routes'
+import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -75,18 +75,20 @@ const useStyles = makeStyles(theme => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: -drawerWidth,
+    width:'100%'
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: 0,
+    width: `calc(100% - ${drawerWidth}px)`,
   },
   nested: {
     paddingLeft: theme.spacing(4),
@@ -99,26 +101,13 @@ const useStyles = makeStyles(theme => ({
 function MainPanel({ dispatch }) {
   const classes = useStyles();
   const theme = useTheme();
-  const accountModels = [
-    {
-      id: -1,
-      name: 'user',
-      title: 'Users',
-      url: '/main/admin/user',
-    },
-    {
-      id: -2,
-      name: 'role',
-      title: 'Roles',
-      url: '/main/admin/role',
-    },
-  ];
   const history = useHistory();
   const [openDrawer, setOpenDrawer] = useState(true);
   const [openModelsList, setOpenModelsList] = useState(true);
-  const [modelsList, setModelsList] = useState(models);
-  const [openAccountsList, setOpenAccountsList] = useState(true);
+  const [openAdminModelsList, setOpenAdminModelsList] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const modelsList = useRef(routes().models);
+  const adminModelsList = useRef(routes().adminModels);
 
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -132,7 +121,7 @@ function MainPanel({ dispatch }) {
     setOpenModelsList(!openModelsList);
   };
   const handleAccountsListClick = () => {
-    setOpenAccountsList(!openAccountsList);
+    setOpenAdminModelsList(!openAdminModelsList);
   };
 
   return (
@@ -245,7 +234,7 @@ function MainPanel({ dispatch }) {
 
             <Collapse in={openModelsList} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {modelsList.map((model) => (
+                {modelsList.current.map((model) => (
                   <ListItem 
                     button 
                     className={classes.nested} 
@@ -294,12 +283,12 @@ function MainPanel({ dispatch }) {
                   </React.Fragment>
                 } 
               /> 
-              {openAccountsList ? <ExpandLess /> : <ExpandMore />}
+              {openAdminModelsList ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
 
-            <Collapse in={openAccountsList} timeout="auto" unmountOnExit>
+            <Collapse in={openAdminModelsList} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {accountModels.map((model) => (
+                {adminModelsList.current.map((model) => (
                   <ListItem
                     button
                     className={classes.nested}
