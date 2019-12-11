@@ -2,9 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
+import { SnackbarProvider } from 'notistack';
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
-import rootReducer from './store/reducers.js'
+import rootReducer from './store/reducers'
+import './i18n';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import App from './App';
@@ -23,7 +25,14 @@ const store = createStore(
 
 ReactDOM.render(
     <Provider store={store}>
+      <SnackbarProvider
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
         <App />
+      </SnackbarProvider>
     </Provider>, 
     document.getElementById('root')
 );

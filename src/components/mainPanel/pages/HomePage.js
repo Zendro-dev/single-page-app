@@ -3,16 +3,16 @@ import Fade from '@material-ui/core/Fade';
 
 export default function Home() {
 
-    return (
-        <Fade in={true} timeout={500}>
-            <div>
-                <br />
-                <br />
-                <br />
-                <h2>Home</h2>
-                <p>Home</p>
-                <p>Home</p>
-            </div>
-        </Fade>
-    );
+  return (
+    <Fade in={true} timeout={500}>
+      <div>
+        <br />
+        <br />
+        <br />
+        <h2>Home</h2>
+        <p>Home</p>
+        <p>Home</p>
+      </div>
+    </Fade>
+  );
 }
