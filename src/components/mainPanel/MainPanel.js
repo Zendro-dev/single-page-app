@@ -126,6 +126,7 @@ function MainPanel({ dispatch }) {
   const translations = [
     {language: 'Español', lcode: 'es-MX'},
     {language: 'English', lcode: 'en-US'},
+    {language: 'Deutsch', lcode: 'de-DE'},
   ];
 
   useEffect(() => {
