@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from "react-router-dom";
-import { logoutRequest } from '../../store/actions';
+import { logoutRequest, onRefresh } from '../../store/actions';
 import { useSnackbar } from 'notistack';
 import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
@@ -107,12 +107,20 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function MainPanel({ dispatch }) {
+export default function MainPanel() {
   const classes = useStyles();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
+  const dispatch = useDispatch();
+  const loginStatus = useSelector(state => state.login.loginStatus);
+  const user = useSelector(state => state.login.user);
+  const userId = useSelector(state => state.login.userId);
+  const userRoles = useSelector(state => state.login.userRoles);
+  const acl = useSelector(state => state.login.acl);
+  const aclModuleStatusErrors = useSelector(state => state.aclModuleStatus.errors);
+  
 
   const [openDrawer, setOpenDrawer] = useState(true);
   const [openModelsList, setOpenModelsList] = useState(true);
@@ -120,6 +128,7 @@ function MainPanel({ dispatch }) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const modelsList = useRef(routes().models);
   const adminModelsList = useRef(routes().adminModels);
+  const [permissions, setPermissions] = useState(null);
 
   const [translationAnchorEl, setTranslationAnchorEl] = React.useState(null);
   const [translationSelectedIndex, setTranslationSelectedIndex] = React.useState(-1);
@@ -130,6 +139,7 @@ function MainPanel({ dispatch }) {
   ];
 
   useEffect(() => {
+    //set selected translation
     for(var i=0; i<translations.length; i++)
     {
       if(translations[i].lcode = i18n.language) {
@@ -138,6 +148,42 @@ function MainPanel({ dispatch }) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    //check acl module status
+    if(aclModuleStatusErrors&&Array.isArray(aclModuleStatusErrors)&&aclModuleStatusErrors.length>0) {
+      enqueueSnackbar( t('login.errors.e7', "ACL module could not be implemented. Please contact your administrator."), {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
+  }, [aclModuleStatusErrors]);
+
+  useEffect(() => {
+    if(loginStatus === "refreshed") {
+      dispatch(onRefresh());
+    } else if(loginStatus === "expired") {
+      dispatch(logoutRequest());
+    }
+  }, [loginStatus]);
+
+  useEffect(() => {
+    if(acl) {
+      if( modelsList&&modelsList.current&&Array.isArray(modelsList.current) &&
+        adminModelsList&&adminModelsList.current&&Array.isArray(adminModelsList.current)) {
+          
+          let m = modelsList.current.map((model)=>{return model.name});
+          let am = adminModelsList.current.map((model)=>{return model.name});
+                 
+          acl.allowedPermissions(user, am.concat(m), function(err, permissions) {
+            if(!err) {
+              console.log("permissions: ", permissions)
+              setPermissions(permissions);
+            }
+          })
+      }
+    }
+  }, [acl]);
 
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -325,88 +371,101 @@ function MainPanel({ dispatch }) {
             <Collapse in={openModelsList} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {modelsList.current.map((model) => (
-                  <ListItem 
-                    button 
-                    className={classes.nested} 
-                    key={model.id+'-'+model.name}
-                    selected={selectedIndex === model.id}
-                    onClick={() => {
-                      setSelectedIndex(model.id);
-                      history.push(model.url);
-                    }}
-                  >
-                    <ListItemText primary={
-                      <React.Fragment>
-                        <Typography
-                          component="span"
-                          variant='body2'
-                          display='block'
-                          noWrap={true}
-                          color="textPrimary"
-                        >
-                          {model.title}
-                        </Typography>
-                      </React.Fragment>
-                    }/>
-                  </ListItem>
+                  
+                  /* acl check */
+                  (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
+                    <ListItem 
+                      button 
+                      className={classes.nested} 
+                      key={model.id+'-'+model.name}
+                      selected={selectedIndex === model.id}
+                      onClick={() => {
+                        setSelectedIndex(model.id);
+                        history.push(model.url);
+                      }}
+                    >
+                      <ListItemText primary={
+                        <React.Fragment>
+                          <Typography
+                            component="span"
+                            variant='body2'
+                            display='block'
+                            noWrap={true}
+                            color="textPrimary"
+                          >
+                            {model.title}
+                          </Typography>
+                        </React.Fragment>
+                      }/>
+                    </ListItem>
+                  ) : null
+
                 ))}
               </List>
             </Collapse>
 
             <Divider />
 
-          
-            {/* Accounts */}
-            <ListItem button onClick={handleAccountsListClick}>
-              <ListItemIcon><Accounts /></ListItemIcon> 
-              <ListItemText primary={
-                  <React.Fragment>
-                    <Typography
-                      component="span"
-                      variant='body1'
-                      display='block'
-                      noWrap={true}
-                      color="textPrimary"
-                    >
-                      <b>{ t('mainPanel.admin') }</b>
-                    </Typography>
-                  </React.Fragment>
-                } 
-              /> 
-              {openAdminModelsList ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-
-            <Collapse in={openAdminModelsList} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {adminModelsList.current.map((model) => (
-                  <ListItem
-                    button
-                    className={classes.nested}
-                    key={model.id+'-'+model.name}
-                    selected={selectedIndex === model.id}
-                    onClick={() => {
-                      setSelectedIndex(model.id);
-                      history.push(model.url);
-                    }}
-                  >
-                    <ListItemText primary={
+            {/* Admin */}
+            {/* acl check */}
+            {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('admin')) && (
+              <div>
+                <ListItem button onClick={handleAccountsListClick}>
+                  <ListItemIcon><Accounts /></ListItemIcon> 
+                  <ListItemText primary={
                       <React.Fragment>
                         <Typography
                           component="span"
-                          variant='body2'
+                          variant='body1'
                           display='block'
                           noWrap={true}
                           color="textPrimary"
                         >
-                          {model.title}
+                          <b>{ t('mainPanel.admin') }</b>
                         </Typography>
                       </React.Fragment>
-                    }/>
+                    } 
+                  /> 
+                  {openAdminModelsList ? <ExpandLess /> : <ExpandMore />}
+                </ListItem>
+                <Collapse in={openAdminModelsList} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {adminModelsList.current.map((model) => (
 
-                  </ListItem>
-                ))}
-              </List>
-            </Collapse>
+                      /* acl check */
+                      (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
+                        <ListItem
+                          button
+                          className={classes.nested}
+                          key={model.id+'-'+model.name}
+                          selected={selectedIndex === model.id}
+                          onClick={() => {
+                            setSelectedIndex(model.id);
+                            history.push(model.url);
+                          }}
+                        >
+                          <ListItemText primary={
+                            <React.Fragment>
+                              <Typography
+                                component="span"
+                                variant='body2'
+                                display='block'
+                                noWrap={true}
+                                color="textPrimary"
+                              >
+                                {model.title}
+                              </Typography>
+                            </React.Fragment>
+                          }/>
+
+                        </ListItem>
+                      ) : null
+
+                    ))}
+                  </List>
+                </Collapse>
+              </div>
+            )}
           </List>
         </Drawer>
         
@@ -423,5 +482,3 @@ function MainPanel({ dispatch }) {
     </Fade>
   );
 }
-
-export default connect()(MainPanel)

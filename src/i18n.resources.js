@@ -13,6 +13,7 @@ export default {
           e4: "The token received by server could not be validated.",
           e5: "Could not connect to server. Please consult your network administrator.",
           e6: "An error occurred while trying to contact the server. Please contact your administrator.",
+          e7: "ACL module could not be implemented. Please contact your administrator.",
         }
       },
       mainPanel: {
@@ -139,6 +140,7 @@ export default {
           e4: "Das vom Server empfangene Token konnte nicht validiert werden.",
           e5: "Verbindung zum Server konnte nicht hergestellt werden. Bitte wenden Sie sich an Ihren Netzwerkadministrator.",
           e6: "Beim Versuch, eine Verbindung zum Server herzustellen, ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.",
+          e7: "ACL-Modul konnte nicht implementiert werden. Bitte wenden Sie sich an Ihren Administrator.",
         }
       },
       mainPanel: {
@@ -265,6 +267,7 @@ export default {
           e4: "El token no pudo ser validado.",
           e5: "No se puede establecer conexión con el servidor. Por favor contacte al administrador de la red.",
           e6: "Ocurrió un error al intentar contactar con el servidor. Por favor contacte al administrador de la aplicación.",
+          e7: "Ocurrió un error con el módulo ACL. Por favor contacte al administrador de la aplicación.",
         }
       },
       mainPanel: {

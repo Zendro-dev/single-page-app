@@ -109,7 +109,7 @@ function LoginPage({ dispatch }) {
           else {
             setErrorUser({
               status: true,
-              text: t('login.errors.e1')
+              text: t('login.errors.e1', "Please enter a valid e-mail. Example: myEmail@company.abc")
             })
           }
           break;
@@ -128,14 +128,14 @@ function LoginPage({ dispatch }) {
                 userRef.current.focus();
                 setErrorUser({
                   status: true,
-                  text: t('login.errors.e1')
+                  text: t('login.errors.e1', "Please enter a valid e-mail. Example: myEmail@company.abc")
                 })
               }
             }
           } else {
             setErrorPassword({
               status: true,
-              text: t('login.errors.e2')
+              text: t('login.errors.e2', "Password is required")
             })
           }
           break;
@@ -159,6 +159,7 @@ function LoginPage({ dispatch }) {
     dispatch(authRequest(values.user, values.password))
       .then(
         authStatus => {
+          console.log("auth status: ", authStatus)
           switch (authStatus) {
             //login ok
             case "loginSuccess":
@@ -168,8 +169,7 @@ function LoginPage({ dispatch }) {
 
             //bad credentials
             case "500":
-              //"The credentials you provided are not correct."
-              enqueueSnackbar( t('login.errors.e3'), {
+              enqueueSnackbar( t('login.errors.e3',"The credentials you provided are not correct."), {
                 variant: 'error',
                 preventDuplicate: true,
               });
@@ -177,8 +177,7 @@ function LoginPage({ dispatch }) {
 
             //bad token
             case "tokenError":
-              //"The token received by server could not be validated."
-              enqueueSnackbar( t('login.errors.e4'), {
+              enqueueSnackbar( t('login.errors.e4', "The token received by server could not be validated."), {
                 variant: 'info',
                 preventDuplicate: true,
               });
@@ -186,8 +185,7 @@ function LoginPage({ dispatch }) {
 
             //connection refused
             case "connectionRefused":
-               //"Could not connect to server. Please consult your network administrator."
-               enqueueSnackbar( t('login.errors.e5'), {
+               enqueueSnackbar( t('login.errors.e5', "Could not connect to server. Please consult your network administrator."), {
                 variant: 'info',
                 preventDuplicate: true,
               });
@@ -195,8 +193,7 @@ function LoginPage({ dispatch }) {
 
             //other server error
             default:
-              //"An error occurred while trying to contact the server. Please contact your administrator."
-              enqueueSnackbar( t('login.errors.e6'), {
+              enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
                 variant: 'info',
                 preventDuplicate: true,
               });
@@ -206,8 +203,7 @@ function LoginPage({ dispatch }) {
         },
         //dispatch failed
         err => {
-          //"An error occurred while trying to contact the server. Please contact your administrator."
-          enqueueSnackbar( t('login.errors.e6'), {
+          enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
             variant: 'info',
             preventDuplicate: true,
           });
@@ -243,7 +239,7 @@ function LoginPage({ dispatch }) {
         passRef.current.focus();
         setErrorPassword({
           status: true,
-          text: t('login.errors.e2')
+          text: t('login.errors.e2', "Password is required")
         })
       }
     }
@@ -251,7 +247,7 @@ function LoginPage({ dispatch }) {
       userRef.current.focus();
       setErrorUser({
         status: true,
-        text: t('login.errors.e1')
+        text: t('login.errors.e1', "Please enter a valid e-mail. Example: myEmail@company.abc")
       })
     }
 

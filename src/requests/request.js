@@ -6,7 +6,9 @@ import axios from 'axios'
 export default function ({ url, query, variables }) {
 
     var token = localStorage.getItem('token');
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    if(token) {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    }
 
     return axios.post(url,
         {
