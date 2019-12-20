@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from "react-router-dom";
 import { logoutRequest, onRefresh } from '../../store/actions';
@@ -113,15 +113,14 @@ export default function MainPanel() {
   const { t, i18n } = useTranslation();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
+
   const dispatch = useDispatch();
   const loginStatus = useSelector(state => state.login.loginStatus);
   const user = useSelector(state => state.login.user);
-  const userId = useSelector(state => state.login.userId);
   const userRoles = useSelector(state => state.login.userRoles);
   const acl = useSelector(state => state.login.acl);
   const aclModuleStatusErrors = useSelector(state => state.aclModuleStatus.errors);
   
-
   const [openDrawer, setOpenDrawer] = useState(true);
   const [openModelsList, setOpenModelsList] = useState(true);
   const [openAdminModelsList, setOpenAdminModelsList] = useState(true);
@@ -433,7 +432,7 @@ export default function MainPanel() {
                     {adminModelsList.current.map((model) => (
 
                       /* acl check */
-                      (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
+                      (permissions&&(permissions[model.name].includes('*'))) ? (
                         <ListItem
                           button
                           className={classes.nested}
@@ -475,7 +474,7 @@ export default function MainPanel() {
             [classes.contentShift]: openDrawer,
           })}
         >
-          <MainSwitch />
+          <MainSwitch permissions={permissions}/>
 
         </main>
       </div>

@@ -3,11 +3,14 @@ import {
   Switch,
   Route
 } from 'react-router-dom'
+import PropTypes from 'prop-types';
 import TablesSwitch from './tablePanel/TablesSwitch'
 import HomePage from './pages/HomePage'
 import NotFoundSectionPage from './pages/NotFoundSectionPage'
 
-function StackView() {
+export default function StackView(props) {
+  const { permissions } = props;
+
   return (
     <Switch>
       <Route exact path="/main">
@@ -19,11 +22,11 @@ function StackView() {
       </Route>
 
       <Route path="/main/admin">
-        <TablesSwitch />
+        <TablesSwitch permissions={permissions}/>
       </Route>
 
       <Route path="/main/model">
-        <TablesSwitch />
+        <TablesSwitch permissions={permissions}/>
       </Route>
 
       <Route path="/main">
@@ -34,4 +37,6 @@ function StackView() {
   );
 }
 
-export default StackView;
+StackView.propTypes = {
+  permissions: PropTypes.object,
+};
