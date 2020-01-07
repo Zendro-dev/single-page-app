@@ -30,6 +30,7 @@ ReactDOM.render(
           vertical: 'top',
           horizontal: 'left',
         }}
+        hideIconVariant
       >
         <App />
       </SnackbarProvider>

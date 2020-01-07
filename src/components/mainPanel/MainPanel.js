@@ -105,6 +105,9 @@ const useStyles = makeStyles(theme => ({
   translationMenuItem: {
     margin: theme.spacing(1),
   },
+  notiErrorActionText: {
+    color: '#eba0a0',
+  },
 }));
 
 export default function MainPanel() {
@@ -137,6 +140,15 @@ export default function MainPanel() {
     {language: 'Deutsch', lcode: 'de-DE'},
   ]);
 
+  const actionText = useRef(null);
+  const action = (key) => (
+    <>
+      <Button color='inherit' variant='text' size='small' className={classes.notiErrorActionText} onClick={() => { closeSnackbar(key) }}>
+        {actionText.current}
+      </Button>
+    </> 
+  );
+
   useEffect(() => {
     //set selected translation
     for(var i=0; i<translations.current.length; i++)
@@ -151,9 +163,12 @@ export default function MainPanel() {
   useEffect(() => {
     //check acl module status
     if(aclModuleStatusErrors&&Array.isArray(aclModuleStatusErrors)&&aclModuleStatusErrors.length>0) {
+      actionText.current = t('modelPanels.gotIt', "Got it");
       enqueueSnackbar( t('login.errors.e7', "ACL module could not be implemented. Please contact your administrator."), {
         variant: 'error',
-        preventDuplicate: true,
+        preventDuplicate: false,
+        persist: true,
+        action,
       });
     }
   }, [aclModuleStatusErrors, enqueueSnackbar, t]);
@@ -210,7 +225,12 @@ export default function MainPanel() {
         //"An error occurred while trying load language."
         enqueueSnackbar( t('mainPanel.errors.e1'), {
           variant: 'info',
-          preventDuplicate: true,
+          preventDuplicate: false,
+          persist: false,
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
         });
         console.log('Error loading languaje: ', err);
       } else {
@@ -288,6 +308,7 @@ export default function MainPanel() {
               <Button
                 color="inherit"
                 onClick={() => {
+                  closeSnackbar();
                   dispatch(logoutRequest());
                   history.push("/login");
                 }}

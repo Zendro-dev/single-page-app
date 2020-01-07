@@ -106,6 +106,10 @@ export default {
         integer: "integer",
         invalidDate: "Invalid date format",
 
+        //notistack
+        gotIt: "Got it",
+        dismiss: "Dismiss",
+
         messages: {
           msg1: "The data has been sent. A report with the status of the import process will be sent to your email.",
           msg2: "Null data received: GraphQL query returns no data.",
@@ -233,6 +237,10 @@ export default {
         number: "nummer",
         integer: "ganze Zahl",
         invalidDate: "Ungültiges Datumsformat",
+
+        //notistack
+        gotIt: "Ich habs",
+        dismiss: "Entlassen",
 
         messages: {
           msg1: "Die Daten wurden gesendet. Ein Bericht mit dem Status des Importvorgangs wird an Ihre E-Mail gesendet.",
@@ -362,6 +370,10 @@ export default {
         number: "número",
         integer: "entero",
         invalidDate: "Formato de fecha no válido",
+
+        //notistack
+        gotIt: "Entendido",
+        dismiss: "Descartar",
 
         messages: {
           msg1: "Los datos se han enviado. Un informe con el estatus del proceso de importación será enviado a su correo electrónico.",

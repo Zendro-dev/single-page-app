@@ -171,7 +171,8 @@ function LoginPage({ dispatch }) {
             case "500":
               enqueueSnackbar( t('login.errors.e3',"The credentials you provided are not correct."), {
                 variant: 'error',
-                preventDuplicate: true,
+                preventDuplicate: false,
+                persist: false,
               });
               break;
 
@@ -179,7 +180,8 @@ function LoginPage({ dispatch }) {
             case "tokenError":
               enqueueSnackbar( t('login.errors.e4', "The token received by server could not be validated."), {
                 variant: 'info',
-                preventDuplicate: true,
+                preventDuplicate: false,
+                persist: false,
               });
               break;
 
@@ -187,7 +189,8 @@ function LoginPage({ dispatch }) {
             case "connectionRefused":
                enqueueSnackbar( t('login.errors.e5', "Could not connect to server. Please consult your network administrator."), {
                 variant: 'info',
-                preventDuplicate: true,
+                preventDuplicate: false,
+                persist: false,
               });
               break;
 
@@ -195,17 +198,19 @@ function LoginPage({ dispatch }) {
             default:
               enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
                 variant: 'info',
-                preventDuplicate: true,
+                preventDuplicate: false,
+                persist: false,
               });
               break;
-
+              
           }
         },
         //dispatch failed
         err => {
           enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
             variant: 'info',
-            preventDuplicate: true,
+            preventDuplicate: false,
+            persist: false,
           });
           console.log(err);
         }
