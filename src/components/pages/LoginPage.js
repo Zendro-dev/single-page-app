@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 
 function LoginPage({ dispatch }) {
   const classes = useStyles();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const history = useHistory();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [values, setValues] = useState({

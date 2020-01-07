@@ -104,6 +104,7 @@ export default {
         invalidNumber: "Invalid number",
         number: "number",
         integer: "integer",
+        invalidDate: "Invalid date format",
 
         messages: {
           msg1: "The data has been sent. A report with the status of the import process will be sent to your email.",
@@ -231,6 +232,7 @@ export default {
         invalidNumber: "Ungültige Nummer",
         number: "nummer",
         integer: "ganze Zahl",
+        invalidDate: "Ungültiges Datumsformat",
 
         messages: {
           msg1: "Die Daten wurden gesendet. Ein Bericht mit dem Status des Importvorgangs wird an Ihre E-Mail gesendet.",
@@ -359,6 +361,7 @@ export default {
         invalidNumber: "Número no válido",
         number: "número",
         integer: "entero",
+        invalidDate: "Formato de fecha no válido",
 
         messages: {
           msg1: "Los datos se han enviado. Un informe con el estatus del proceso de importación será enviado a su correo electrónico.",

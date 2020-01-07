@@ -131,22 +131,22 @@ export default function MainPanel() {
 
   const [translationAnchorEl, setTranslationAnchorEl] = React.useState(null);
   const [translationSelectedIndex, setTranslationSelectedIndex] = React.useState(-1);
-  const translations = [
+  const translations = useRef([
     {language: 'Español', lcode: 'es-MX'},
     {language: 'English', lcode: 'en-US'},
     {language: 'Deutsch', lcode: 'de-DE'},
-  ];
+  ]);
 
   useEffect(() => {
     //set selected translation
-    for(var i=0; i<translations.length; i++)
+    for(var i=0; i<translations.current.length; i++)
     {
-      if(translations[i].lcode = i18n.language) {
+      if(translations.current[i].lcode === i18n.language) {
         setTranslationSelectedIndex(i);
         break;
       }
     }
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     //check acl module status
@@ -156,7 +156,7 @@ export default function MainPanel() {
         preventDuplicate: true,
       });
     }
-  }, [aclModuleStatusErrors]);
+  }, [aclModuleStatusErrors, enqueueSnackbar, t]);
 
   useEffect(() => {
     if(loginStatus === "refreshed") {
@@ -164,7 +164,7 @@ export default function MainPanel() {
     } else if(loginStatus === "expired") {
       dispatch(logoutRequest());
     }
-  }, [loginStatus]);
+  }, [loginStatus, dispatch]);
 
   useEffect(() => {
     if(acl) {
@@ -176,13 +176,12 @@ export default function MainPanel() {
                  
           acl.allowedPermissions(user, am.concat(m), function(err, permissions) {
             if(!err) {
-              console.log("permissions: ", permissions)
               setPermissions(permissions);
             }
           })
       }
     }
-  }, [acl]);
+  }, [acl, user]);
 
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -204,10 +203,9 @@ export default function MainPanel() {
   };
 
   const handleTranslationMenuItemClick = (event, index) => {
-    setTranslationSelectedIndex(index);
     setTranslationAnchorEl(null);
 
-    i18n.changeLanguage(translations[index].lcode, (err, t) => {
+    i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
       if(err) {
         //"An error occurred while trying load language."
         enqueueSnackbar( t('mainPanel.errors.e1'), {
@@ -272,7 +270,7 @@ export default function MainPanel() {
                 open={Boolean(translationAnchorEl)}
                 onClose={handleTranslationMenuClose}
               >
-                {translations.map((translation, index) => (
+                {translations.current.map((translation, index) => (
                   <MenuItem
                     className={classes.translationMenuItem}
                     key={translation.lcode}
