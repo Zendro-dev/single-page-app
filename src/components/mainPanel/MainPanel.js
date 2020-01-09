@@ -141,13 +141,13 @@ export default function MainPanel() {
   ]);
 
   const actionText = useRef(null);
-  const action = (key) => (
+  const action = useRef((key) => (
     <>
       <Button color='inherit' variant='text' size='small' className={classes.notiErrorActionText} onClick={() => { closeSnackbar(key) }}>
         {actionText.current}
       </Button>
     </> 
-  );
+  ));
 
   useEffect(() => {
     //set selected translation
@@ -168,7 +168,7 @@ export default function MainPanel() {
         variant: 'error',
         preventDuplicate: false,
         persist: true,
-        action,
+        action: action.current,
       });
     }
   }, [aclModuleStatusErrors, enqueueSnackbar, t]);
