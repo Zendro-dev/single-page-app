@@ -149,6 +149,8 @@ export default function MainPanel() {
     </> 
   ));
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
     //set selected translation
     for(var i=0; i<translations.current.length; i++)
@@ -219,7 +221,7 @@ export default function MainPanel() {
 
   const handleTranslationMenuItemClick = (event, index) => {
     setTranslationAnchorEl(null);
-
+    
     i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
       if(err) {
         //"An error occurred while trying load language."
@@ -267,7 +269,7 @@ export default function MainPanel() {
             </IconButton>
             
             {/* Cenzontle */} 
-            <Typography variant="h6" noWrap>
+            <Typography variant="h6" display='block' noWrap={true}>
               Cenzontle
             </Typography>
 
@@ -277,7 +279,7 @@ export default function MainPanel() {
               <Tooltip title={ t('mainPanel.translate') }>
                 <IconButton 
                   color="inherit"
-                  onClick={event => handleTranslationIconClick(event)}
+                  onClick={handleTranslationIconClick}
                 >
                   <Translate fontSize="small" />
                 </IconButton>
@@ -297,7 +299,7 @@ export default function MainPanel() {
                     selected={index === translationSelectedIndex}
                     onClick={event => handleTranslationMenuItemClick(event, index)}
                   >
-                    <Typography variant="inherit" noWrap>
+                    <Typography variant="inherit" display='block' noWrap={true}>
                       {translation.language}
                     </Typography>
                   </MenuItem>
