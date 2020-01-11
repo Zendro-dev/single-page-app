@@ -4,7 +4,7 @@ import {
   Route
 } from 'react-router-dom'
 import PropTypes from 'prop-types';
-import TablesSwitch from './tablePanel/TablesSwitch'
+import TablesSwitch from './table-panel/TablesSwitch'
 import HomePage from './pages/HomePage'
 import NotFoundSectionPage from './pages/NotFoundSectionPage'
 

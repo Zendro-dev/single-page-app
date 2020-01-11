@@ -10,7 +10,7 @@ import decode from 'jwt-decode';
 
 //components
 import Login from './components/pages/LoginPage'
-import MainPanel from './components/mainPanel/MainPanel'
+import MainPanel from './components/main-panel/MainPanel'
 import NotFoundPage from './components/pages/NotFoundPage'
 
 
