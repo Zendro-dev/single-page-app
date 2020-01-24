@@ -7,8 +7,13 @@ import { useSnackbar } from 'notistack';
 import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger'
 import Fade from '@material-ui/core/Fade';
+import Zoom from '@material-ui/core/Zoom';
+import Slide from '@material-ui/core/Slide';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -34,14 +39,18 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Accounts from '@material-ui/icons/SupervisorAccountRounded';
 import Translate from '@material-ui/icons/TranslateRounded';
+import Fab from '@material-ui/core/Fab';
+import Box from '@material-ui/core/Box';
 
-const drawerWidth = 240;
+const drawerWidth = 280;
+const appBarHeight = 72;
 
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
   },
   appBar: {
+    height: appBarHeight,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -49,7 +58,24 @@ const useStyles = makeStyles(theme => ({
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
+    height: appBarHeight,
     marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  cenzBox: {
+    width: drawerWidth,
+    marginLeft: -drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  cenzBoxShift: {
+    width: drawerWidth,
+    marginLeft: 0,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -57,6 +83,10 @@ const useStyles = makeStyles(theme => ({
   },
   menuButton: {
     marginRight: theme.spacing(2),
+    transition: theme.transitions.create(['width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   toolbarLeftButtons: {
     marginLeft: 'auto',
@@ -70,13 +100,8 @@ const useStyles = makeStyles(theme => ({
   },
   drawerPaper: {
     width: drawerWidth,
-  },
-  drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
+    height: `calc(100% - ${appBarHeight}px)`,
+    marginTop: appBarHeight,
   },
   content: {
     flexGrow: 1,
@@ -96,6 +121,9 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 0,
     width: `calc(100% - ${drawerWidth}px)`,
   },
+  cenzTitle: {
+    padding: theme.spacing(3),
+  },
   nested: {
     paddingLeft: theme.spacing(4),
   },
@@ -110,7 +138,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function MainPanel() {
+export default function MainPanel(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -249,6 +277,63 @@ export default function MainPanel() {
     <Fade in={true} timeout={500}>
       <div className={classes.root}>
         <CssBaseline />
+
+        {/* Drawer menu header */}
+     
+          
+            <Box
+              className={clsx(classes.cenzBox, {
+                [classes.cenzBoxShift]: openDrawer,
+              })}
+              // width={drawerWidth}
+              height={appBarHeight}
+              bgcolor="background.paper"
+              position="fixed"
+              top={0}
+              left={0}
+              zIndex="modal"
+            >
+              {/* Cenzontle */} 
+              <Typography className={classes.cenzTitle} variant="h5" display='block' noWrap={true}>
+                Cenzontle
+              </Typography>
+            </Box>
+          
+        
+        {(openDrawer) ?
+          <Fade in={true} timeout={700}>
+            <Box
+              className={clsx(classes.cenzBox, {
+                [classes.cenzBoxShift]: openDrawer,
+              })}
+              position="fixed"
+              top={appBarHeight}
+              left={0}
+              zIndex="modal"
+            >
+              <Divider/>
+            </Box>
+          </Fade> : null
+        }
+        {/* Icon: close menu */}
+        {(openDrawer) ?
+            <Box
+              position="fixed"
+              top={8}
+              left={256}
+              zIndex="modal"
+            >
+              <Zoom in={true} timeout={500}>
+                <Fab
+                  size="medium"
+                  color="primary"
+                  onClick={handleDrawerClose}
+                >
+                  <ChevronLeftIcon />
+                </Fab> 
+              </Zoom>
+            </Box> : null
+        }
         
         <AppBar
           position="fixed"
@@ -259,19 +344,26 @@ export default function MainPanel() {
           <Toolbar>
 
             {/* Menu.icon */}
-            <IconButton
-              color="inherit"
-              onClick={handleDrawerOpen}
-              edge="start"
-              className={clsx(classes.menuButton, openDrawer && classes.hide)}
-            >
-              <MenuIcon />
-            </IconButton>
+            {(!openDrawer) ?
+              <Fade in={true} timeout={500}>
+                <IconButton
+                  color="inherit"
+                  onClick={handleDrawerOpen}
+                  edge="start"
+                  className={clsx(classes.menuButton, openDrawer && classes.hide)}
+                > <MenuIcon />
+                </IconButton>
+              </Fade> : null
+            }
             
-            {/* Cenzontle */} 
-            <Typography variant="h6" display='block' noWrap={true}>
-              Cenzontle
-            </Typography>
+            {/* Cenzontle */}
+            {(!openDrawer) ?
+              <Fade in={true} timeout={500}>
+                <Typography variant="h5" display='block' noWrap={true}>
+                  Cenzontle
+                </Typography>
+              </Fade> : null
+            }
 
             <div className={classes.toolbarLeftButtons}>
 
@@ -320,7 +412,7 @@ export default function MainPanel() {
             </div>
           </Toolbar>
         </AppBar>
-        
+
         <Drawer
           className={classes.drawer}
           variant="persistent"
@@ -331,16 +423,8 @@ export default function MainPanel() {
           }}
         >
 
-          {/* Header */}  
-          <div className={classes.drawerHeader}>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-          </div>
-
           {/* Menu */}
           <List>
-
             {/* Home */}
             <ListItem 
               button
@@ -491,6 +575,8 @@ export default function MainPanel() {
         
         {/* Main */}
         <main
+              color="grey"
+              
           className={clsx(classes.content, {
             [classes.contentShift]: openDrawer,
           })}

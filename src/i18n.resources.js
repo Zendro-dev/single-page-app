@@ -93,6 +93,13 @@ export default {
         transferToRemove: "Transfer to records to remove",
         alreadyToRemove: "Already on to-remove list",
         untransferToRemove: "Remove from to-remove list",
+        toAddHelperA: "Please select ",
+        toAddHelperB: " that you want to be associated with this ",
+        toRemoveHelperA: "Please select ",
+        toRemoveHelperB: " that you no longer want to be associated with this ",
+        theRecord: "the record",
+        theRecords: "the records",
+
 
         //float & int
         floatMaxErr: "This is a Float field, the maximum valid positive number is 1.79769313486231e+308. Entered value: ",
@@ -225,6 +232,12 @@ export default {
         transferToRemove: "In zu entfernende Datensätze übertragen",
         alreadyToRemove: "Bereits zu entfernende Liste",
         untransferToRemove: "Aus zu entfernender Liste entfernen",
+        toAddHelperA: "Bitte auswählen ",
+        toAddHelperB: " die Sie damit verknüpfen möchten ",
+        toRemoveHelperA: "Bitte auswählen ",
+        toRemoveHelperB: " die Sie nicht mehr mit diesem verknüpfen möchten ",
+        theRecord: "der Datensatz",
+        theRecords: "die Aufzeichnungen",
 
         //float & int
         floatMaxErr: "Dies ist ein Float-Feld. Die maximal gültige positive Zahl ist 1.79769313486231e+308. Eingegebener Wert: ",
@@ -358,6 +371,12 @@ export default {
         transferToRemove: "Transferir a registros por eliminar",
         alreadyToRemove: "Ya está en los registros por eliminar",
         untransferToRemove: "Quitar de registros por eliminar",
+        toAddHelperA: "Por favor seleccione ",
+        toAddHelperB: " que desea asociar con este registro ",
+        toRemoveHelperA: "Por favor seleccione ",
+        toRemoveHelperB: " que desea desasociar de este registro ",
+        theRecord: "el registro",
+        theRecords: "los registros",
 
         //float & int
         floatMaxErr: "Este es un campo tipo Float, el máximo valor positivo válido es 1.79769313486231e+308. Valor ingresado: ",
