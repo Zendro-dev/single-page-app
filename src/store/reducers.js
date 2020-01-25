@@ -5,7 +5,8 @@ import {
     LOGIN_OK,
     LOGIN_FAIL,
     LOGOUT,
-    ACL_MODULE_FAIL
+    ACL_MODULE_FAIL,
+    MODEL_CHANGE,
 } from './actions.js'
 
 /*
@@ -14,9 +15,9 @@ import {
 function urls(
     //set initial state.urls if 'undefined'
     state = {
-        graphqlServerUrl: "http://localhost:3000/graphql",
-        loginServerUrl: "http://localhost:3000/login",
-        exportServerUrl: "http://localhost:3000/export"
+        graphqlServerUrl: "http://accesiones.conabio.gob.mx:3000/graphql",
+        loginServerUrl: "http://accesiones.conabio.gob.mx:3000/login",
+        exportServerUrl: "http://accesiones.conabio.gob.mx:3000/export"
     }, 
     action) {
         switch (action.type) {
@@ -37,7 +38,7 @@ function limits(
             default:
             return state;
         }
-    }//end: urls()
+    }//end: limits()
 
 function login( 
     //set initial state.login if 'undefined'
@@ -109,6 +110,7 @@ function login(
               });
 
           case ACL_MODULE_FAIL:
+          case MODEL_CHANGE:
               return state;
 
           default:
@@ -138,12 +140,38 @@ function aclModuleStatus(
       }
   }//end: aclModuleStatus()
 
+function changes(
+  //set initial state.models if 'undefined'
+  state = {
+      models: {}
+  }, 
+  action) {
+      switch (action.type) {
+          
+        case MODEL_CHANGE:
+          
+          let modelChanged = {};
+          let idChanged = {};
+          idChanged[String(action.id)] = action.op;
+          modelChanged[action.model] = {...state.models[action.model], ...idChanged};
+          console.log("modelChanged: ", modelChanged);
+          
+          return Object.assign({}, state, {
+            models: {...state.models, ...modelChanged}
+          });
+
+          default:
+          return state;
+      }
+  }//end: changes()
+
 //root reducer
 const rootReducer = combineReducers({
     urls,
     limits,
     login,
-    aclModuleStatus
+    aclModuleStatus,
+    changes,
 })
 
 function onDefault(state) {
@@ -154,6 +182,7 @@ function onDefault(state) {
   var decoded_token = null;
   try {
     decoded_token = decode(token);
+    console.log("decoded: ", decoded_token)
 
     //if valid token...
     if(decoded_token) {

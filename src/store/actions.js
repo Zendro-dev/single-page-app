@@ -12,6 +12,7 @@ export const LOGIN_OK = 'LOGIN_OK';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const LOGOUT = 'LOGOUT';
 export const ACL_MODULE_FAIL = 'ACL_MODULE_FAIL';
+export const MODEL_CHANGE = 'MODEL_CHANGE';
 
 /*
   Action creators
@@ -46,6 +47,13 @@ const aclModuleFail = (user, errors) => ({
   type: ACL_MODULE_FAIL,
   user,
   errors
+});
+
+export const modelChange = (model, id, op) => ({
+  type: MODEL_CHANGE,
+  model,
+  id,
+  op
 });
 
 /*
