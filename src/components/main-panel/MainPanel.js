@@ -7,13 +7,9 @@ import { useSnackbar } from 'notistack';
 import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import grey from '@material-ui/core/colors/grey';
-import useScrollTrigger from '@material-ui/core/useScrollTrigger'
 import Fade from '@material-ui/core/Fade';
 import Zoom from '@material-ui/core/Zoom';
-import Slide from '@material-ui/core/Slide';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -26,7 +22,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -140,7 +135,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function MainPanel(props) {
   const classes = useStyles();
-  const theme = useTheme();
   const { t, i18n } = useTranslation();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
@@ -575,14 +569,11 @@ export default function MainPanel(props) {
         
         {/* Main */}
         <main
-              color="grey"
-              
           className={clsx(classes.content, {
             [classes.contentShift]: openDrawer,
           })}
         >
           <MainSwitch permissions={permissions}/>
-
         </main>
       </div>
     </Fade>
