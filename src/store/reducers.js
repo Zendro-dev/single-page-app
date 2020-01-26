@@ -20,7 +20,6 @@ function urls(
         exportServerUrl: process.env.REACT_APP_CENZ_EXPORT_URL || (process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/export" : "http://localhost:3000/export",
     }, 
     action) {
-      console.log("process.env.REACT_APP_CENZ_API_URL: ", process.env.REACT_APP_CENZ_API_URL)
         switch (action.type) {
             
             default:
@@ -115,8 +114,7 @@ function login(
               return state;
 
           default:
-            console.log("onReduxInit: ", action.type);
-            onDefault(state);
+            onRefresh(state);
             return state;
       }//end: switch()
 }//end: login()
@@ -142,7 +140,7 @@ function aclModuleStatus(
   }//end: aclModuleStatus()
 
 function changes(
-  //set initial state.models if 'undefined'
+  //set initial state.changes if 'undefined'
   state = {
       models: {}
   }, 
@@ -155,7 +153,6 @@ function changes(
           let idChanged = {};
           idChanged[String(action.id)] = action.op;
           modelChanged[action.model] = {...state.models[action.model], ...idChanged};
-          console.log("modelChanged: ", modelChanged);
           
           return Object.assign({}, state, {
             models: {...state.models, ...modelChanged}
@@ -175,7 +172,7 @@ const rootReducer = combineReducers({
     changes,
 })
 
-function onDefault(state) {
+function onRefresh(state) {
   /*
     JWT
   */
@@ -183,8 +180,7 @@ function onDefault(state) {
   var decoded_token = null;
   try {
     decoded_token = decode(token);
-    console.log("decoded: ", decoded_token)
-
+    
     //if valid token...
     if(decoded_token) {
 
