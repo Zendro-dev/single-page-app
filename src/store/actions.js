@@ -49,11 +49,12 @@ const aclModuleFail = (user, errors) => ({
   errors
 });
 
-export const modelChange = (model, id, op) => ({
+export const modelChange = (model, op, item, newItem) => ({
   type: MODEL_CHANGE,
   model,
-  id,
-  op
+  op,
+  item,
+  newItem
 });
 
 /*

@@ -151,7 +151,10 @@ function changes(
           
           let modelChanged = {};
           let idChanged = {};
-          idChanged[String(action.id)] = action.op;
+          idChanged[String(action.item.id)] = {};
+          idChanged[String(action.item.id)].op = action.op;
+          idChanged[String(action.item.id)].item = action.item;
+          idChanged[String(action.item.id)].newItem = action.newItem;
           modelChanged[action.model] = {...state.models[action.model], ...idChanged};
           
           return Object.assign({}, state, {
