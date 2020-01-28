@@ -148,15 +148,24 @@ function changes(
       switch (action.type) {
           
         case MODEL_CHANGE:
-          
           let modelChanged = {};
           let idChanged = {};
+          
+          //new change
           idChanged[String(action.item.id)] = {};
           idChanged[String(action.item.id)].op = action.op;
           idChanged[String(action.item.id)].item = action.item;
           idChanged[String(action.item.id)].newItem = action.newItem;
+          if(state.models[action.model]&&state.models[action.model][String(action.item.id)]&&state.models[action.model][String(action.item.id)].changedAssociations) {
+            idChanged[String(action.item.id)].changedAssociations = { ...state.models[action.model][String(action.item.id)].changedAssociations, ...action.changedAssociations};
+          } else {
+            idChanged[String(action.item.id)].changedAssociations = action.changedAssociations;
+          }
+
+          //set new change
           modelChanged[action.model] = {...state.models[action.model], ...idChanged};
           
+          //return new state
           return Object.assign({}, state, {
             models: {...state.models, ...modelChanged}
           });
