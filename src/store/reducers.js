@@ -142,13 +142,15 @@ function aclModuleStatus(
 function changes(
   //set initial state.changes if 'undefined'
   state = {
-      models: {}
+      models: {},
+      lastModelChanged: {}
   }, 
   action) {
       switch (action.type) {
           
         case MODEL_CHANGE:
           let modelChanged = {};
+          let lastModelChanged = {};
           let idChanged = {};
           
           //new change
@@ -164,10 +166,14 @@ function changes(
 
           //set new change
           modelChanged[action.model] = {...state.models[action.model], ...idChanged};
+
+          //set last model change
+          lastModelChanged[action.model] = {...idChanged};
           
           //return new state
           return Object.assign({}, state, {
-            models: {...state.models, ...modelChanged}
+            models: {...state.models, ...modelChanged},
+            lastModelChanged: lastModelChanged
           });
 
           default:
