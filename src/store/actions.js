@@ -13,6 +13,8 @@ export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const LOGOUT = 'LOGOUT';
 export const ACL_MODULE_FAIL = 'ACL_MODULE_FAIL';
 export const MODEL_CHANGE = 'MODEL_CHANGE';
+export const CHANGES_COMPLETED = 'CHANGES_COMPLETED';
+export const CLEAR_CHANGES = 'CLEAR_CHANGES';
 
 /*
   Action creators
@@ -56,6 +58,14 @@ export const modelChange = (model, op, item, newItem, changedAssociations) => ({
   item,
   newItem,
   changedAssociations,
+});
+
+export const changesCompleted = () => ({
+  type: CHANGES_COMPLETED
+});
+
+export const clearChanges = () => ({
+  type: CLEAR_CHANGES
 });
 
 /*

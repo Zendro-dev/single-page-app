@@ -7,6 +7,8 @@ import {
     LOGOUT,
     ACL_MODULE_FAIL,
     MODEL_CHANGE,
+    CHANGES_COMPLETED,
+    CLEAR_CHANGES,
 } from './actions.js'
 
 /*
@@ -111,6 +113,8 @@ function login(
 
           case ACL_MODULE_FAIL:
           case MODEL_CHANGE:
+          case CHANGES_COMPLETED:
+          case CLEAR_CHANGES:
               return state;
 
           default:
@@ -143,7 +147,8 @@ function changes(
   //set initial state.changes if 'undefined'
   state = {
       models: {},
-      lastModelChanged: {}
+      lastModelChanged: {},
+      changesCompleted: false
   }, 
   action) {
       switch (action.type) {
@@ -173,7 +178,22 @@ function changes(
           //return new state
           return Object.assign({}, state, {
             models: {...state.models, ...modelChanged},
-            lastModelChanged: lastModelChanged
+            lastModelChanged: lastModelChanged,
+            changesCompleted: false
+          });
+
+        case CHANGES_COMPLETED:
+          //return new state
+          return Object.assign({}, state, {
+            changesCompleted: true
+          });
+
+        case CLEAR_CHANGES:
+          //return new state
+          return Object.assign({}, state, {
+            models: {},
+            lastModelChanged: {},
+            changesCompleted: false
           });
 
           default:
