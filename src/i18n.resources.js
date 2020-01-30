@@ -29,7 +29,9 @@ export default {
       modelPanels: {
         addNew: "Add new",
         importCSV: "Import from CSV",
-        exportCSV: "Export to CSV",
+        downloadsOptions: "Download options",
+        downloadsOp1: "Export data to CSV",
+        downloadsOp2: "Download table-template to CSV",
         viewDetails: "View details",
         edit: "Edit",
         delete: "Delete",
@@ -129,6 +131,8 @@ export default {
           msg5: "Record updated successfully.",
           //create
           msg6: "Record created successfully.",
+          //csv template
+          msg7: "Template downloaded successfully.",
         },
         errors: {
           e1: "An error occurred while trying to execute the GraphQL query. Please contact your administrator.",
@@ -170,7 +174,9 @@ export default {
       modelPanels: {
         addNew: "Neue hinzufügen",
         importCSV: "Aus CSV importieren",
-        exportCSV: "In CSV exportieren",
+        downloadsOptions: "Download-Optionen",
+        downloadsOp1: "Daten in CSV exportieren",
+        downloadsOp2: "Laden Sie die Tabellenvorlage in CSV herunter",
         viewDetails: "Details anzeigen",
         edit: "Bearbeiten",
         delete: "Löschen",
@@ -269,6 +275,8 @@ export default {
           msg5: "Datensatz erfolgreich aktualisiert.",
           //create
           msg6: "Datensatz erfolgreich erstellt.",
+          //csv template
+          msg7: "Vorlage erfolgreich heruntergeladen.",
         },
         errors: {
           e1: "Beim Versuch, die GraphQL-Abfrage auszuführen, ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.",
@@ -308,13 +316,18 @@ export default {
         }
       },
       modelPanels: {
+        //actions
         addNew: "Agregar nuevo",
         importCSV: "Importar de CSV",
-        exportCSV: "Exportar a CSV",
+        downloadsOptions: "Opciones de descarga",
+        downloadsOp1: "Exportar datos a CSV",
+        downloadsOp2: "Descargar plantilla de tabla a CSV",
         viewDetails: "Ver detalles",
         edit: "Editar",
         delete: "Borrar",
         actions: "Acciones",
+        
+        //pagination
         rowsPerPage: "Renglones por página",
         of: "de",
 
@@ -363,7 +376,6 @@ export default {
         cancelChanges: "Los cambios no se han guardado.",
         cancelChangesB: "Algunos campos han sido editados, si continua sin guardar, estos cambios se perderán, ¿desea continuar?",
 
-
         //lists
         add: "Agregar",
         remove: "Eliminar",
@@ -410,6 +422,8 @@ export default {
           msg5: "Registro actualizado con éxito.",
           //create
           msg6: "Registro creado con éxito.",
+          //csv template
+          msg7: "La plantilla se descargó con éxito",
         },
         errors: {
           e1: "Ocurrió un error al intentar ejecutar la consulta GraphQL. Por favor contacte al administrador de la aplicación.",
