@@ -7,7 +7,7 @@ import { useSnackbar } from 'notistack';
 import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
 import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Fade from '@material-ui/core/Fade';
 import Zoom from '@material-ui/core/Zoom';
 import Drawer from '@material-ui/core/Drawer';
