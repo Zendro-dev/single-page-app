@@ -39,6 +39,7 @@ import Box from '@material-ui/core/Box';
 
 const drawerWidth = 280;
 const appBarHeight = 72;
+const debounceTimeout = 500;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -162,6 +163,11 @@ export default function MainPanel(props) {
     {language: 'Deutsch', lcode: 'de-DE'},
   ]);
 
+  //debouncing & event contention
+  const isDebouncingIndexChange = useRef(false);
+  const currentIndex = useRef(selectedIndex);
+  const lastIndex = useRef(selectedIndex);
+
   const actionText = useRef(null);
   const action = useRef((key) => (
     <>
@@ -267,14 +273,49 @@ export default function MainPanel(props) {
     setTranslationAnchorEl(null);
   };
 
+  const handleIndexChange = (event, newIndex) => {
+    if(!isDebouncingIndexChange.current){
+      //save & set last value
+      lastIndex.current = newIndex;
+      currentIndex.current = newIndex;
+      setSelectedIndex(newIndex.index);
+      history.push(newIndex.url);
+      //debounce
+      isDebouncingIndexChange.current = true;
+      startTimerToDebounceIndexChange()
+      .then(() => {
+        //clear flag
+        isDebouncingIndexChange.current = false;
+        //check
+        if(lastIndex.current.index !== currentIndex.current.index){
+          setSelectedIndex(lastIndex.current.index);
+          history.push(lastIndex.current.url);
+          currentIndex.current = lastIndex.current;
+        }
+      })
+      .catch(() => {
+        return;
+      })
+    } else{
+      //save last value
+      lastIndex.current = newIndex;
+    }
+  };
+
+  const startTimerToDebounceIndexChange = () => {
+    return new Promise(resolve => {
+      window.setTimeout(function() { 
+        resolve(); 
+      }, debounceTimeout);
+    });
+  };
+
   return (
     <Fade in={true} timeout={500}>
       <div className={classes.root}>
         <CssBaseline />
 
         {/* Drawer menu header */}
-     
-          
             <Box
               className={clsx(classes.cenzBox, {
                 [classes.cenzBoxShift]: openDrawer,
@@ -422,9 +463,10 @@ export default function MainPanel(props) {
             {/* Home */}
             <ListItem 
               button
-              onClick={() => {
-                setSelectedIndex(-3);
-                history.push('/main/home');
+              onClick={(event) => {
+                if(selectedIndex !== -3) {
+                  handleIndexChange(event, {index: -3, url: '/main/home'});
+                }
               }}
             >
               <ListItemIcon>
@@ -477,9 +519,10 @@ export default function MainPanel(props) {
                       className={classes.nested} 
                       key={model.id+'-'+model.name}
                       selected={selectedIndex === model.id}
-                      onClick={() => {
-                        setSelectedIndex(model.id);
-                        history.push(model.url);
+                      onClick={(event) => {
+                        if(selectedIndex !== model.id) {
+                          handleIndexChange(event, {index: model.id, url: model.url});
+                        }
                       }}
                     >
                       <ListItemText primary={
@@ -537,9 +580,10 @@ export default function MainPanel(props) {
                           className={classes.nested}
                           key={model.id+'-'+model.name}
                           selected={selectedIndex === model.id}
-                          onClick={() => {
-                            setSelectedIndex(model.id);
-                            history.push(model.url);
+                          onClick={(event) => {
+                            if(selectedIndex !== model.id) {
+                              handleIndexChange(event, {index: model.id, url: model.url});
+                            }
                           }}
                         >
                           <ListItemText primary={

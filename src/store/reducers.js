@@ -148,6 +148,7 @@ function changes(
   state = {
       models: {},
       lastModelChanged: {},
+      lastChangeTimestamp: null,
       changesCompleted: false
   }, 
   action) {
@@ -179,6 +180,7 @@ function changes(
           return Object.assign({}, state, {
             models: {...state.models, ...modelChanged},
             lastModelChanged: lastModelChanged,
+            lastChangeTimestamp: Date.now(),
             changesCompleted: false
           });
 
@@ -193,6 +195,7 @@ function changes(
           return Object.assign({}, state, {
             models: {},
             lastModelChanged: {},
+            lastChangeTimestamp: null,
             changesCompleted: false
           });
 
