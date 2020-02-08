@@ -83,6 +83,9 @@ export default {
         //cancelChanges
         cancelChanges: "The edited information has not been saved",
         cancelChangesB: "Some fields have been edited, if you continue without save, the changes will be lost, you want to continue?",
+        //warnings
+        deletedWarning: "This item no longer exists. It was deleted elsewhere.",
+        updatedWarning: "This item was updated elsewhere.",
 
         //lists
         add: "Add",
@@ -113,6 +116,7 @@ export default {
         intRoundedWarning: "This is an Int field, the decimals will be rounded. Value taken: ",
         valueTaken: "Value taken: ",
         invalidNumber: "Invalid number",
+        undefinedNumber: "Undefined number, no value will be sent for modification on this field",
         number: "number",
         integer: "integer",
         invalidDate: "Invalid date format",
@@ -228,6 +232,9 @@ export default {
         //cancelChanges
         cancelChanges: "Die bearbeiteten Informationen wurden nicht gespeichert",
         cancelChangesB: "Einige Felder wurden bearbeitet. Wenn Sie ohne Speichern fortfahren, gehen die Änderungen verloren. Möchten Sie fortfahren?",
+        //warnings
+        deletedWarning: "Dieser Artikel existiert nicht mehr. Es wurde an anderer Stelle gelöscht.",
+        updatedWarning: "Dieser Artikel wurde an anderer Stelle aktualisiert.",
 
         //lists
         add: "Hinzufügen",
@@ -257,6 +264,7 @@ export default {
         intRoundedWarning: "Dies ist ein Int-Feld. Die Dezimalstellen werden gerundet. Wert genommen: ",
         valueTaken: "Wert genommen: ",
         invalidNumber: "Ungültige Nummer",
+        undefinedNumber: "Undefinierte Nummer, in diesem Feld wird kein Wert zur Änderung gesendet.",
         number: "nummer",
         integer: "ganze Zahl",
         invalidDate: "Ungültiges Datumsformat",
@@ -375,6 +383,9 @@ export default {
         //cancelChanges
         cancelChanges: "Los cambios no se han guardado.",
         cancelChangesB: "Algunos campos han sido editados, si continua sin guardar, estos cambios se perderán, ¿desea continuar?",
+        //warnings
+        deletedWarning: "Este registro ya no existe. Fue borrado en alguna otra parte.",
+        updatedWarning: "Este registro fué actualizado en alguna otra parte.",
 
         //lists
         add: "Agregar",
@@ -404,6 +415,7 @@ export default {
         intRoundedWarning: "Este es un campo tipo Int, los decimales serán redondeados. Valor tomado: ",
         valueTaken: "Valor tomado: ",
         invalidNumber: "Número no válido",
+        undefinedNumber: "Número indefinido, no se enviará ningún valor para modificar sobre este campo.",
         number: "número",
         integer: "entero",
         invalidDate: "Formato de fecha no válido",
