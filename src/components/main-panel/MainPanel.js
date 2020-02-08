@@ -39,7 +39,7 @@ import Box from '@material-ui/core/Box';
 
 const drawerWidth = 280;
 const appBarHeight = 72;
-const debounceTimeout = 500;
+const debounceTimeout = 700;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -274,12 +274,15 @@ export default function MainPanel(props) {
   };
 
   const handleIndexChange = (event, newIndex) => {
+    //save last value
+    lastIndex.current = newIndex;
+
     if(!isDebouncingIndexChange.current){
-      //save & set last value
-      lastIndex.current = newIndex;
+      //set last value
       currentIndex.current = newIndex;
       setSelectedIndex(newIndex.index);
       history.push(newIndex.url);
+      
       //debounce
       isDebouncingIndexChange.current = true;
       startTimerToDebounceIndexChange()
@@ -296,9 +299,6 @@ export default function MainPanel(props) {
       .catch(() => {
         return;
       })
-    } else{
-      //save last value
-      lastIndex.current = newIndex;
     }
   };
 
