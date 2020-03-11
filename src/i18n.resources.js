@@ -107,6 +107,13 @@ export default {
         theRecord: "the record",
         theRecords: "the records",
 
+        //pagination
+        goToFirstPage: "First page",
+        goToPreviousPage: "Previous page",
+        goToNextPage: "Next page",
+        goToLastPage: "Last page",
+        reloadList: "Reload the list",
+        count: "Count",
 
         //float & int
         floatMaxErr: "This is a Float field, the maximum valid positive number is 1.79769313486231e+308. Entered value: ",
@@ -255,6 +262,14 @@ export default {
         toRemoveHelperB: " die Sie nicht mehr mit diesem verknüpfen möchten ",
         theRecord: "der Datensatz",
         theRecords: "die Aufzeichnungen",
+
+        //pagination
+        goToFirstPage: "Erste Seite",
+        goToPreviousPage: "Vorherige Seite",
+        goToNextPage: "Nächste Seite",
+        goToLastPage: "Letzte Seite",
+        reloadList: "Laden Sie die Liste neu",
+        count: "Anzahl",
 
         //float & int
         floatMaxErr: "Dies ist ein Float-Feld. Die maximal gültige positive Zahl ist 1.79769313486231e+308. Eingegebener Wert: ",
@@ -406,6 +421,14 @@ export default {
         toRemoveHelperB: " que desea desasociar de este registro ",
         theRecord: "el registro",
         theRecords: "los registros",
+
+        //pagination
+        goToFirstPage: "Primera página",
+        goToPreviousPage: "Página anterior",
+        goToNextPage: "Página siguiente",
+        goToLastPage: "Última página",
+        reloadList: "Recargar la lista",
+        count: "Cuenta",
 
         //float & int
         floatMaxErr: "Este es un campo tipo Float, el máximo valor positivo válido es 1.79769313486231e+308. Valor ingresado: ",
