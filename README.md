@@ -1,8 +1,22 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Single Page App (skeleton)
 
-## Available Scripts
+> A React.js project.
+
+### Environment variables
+
+* `REACT_APP_CENZ_GRAPHQL_SERVER_URL` - url where your backend server will be running, default value is `http://localhost:3000/graphql`
+* `REACT_APP_CENZ_LOGIN_URL` - url where your backend will check authentication, default value is `http://localhost:3000/login`
+* `REACT_APP_CENZ_EXPORT_URL` - url where your backend will serve the export requests, default value is `http://localhost:3000/export`
+* `REACT_APP_CENZ_MAX_UPLOAD_SIZE`- maximum size(in MB) of a file intended to be uploaded, default value is `500`, which means that user can not upload a file larger than 500MB.
+* `PORT` - for dev mode, this variable allows to modify the port where the app will be listening, default value is 8080.
+
+## Build Setup
 
 In the project directory, you can run:
+
+### `npm install`
+
+Install dependencies.
 
 ### `npm start`
 
@@ -42,27 +56,3 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
