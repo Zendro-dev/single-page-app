@@ -17,9 +17,9 @@ import {
 function urls(
     //set initial state.urls if 'undefined'
     state = {
-        graphqlServerUrl: process.env.REACT_APP_CENZ_GRAPHQL_SERVER_URL || (process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/graphql" : "http://localhost:3000/graphql",
-        loginServerUrl: process.env.REACT_APP_CENZ_LOGIN_URL || (process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/login" : "http://localhost:3000/login",
-        exportServerUrl: process.env.REACT_APP_CENZ_EXPORT_URL || (process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/export" : "http://localhost:3000/export",
+        graphqlServerUrl: process.env.REACT_APP_CENZ_GRAPHQL_SERVER_URL || ((process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/graphql" : "http://localhost:3000/graphql"),
+        loginServerUrl: process.env.REACT_APP_CENZ_LOGIN_URL || ((process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/login" : "http://localhost:3000/login"),
+        exportServerUrl: process.env.REACT_APP_CENZ_EXPORT_URL || ((process.env.REACT_APP_CENZ_API_URL) ? process.env.REACT_APP_CENZ_API_URL+"/export" : "http://localhost:3000/export"),
     }, 
     action) {
         switch (action.type) {
