@@ -9,7 +9,6 @@ COPY . .
 # Clone the skeleton App project and install dependencies
 RUN apk update && \
  apk add git && apk add bash && \
- rm .git* && \
  npm install
 
 EXPOSE 8080
