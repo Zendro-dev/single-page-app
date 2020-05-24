@@ -5,8 +5,7 @@ import { metrics } from '../../../configs';
 import Box from '@material-ui/core/Box';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import Warning from '@material-ui/icons/ErrorOutline';
-import { blue } from '@material-ui/core/colors';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles({
   warningCard: {
@@ -15,7 +14,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function NotFoundSectionPage() {
+export default function CheckingPermissionsPage() {
   const classes = useStyles();
   const { t } = useTranslation();
 
@@ -31,10 +30,9 @@ export default function NotFoundSectionPage() {
       <Card className={classes.warningCard} square={true}>
         <CardHeader
           avatar={
-            <Warning style={{ color: blue[500] }} />
+            <CircularProgress disableShrink />
           }
-          title={ t('modelPanels.messages.msg11', "Section not found.") }
-          subheader={ t('modelPanels.messages.msg12', "Are you sure it should be here?") }
+          title={ t('modelPanels.messages.msg10', "Checking permissions...") }
         />
       </Card>
     </Box>

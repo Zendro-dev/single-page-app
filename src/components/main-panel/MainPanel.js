@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from "react-router-dom";
-import { logoutRequest, onRefresh } from '../../store/actions';
+import { logoutRequest, setAclRules, checkAuthentication } from '../../store/actions';
 import { useSnackbar } from 'notistack';
 import routes from '../../routes/routes'
 import MainSwitch from './MainSwitch'
+import CheckingPermissionsPage from './pages/CheckingPermissionsPage'
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Fade from '@material-ui/core/Fade';
@@ -144,7 +145,8 @@ export default function MainPanel(props) {
   const loginStatus = useSelector(state => state.login.loginStatus);
   const user = useSelector(state => state.login.user);
   const userRoles = useSelector(state => state.login.userRoles);
-  const acl = useSelector(state => state.login.acl);
+  const acl = useSelector(state => state.aclModuleStatus.acl);
+  const aclNotSet = useSelector(state => state.aclModuleStatus.aclNotSet);
   const aclModuleStatusErrors = useSelector(state => state.aclModuleStatus.errors);
   
   const [openDrawer, setOpenDrawer] = useState(true);
@@ -153,6 +155,7 @@ export default function MainPanel(props) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const modelsList = useRef(routes().models);
   const adminModelsList = useRef(routes().adminModels);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [permissions, setPermissions] = useState(null);
 
   const [translationAnchorEl, setTranslationAnchorEl] = React.useState(null);
@@ -204,12 +207,17 @@ export default function MainPanel(props) {
   }, [aclModuleStatusErrors, enqueueSnackbar, t]);
 
   useEffect(() => {
-    if(loginStatus === "refreshed") {
-      dispatch(onRefresh());
-    } else if(loginStatus === "expired") {
-      dispatch(logoutRequest());
+    switch(loginStatus) {
+      case 'success':
+        setCheckingPermissions(true);
+        dispatch(setAclRules(user, userRoles));
+        break;
+      
+      default:
+        dispatch(checkAuthentication());
+        break;
     }
-  }, [loginStatus, dispatch]);
+  }, [loginStatus, user, userRoles, dispatch]);
 
   useEffect(() => {
     if(acl) {
@@ -222,11 +230,22 @@ export default function MainPanel(props) {
           acl.allowedPermissions(user, am.concat(m), function(err, permissions) {
             if(!err) {
               setPermissions(permissions);
+            } else {
+              setPermissions(null);
             }
-          })
+            setCheckingPermissions(false);
+          });
+      } else {
+        setCheckingPermissions(false);
+      }
+    } else {
+      if(aclNotSet) {
+        setCheckingPermissions(false);
+      } else {
+        //wait...
       }
     }
-  }, [acl, user]);
+  }, [acl, aclNotSet, user]);
 
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -617,7 +636,11 @@ export default function MainPanel(props) {
             [classes.contentShift]: openDrawer,
           })}
         >
-          <MainSwitch permissions={permissions}/>
+          {(checkingPermissions) ? (
+            <CheckingPermissionsPage /> 
+          ) : (
+            <MainSwitch permissions={permissions}/>
+          )}
         </main>
       </div>
     </Fade>

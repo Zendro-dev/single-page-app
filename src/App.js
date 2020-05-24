@@ -6,7 +6,7 @@ import {
   Redirect
 } from 'react-router-dom'
 import { connect } from 'react-redux';
-import decode from 'jwt-decode';
+import { isAuthenticated } from './utils';
 
 //components
 import Login from './components/pages/LoginPage'
@@ -86,81 +86,5 @@ function PrivateRoute({ children, ...rest }) {
     />
   );
 }
-
-/*
-  Methods
-*/
-/** 
- * isAuthenticated()
- * 
- * This function validates the following conditions to determine 
- * if there is an authenticated session:
- * 
- *  1) Token exists on localStorage, and,
- *  2) Expiration time is valid (greater than current time).
- * 
- * @return {boolean} true if authenticated, false otherwise. 
-*/
-function isAuthenticated() {
-
-  //get token from local storage
-  var token = localStorage.getItem('token');
-  var decoded_token = null;
-
-  //check 1: token not null
-  if(token == null)
-  {
-    return false;
-  }
-  else
-  {
-    /*
-      Decode JWT
-    */
-    try {
-      decoded_token = decode(token);
-
-    }
-    catch(err) { //bad token
-      
-      //clean up localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('expirationDate');
-
-      return false;
-    }
-  }
-  //check 1: token not null: ok
-
-  //check 2: expiration date
-  if(decoded_token.hasOwnProperty('exp'))
-  {
-    //get current date
-    var d = new Date();
-    //get exp date
-    var expDate = new Date(decoded_token.exp * 1000);
-
-    if(d >= expDate)
-    {
-      //expired
-      return false;
-    }
-    else
-    {//check 2: expiration date: ok
-
-      //not expired
-      return true;
-    }
-  }
-  else{ //bad json
-
-    //clean up localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('expirationDate');
-
-    return false;
-  }
-}  
-
 
 export default connect()(App)

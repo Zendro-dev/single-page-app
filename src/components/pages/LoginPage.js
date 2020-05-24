@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { connect } from 'react-redux';
+import React, { useState, useRef, useCallback } from 'react';
+import { connect, useSelector } from 'react-redux';
 import { authRequest } from '../../store/actions';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import Snackbar from '../snackbar/Snackbar';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
@@ -52,6 +53,7 @@ function LoginPage({ dispatch }) {
   const classes = useStyles();
   const { t } = useTranslation();
   const history = useHistory();
+  const loginServerUrl = useSelector(state => state.urls.loginServerUrl);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [values, setValues] = useState({
     user: '',
@@ -69,6 +71,106 @@ function LoginPage({ dispatch }) {
   const passRef = useRef([]);
   const userRef = useRef([]);
 
+  //snackbar
+  const variant = useRef('info');
+  const errors = useRef([]);
+  const content = useRef((key, message) => (
+    <Snackbar id={key} message={message} errors={errors.current}
+    variant={variant.current} />
+  ));
+  const actionText = useRef(t('modelPanels.gotIt', "Got it"));
+  const action = useRef((key) => (
+    <>
+      <Button color='inherit' variant='text' size='small' 
+      onClick={() => { closeSnackbar(key) }}>
+        {actionText.current}
+      </Button>
+    </> 
+  ));
+
+  /**
+   * Callbacks
+   * 
+   */
+
+  /**
+    * showMessage
+    * 
+    * Show the given message in a notistack snackbar.
+    * 
+    */
+  const showMessage = useCallback((message, withDetail) => {
+    enqueueSnackbar( message, {
+      variant: 'error',
+      preventDuplicate: false,
+      persist: true,
+      action: !withDetail ? action.current : undefined,
+      content: withDetail ? content.current : undefined,
+    });
+  },[enqueueSnackbar]);
+
+  const doLoginRequest = useCallback(() => {
+    errors.current = [];
+
+    dispatch(authRequest(values.user, values.password))
+      .then(
+        //resolved
+        (res) => {
+
+          switch (res) {
+            //login ok
+            case "loginSuccess":
+              closeSnackbar();
+              history.push("/main/home");
+              break;
+
+            //bad token
+            case "tokenError":
+              enqueueSnackbar( t('login.errors.e4', "The token received by server could not be validated."), {
+                variant: 'error',
+                preventDuplicate: false,
+                persist: false,
+              });
+              break;
+
+            //other server error
+            default:
+              throw res;
+          }
+        },
+        //rejected
+        (err) => {
+          throw err;
+      })
+      //error
+      .catch((err) => {
+        //check: status 500
+        if(err&&err.response&&err.response.status===500) {
+          //bad credentials
+          enqueueSnackbar( t('login.errors.e3',"The credentials you provided are not correct."), {
+            variant: 'error',
+            preventDuplicate: false,
+            persist: false,
+          });
+        } else {//other status
+          let newError = {};
+          let withDetails=true;
+          variant.current='error';
+          newError.message = t('modelPanels.errors.request.e1', "Error in the request to the server.");
+          newError.locations=[{method: 'doLoginRequest()', action: 'authRequest', request: loginServerUrl}];
+          newError.path=['Login page'];
+          newError.extensions = {error:{message:err.message, config:{url:err.config.url}, response:err.response}};
+          errors.current.push(newError);
+          console.log("Error: ", newError);
+
+          showMessage(newError.message, withDetails);
+        }
+      });
+  }, [enqueueSnackbar, showMessage, closeSnackbar, dispatch, history, loginServerUrl, t, values.password, values.user]);
+
+  /**
+   * Handlers
+   */
   const handleChangeOnTextField = prop => event => {
     setValues({ ...values, [prop]: event.target.value });
 
@@ -146,6 +248,10 @@ function LoginPage({ dispatch }) {
     }
   };
 
+  /**
+   * Local utils
+   */
+
   function isUserValid(email) {
     //user format = email format: email@domain.abc
     return /.+@.+\..+/.test(email);
@@ -155,67 +261,6 @@ function LoginPage({ dispatch }) {
     return (pass !== null && pass !== '');
   }
 
-  function doLoginRequest() {
-    dispatch(authRequest(values.user, values.password))
-      .then(
-        authStatus => {
-          console.log("auth status: ", authStatus)
-          switch (authStatus) {
-            //login ok
-            case "loginSuccess":
-              closeSnackbar();
-              history.push("/main/home");
-              break;
-
-            //bad credentials
-            case "500":
-              enqueueSnackbar( t('login.errors.e3',"The credentials you provided are not correct."), {
-                variant: 'error',
-                preventDuplicate: false,
-                persist: false,
-              });
-              break;
-
-            //bad token
-            case "tokenError":
-              enqueueSnackbar( t('login.errors.e4', "The token received by server could not be validated."), {
-                variant: 'info',
-                preventDuplicate: false,
-                persist: false,
-              });
-              break;
-
-            //connection refused
-            case "connectionRefused":
-               enqueueSnackbar( t('login.errors.e5', "Could not connect to server. Please consult your network administrator."), {
-                variant: 'info',
-                preventDuplicate: false,
-                persist: false,
-              });
-              break;
-
-            //other server error
-            default:
-              enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
-                variant: 'info',
-                preventDuplicate: false,
-                persist: false,
-              });
-              break;
-              
-          }
-        },
-        //dispatch failed
-        err => {
-          enqueueSnackbar( t('login.errors.e6', "An error occurred while trying to contact the server. Please contact your administrator."), {
-            variant: 'info',
-            preventDuplicate: false,
-            persist: false,
-          });
-          console.log(err);
-        }
-      );
-  }
   /**
    * validateFields
    * 

@@ -2,6 +2,7 @@ import axios from 'axios'
 import decode from 'jwt-decode';
 import Acl from 'acl'
 import { aclRules } from '../acl_rules';
+import { isAuthenticated, removeToken } from '../utils';
 
 /*
   Action types
@@ -10,7 +11,9 @@ import { aclRules } from '../acl_rules';
 export const LOGIN_REQ = 'LOGIN_REQ';
 export const LOGIN_OK = 'LOGIN_OK';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
+export const LOGIN_EXPIRED = 'LOGIN_EXPIRED';
 export const LOGOUT = 'LOGOUT';
+export const ACL_MODULE_OK = 'ACL_MODULE_OK';
 export const ACL_MODULE_FAIL = 'ACL_MODULE_FAIL';
 export const MODEL_CHANGE = 'MODEL_CHANGE';
 export const CHANGES_COMPLETED = 'CHANGES_COMPLETED';
@@ -25,14 +28,12 @@ const loginReq = user => ({
   user
 });
 
-const loginOk = (user, userId, userRoles, token, expirationDate, acl) => ({
+const loginOk = (user, userId, userRoles, expirationDate) => ({
   type: LOGIN_OK,
   user,
   userId,
   userRoles,
-  token,
-  expirationDate,
-  acl
+  expirationDate
 });
 
 const loginFail = (user, error) => ({
@@ -41,8 +42,21 @@ const loginFail = (user, error) => ({
   error
 });
 
+const loginExpired = (user, userId, userRoles, expirationDate) => ({
+  type: LOGIN_EXPIRED,
+  user,
+  userId,
+  userRoles,
+  expirationDate
+});
+
 const logout = () => ({
   type: LOGOUT
+});
+
+const aclModuleOk = (acl) => ({
+  type: ACL_MODULE_OK,
+  acl
 });
 
 const aclModuleFail = (user, errors) => ({
@@ -99,12 +113,27 @@ export function authRequest(user, password) {
         method: 'POST'
       })
       .then(
-        //on successful login handler
+        //resolved
         (response) => {
           /*
-            JWT
+            Check JWT
           */
-          const token = response.data.token;
+          let token = response.data.token;
+          //check null token
+          if(!token) {
+            //clean up local storage
+            localStorage.removeItem('token');
+
+            /*
+              Dispatch loginFail action: 
+              State is updated to inform that login was failed.
+            */
+            dispatch(loginFail(user, 'null token error'));
+
+            return "tokenError";
+          }
+          
+          //decode
           var decoded_token = null;
           try {
 
@@ -124,75 +153,25 @@ export function authRequest(user, password) {
             return "tokenError";
           } //JWT decoded ok
 
-          //check null token
-          if(!token) {
-            //clean up local storage
-            localStorage.removeItem('token');
-
-            /*
-              Dispatch loginFail action: 
-              State is updated to inform that login was failed.
-            */
-            dispatch(loginFail(user, 'null token error'));
-
-            return "tokenError";
-          }
-
           //save token on local storage
           localStorage.setItem('token', token);
           //set token on axios headers
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
 
+          /**
+           * At this point, login is successful.
+           * Main app component should dispatch a setAcl action to set acl rules.
+           * Any ACL error status should be checked in the main app component.
+           */
           /*
-            ACL
+            Dispatch loginOk action: 
+            State is updated to inform that login was successful.
           */
-          var acl = new Acl(new Acl.memoryBackend());
-          var aclContext = {user: user, errors: []}
-          acl.allow(aclRules, function(err) {
-            if(err) {
-              this.errors.push({allowError: err});
-              /*
-                Dispatch aclModuleFail action: 
-                State is updated to inform that ACL module has failed.
-              */
-              dispatch(aclModuleFail(this.user, this.errors));
-              console.log("Error on ACL module: ", err);
-            }
-          }.bind(aclContext))
-          .then( (result) => {
-      
-            acl.addUserRoles(user, decoded_token.roles, function(err) {
-              if(err) {
-                this.errors.push({addUserRolesError: err});
-                /*
-                  Dispatch aclModuleFail action: 
-                  State is updated to inform that ACL module has failed.
-                */
-                dispatch(aclModuleFail(this.user, this.errors));
-                console.log("Error on ACL module: ", err);
-              }
-            }.bind(aclContext))
-            .then( (result) => {
-              /*
-                Dispatch loginOk action: 
-                State is updated to inform that login was successful.
-              */
-              dispatch(loginOk(user, decoded_token.id, decoded_token.roles, token, decoded_token.exp, acl));
-            });
-      
-          });
-
+          dispatch(loginOk(user, decoded_token.id, decoded_token.roles, decoded_token.exp));
           return "loginSuccess";
         },
-        //on login fail handler
-        err => {
-          /**
-           * Debug
-           */
-          console.log("ERROR: on authRequest, err: ", err);
-          console.log("ERROR: on authRequest, err.message: ", err.message);
-          console.log("ERROR: on authRequest, response.data:", err.response);
-
+        //rejected
+        (err) => {
           //remove items from localStorage
           localStorage.removeItem('token');
           
@@ -202,17 +181,7 @@ export function authRequest(user, password) {
           */
           dispatch(loginFail(user, err));
 
-          /*
-            Get status (todo: fix this)
-          */
-         let errStatus = err.response.status;
-
-         if(errStatus !== undefined) {
-           return String(errStatus);
-         }
-         else {
-           return 'connectionRefused';
-         }
+          return err;
         });
     // Do not use catch, because that will also catch
     // any errors in the dispatch and resulting render,
@@ -236,15 +205,14 @@ export function logoutRequest() {
   }
 }
 
-export function onRefresh() {
+export function setAclRules(user, userRoles) {
 
-  return function (dispatch, getState) {
-    const state = getState();
+  return function (dispatch) {
     /*
-      ACL
+      Set ACL rules
     */
     var acl = new Acl(new Acl.memoryBackend());
-    var aclContext = {user: state.login.user, errors: []};
+    var aclContext = {user: user, errors: []}
     acl.allow(aclRules, function(err) {
       if(err) {
         this.errors.push({allowError: err});
@@ -258,7 +226,7 @@ export function onRefresh() {
     }.bind(aclContext))
     .then( (result) => {
 
-      acl.addUserRoles(state.login.user, state.login.userRoles, function(err) {
+      acl.addUserRoles(user, userRoles, function(err) {
         if(err) {
           this.errors.push({addUserRolesError: err});
           /*
@@ -271,12 +239,34 @@ export function onRefresh() {
       }.bind(aclContext))
       .then( (result) => {
         /*
-          Dispatch loginOk action: 
-          State is updated with current login data and acl.
+          Dispatch aclModuleOk action: 
+          State is updated to inform that acl was set successful.
         */
-        dispatch(loginOk(state.login.user, state.login.userId, state.login.userRoles, state.login.token, state.login.expirationDate, acl));
+        dispatch(aclModuleOk(acl, user));
       });
-
     });
+  }
+}
+
+export function checkAuthentication() {
+
+  return function (dispatch, getState) {
+    let decoded_token = isAuthenticated();
+    console.log("--detoken: ", decoded_token)
+
+    if(decoded_token) {
+      /*
+        Dispatch loginOk action: 
+        State is updated to inform that login is valid.
+      */
+      dispatch(loginOk(decoded_token.email, decoded_token.id, decoded_token.roles, decoded_token.exp));
+    } else {
+      /*
+        Dispatch loginExpired action: 
+        State is updated to inform that login is expired.
+      */
+      dispatch(loginExpired(decoded_token.email, decoded_token.id, decoded_token.roles, decoded_token.exp));
+      removeToken();
+    }
   }
 }

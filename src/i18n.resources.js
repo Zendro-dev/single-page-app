@@ -144,11 +144,29 @@ export default {
           msg6: "Record created successfully.",
           //csv template
           msg7: "Template downloaded successfully.",
+          //no permissions
+          msg8: "You need permissions to access this section.",
+          msg9: "Please request permissions.",
+          msg10: "Checking permissions...",
+          msg11: "Section not found.",
+          msg12: "Are you sure it should be here?",
+          msg13: "Page not found.",
         },
         errors: {
+          details: "Error details:",
+          noDetails: "No error details.",
           e1: "An error occurred while trying to execute the GraphQL query. Please contact your administrator.",
           e2: "An error occurred while trying to execute the GraphQL query, cannot process server response. Please contact your administrator.",
           e3: "The GraphQL query returned a response with errors. Please contact your administrator.",
+          data: {
+            e1: "No data was received from the server.",
+            e2: "could not be fetched.",
+            e3: "fetched with errors",
+            e4: "received, does not have the expected format.",
+          },
+          request: {
+            e1: "Error in the request to the server",
+          }
         }
 
       },
@@ -300,11 +318,29 @@ export default {
           msg6: "Datensatz erfolgreich erstellt.",
           //csv template
           msg7: "Vorlage erfolgreich heruntergeladen.",
+          //no permissions
+          msg8: "Sie benötigen Berechtigungen, um auf diesen Abschnitt zugreifen zu können.",
+          msg9: "Bitte fordern Sie Berechtigungen an.",
+          msg10: "Berechtigungen überprüfen...",
+          msg11: "Abschnitt nicht gefunden.",
+          msg12: "Bist du sicher, dass es hier sein sollte?",
+          msg13: "Seite nicht gefunden.",
         },
         errors: {
+          details: "Fehlerdetails:",
+          noDetails: "Keine Fehlerdetails.",
           e1: "Beim Versuch, die GraphQL-Abfrage auszuführen, ist ein Fehler aufgetreten. Bitte wenden Sie sich an Ihren Administrator.",
           e2: "Beim Versuch, die GraphQL-Abfrage auszuführen, ist ein Fehler aufgetreten. Die Serverantwort kann nicht verarbeitet werden. Bitte wenden Sie sich an Ihren Administrator.",
           e3: "Die GraphQL-Abfrage hat eine Antwort mit Fehlern zurückgegeben. Bitte wenden Sie sich an Ihren Administrator.",
+          data: {
+            e1: "Es wurden keine Daten vom Server empfangen.",
+            e2: "nicht abgerufen.",
+            e3: "mit Fehlern abgerufen",
+            e4: "empfangen, hat nicht das erwartete Format.",
+          },
+          request: {
+            e1: "Fehler in der Anfrage an den Server",
+          }
         }
 
       },
@@ -459,11 +495,29 @@ export default {
           msg6: "Registro creado con éxito.",
           //csv template
           msg7: "La plantilla se descargó con éxito",
+          //no permissions
+          msg8: "Necesitas permisos para acceder a esta seccion.",
+          msg9: "Por favor solicite permisos.",
+          msg10: "Validando permisos...",
+          msg11: "Sección no encontrada.",
+          msg12: "¿Está seguro de que debería estar aquí?",
+          msg13: "Página no encontrada.",
         },
         errors: {
+          details: "Detalles del error:",
+          noDetails: "No hay más información del error.",
           e1: "Ocurrió un error al intentar ejecutar la consulta GraphQL. Por favor contacte al administrador de la aplicación.",
           e2: "Ocurrió un error al intentar ejecutar la consulta GraphQL, no se puede procesar la respuesta recibida del servidor. Por favor contacte al administrador de la aplicación.",
           e3: "La consulta GraphQL retornó una respuesta con errores. Por favor contacte al administrador de la aplicación.",
+          data: {
+            e1: "No se recibieron datos del servidor.",
+            e2: "no obtenidos.",
+            e3: "obtenidos con errores",
+            e4: "recibidos, no tiene el formato esperado.",
+          },
+          request: {
+            e1: "Error en la petición al servidor.",
+          }
         }
       },
     }

@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux'
-import decode from 'jwt-decode';
 import {
     LOGIN_REQ,
     LOGIN_OK,
     LOGIN_FAIL,
+    LOGIN_EXPIRED,
     LOGOUT,
+    ACL_MODULE_OK,
     ACL_MODULE_FAIL,
     MODEL_CHANGE,
     CHANGES_COMPLETED,
@@ -50,9 +51,7 @@ function login(
         userId: null,
         userRoles: [],
         loginStatus: '',
-        token: null,
         expirationDate: null,
-        acl: null,
         error: null
     }, 
     action) {
@@ -66,9 +65,7 @@ function login(
                   userId: null,
                   userRoles: [],
                   loginStatus: 'loading',
-                  token: null,
                   expirationDate: null,
-                  acl: null,
                   error: null
               });
 
@@ -79,9 +76,7 @@ function login(
                   userId: action.userId,
                   userRoles: action.userRoles,
                   loginStatus: 'success',
-                  token: action.token,
                   expirationDate: action.expirationDate,
-                  acl: action.acl,
                   error: null
               });
           
@@ -92,10 +87,19 @@ function login(
                   userId: null,
                   userRoles: [],
                   loginStatus: 'error',
-                  token: null,
                   expirationDate: null,
-                  acl: null,
                   error: action.error
+              });
+
+          case LOGIN_EXPIRED:
+              return Object.assign({}, state, {
+                  isFetching: false,
+                  user: action.user,
+                  userId: action.userId,
+                  userRoles: action.userRoles,
+                  loginStatus: 'expired',
+                  expirationDate: action.expirationDate,
+                  error: null
               });
           
           case LOGOUT:
@@ -105,20 +109,11 @@ function login(
                   userId: null,
                   userRoles: [],
                   loginStatus: '',
-                  token: null,
                   expirationDate: null,
-                  acl: null,
                   error: null
               });
 
-          case ACL_MODULE_FAIL:
-          case MODEL_CHANGE:
-          case CHANGES_COMPLETED:
-          case CLEAR_CHANGES:
-              return state;
-
           default:
-            onRefresh(state);
             return state;
       }//end: switch()
 }//end: login()
@@ -126,16 +121,28 @@ function login(
 function aclModuleStatus(
   //set initial state.aclModuleStatus if 'undefined'
   state = {
+      acl: null,
       user: null,
-      errors: null
+      errors: null,
+      aclNotSet: false
   }, 
   action) {
       switch (action.type) {
 
+        case ACL_MODULE_OK:
+          return Object.assign({}, state, {
+            acl: action.acl,
+            user: action.user,
+            errors: null,
+            aclNotSet: false
+          });
+
         case ACL_MODULE_FAIL:
           return Object.assign({}, state, {
+            acl: null,
             user: action.user,
-            errors: action.errors
+            errors: action.errors,
+            aclNotSet: true
           });
           
         default:
@@ -212,54 +219,5 @@ const rootReducer = combineReducers({
     aclModuleStatus,
     changes,
 })
-
-function onRefresh(state) {
-  /*
-    JWT
-  */
-  const token = localStorage.getItem('token');
-  var decoded_token = null;
-  try {
-    decoded_token = decode(token);
-    
-    //if valid token...
-    if(decoded_token) {
-
-      let expdate = new Date(decoded_token.exp*1000);
-      let d = new Date();
-      let expired = expdate < d;
-
-      //init login state to token values
-      state.isFetching = false;
-      state.user = decoded_token.email;
-      state.userId = decoded_token.id;
-      state.userRoles = decoded_token.roles;
-      state.token = token;
-      state.expirationDate = decoded_token.exp;
-      state.acl = null;
-      state.error = null;
-
-      
-      // if not expired...
-      if(!expired) {
-        state.loginStatus = 'refreshed';
-      } else {
-        state.loginStatus = 'expired';
-
-        //clean up local storage
-        localStorage.removeItem('token');
-        decoded_token = null;
-      }
-    }
-  }
-  catch(err) { //bad token
-    state.loginStatus = 'expired';
-
-    //clean up local storage
-    localStorage.removeItem('token');
-    decoded_token = null;
-    
-  } //JWT decoded ok
-}
   
 export default rootReducer
