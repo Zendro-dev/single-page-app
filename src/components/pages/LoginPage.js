@@ -156,10 +156,10 @@ function LoginPage({ dispatch }) {
           let newError = {};
           let withDetails=true;
           variant.current='error';
-          newError.message = t('modelPanels.errors.request.e1', "Error in the request to the server.");
+          newError.message = t('modelPanels.errors.request.e1', "Error in request made to server.");
           newError.locations=[{method: 'doLoginRequest()', action: 'authRequest', request: loginServerUrl}];
           newError.path=['Login page'];
-          newError.extensions = {error:{message:err.message, config:{url:err.config.url}, response:err.response}};
+          newError.extensions = {error:{message:err.message, config:(err.config)?{url:err.config.url}:undefined, response:(err.response)?{status:err.response.status, statusText:err.response.statusText}:undefined}};
           errors.current.push(newError);
           console.log("Error: ", newError);
 
