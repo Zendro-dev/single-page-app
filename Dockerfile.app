@@ -1,4 +1,4 @@
-FROM node:12.13.1-alpine
+FROM node:14.3.0-buster
 
 # Create app directory
 WORKDIR /usr/ScienceDbStarterPack/single-page-app
