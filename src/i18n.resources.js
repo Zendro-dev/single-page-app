@@ -27,6 +27,7 @@ export default {
         }
       },
       modelPanels: {
+        internalId: "Unique Identifier",
         addNew: "Add new",
         importCSV: "Import from CSV",
         downloadsOptions: "Download options",
@@ -201,6 +202,7 @@ export default {
         }
       },
       modelPanels: {
+        internalId: "Eindeutige Kennung",
         addNew: "Neue hinzufügen",
         importCSV: "Aus CSV importieren",
         downloadsOptions: "Download-Optionen",
@@ -375,6 +377,7 @@ export default {
         }
       },
       modelPanels: {
+        internalId: "Identificador Único",
         //actions
         addNew: "Agregar nuevo",
         importCSV: "Importar de CSV",
