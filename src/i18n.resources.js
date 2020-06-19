@@ -40,6 +40,19 @@ export default {
         rowsPerPage: "Rows per page",
         of: "of",
 
+        //toggle buttons
+        table: "Table",
+        plot: "Plot",
+
+        //plot panel
+        plot1: {
+          title: "Bar chart",
+          description: "Select a model attribute and click on button 'generate plot' to generate a frequency distribution bar chart of the selected attribute.",
+          label: "Attributes",
+          none: 'None',
+          button: "Generate plot",
+        },
+
         details: "Details",
         detailOf: "Detail of",
         new: "New",
@@ -163,7 +176,7 @@ export default {
           data: {
             e1: "No data was received from the server.",
             e2: "could not be fetched.",
-            e3: "fetched with errors",
+            e3: "fetched with errors.",
             e4: "received, does not have the expected format.",
           },
           request: {
@@ -215,6 +228,19 @@ export default {
         actions: "Aktionen",
         rowsPerPage: "Zeilen pro Seite",
         of: "von",
+
+        //toggle buttons
+        table: "Tabelle",
+        plot: "Plot",
+
+        //plot panel
+        plot1: {
+          title: "Balkendiagramm",
+          description: "Wählen Sie ein Modellattribut aus und klicken Sie auf die Schaltfläche 'Plot generieren', um ein Häufigkeitsverteilungsbalkendiagramm des ausgewählten Attributs zu erstellen.",
+          label: "Attribute",
+          none: "Keiner",
+          button: "Plot generieren",
+        },
 
         details: "Einzelheiten",
         detailOf: "Detail von",
@@ -394,6 +420,19 @@ export default {
         //pagination
         rowsPerPage: "Renglones por página",
         of: "de",
+
+        //toggle buttons
+        table: "Tabla",
+        plot: "Plot",
+
+        //plot panel
+        plot1: {
+          title: "Gráfica de barras",
+          description: "Seleccione un atributo y de click en el botón 'generar plot' para generar una gráfica de distribución de frecuencia sobre el atributo seleccionado.",
+          label: "Atributos",
+          none: "Ninguno",
+          button: "Generar plot",
+        },
 
         details: "Detalles",
         detailOf: "Detalle de",
