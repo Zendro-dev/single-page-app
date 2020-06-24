@@ -1,5 +1,4 @@
 import decode from 'jwt-decode';
-import axios from 'axios';
 
 /**
  * makeCancelable()
@@ -106,26 +105,4 @@ export function isAuthenticated() {
 export function removeToken() {
   //clean up token
   localStorage.removeItem('token');
-}
-
-/** 
- * requestGraphql()
- * 
- * GraphQL API Query made with axios.
- * 
- * @return {Promise} Axios promise of the request made. 
-*/
-export function requestGraphql({ url, query, variables }) {
-
-  var token = localStorage.getItem('token');
-  if(token) {
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-  }
-
-  return axios.post(url,
-    {
-        query: query,
-        variables: variables
-    }
-  );
 }
