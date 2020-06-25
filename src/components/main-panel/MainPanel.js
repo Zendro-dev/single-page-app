@@ -174,7 +174,9 @@ export default function MainPanel(props) {
   const actionText = useRef(null);
   const action = useRef((key) => (
     <>
-      <Button color='inherit' variant='text' size='small' className={classes.notiErrorActionText} onClick={() => { closeSnackbar(key) }}>
+      <Button id='MainPanel-button-notiErrorActionText' color='inherit' variant='text' 
+      size='small' className={classes.notiErrorActionText} 
+      onClick={() => { closeSnackbar(key) }}>
         {actionText.current}
       </Button>
     </> 
@@ -379,6 +381,7 @@ export default function MainPanel(props) {
             >
               <Zoom in={true} timeout={500}>
                 <Fab
+                  id='MainPanel-fab-closeMenu'
                   size="medium"
                   color="primary"
                   onClick={handleDrawerClose}
@@ -401,6 +404,7 @@ export default function MainPanel(props) {
             {(!openDrawer) ?
               <Fade in={true} timeout={500}>
                 <IconButton
+                  id='MainPanel-iconButton-openMenu'
                   color="inherit"
                   onClick={handleDrawerOpen}
                   edge="start"
@@ -423,7 +427,8 @@ export default function MainPanel(props) {
 
               {/* Translate.icon */}
               <Tooltip title={ t('mainPanel.translate') }>
-                <IconButton 
+                <IconButton
+                  id={'MainPanel-iconButton-translate'}
                   color="inherit"
                   onClick={handleTranslationIconClick}
                 >
@@ -431,7 +436,7 @@ export default function MainPanel(props) {
                 </IconButton>
               </Tooltip>
 
-              {/* Translate.menu*/}
+              {/* Translate.menu */}
               <Menu
                 anchorEl={translationAnchorEl}
                 keepMounted
@@ -440,6 +445,7 @@ export default function MainPanel(props) {
               >
                 {translations.current.map((translation, index) => (
                   <MenuItem
+                    id={'MainPanel-menuItem-translation-'+translation.lcode}
                     className={classes.translationMenuItem}
                     key={translation.lcode}
                     selected={index === translationSelectedIndex}
@@ -454,6 +460,7 @@ export default function MainPanel(props) {
 
               {/* Logout */} 
               <Button
+                id={'MainPanel-button-logout'}
                 color="inherit"
                 onClick={() => {
                   closeSnackbar();
@@ -480,7 +487,8 @@ export default function MainPanel(props) {
           {/* Menu */}
           <List>
             {/* Home */}
-            <ListItem 
+            <ListItem
+              id={'MainPanel-listItem-button-home'}
               button
               onClick={(event) => {
                 if(selectedIndex !== -3) {
@@ -509,7 +517,8 @@ export default function MainPanel(props) {
             <Divider />
           
             {/* Models */}
-            <ListItem button onClick={handleModelsListClick}>
+            <ListItem button id={'MainPanel-listItem-button-models'} 
+            onClick={handleModelsListClick}>
               <ListItemIcon><ModelsIcon /></ListItemIcon>
               <ListItemText primary={
                   <React.Fragment>
@@ -534,6 +543,7 @@ export default function MainPanel(props) {
                   /* acl check */
                   (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
                     <ListItem 
+                      id={'MainPanel-listItem-button-'+model.name}
                       button 
                       className={classes.nested} 
                       key={model.id+'-'+model.name}
@@ -570,7 +580,8 @@ export default function MainPanel(props) {
             {/* acl check */}
             {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('admin')) && (
               <div>
-                <ListItem button onClick={handleAccountsListClick}>
+                <ListItem button id={'MainPanel-listItem-button-admin'} 
+                onClick={handleAccountsListClick}>
                   <ListItemIcon><Accounts /></ListItemIcon> 
                   <ListItemText primary={
                       <React.Fragment>
@@ -595,6 +606,7 @@ export default function MainPanel(props) {
                       /* acl check */
                       (permissions&&(permissions[model.name].includes('*'))) ? (
                         <ListItem
+                          id={'MainPanel-listItem-button-'+model.name}
                           button
                           className={classes.nested}
                           key={model.id+'-'+model.name}
