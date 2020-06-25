@@ -338,11 +338,11 @@ function LoginPage({ dispatch }) {
                   </Grid>
                   <Grid item>
                     <TextField
+                      id="LoginPage-textField-email"
                       label={ t('login.email') }
                       inputRef={userRef}
                       className={classes.textField}
                       type="email"
-                      name="email"
                       autoComplete="email"
                       value={values.user}
                       error={errorUser.status}
@@ -364,6 +364,7 @@ function LoginPage({ dispatch }) {
                   </Grid>
                   <Grid item>
                     <TextField
+                      id="LoginPage-textField-password"
                       label={ t('login.password') }
                       inputRef={passRef}
                       className={classes.textField}
@@ -377,6 +378,7 @@ function LoginPage({ dispatch }) {
                           <InputAdornment position="end">
                             <Tooltip title={ t('login.showPassword') }>
                               <IconButton
+                                id="LoginPage-button-showPassword"
                                 onClick={handleClickShowPassword}
                               >
                                 {values.showPassword ? <VisibilityOff /> : <Visibility />}
@@ -398,6 +400,7 @@ function LoginPage({ dispatch }) {
               */}
               <div className={classes.loginButtonDiv}>
                 <Button className={classes.loginButton}
+                  id="LoginPage-button-login"
                   size="medium"
                   color="primary"
                   onClick={() => { validateAndLogin(); }}
