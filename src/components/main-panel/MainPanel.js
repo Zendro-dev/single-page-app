@@ -273,8 +273,7 @@ export default function MainPanel(props) {
     
     i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
       if(err) {
-        //"An error occurred while trying load language."
-        enqueueSnackbar( t('mainPanel.errors.e1'), {
+        enqueueSnackbar( t('mainPanel.errors.e1', "An error occurred while trying load the new language."), {
           variant: 'info',
           preventDuplicate: false,
           persist: false,
@@ -426,7 +425,7 @@ export default function MainPanel(props) {
             <div className={classes.toolbarLeftButtons}>
 
               {/* Translate.icon */}
-              <Tooltip title={ t('mainPanel.translate') }>
+              <Tooltip title={ t('mainPanel.translate', "Change language") }>
                 <IconButton
                   id={'MainPanel-iconButton-translate'}
                   color="inherit"
@@ -468,7 +467,7 @@ export default function MainPanel(props) {
                   history.push("/login");
                 }}
               >
-                { t('mainPanel.logout') }
+                { t('mainPanel.logout', "Logout") }
               </Button>
             </div>
           </Toolbar>
@@ -508,7 +507,7 @@ export default function MainPanel(props) {
                       noWrap={true}
                       color="textPrimary"
                     >
-                      <b>{ t('mainPanel.home') }</b>
+                      <b>{ t('mainPanel.home', "Home") }</b>
                     </Typography>
                   </React.Fragment>
                 } />
@@ -529,7 +528,7 @@ export default function MainPanel(props) {
                       noWrap={true}
                       color="textPrimary"
                     >
-                      <b>{ t('mainPanel.models') }</b>
+                      <b>{ t('mainPanel.models', "Models") }</b>
                     </Typography>
                   </React.Fragment>
                 } />
@@ -592,7 +591,7 @@ export default function MainPanel(props) {
                           noWrap={true}
                           color="textPrimary"
                         >
-                          <b>{ t('mainPanel.admin') }</b>
+                          <b>{ t('mainPanel.admin', "Admin") }</b>
                         </Typography>
                       </React.Fragment>
                     } 
