@@ -324,7 +324,7 @@ function LoginPage({ dispatch }) {
                   Title
                 */}
                 <Typography gutterBottom variant="h4" component="h2">
-                  Cenzontle
+                  Vocen
                 </Typography>
               </CardContent>
 
