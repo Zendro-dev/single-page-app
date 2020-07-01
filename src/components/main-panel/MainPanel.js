@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  vocenBox: {
+  zendroBox: {
     width: drawerWidth,
     marginLeft: -drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  vocenBoxShift: {
+  zendroBoxShift: {
     width: drawerWidth,
     marginLeft: 0,
     transition: theme.transitions.create(['margin', 'width'], {
@@ -118,7 +118,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 0,
     width: `calc(100% - ${drawerWidth}px)`,
   },
-  vocenTitle: {
+  zendroTitle: {
     padding: theme.spacing(3),
   },
   nested: {
@@ -337,8 +337,8 @@ export default function MainPanel(props) {
 
         {/* Drawer menu header */}
             <Box
-              className={clsx(classes.vocenBox, {
-                [classes.vocenBoxShift]: openDrawer,
+              className={clsx(classes.zendroBox, {
+                [classes.zendroBoxShift]: openDrawer,
               })}
               // width={drawerWidth}
               height={appBarHeight}
@@ -348,9 +348,9 @@ export default function MainPanel(props) {
               left={0}
               zIndex="modal"
             >
-              {/* Vocen */} 
-              <Typography className={classes.vocenTitle} variant="h5" display='block' noWrap={true}>
-                Vocen
+              {/* Zendro */} 
+              <Typography className={classes.zendroTitle} variant="h5" display='block' noWrap={true}>
+                Zendro
               </Typography>
             </Box>
           
@@ -358,8 +358,8 @@ export default function MainPanel(props) {
         {(openDrawer) ?
           <Fade in={true} timeout={700}>
             <Box
-              className={clsx(classes.vocenBox, {
-                [classes.vocenBoxShift]: openDrawer,
+              className={clsx(classes.zendroBox, {
+                [classes.zendroBoxShift]: openDrawer,
               })}
               position="fixed"
               top={appBarHeight}
@@ -413,11 +413,11 @@ export default function MainPanel(props) {
               </Fade> : null
             }
             
-            {/* Vocen */}
+            {/* Zendro */}
             {(!openDrawer) ?
               <Fade in={true} timeout={500}>
                 <Typography variant="h5" display='block' noWrap={true}>
-                  Vocen
+                  Zendro
                 </Typography>
               </Fade> : null
             }

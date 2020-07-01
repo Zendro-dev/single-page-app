@@ -1,5 +1,5 @@
 export const configs = {
-  tokenKeyName: 'vocen-token',
+  tokenKeyName: 'zendro-token',
 };
 
 //global metrics
