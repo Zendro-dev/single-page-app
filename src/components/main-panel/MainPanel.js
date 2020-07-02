@@ -271,22 +271,24 @@ export default function MainPanel(props) {
   const handleTranslationMenuItemClick = (event, index) => {
     setTranslationAnchorEl(null);
     
-    i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
-      if(err) {
-        enqueueSnackbar( t('mainPanel.errors.e1', "An error occurred while trying load the new language."), {
-          variant: 'info',
-          preventDuplicate: false,
-          persist: false,
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-        });
-        console.log('Error loading languaje: ', err);
-      } else {
-        closeSnackbar();
-      }
-    });
+    if(translationSelectedIndex !== index) {
+      i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
+        if(err) {
+          enqueueSnackbar( t('mainPanel.errors.e1', "An error occurred while trying load the new language."), {
+            variant: 'info',
+            preventDuplicate: false,
+            persist: false,
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          });
+          console.log('Error loading languaje: ', err);
+        } else {
+          closeSnackbar();
+        }
+      });
+    }
   };
 
   const handleTranslationMenuClose = () => {
