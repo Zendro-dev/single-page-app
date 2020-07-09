@@ -1,4 +1,5 @@
 import decode from 'jwt-decode';
+import axios from 'axios';
 
 /**
  * makeCancelable()
@@ -7,8 +8,7 @@ import decode from 'jwt-decode';
  * 
  * Solution given by @istarkov on:  https://github.com/facebook/react/issues/5465#issuecomment-157888325
  * Also referenced here: https://reactjs.org/blog/2015/12/16/ismounted-antipattern.html
-*/
-
+ */
 export const makeCancelable = (promise) => {
   let hasCanceled_ = false;
 
@@ -40,7 +40,7 @@ export const makeCancelable = (promise) => {
  *  2) Expiration time is valid (greater than current time).
  * 
  * @return {boolean} true if authenticated, false otherwise. 
-*/
+ */
 export function isAuthenticated() {
 
   //get token from local storage
@@ -105,4 +105,26 @@ export function isAuthenticated() {
 export function removeToken() {
   //clean up token
   localStorage.removeItem('token');
+}
+
+/** 
+ * requestGraphql()
+ * 
+ * GraphQL API Query made with axios.
+ * 
+ * @return {Promise} Axios promise of the request made. 
+ */
+export function requestGraphql({ url, query, variables }) {
+
+  var token = localStorage.getItem('token');
+  if(token) {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+  }
+
+  return axios.post(url,
+    {
+        query: query,
+        variables: variables
+    }
+  );
 }
