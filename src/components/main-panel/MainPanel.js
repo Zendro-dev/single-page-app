@@ -62,7 +62,7 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  cenzBox: {
+  zendroBox: {
     width: drawerWidth,
     marginLeft: -drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  cenzBoxShift: {
+  zendroBoxShift: {
     width: drawerWidth,
     marginLeft: 0,
     transition: theme.transitions.create(['margin', 'width'], {
@@ -118,7 +118,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 0,
     width: `calc(100% - ${drawerWidth}px)`,
   },
-  cenzTitle: {
+  zendroTitle: {
     padding: theme.spacing(3),
   },
   nested: {
@@ -174,7 +174,9 @@ export default function MainPanel(props) {
   const actionText = useRef(null);
   const action = useRef((key) => (
     <>
-      <Button color='inherit' variant='text' size='small' className={classes.notiErrorActionText} onClick={() => { closeSnackbar(key) }}>
+      <Button id='MainPanel-button-notiErrorActionText' color='inherit' variant='text' 
+      size='small' className={classes.notiErrorActionText} 
+      onClick={() => { closeSnackbar(key) }}>
         {actionText.current}
       </Button>
     </> 
@@ -269,23 +271,24 @@ export default function MainPanel(props) {
   const handleTranslationMenuItemClick = (event, index) => {
     setTranslationAnchorEl(null);
     
-    i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
-      if(err) {
-        //"An error occurred while trying load language."
-        enqueueSnackbar( t('mainPanel.errors.e1'), {
-          variant: 'info',
-          preventDuplicate: false,
-          persist: false,
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-        });
-        console.log('Error loading languaje: ', err);
-      } else {
-        closeSnackbar();
-      }
-    });
+    if(translationSelectedIndex !== index) {
+      i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
+        if(err) {
+          enqueueSnackbar( t('mainPanel.errors.e1', "An error occurred while trying load the new language."), {
+            variant: 'info',
+            preventDuplicate: false,
+            persist: false,
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          });
+          console.log('Error loading languaje: ', err);
+        } else {
+          closeSnackbar();
+        }
+      });
+    }
   };
 
   const handleTranslationMenuClose = () => {
@@ -336,8 +339,8 @@ export default function MainPanel(props) {
 
         {/* Drawer menu header */}
             <Box
-              className={clsx(classes.cenzBox, {
-                [classes.cenzBoxShift]: openDrawer,
+              className={clsx(classes.zendroBox, {
+                [classes.zendroBoxShift]: openDrawer,
               })}
               // width={drawerWidth}
               height={appBarHeight}
@@ -347,9 +350,9 @@ export default function MainPanel(props) {
               left={0}
               zIndex="modal"
             >
-              {/* Cenzontle */} 
-              <Typography className={classes.cenzTitle} variant="h5" display='block' noWrap={true}>
-                Cenzontle
+              {/* Zendro */} 
+              <Typography className={classes.zendroTitle} variant="h5" display='block' noWrap={true}>
+                Zendro
               </Typography>
             </Box>
           
@@ -357,8 +360,8 @@ export default function MainPanel(props) {
         {(openDrawer) ?
           <Fade in={true} timeout={700}>
             <Box
-              className={clsx(classes.cenzBox, {
-                [classes.cenzBoxShift]: openDrawer,
+              className={clsx(classes.zendroBox, {
+                [classes.zendroBoxShift]: openDrawer,
               })}
               position="fixed"
               top={appBarHeight}
@@ -379,6 +382,7 @@ export default function MainPanel(props) {
             >
               <Zoom in={true} timeout={500}>
                 <Fab
+                  id='MainPanel-fab-closeMenu'
                   size="medium"
                   color="primary"
                   onClick={handleDrawerClose}
@@ -401,6 +405,7 @@ export default function MainPanel(props) {
             {(!openDrawer) ?
               <Fade in={true} timeout={500}>
                 <IconButton
+                  id='MainPanel-iconButton-openMenu'
                   color="inherit"
                   onClick={handleDrawerOpen}
                   edge="start"
@@ -410,11 +415,11 @@ export default function MainPanel(props) {
               </Fade> : null
             }
             
-            {/* Cenzontle */}
+            {/* Zendro */}
             {(!openDrawer) ?
               <Fade in={true} timeout={500}>
                 <Typography variant="h5" display='block' noWrap={true}>
-                  Cenzontle
+                  Zendro
                 </Typography>
               </Fade> : null
             }
@@ -422,8 +427,9 @@ export default function MainPanel(props) {
             <div className={classes.toolbarLeftButtons}>
 
               {/* Translate.icon */}
-              <Tooltip title={ t('mainPanel.translate') }>
-                <IconButton 
+              <Tooltip title={ t('mainPanel.translate', "Change language") }>
+                <IconButton
+                  id={'MainPanel-iconButton-translate'}
                   color="inherit"
                   onClick={handleTranslationIconClick}
                 >
@@ -431,7 +437,7 @@ export default function MainPanel(props) {
                 </IconButton>
               </Tooltip>
 
-              {/* Translate.menu*/}
+              {/* Translate.menu */}
               <Menu
                 anchorEl={translationAnchorEl}
                 keepMounted
@@ -440,6 +446,7 @@ export default function MainPanel(props) {
               >
                 {translations.current.map((translation, index) => (
                   <MenuItem
+                    id={'MainPanel-menuItem-translation-'+translation.lcode}
                     className={classes.translationMenuItem}
                     key={translation.lcode}
                     selected={index === translationSelectedIndex}
@@ -454,6 +461,7 @@ export default function MainPanel(props) {
 
               {/* Logout */} 
               <Button
+                id={'MainPanel-button-logout'}
                 color="inherit"
                 onClick={() => {
                   closeSnackbar();
@@ -461,7 +469,7 @@ export default function MainPanel(props) {
                   history.push("/login");
                 }}
               >
-                { t('mainPanel.logout') }
+                { t('mainPanel.logout', "Logout") }
               </Button>
             </div>
           </Toolbar>
@@ -480,7 +488,8 @@ export default function MainPanel(props) {
           {/* Menu */}
           <List>
             {/* Home */}
-            <ListItem 
+            <ListItem
+              id={'MainPanel-listItem-button-home'}
               button
               onClick={(event) => {
                 if(selectedIndex !== -3) {
@@ -500,7 +509,7 @@ export default function MainPanel(props) {
                       noWrap={true}
                       color="textPrimary"
                     >
-                      <b>{ t('mainPanel.home') }</b>
+                      <b>{ t('mainPanel.home', "Home") }</b>
                     </Typography>
                   </React.Fragment>
                 } />
@@ -509,7 +518,8 @@ export default function MainPanel(props) {
             <Divider />
           
             {/* Models */}
-            <ListItem button onClick={handleModelsListClick}>
+            <ListItem button id={'MainPanel-listItem-button-models'} 
+            onClick={handleModelsListClick}>
               <ListItemIcon><ModelsIcon /></ListItemIcon>
               <ListItemText primary={
                   <React.Fragment>
@@ -520,7 +530,7 @@ export default function MainPanel(props) {
                       noWrap={true}
                       color="textPrimary"
                     >
-                      <b>{ t('mainPanel.models') }</b>
+                      <b>{ t('mainPanel.models', "Models") }</b>
                     </Typography>
                   </React.Fragment>
                 } />
@@ -534,6 +544,7 @@ export default function MainPanel(props) {
                   /* acl check */
                   (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
                     <ListItem 
+                      id={'MainPanel-listItem-button-'+model.name}
                       button 
                       className={classes.nested} 
                       key={model.id+'-'+model.name}
@@ -570,7 +581,8 @@ export default function MainPanel(props) {
             {/* acl check */}
             {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('admin')) && (
               <div>
-                <ListItem button onClick={handleAccountsListClick}>
+                <ListItem button id={'MainPanel-listItem-button-admin'} 
+                onClick={handleAccountsListClick}>
                   <ListItemIcon><Accounts /></ListItemIcon> 
                   <ListItemText primary={
                       <React.Fragment>
@@ -581,7 +593,7 @@ export default function MainPanel(props) {
                           noWrap={true}
                           color="textPrimary"
                         >
-                          <b>{ t('mainPanel.admin') }</b>
+                          <b>{ t('mainPanel.admin', "Admin") }</b>
                         </Typography>
                       </React.Fragment>
                     } 
@@ -595,6 +607,7 @@ export default function MainPanel(props) {
                       /* acl check */
                       (permissions&&(permissions[model.name].includes('*'))) ? (
                         <ListItem
+                          id={'MainPanel-listItem-button-'+model.name}
                           button
                           className={classes.nested}
                           key={model.id+'-'+model.name}
