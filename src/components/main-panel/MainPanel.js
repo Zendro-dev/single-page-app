@@ -579,7 +579,7 @@ export default function MainPanel(props) {
 
             {/* Admin */}
             {/* acl check */}
-            {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('admin')) && (
+            {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('administrator')) && (
               <div>
                 <ListItem button id={'MainPanel-listItem-button-admin'} 
                 onClick={handleAccountsListClick}>
