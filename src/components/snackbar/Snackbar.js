@@ -120,13 +120,13 @@ const Snackbar = React.forwardRef((props, ref) => {
   };
 
   return (
-    <Card ref={ref} className={classnames(classes.card, 
+    <Card id={'Snackbar-card'} ref={ref} className={classnames(classes.card, 
     {[classes.successBackgroundColor]: variant==='success'},
     {[classes.errorBackgroundColor]: variant==='error'},
     {[classes.warningBackgroundColor]: variant==='warning'},
     {[classes.infoBackgroundColor]: variant==='info'},
     )} >
-      <CardActions classes={{ root: classes.actionRoot }}>
+      <CardActions id={'Snackbar-card-cardActions'} classes={{ root: classes.actionRoot }}>
         <Typography variant="subtitle2" className={classnames(classes.typography,
         {[classes.successContrastColor]: variant==='success'},
         {[classes.errorContrastColor]: variant==='error'},
@@ -135,6 +135,7 @@ const Snackbar = React.forwardRef((props, ref) => {
         )}>{message}</Typography>
         <div className={classes.icons}>
           <IconButton
+            id={'Snackbar-button-showMore'}
             aria-label="Show more"
             className={classnames(classes.expand, { [classes.expandOpen]: expanded })}
             onClick={handleExpandClick}
@@ -146,7 +147,7 @@ const Snackbar = React.forwardRef((props, ref) => {
             {[classes.infoContrastColor]: variant==='info'},
             )}/>
           </IconButton>
-          <IconButton className={classes.expand} onClick={handleDismiss}>
+          <IconButton id={'Snackbar-button-close'} className={classes.expand} onClick={handleDismiss}>
             <CloseIcon className={classnames(classes.actionIcon,
             {[classes.successContrastColor]: variant==='success'},
             {[classes.errorContrastColor]: variant==='error'},
@@ -158,7 +159,7 @@ const Snackbar = React.forwardRef((props, ref) => {
       </CardActions>
       {(errors) ? (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Paper className={classes.collapse}>
+          <Paper id={'Snackbar-card-collapse-paper-details'} className={classes.collapse}>
             <Typography className={classes.collapseTypographyTitle} component='pre' 
             variant="caption" gutterBottom>{t('modelPanels.errors.details',"Error details:")}</Typography>
             <Typography component='pre' variant="caption" gutterBottom>
@@ -167,7 +168,7 @@ const Snackbar = React.forwardRef((props, ref) => {
         </Collapse>
       ):(
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Paper className={classes.collapse}>
+          <Paper id={'Snackbar-card-collapse-paper-noDetails'} className={classes.collapse}>
             <Typography gutterBottom>{t('modelPanels.errors.noDetails',"No details.")}</Typography>
           </Paper>
         </Collapse>
