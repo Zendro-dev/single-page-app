@@ -159,6 +159,10 @@ export default {
         newPasswordLabel2: "Confirm the new password",
         changeThePassword: "Change password",
 
+        //entered & not entered
+        valueEntered: "Value entered",
+        valueNotEntered: "Value not entered",
+
         messages: {
           msg1: "The data has been sent. A report with the status of the import process will be sent to your email.",
           msg2: "Null data received: GraphQL query returns no data.",
@@ -359,6 +363,10 @@ export default {
         newPasswordLabel: "Neues Passwort",
         newPasswordLabel2: "Bestätigen Sie das neue Passwort",
         changeThePassword: "Passwort ändern",
+
+        //entered & not entered
+        valueEntered: "Wert eingegeben",
+        valueNotEntered: "Wert nicht eingegeben",
 
         messages: {
           msg1: "Die Daten wurden gesendet. Ein Bericht mit dem Status des Importvorgangs wird an Ihre E-Mail gesendet.",
@@ -562,6 +570,10 @@ export default {
         newPasswordLabel: "Nueva contraseña",
         newPasswordLabel2: "Confirme la nueva contraseña",
         changeThePassword: "Cambiar la contraseña",
+
+        //entered & not entered
+        valueEntered: "Valor ingresado",
+        valueNotEntered: "Valor no ingresado",
 
         messages: {
           msg1: "Los datos se han enviado. Un informe con el estatus del proceso de importación será enviado a su correo electrónico.",
