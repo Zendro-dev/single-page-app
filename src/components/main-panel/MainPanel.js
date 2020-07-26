@@ -534,11 +534,12 @@ export default function MainPanel(props) {
                     </Typography>
                   </React.Fragment>
                 } />
-              {openModelsList ? <ExpandLess /> : <ExpandMore />}
+              {openModelsList ? <ExpandLess id={'MainPanel-listItem-icon-models-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-models-expandMore'}/>}
             </ListItem>
 
-            <Collapse in={openModelsList} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
+            <Collapse id={'MainPanel-collapse-models'}
+            in={openModelsList} timeout="auto" unmountOnExit>
+              <List id={'MainPanel-collapse-list-models'} component="div" disablePadding>
                 {modelsList.current.map((model) => (
                   
                   /* acl check */
@@ -598,10 +599,11 @@ export default function MainPanel(props) {
                       </React.Fragment>
                     } 
                   /> 
-                  {openAdminModelsList ? <ExpandLess /> : <ExpandMore />}
+                  {openAdminModelsList ? <ExpandLess id={'MainPanel-listItem-icon-adminModels-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-adminModels-expandMore'}/>}
                 </ListItem>
-                <Collapse in={openAdminModelsList} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
+                <Collapse id={'MainPanel-collapse-adminModels'} 
+                in={openAdminModelsList} timeout="auto" unmountOnExit>
+                  <List id={'MainPanel-collapse-adminModels'} component="div" disablePadding>
                     {adminModelsList.current.map((model) => (
 
                       /* acl check */
