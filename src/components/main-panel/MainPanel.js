@@ -524,6 +524,7 @@ export default function MainPanel(props) {
               <ListItemText primary={
                   <React.Fragment>
                     <Typography
+                      id={'MainPanel-listItemText-button-typography-title-models'}
                       component="span"
                       variant='body1'
                       display='block'
@@ -559,6 +560,7 @@ export default function MainPanel(props) {
                       <ListItemText primary={
                         <React.Fragment>
                           <Typography
+                            id={'MainPanel-listItemText-typography-'+model.name}
                             component="span"
                             variant='body2'
                             display='block'
@@ -588,6 +590,7 @@ export default function MainPanel(props) {
                   <ListItemText primary={
                       <React.Fragment>
                         <Typography
+                          id={'MainPanel-listItemText-button-typography-title-admin'}
                           component="span"
                           variant='body1'
                           display='block'
@@ -599,11 +602,11 @@ export default function MainPanel(props) {
                       </React.Fragment>
                     } 
                   /> 
-                  {openAdminModelsList ? <ExpandLess id={'MainPanel-listItem-icon-adminModels-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-adminModels-expandMore'}/>}
+                  {openAdminModelsList ? <ExpandLess id={'MainPanel-listItem-icon-admin-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-admin-expandMore'}/>}
                 </ListItem>
-                <Collapse id={'MainPanel-collapse-adminModels'} 
+                <Collapse id={'MainPanel-collapse-admin'} 
                 in={openAdminModelsList} timeout="auto" unmountOnExit>
-                  <List id={'MainPanel-collapse-adminModels'} component="div" disablePadding>
+                  <List id={'MainPanel-collapse-list-admin'} component="div" disablePadding>
                     {adminModelsList.current.map((model) => (
 
                       /* acl check */
@@ -623,6 +626,7 @@ export default function MainPanel(props) {
                           <ListItemText primary={
                             <React.Fragment>
                               <Typography
+                                id={'MainPanel-listItemText-typography-'+model.name}
                                 component="span"
                                 variant='body2'
                                 display='block'
