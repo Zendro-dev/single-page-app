@@ -334,11 +334,11 @@ export default function MainPanel(props) {
 
   return (
     <Fade in={true} timeout={500}>
-      <div className={classes.root}>
+      <div id='MainPanel-div-root' className={classes.root}>
         <CssBaseline />
 
         {/* Drawer menu header */}
-            <Box
+            <Box id='MainPanel-box-menuHeader'
               className={clsx(classes.zendroBox, {
                 [classes.zendroBoxShift]: openDrawer,
               })}

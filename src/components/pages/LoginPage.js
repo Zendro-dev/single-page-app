@@ -305,7 +305,7 @@ function LoginPage({ dispatch }) {
   }
 
   return (
-    <div>
+    <div id='LoginPage-div-root'>
       <Grid className={classes.grid}
         container
         spacing={0}
