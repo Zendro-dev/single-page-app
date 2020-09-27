@@ -11,7 +11,7 @@ import {
     CHANGES_COMPLETED,
     CLEAR_CHANGES,
 } from './actions.js'
-import globals from '../../config/globals';
+import globals from '../config/globals';
 
 /*
   Reducers
