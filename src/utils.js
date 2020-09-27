@@ -147,6 +147,38 @@ export function checkResponse(response, graphqlErrors, queryName) {
   return "ok";
 }
 
+export function logRequest(name, query, variables) {
+  console.group(`%caction  %cREQUEST  %c@${name}()`, 
+  "color: grey; font-weight: normal; padding: 2px", "color: black; font-weight: bold; padding: 2px",
+  "color: grey; font-weight: normal; padding: 2px");
+  console.group("%cquery", "color: #03A9F4; font-weight: bold; padding-left: 4px");
+  console.log(`%c${query}`, "color: grey; font-weight: normal;");
+  console.groupEnd();
+  console.log("%cvariables  %o", "color: #4CAF50; font-weight: bold; padding-left: 4px", variables);
+  if(variables) {
+    console.groupCollapsed("%cvariables", "color: grey; font-weight: bold; padding-left: 12px");
+    console.log(`%c${JSON.stringify(variables, null, 2)}`, "color: grey; font-weight: normal;");
+    console.groupEnd();
+  
+    if(variables.pagination) {
+      console.groupCollapsed("%cpagination", "color: grey; font-weight: normal; padding-left: 16px");
+      console.log(`%c${JSON.stringify(variables.pagination, null, 2)}`, "color: grey; font-weight: normal;");
+      console.groupEnd();
+    }
+    if(variables.search) {
+      console.groupCollapsed("%csearch", "color: grey; font-weight: normal; padding-left: 16px");
+      console.log(`%c${JSON.stringify(variables.search, null, 2)}`, "color: grey; font-weight: normal;");
+      console.groupEnd();
+    }
+    if(variables.order) {
+      console.groupCollapsed("%corder", "color: grey; font-weight: normal; padding-left: 16px");
+      console.log(`%c${JSON.stringify(variables.order, null, 2)}`, "color: grey; font-weight: normal;");
+      console.groupEnd();
+    }
+  }
+  console.groupEnd();
+}
+
 /**
  * Search utils
  */
@@ -558,10 +590,7 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
   }
 }
 
-/**
- * Local utils
- *  
- */
+
 function getIsoDate(text) {
   //if has the form: aaaa[-/]mm[-/]dd
   if (/^\d{4}[-/][01]\d[-/][0-3]\d/.test(text)) {
