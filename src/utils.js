@@ -186,6 +186,7 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
   //internal checks
   if(!getAttributes && !attributes) throw new Error("internal_error: attributes or getAttributes expected");
   if(getAttributes && !filterName) throw new Error("internal_error: filterName expected");
+  if(searchText && typeof searchText !== 'string') throw new Error("internal_error: string expected in searchText");
   
   let filterAttributes = '';
   if(attributes) filterAttributes = attributes;
@@ -203,7 +204,7 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
   let o_ands = [];
   let o_andSearch = null;
 
-  if(searchText !== null && searchText !== '' && modelAttributes.length > 0) {
+  if(searchText && modelAttributes.length > 0) {
     /*
       Make AND fields
     */
