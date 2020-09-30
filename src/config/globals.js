@@ -1,4 +1,5 @@
 module.exports = {
+  PORT: 8080,
   GRAPHQL_SERVER_URL: process.env.REACT_APP_ZENDRO_GRAPHQL_SERVER_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/graphql" : "http://localhost:3000/graphql"),
   LOGIN_URL: process.env.REACT_APP_ZENDRO_LOGIN_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/login" : "http://localhost:3000/login"),
   EXPORT_URL: process.env.REACT_APP_ZENDRO_EXPORT_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/export" : "http://localhost:3000/export"),
