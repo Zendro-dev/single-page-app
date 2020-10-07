@@ -111,6 +111,12 @@ export default {
         untransferToAdd: "Remove from records to add",
         associated: "Associated",
         associatedRecord: "Associated record",
+        //
+        noAssociatedItem: "There is no associated record currently",
+        noAssociatedItemB: "No associated record",
+        uncheckToDissasociate: "Uncheck to disassociate",
+        checkToReassociate: "Check to keep associated",
+        //
         toRemove: "To remove",
         transferToRemove: "Transfer to records to remove",
         alreadyToRemove: "Already on to-remove list",
@@ -315,7 +321,13 @@ export default {
         transferToAdd: "In Datensätze übertragen, um sie hinzuzufügen",
         untransferToAdd: "Aus den Datensätzen entfernen, um sie hinzuzufügen",
         associated: "Zugehöriger Datensatz",
-        associatedRecord: "Associated record",
+        associatedRecord: "Zugehöriger Datensatz",
+        //
+        noAssociatedItem: "Derzeit ist kein Datensatz zugeordnet",
+        noAssociatedItemB: "Kein zugeordneter Datensatz",
+        uncheckToDissasociate: "Uncheck to disassociate",
+        checkToReassociate: "Check, um verbunden zu bleiben",
+        //
         toRemove: "Zu entfernen",
         transferToRemove: "In zu entfernende Datensätze übertragen",
         alreadyToRemove: "Bereits zu entfernende Liste",
@@ -523,6 +535,13 @@ export default {
         transferToAdd: "Transferir a registros por agregar",
         untransferToAdd: "Quitar de registros por agregar",
         associated: "Registro asociado",
+        associatedRecord: "Registro asociado",
+        //
+        noAssociatedItem: "Actualmente no hay un registro asociado",
+        noAssociatedItemB: "No hay registro asociado",
+        uncheckToDissasociate: "Desmarque para desasociar",
+        checkToReassociate: "Marque para mantener la asociación",
+        //
         toRemove: "Por eliminar",
         transferToRemove: "Transferir a registros por eliminar",
         alreadyToRemove: "Ya está en los registros por eliminar",

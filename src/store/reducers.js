@@ -11,6 +11,7 @@ import {
     CHANGES_COMPLETED,
     CLEAR_CHANGES,
 } from './actions.js'
+import globals from '../config/globals';
 
 /*
   Reducers
@@ -18,9 +19,9 @@ import {
 function urls(
     //set initial state.urls if 'undefined'
     state = {
-        graphqlServerUrl: process.env.REACT_APP_ZENDRO_GRAPHQL_SERVER_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/graphql" : "http://localhost:3000/graphql"),
-        loginServerUrl: process.env.REACT_APP_ZENDRO_LOGIN_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/login" : "http://localhost:3000/login"),
-        exportServerUrl: process.env.REACT_APP_ZENDRO_EXPORT_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/export" : "http://localhost:3000/export"),
+        graphqlServerUrl: process.env.REACT_APP_ZENDRO_GRAPHQL_SERVER_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/graphql" : ((globals.GRAPHQL_SERVER_URL) ? globals.GRAPHQL_SERVER_URL : "http://localhost:3000/graphql")),
+        loginServerUrl: process.env.REACT_APP_ZENDRO_LOGIN_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/login" : ((globals.LOGIN_URL) ? globals.LOGIN_URL : "http://localhost:3000/login")),
+        exportServerUrl: process.env.REACT_APP_ZENDRO_EXPORT_URL || ((process.env.REACT_APP_ZENDRO_API_URL) ? process.env.REACT_APP_ZENDRO_API_URL+"/export" : ((globals.EXPORT_URL) ? globals.EXPORT_URL : "http://localhost:3000/export")),
     }, 
     action) {
         switch (action.type) {
@@ -33,7 +34,8 @@ function urls(
 function limits(
     //set initial state.limits if 'undefined'
     state = {
-        appMaxUploadSize: process.env.REACT_APP_ZENDRO_MAX_UPLOAD_SIZE || 500 // size in MB
+        maxUploadSize: process.env.REACT_APP_ZENDRO_MAX_UPLOAD_SIZE || ((globals.MAX_UPLOAD_SIZE) ? globals.MAX_UPLOAD_SIZE : 500), // size in MB
+        maxRecordLimit: process.env.REACT_APP_ZENDRO_MAX_RECORD_LIMIT || ((globals.MAX_RECORD_LIMIT) ? globals.MAX_RECORD_LIMIT : 10000),
     }, 
     action) {
         switch (action.type) {
