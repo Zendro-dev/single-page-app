@@ -43,6 +43,7 @@ export default {
         //toggle buttons
         table: "Table",
         plot: "Plot",
+        plotEditor: "Plot Editor",
 
         //plot panel
         plot1: {
@@ -460,7 +461,7 @@ export default {
         edit: "Editar",
         delete: "Borrar",
         actions: "Acciones",
-        
+
         //pagination
         rowsPerPage: "Renglones por página",
         of: "de",
