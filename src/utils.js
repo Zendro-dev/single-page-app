@@ -231,23 +231,28 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             break;
 
           case 'Int':
-            num = parseInt(words[w]);
-            //add if: word is an integer number
-            if (!isNaN(num)) {
-              ors += `{field:${modelAttributes[i]}, value:"${num}", operator:eq},`;
-              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "eq"});
+            if (!words[w].includes(',')){
+              num = parseInt(words[w]);
+              //add if: word is an integer number
+              if (!isNaN(num)) {
+                ors += `{field:${modelAttributes[i]}, value:"${num}", operator:eq},`;
+                o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "eq"});
+              }
             }
+            
             break;
 
           case 'Float':
-            num = parseFloat(words[w]);
-            //add if: word is a float number
-            if (!isNaN(num)) {
-              ors += `{field:${modelAttributes[i]}, value:"${num}", operator:eq},`;
-              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "eq"});
+            if (!words[w].includes(',')){
+              num = parseFloat(words[w]);
+              //add if: word is a float number
+              if (!isNaN(num)) {
+                ors += `{field:${modelAttributes[i]}, value:"${num}", operator:eq},`;
+                o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "eq"});
+              }
             }
             break;
-
+            
           case 'Boolean':
             //add if: word is 'true' or 'false'
             if (words[w] === 'true' || words[w] === 'false') {
@@ -257,29 +262,89 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             break;
 
           case 'Date':
-            d = getIsoDate(words[w]);
-            //add if: word is an ISO date
-            if (d !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${d}", operator:eq},`;
-              o_ors.push({field: modelAttributes[i], value: `${d}`, operator: "eq"});
+            if (!words[w].includes(',')){
+              d = getIsoDate(words[w]);
+              //add if: word is an ISO date
+              if (d !== '') {
+                ors += `{field:${modelAttributes[i]}, value:"${d}", operator:eq},`;
+                o_ors.push({field: modelAttributes[i], value: `${d}`, operator: "eq"});
+              }
             }
             break;
 
           case 'Time':
-            t = getIsoTime(words[w]);
-            //add if: word is an ISO time
-            if (t !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${t}", operator:eq},`;
-              o_ors.push({field: modelAttributes[i], value: `${t}`, operator: "eq"});
+            if (!words[w].includes(',')){
+              t = getIsoTime(words[w]);
+              //add if: word is an ISO time
+              if (t !== '') {
+                ors += `{field:${modelAttributes[i]}, value:"${t}", operator:eq},`;
+                o_ors.push({field: modelAttributes[i], value: `${t}`, operator: "eq"});
+              }
             }
             break;
 
           case 'DateTime':
-            dt = getIsoDateTime(words[w]);
-            //add if: word is an ISO datetime
-            if (dt !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${dt}", operator:eq},`;
-              o_ors.push({field: modelAttributes[i], value: `${dt}`, operator: "eq"});
+            if (!words[w].includes(',')){
+              dt = getIsoDateTime(words[w]);
+              //add if: word is an ISO datetime
+              if (dt !== '') {
+                ors += `{field:${modelAttributes[i]}, value:"${dt}", operator:eq},`;
+                o_ors.push({field: modelAttributes[i], value: `${dt}`, operator: "eq"});
+              }
+            }
+            break;
+
+          case '[String]':
+            ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
+            o_ors.push({field: modelAttributes[i], value: `${words[w]}`, operator: "contains", valueType: "Array"});
+            break;
+
+          case '[Int]':
+            num = words[w].split(',').map(x=>parseInt(x));
+            if (Array.isArray(num) && !isNaN(num[0])) {
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+            }
+            break;
+
+          case '[Float]':
+            num = words[w].split(',').map(x=>parseFloat(x));
+            if (Array.isArray(num) && !isNaN(num[0])) {
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+            }
+            break;
+
+          case '[Boolean]':
+            num = words[w].split(',')
+            if (num[0] === 'true' || num[0] === 'false') {
+              num = num.map(x=> x === 'true');
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+            }
+            break;
+
+          case '[Date]':
+            d = words[w].split(',').map(x=>getIsoDate(x));
+            if (Array.isArray(d) && d[0] !== '') {
+              ors += `{field:${modelAttributes[i]}, value:"${d}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${d}`, operator: "contains", valueType: "Array"});
+            }
+            break;
+
+          case '[Time]':
+            t = words[w].split(',').map(x=>getIsoTime(x));
+            if (Array.isArray(t) && t[0] !== '') {
+              ors += `{field:${modelAttributes[i]}, value:"${t}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${t}`, operator: "contains", valueType: "Array"});
+            }
+            break;
+
+          case '[DateTime]':
+            dt = words[w].split(',').map(x=>getIsoDateTime(x));
+            if (Array.isArray(dt) && dt[0] !== '') {
+              ors += `{field:${modelAttributes[i]}, value:"${dt}", operator:contains, valueType: Array},`;
+              o_ors.push({field: modelAttributes[i], value: `${dt}`, operator: "contains", valueType: "Array"});
             }
             break;
 
