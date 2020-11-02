@@ -16,13 +16,14 @@ export default class CodeEditor extends React.Component {
 
     /** @type {CodeMirror.EditorFromTextArea?} */
     this.codeMirrorRef = null;
+    this.textAreaRef = null;
   }
 
   /* LIFECYCLE METHODS */
 
   componentDidMount () {
 
-    this.codeMirrorRef = CodeMirror.fromTextArea(this.codeMirrorRef, this.props.options);
+    this.codeMirrorRef = CodeMirror.fromTextArea(this.textAreaRef, this.props.options);
 
     this.codeMirrorRef.on('change', this.onEditorValueChanged);
 
@@ -50,9 +51,8 @@ export default class CodeEditor extends React.Component {
     return (
       <div className={ this.props.className } >
 				<textarea
-					ref={ref => this.codeMirrorRef = ref}
+					ref={ref => this.textAreaRef = ref}
 					name={this.props.name || this.props.path}
-					defaultValue={ this.props.value }
           autoComplete="off"
         />
 			</div>
