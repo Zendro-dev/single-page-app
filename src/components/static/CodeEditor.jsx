@@ -31,6 +31,13 @@ export default class CodeEditor extends React.Component {
     this.codeMirrorRef.setSize("100%", "100%");
   }
 
+  componentDidUpdate (prevProps) {
+
+    if (prevProps.value !== this.props.value){
+      this.codeMirrorRef.setValue(this.props.value);
+    }
+  }
+
   /* EVENT HANDLERS */
 
   /**

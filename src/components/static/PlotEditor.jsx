@@ -33,6 +33,7 @@ class PlotEditor extends React.Component {
 
   constructor () {
     super();
+
     this.state = {
       code: createPlot.toString(),
       exportUrl: null,
@@ -52,14 +53,37 @@ class PlotEditor extends React.Component {
       },
       hintOptions: {
         hint: this.onEditorAutocomplete
-      }
+      },
     }
   }
 
 
   /* ACTION HANDLERS */
 
-  exportCodeButtonClick = (event) => {
+  onImportCodeButtonClick = (event) => {
+
+    // Box and reset file input to allow consecutive uploads of the same file
+    const file = event.target.files[0];
+    event.target.value = null;
+
+    // Use the FileReader API to parse the input file
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      this.setState({ code: reader.result});
+      // this.codeEditorRef.editorResetCode();
+    };
+
+    reader.onerror = error => {
+      console.err(error)
+    };
+
+    reader.readAsText(file, 'utf-8');
+
+
+  }
+
+  onExportCodeButtonClick = (event) => {
 
     const blob = new Blob([ this.state.code ], {
       type: 'application/text'
@@ -72,15 +96,16 @@ class PlotEditor extends React.Component {
   /**
    * Execute code within the editor.
    */
-  handleRunCode = () => {
+  onRunCodeButtonClick = () => {
 
     try {
-
+      // eslint-disable-next-line
       this.setState({ plot: eval('(' + this.state.code + ')()') });
     }
     catch (error) {
       console.error(error.message);
     }
+
   }
 
 
@@ -125,17 +150,24 @@ class PlotEditor extends React.Component {
               variant="contained"
               color="primary"
               size="small"
-              onClick={ this.handleRunCode }
+              onClick={ this.onRunCodeButtonClick }
             >
               Run Code
             </Button>
 
             <Button
+              component="label"
               variant="contained"
               color="primary"
               size="small"
             >
               Import Code
+              <input
+                type="file"
+                style={{ display: "none" }}
+                accept="text/javascript"
+                onChange={ this.onImportCodeButtonClick }
+              />
             </Button>
 
             <Button
@@ -143,7 +175,7 @@ class PlotEditor extends React.Component {
               target="_blank"
               rel="noreferrer"
               href={ this.state.exportUrl }
-              onClick= { this.exportCodeButtonClick }
+              onClick= { this.onExportCodeButtonClick }
               download="code.js"
               variant="contained"
               color="primary"
