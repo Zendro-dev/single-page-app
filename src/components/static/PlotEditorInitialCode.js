@@ -1,4 +1,4 @@
-export async function createPlot() {
+export async function createPlot(zendroApi) {
 
   /**
    * Welcome to the Zendro-Studio code editor interface.
@@ -17,6 +17,8 @@ export async function createPlot() {
    *
    */
 
+  console.log(zendroApi);
+
   const schema = '';
   const apiKey = ''
 
@@ -32,8 +34,6 @@ export async function createPlot() {
 
   const trace1 = { x, y: y1, name: 'Sierra Nevada', type: 'bar' };
   const trace2 = { x, y: y2, name: 'Jiuzhai Valley', type: 'bar' };
-
-  console.log(trace1, trace2);
 
   const data = [
     trace1,

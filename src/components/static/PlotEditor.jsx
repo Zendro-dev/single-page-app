@@ -170,15 +170,21 @@ class PlotEditor extends React.Component {
    */
   onRunCodeButtonClick = async () => {
 
+    const code = this.state.code;
+    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+    const functionBody = code.slice(code.indexOf('{')+1, code.lastIndexOf('}'));
+    const createPlot = new AsyncFunction('zendroApi', functionBody);
+
+    this.setState({ loading: true });
+
     try {
-      this.setState({ loading: true });
-      // eslint-disable-next-line
-      this.setState({ plot: await eval('(' + this.state.code + ')()') });
-      this.setState({ loading: false });
+      this.setState({ plot: await createPlot(zendroApi) });
     }
     catch (error) {
       console.error(error.message);
     }
+
+    this.setState({ loading: false });
 
   }
 
@@ -224,9 +230,9 @@ class PlotEditor extends React.Component {
               <CircularProgress />
               <Typography component="div" >
                 <Box
-                fontWeight="fontWeightBold"
-                marginTop={ 2 }
-                style={{ textTransform: 'uppercase' }}
+                  fontWeight="fontWeightBold"
+                  marginTop={ 2 }
+                  style={{ textTransform: 'uppercase' }}
                 >
                   Executing Code
                 </Box>
@@ -260,44 +266,44 @@ class PlotEditor extends React.Component {
             {/* EDITOR ACTIONS */}
             <AccordionActions className={ this.props.classes.actions }>
 
-                <Button
-                  component="label"
-                  variant="contained"
-                  size="small"
-                  startIcon={ <IconExportCode/> }
-                >
+              <Button
+                component="label"
+                variant="contained"
+                size="small"
+                startIcon={ <IconExportCode/> }
+              >
                   Import
-                  <input
-                    type="file"
-                    style={{ display: "none" }}
-                    accept="text/javascript"
-                    onChange={ this.onImportCodeButtonClick }
-                  />
-                </Button>
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  accept="text/javascript"
+                  onChange={ this.onImportCodeButtonClick }
+                />
+              </Button>
 
-                <Button
-                  component={ Link }
-                  target="_blank"
-                  rel="noreferrer"
-                  href={ this.state.exportUrl }
-                  onClick= { this.onExportCodeButtonClick }
-                  download="code.js"
-                  variant="contained"
-                  size="small"
-                  startIcon={ <IconImportCode/> }
-                >
+              <Button
+                component={ Link }
+                target="_blank"
+                rel="noreferrer"
+                href={ this.state.exportUrl }
+                onClick= { this.onExportCodeButtonClick }
+                download="code.js"
+                variant="contained"
+                size="small"
+                startIcon={ <IconImportCode/> }
+              >
                   Export
-                </Button>
+              </Button>
 
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  onClick={ this.onRunCodeButtonClick }
-                  startIcon={ <IconRunCode/> }
-                >
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={ this.onRunCodeButtonClick }
+                startIcon={ <IconRunCode/> }
+              >
                   Run
-                </Button>
+              </Button>
 
             </AccordionActions>
 
