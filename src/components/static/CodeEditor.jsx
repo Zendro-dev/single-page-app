@@ -4,7 +4,8 @@ import CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/addon/hint/javascript-hint';
 import 'codemirror/addon/hint/show-hint'
-import 'codemirror/addon/hint/show-hint.css'
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/keymap/vim';
 import 'codemirror/mode/javascript/javascript';
 
 
@@ -32,9 +33,10 @@ export default class CodeEditor extends React.Component {
   }
 
   componentDidUpdate (prevProps) {
-
     if (prevProps.value !== this.props.value){
+      const cursor = this.codeMirrorRef.getCursor();
       this.codeMirrorRef.setValue(this.props.value);
+      this.codeMirrorRef.setCursor(cursor);
     }
   }
 
