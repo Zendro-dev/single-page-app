@@ -50,8 +50,8 @@ export default class CodeEditor extends React.Component {
   onEditorValueChanged = (doc, change) => {
 
     if (this.props.onChange && change.origin !== 'setValue') {
-			this.props.onChange(doc.getValue(), change);
-		}
+      this.props.onChange(doc.getValue(), change);
+    }
   }
 
   /* RENDER */
@@ -59,12 +59,12 @@ export default class CodeEditor extends React.Component {
   render () {
     return (
       <div className={ this.props.className } >
-				<textarea
-					ref={ref => this.textAreaRef = ref}
-					name={this.props.name || this.props.path}
+        <textarea
+          ref={ref => this.textAreaRef = ref}
+          name={this.props.name || this.props.path}
           autoComplete="off"
         />
-			</div>
+      </div>
     )
   }
 }
