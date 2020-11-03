@@ -1,4 +1,4 @@
-export function createPlot() {
+export async function createPlot() {
 
   /**
    * Welcome to the Zendro-Studio code editor interface.

@@ -1,26 +1,73 @@
 import React     from 'react';
 import PropTypes from 'prop-types';
 import Plot      from 'react-plotly.js';
+import clsx      from 'classnames';
 
 import {
   withStyles
 } from '@material-ui/core/styles';
 
 import {
+  Accordion as MuiAccordion,
+  AccordionActions,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
   Button,
-  Link
+  CircularProgress,
+  Divider,
+  Link,
+  Typography,
 } from '@material-ui/core';
+
+import {
+  CloudDownload as IconImportCode,
+  CloudUpload   as IconExportCode,
+  Code          as IconRunCode,
+  ExpandMore    as IconExpandEditor,
+
+} from '@material-ui/icons';
 
 import CodeEditor     from './CodeEditor';
 import { createPlot } from './PlotEditorInitialCode';
 
-const styled = withStyles(theme => ({
+import zendroApi from '../../requests/requests.index';
+
+const Accordion = withStyles({
   root: {
-    borderWidth: '1px',
-    borderStyle: 'solid',
+    boxShadow: 'none',
   },
-  buttonsContainer: {
-    display: 'flex',
+})(MuiAccordion);
+
+
+const styled = withStyles(theme => ({
+  editorArea: {
+    margin: theme.spacing(0, 1, 2, 1),
+    position: 'relative',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: '100',
+  },
+  editor: {
+    border: '1px solid rgba(0, 0, 0, .125)',
+    width: '100%',
+  },
+  plot: {
+    margin: theme.spacing(2, 0),
+    width: '100%',
+  },
+  secondaryHeading: {
+    color: theme.palette.text.secondary,
+    padding: theme.spacing(0, 0, 0, 1),
+  },
+  //
+  actions: {
+    margin: theme.spacing(0, 1),
   }
 }));
 
@@ -31,22 +78,24 @@ class PlotEditor extends React.Component {
     classes: PropTypes.object.isRequired,
   }
 
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
+
+    const createPlotCode = props.preloadCode
+      ? props.preloadCode
+      : createPlot.toString();
 
     this.state = {
-      code: createPlot.toString(),
+      initialCode: createPlotCode,
+      code: createPlotCode,
       exportUrl: null,
+      preloaded: !!props.preloadCode,
+      loading: false,
       plot: null,
     }
 
     /** @type {CodeMirror.EditorConfiguration} */
     this.editorOptions = {
-      mode: {
-        name: 'javascript',
-        globalVars: true,
-      },
-      tabSize: 2,
       lineNumbers: true,
       extraKeys: {
         'Ctrl-Space': 'autocomplete'
@@ -54,12 +103,29 @@ class PlotEditor extends React.Component {
       hintOptions: {
         hint: this.onEditorAutocomplete
       },
+      keyMap: 'vim',
+      mode: {
+        name: 'javascript',
+        globalVars: true,
+      },
+      tabSize: 2,
+    }
+
+  }
+
+  componentDidMount () {
+    if (this.state.preloaded) {
+      this.onRunCodeButtonClick();
     }
   }
 
 
   /* ACTION HANDLERS */
 
+  /**
+   * Import editor code from a javascript file.
+   * @param {React.FormEvent<HTMLInputElement>} event
+   */
   onImportCodeButtonClick = (event) => {
 
     // Box and reset file input to allow consecutive uploads of the same file
@@ -70,8 +136,11 @@ class PlotEditor extends React.Component {
     const reader = new FileReader();
 
     reader.onload = () => {
-      this.setState({ code: reader.result});
-      // this.codeEditorRef.editorResetCode();
+      const newCode = reader.result;
+      this.setState({
+        code: newCode,
+        initialCode: newCode,
+      });
     };
 
     reader.onerror = error => {
@@ -83,7 +152,10 @@ class PlotEditor extends React.Component {
 
   }
 
-  onExportCodeButtonClick = (event) => {
+  /**
+   * Download editor code as a javascript file.
+   */
+  onExportCodeButtonClick = () => {
 
     const blob = new Blob([ this.state.code ], {
       type: 'application/text'
@@ -96,11 +168,17 @@ class PlotEditor extends React.Component {
   /**
    * Execute code within the editor.
    */
-  onRunCodeButtonClick = () => {
+  onRunCodeButtonClick = async () => {
 
     try {
-      // eslint-disable-next-line
-      this.setState({ plot: eval('(' + this.state.code + ')()') });
+      this.setState({ loading: true });
+      // this.setState({ plot: await eval('(' + this.state.code + ')()') });
+      // this.setState({ loading: false });
+      setTimeout(async () => {
+        // eslint-disable-next-line
+        this.setState({ plot: await eval('(' + this.state.code + ')()') });
+        this.setState({ loading: false });
+      },2000)
     }
     catch (error) {
       console.error(error.message);
@@ -130,68 +208,117 @@ class PlotEditor extends React.Component {
     this.setState({ code: newCode });
   }
 
+
   /* RENDER */
 
   render () {
     return (
       <div>
-        <div>
-          <CodeEditor
-            className={ this.props.classes.root }
-            options={ this.editorOptions }
-            value={ this.state.code }
-            onChange={ this.onCodeChanged }
-          />
-          <div
-            className={ this.props.classes.buttonsContainer }
+        <div className={this.props.classes.editorArea}>
+
+          {
+            this.state.loading &&
+            <Box
+              className={ this.props.classes.overlay }
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <CircularProgress />
+              <Typography component="div" >
+                <Box
+                fontWeight="fontWeightBold"
+                marginTop={ 2 }
+                style={{ textTransform: 'uppercase' }}
+                >
+                  Executing Code
+                </Box>
+              </Typography>
+            </Box>
+          }
+
+          <Accordion
+            style={{ opacity: this.state.loading ? '50%' : '100%' }}
+            defaultExpanded={ !this.state.preloaded }
           >
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={ this.onRunCodeButtonClick }
-            >
-              Run Code
-            </Button>
+            {/* COLLAPSIBLE HEADER */}
+            <AccordionSummary expandIcon={ <IconExpandEditor/> } >
+              <Typography> Code Editor </Typography>
+              <Typography className={ this.props.classes.secondaryHeading } >
+                Use JavaScript to dynamically create a plot
+              </Typography>
+            </AccordionSummary>
 
-            <Button
-              component="label"
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Import Code
-              <input
-                type="file"
-                style={{ display: "none" }}
-                accept="text/javascript"
-                onChange={ this.onImportCodeButtonClick }
+            {/* EDITOR VIEW */}
+            <AccordionDetails>
+              <CodeEditor
+                className={ this.props.classes.editor }
+                options={ this.editorOptions }
+                value={ this.state.initialCode }
+                onChange={ this.onCodeChanged }
               />
-            </Button>
+            </AccordionDetails>
 
-            <Button
-              component={ Link }
-              target="_blank"
-              rel="noreferrer"
-              href={ this.state.exportUrl }
-              onClick= { this.onExportCodeButtonClick }
-              download="code.js"
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Export Code
-            </Button>
+            {/* EDITOR ACTIONS */}
+            <AccordionActions className={ this.props.classes.actions }>
 
-          </div>
+                <Button
+                  component="label"
+                  variant="contained"
+                  size="small"
+                  startIcon={ <IconExportCode/> }
+                >
+                  Import
+                  <input
+                    type="file"
+                    style={{ display: "none" }}
+                    accept="text/javascript"
+                    onChange={ this.onImportCodeButtonClick }
+                  />
+                </Button>
+
+                <Button
+                  component={ Link }
+                  target="_blank"
+                  rel="noreferrer"
+                  href={ this.state.exportUrl }
+                  onClick= { this.onExportCodeButtonClick }
+                  download="code.js"
+                  variant="contained"
+                  size="small"
+                  startIcon={ <IconImportCode/> }
+                >
+                  Export
+                </Button>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  onClick={ this.onRunCodeButtonClick }
+                  startIcon={ <IconRunCode/> }
+                >
+                  Run
+                </Button>
+
+            </AccordionActions>
+
+          </Accordion>
         </div>
+
+        <Divider />
+
+        {/* PLOT */}
         {
           this.state.plot &&
           <Plot
+            className={ this.props.classes.plot }
             { ...this.state.plot }
           />
         }
+
       </div>
     )
   }
