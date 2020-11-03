@@ -1,7 +1,6 @@
 import React     from 'react';
 import PropTypes from 'prop-types';
 import Plot      from 'react-plotly.js';
-import clsx      from 'classnames';
 
 import {
   withStyles
@@ -300,9 +299,16 @@ class PlotEditor extends React.Component {
                 color="primary"
                 size="small"
                 onClick={ this.onRunCodeButtonClick }
-                startIcon={ <IconRunCode/> }
+                // startIcon={ <IconRunCode/> }
+                startIcon={
+                  this.state.loading
+                    ?
+                    <CircularProgress color="white" size={ 16 } />
+                    :
+                    <IconRunCode/>
+                }
               >
-                  Run
+                Run
               </Button>
 
             </AccordionActions>
