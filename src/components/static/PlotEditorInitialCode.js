@@ -17,7 +17,10 @@ export async function createPlot() {
    *
    */
 
-  const res = await fetch(`https://api.mockaroo.com/api/32e8da70?count=10&key=8a9a3ce0`)
+  const schema = '';
+  const apiKey = ''
+
+  const res = await fetch(`https://api.mockaroo.com/api/${schema}?count=10&key=${apiKey}`)
   if (!res.ok)
     return;
 
