@@ -172,13 +172,9 @@ class PlotEditor extends React.Component {
 
     try {
       this.setState({ loading: true });
-      // this.setState({ plot: await eval('(' + this.state.code + ')()') });
-      // this.setState({ loading: false });
-      setTimeout(async () => {
-        // eslint-disable-next-line
-        this.setState({ plot: await eval('(' + this.state.code + ')()') });
-        this.setState({ loading: false });
-      },2000)
+      // eslint-disable-next-line
+      this.setState({ plot: await eval('(' + this.state.code + ')()') });
+      this.setState({ loading: false });
     }
     catch (error) {
       console.error(error.message);
