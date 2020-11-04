@@ -22,6 +22,7 @@ export default {
         admin: "Admin",
         logout: "Logout",
         translate: "Change language",
+        zendroStudio: "Zendro Studio",
         errors: {
           e1: "An error occurred while trying load the new language.",
         }

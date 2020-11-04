@@ -37,6 +37,7 @@ import Accounts from '@material-ui/icons/SupervisorAccountRounded';
 import Translate from '@material-ui/icons/TranslateRounded';
 import Fab from '@material-ui/core/Fab';
 import Box from '@material-ui/core/Box';
+import IconDeveloperMode from '@material-ui/icons/DeveloperMode';
 
 const drawerWidth = 280;
 const appBarHeight = 72;
@@ -148,7 +149,7 @@ export default function MainPanel(props) {
   const acl = useSelector(state => state.aclModuleStatus.acl);
   const aclNotSet = useSelector(state => state.aclModuleStatus.aclNotSet);
   const aclModuleStatusErrors = useSelector(state => state.aclModuleStatus.errors);
-  
+
   const [openDrawer, setOpenDrawer] = useState(true);
   const [openModelsList, setOpenModelsList] = useState(true);
   const [openAdminModelsList, setOpenAdminModelsList] = useState(true);
@@ -157,6 +158,7 @@ export default function MainPanel(props) {
   const adminModelsList = useRef(routes().adminModels);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [permissions, setPermissions] = useState(null);
+  const zendroStudio = useRef(routes().zendroStudio);
 
   const [translationAnchorEl, setTranslationAnchorEl] = React.useState(null);
   const [translationSelectedIndex, setTranslationSelectedIndex] = React.useState(-1);
@@ -174,12 +176,12 @@ export default function MainPanel(props) {
   const actionText = useRef(null);
   const action = useRef((key) => (
     <>
-      <Button id='MainPanel-button-notiErrorActionText' color='inherit' variant='text' 
-      size='small' className={classes.notiErrorActionText} 
-      onClick={() => { closeSnackbar(key) }}>
+      <Button id='MainPanel-button-notiErrorActionText' color='inherit' variant='text'
+        size='small' className={classes.notiErrorActionText}
+        onClick={() => { closeSnackbar(key) }}>
         {actionText.current}
       </Button>
-    </> 
+    </>
   ));
 
   useEffect(() => {}, []);
@@ -210,14 +212,14 @@ export default function MainPanel(props) {
 
   useEffect(() => {
     switch(loginStatus) {
-      case 'success':
-        setCheckingPermissions(true);
-        dispatch(setAclRules(user, userRoles));
-        break;
-      
-      default:
-        dispatch(checkAuthentication());
-        break;
+    case 'success':
+      setCheckingPermissions(true);
+      dispatch(setAclRules(user, userRoles));
+      break;
+
+    default:
+      dispatch(checkAuthentication());
+      break;
     }
   }, [loginStatus, user, userRoles, dispatch]);
 
@@ -225,18 +227,18 @@ export default function MainPanel(props) {
     if(acl) {
       if( modelsList&&modelsList.current&&Array.isArray(modelsList.current) &&
         adminModelsList&&adminModelsList.current&&Array.isArray(adminModelsList.current)) {
-          
-          let m = modelsList.current.map((model)=>{return model.name});
-          let am = adminModelsList.current.map((model)=>{return model.name});
-                 
-          acl.allowedPermissions(user, am.concat(m), function(err, permissions) {
-            if(!err) {
-              setPermissions(permissions);
-            } else {
-              setPermissions(null);
-            }
-            setCheckingPermissions(false);
-          });
+
+        let m = modelsList.current.map((model)=>{return model.name});
+        let am = adminModelsList.current.map((model)=>{return model.name});
+
+        acl.allowedPermissions(user, am.concat(m), function(err, permissions) {
+          if(!err) {
+            setPermissions(permissions);
+          } else {
+            setPermissions(null);
+          }
+          setCheckingPermissions(false);
+        });
       } else {
         setCheckingPermissions(false);
       }
@@ -270,7 +272,7 @@ export default function MainPanel(props) {
 
   const handleTranslationMenuItemClick = (event, index) => {
     setTranslationAnchorEl(null);
-    
+
     if(translationSelectedIndex !== index) {
       i18n.changeLanguage(translations.current[index].lcode, (err, t) => {
         if(err) {
@@ -304,30 +306,30 @@ export default function MainPanel(props) {
       currentIndex.current = newIndex;
       setSelectedIndex(newIndex.index);
       history.push(newIndex.url);
-      
+
       //debounce
       isDebouncingIndexChange.current = true;
       startTimerToDebounceIndexChange()
-      .then(() => {
+        .then(() => {
         //clear flag
-        isDebouncingIndexChange.current = false;
-        //check
-        if(lastIndex.current.index !== currentIndex.current.index){
-          setSelectedIndex(lastIndex.current.index);
-          history.push(lastIndex.current.url);
-          currentIndex.current = lastIndex.current;
-        }
-      })
-      .catch(() => {
-        return;
-      })
+          isDebouncingIndexChange.current = false;
+          //check
+          if(lastIndex.current.index !== currentIndex.current.index){
+            setSelectedIndex(lastIndex.current.index);
+            history.push(lastIndex.current.url);
+            currentIndex.current = lastIndex.current;
+          }
+        })
+        .catch(() => {
+          return;
+        })
     }
   };
 
   const startTimerToDebounceIndexChange = () => {
     return new Promise(resolve => {
-      window.setTimeout(function() { 
-        resolve(); 
+      window.setTimeout(function() {
+        resolve();
       }, debounceTimeout);
     });
   };
@@ -335,29 +337,30 @@ export default function MainPanel(props) {
   return (
     <Fade in={true} timeout={500}>
       <div id='MainPanel-div-root' className={classes.root}>
+
         <CssBaseline />
 
         {/* Drawer menu header */}
-            <Box id='MainPanel-box-menuHeader'
-              className={clsx(classes.zendroBox, {
-                [classes.zendroBoxShift]: openDrawer,
-              })}
-              // width={drawerWidth}
-              height={appBarHeight}
-              bgcolor="background.paper"
-              position="fixed"
-              top={0}
-              left={0}
-              zIndex="modal"
-            >
-              {/* Zendro */} 
-              <Typography className={classes.zendroTitle} variant="h5" display='block' noWrap={true}>
+        <Box id='MainPanel-box-menuHeader'
+          className={clsx(classes.zendroBox, {
+            [classes.zendroBoxShift]: openDrawer,
+          })}
+          // width={drawerWidth}
+          height={appBarHeight}
+          bgcolor="background.paper"
+          position="fixed"
+          top={0}
+          left={0}
+          zIndex="modal"
+        >
+          {/* Zendro */}
+          <Typography className={classes.zendroTitle} variant="h5" display='block' noWrap={true}>
                 Zendro
-              </Typography>
-            </Box>
-          
-        
-        {(openDrawer) ?
+          </Typography>
+        </Box>
+
+        {
+          openDrawer &&
           <Fade in={true} timeout={700}>
             <Box
               className={clsx(classes.zendroBox, {
@@ -370,29 +373,31 @@ export default function MainPanel(props) {
             >
               <Divider/>
             </Box>
-          </Fade> : null
+          </Fade>
         }
+
         {/* Icon: close menu */}
-        {(openDrawer) ?
-            <Box
-              position="fixed"
-              top={8}
-              left={256}
-              zIndex="modal"
-            >
-              <Zoom in={true} timeout={500}>
-                <Fab
-                  id='MainPanel-fab-closeMenu'
-                  size="medium"
-                  color="primary"
-                  onClick={handleDrawerClose}
-                >
-                  <ChevronLeftIcon />
-                </Fab> 
-              </Zoom>
-            </Box> : null
+        {
+          (openDrawer) &&
+          <Box
+            position="fixed"
+            top={8}
+            left={256}
+            zIndex="modal"
+          >
+            <Zoom in={true} timeout={500}>
+              <Fab
+                id='MainPanel-fab-closeMenu'
+                size="medium"
+                color="primary"
+                onClick={handleDrawerClose}
+              >
+                <ChevronLeftIcon />
+              </Fab>
+            </Zoom>
+          </Box>
         }
-        
+
         <AppBar
           position="fixed"
           className={clsx(classes.appBar, {
@@ -402,7 +407,8 @@ export default function MainPanel(props) {
           <Toolbar>
 
             {/* Menu.icon */}
-            {(!openDrawer) ?
+            {
+              !openDrawer &&
               <Fade in={true} timeout={500}>
                 <IconButton
                   id='MainPanel-iconButton-openMenu'
@@ -412,16 +418,17 @@ export default function MainPanel(props) {
                   className={clsx(classes.menuButton, openDrawer && classes.hide)}
                 > <MenuIcon />
                 </IconButton>
-              </Fade> : null
+              </Fade>
             }
-            
+
             {/* Zendro */}
-            {(!openDrawer) ?
+            {
+              !openDrawer &&
               <Fade in={true} timeout={500}>
                 <Typography variant="h5" display='block' noWrap={true}>
                   Zendro
                 </Typography>
-              </Fade> : null
+              </Fade>
             }
 
             <div className={classes.toolbarLeftButtons}>
@@ -459,7 +466,7 @@ export default function MainPanel(props) {
                 ))}
               </Menu>
 
-              {/* Logout */} 
+              {/* Logout */}
               <Button
                 id={'MainPanel-button-logout'}
                 color="inherit"
@@ -501,54 +508,54 @@ export default function MainPanel(props) {
                 <HomeIcon />
               </ListItemIcon>
               <ListItemText primary={
-                  <React.Fragment>
-                    <Typography
-                      component="span"
-                      variant='body1'
-                      display='block'
-                      noWrap={true}
-                      color="textPrimary"
-                    >
-                      <b>{ t('mainPanel.home', "Home") }</b>
-                    </Typography>
-                  </React.Fragment>
-                } />
+                <React.Fragment>
+                  <Typography
+                    component="span"
+                    variant='body1'
+                    display='block'
+                    noWrap={true}
+                    color="textPrimary"
+                  >
+                    <b>{ t('mainPanel.home', "Home") }</b>
+                  </Typography>
+                </React.Fragment>
+              } />
             </ListItem>
-            
+
             <Divider />
-          
+
             {/* Models */}
-            <ListItem button id={'MainPanel-listItem-button-models'} 
-            onClick={handleModelsListClick}>
+            <ListItem button id={'MainPanel-listItem-button-models'}
+              onClick={handleModelsListClick}>
               <ListItemIcon><ModelsIcon /></ListItemIcon>
               <ListItemText primary={
-                  <React.Fragment>
-                    <Typography
-                      id={'MainPanel-listItemText-button-typography-title-models'}
-                      component="span"
-                      variant='body1'
-                      display='block'
-                      noWrap={true}
-                      color="textPrimary"
-                    >
-                      <b>{ t('mainPanel.models', "Models") }</b>
-                    </Typography>
-                  </React.Fragment>
-                } />
+                <React.Fragment>
+                  <Typography
+                    id={'MainPanel-listItemText-button-typography-title-models'}
+                    component="span"
+                    variant='body1'
+                    display='block'
+                    noWrap={true}
+                    color="textPrimary"
+                  >
+                    <b>{ t('mainPanel.models', "Models") }</b>
+                  </Typography>
+                </React.Fragment>
+              } />
               {openModelsList ? <ExpandLess id={'MainPanel-listItem-icon-models-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-models-expandMore'}/>}
             </ListItem>
 
             <Collapse id={'MainPanel-collapse-models'}
-            in={openModelsList} timeout="auto" unmountOnExit>
+              in={openModelsList} timeout="auto" unmountOnExit>
               <List id={'MainPanel-collapse-list-models'} component="div" disablePadding>
                 {modelsList.current.map((model) => (
-                  
+
                   /* acl check */
                   (permissions&&(permissions[model.name].includes('read') || permissions[model.name].includes('*'))) ? (
-                    <ListItem 
+                    <ListItem
                       id={'MainPanel-listItem-button-'+model.name}
-                      button 
-                      className={classes.nested} 
+                      button
+                      className={classes.nested}
                       key={model.id+'-'+model.name}
                       selected={selectedIndex === model.id}
                       onClick={(event) => {
@@ -584,28 +591,28 @@ export default function MainPanel(props) {
             {/* acl check */}
             {(userRoles&&Array.isArray(userRoles)&&userRoles.includes('administrator')) && (
               <div>
-                <ListItem button id={'MainPanel-listItem-button-admin'} 
-                onClick={handleAccountsListClick}>
-                  <ListItemIcon><Accounts /></ListItemIcon> 
+                <ListItem button id={'MainPanel-listItem-button-admin'}
+                  onClick={handleAccountsListClick}>
+                  <ListItemIcon><Accounts /></ListItemIcon>
                   <ListItemText primary={
-                      <React.Fragment>
-                        <Typography
-                          id={'MainPanel-listItemText-button-typography-title-admin'}
-                          component="span"
-                          variant='body1'
-                          display='block'
-                          noWrap={true}
-                          color="textPrimary"
-                        >
-                          <b>{ t('mainPanel.admin', "Admin") }</b>
-                        </Typography>
-                      </React.Fragment>
-                    } 
-                  /> 
+                    <React.Fragment>
+                      <Typography
+                        id={'MainPanel-listItemText-button-typography-title-admin'}
+                        component="span"
+                        variant='body1'
+                        display='block'
+                        noWrap={true}
+                        color="textPrimary"
+                      >
+                        <b>{ t('mainPanel.admin', "Admin") }</b>
+                      </Typography>
+                    </React.Fragment>
+                  }
+                  />
                   {openAdminModelsList ? <ExpandLess id={'MainPanel-listItem-icon-admin-expandLess'}/> : <ExpandMore id={'MainPanel-listItem-icon-admin-expandMore'}/>}
                 </ListItem>
-                <Collapse id={'MainPanel-collapse-admin'} 
-                in={openAdminModelsList} timeout="auto" unmountOnExit>
+                <Collapse id={'MainPanel-collapse-admin'}
+                  in={openAdminModelsList} timeout="auto" unmountOnExit>
                   <List id={'MainPanel-collapse-list-admin'} component="div" disablePadding>
                     {adminModelsList.current.map((model) => (
 
@@ -646,9 +653,39 @@ export default function MainPanel(props) {
                 </Collapse>
               </div>
             )}
+
+            <Divider />
+
+            <ListItem button id={'MainPanel-listItem-button-zendrostudio'}
+              onClick={(event) => {
+                if(selectedIndex !== zendroStudio.current.id) {
+                  handleIndexChange(event, {
+                    index: zendroStudio.current.id,
+                    url: zendroStudio.current.url
+                  });
+                }
+              }}
+            >
+              <ListItemIcon><IconDeveloperMode/></ListItemIcon>
+              <ListItemText primary={
+                <React.Fragment>
+                  <Typography
+                    id={'MainPanel-listItemText-button-typography-title-zendrostudio'}
+                    component="span"
+                    variant='body1'
+                    display='block'
+                    noWrap={true}
+                    color="textPrimary"
+                  >
+                    <b>{ t('mainPanel.zendroStudio', "Zendro Studio") }</b>
+                  </Typography>
+                </React.Fragment>
+              } />
+            </ListItem>
+
           </List>
         </Drawer>
-        
+
         {/* Main */}
         <main
           className={clsx(classes.content, {
@@ -656,7 +693,7 @@ export default function MainPanel(props) {
           })}
         >
           {(checkingPermissions) ? (
-            <CheckingPermissionsPage /> 
+            <CheckingPermissionsPage />
           ) : (
             <MainSwitch permissions={permissions}/>
           )}

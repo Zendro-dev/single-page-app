@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import TablesSwitch from './table-panel/TablesSwitch'
 import HomePage from './pages/HomePage'
 import NotFoundSectionPage from './pages/NotFoundSectionPage'
+import ZendroStudio from '../static/zendro-studio/ZendroStudio';
 
 export default function StackView(props) {
   const { permissions } = props;
@@ -27,6 +28,10 @@ export default function StackView(props) {
 
       <Route path="/main/model">
         <TablesSwitch permissions={permissions}/>
+      </Route>
+
+      <Route path="/main/zendro-studio" >
+        <ZendroStudio />
       </Route>
 
       <Route path="/main">
