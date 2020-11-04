@@ -116,7 +116,7 @@ export default class ZendroStudioEditorActions extends React.Component {
                 startIcon={
                   loading
                     ?
-                    <CircularProgress color="white" size={ 16 } />
+                    <CircularProgress color="inherit" size={ 16 } />
                     :
                     <IconRunCode/>
                 }
