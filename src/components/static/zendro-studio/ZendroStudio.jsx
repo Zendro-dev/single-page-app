@@ -29,7 +29,6 @@ class ZendroStudio extends React.Component {
 
     this.state = {
       code: createPlotCode,
-      initialCode: createPlotCode,
       preloaded: !!props.preloadCode,
       loading: false,
       plot: null,
@@ -50,13 +49,13 @@ class ZendroStudio extends React.Component {
    * Update internal code state after after each editor change.
    * @param {string} code new CodeEditor content
    */
-  onCodeChanged = (code) => this.setState({ code: code });
+  onCodeChanged = (code) => this.setState({ code });
 
   /**
    * Update internal code state after importing new code from a javascript file.
    * @param {React.FormEvent<HTMLInputElement>} event
    */
-  onImportCode = (code) => this.setState({ code, initialCode: code });
+  onImportCode = (code) => this.setState({ code });
 
   /**
    * Update the interal plot object state after executing the code.
@@ -93,7 +92,7 @@ class ZendroStudio extends React.Component {
           }
 
           <ZendroStudioEditor
-            code={ this.state.initialCode }
+            code={ this.state.code }
             loading={ this.state.loading }
             preloaded={ this.state.preloaded }
             onCodeChanged={ this.onCodeChanged }
