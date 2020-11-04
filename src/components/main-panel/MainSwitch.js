@@ -10,7 +10,7 @@ import NotFoundSectionPage from './pages/NotFoundSectionPage'
 import ZendroStudio from '../static/zendro-studio/ZendroStudio';
 
 export default function StackView(props) {
-  const { permissions } = props;
+  const { permissions, zendroStudio } = props;
 
   return (
     <Switch>
@@ -30,9 +30,12 @@ export default function StackView(props) {
         <TablesSwitch permissions={permissions}/>
       </Route>
 
-      <Route path="/main/zendro-studio" >
-        <ZendroStudio />
-      </Route>
+      {
+        zendroStudio &&
+        <Route path="/main/zendro-studio" >
+          <ZendroStudio />
+        </Route>
+      }
 
       <Route path="/main">
         <NotFoundSectionPage />

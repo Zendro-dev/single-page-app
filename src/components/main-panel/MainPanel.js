@@ -656,32 +656,35 @@ export default function MainPanel(props) {
 
             <Divider />
 
-            <ListItem button id={'MainPanel-listItem-button-zendrostudio'}
-              onClick={(event) => {
-                if(selectedIndex !== zendroStudio.current.id) {
-                  handleIndexChange(event, {
-                    index: zendroStudio.current.id,
-                    url: zendroStudio.current.url
-                  });
-                }
-              }}
-            >
-              <ListItemIcon><IconDeveloperMode/></ListItemIcon>
-              <ListItemText primary={
-                <React.Fragment>
-                  <Typography
-                    id={'MainPanel-listItemText-button-typography-title-zendrostudio'}
-                    component="span"
-                    variant='body1'
-                    display='block'
-                    noWrap={true}
-                    color="textPrimary"
-                  >
-                    <b>{ t('mainPanel.zendroStudio', "Zendro Studio") }</b>
-                  </Typography>
-                </React.Fragment>
-              } />
-            </ListItem>
+            {
+              zendroStudio.current &&
+              <ListItem button id={'MainPanel-listItem-button-zendrostudio'}
+                onClick={(event) => {
+                  if(selectedIndex !== zendroStudio.current.id) {
+                    handleIndexChange(event, {
+                      index: zendroStudio.current.id,
+                      url: zendroStudio.current.url
+                    });
+                  }
+                }}
+              >
+                <ListItemIcon><IconDeveloperMode/></ListItemIcon>
+                <ListItemText primary={
+                  <React.Fragment>
+                    <Typography
+                      id={'MainPanel-listItemText-button-typography-title-zendrostudio'}
+                      component="span"
+                      variant='body1'
+                      display='block'
+                      noWrap={true}
+                      color="textPrimary"
+                    >
+                      <b>{ t('mainPanel.zendroStudio', "Zendro Studio") }</b>
+                    </Typography>
+                  </React.Fragment>
+                } />
+              </ListItem>
+            }
 
           </List>
         </Drawer>
@@ -695,7 +698,7 @@ export default function MainPanel(props) {
           {(checkingPermissions) ? (
             <CheckingPermissionsPage />
           ) : (
-            <MainSwitch permissions={permissions}/>
+            <MainSwitch zendroStudio={ !!zendroStudio.current } permissions={permissions}/>
           )}
         </main>
       </div>
