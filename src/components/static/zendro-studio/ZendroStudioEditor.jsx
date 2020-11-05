@@ -35,10 +35,10 @@ class ZendroStudioEditor extends React.Component {
       extraKeys: {
         'Ctrl-Space': 'autocomplete'
       },
-      hintOptions: {
-        hint: this.onEditorAutocomplete
-      },
-      keyMap: 'vim',
+      // hintOptions: {
+      //   hint: this.onEditorAutocomplete
+      // },
+      //keyMap: 'vim',
       mode: {
         name: 'javascript',
         globalVars: true,

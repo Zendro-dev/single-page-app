@@ -44,7 +44,7 @@ class ZendroStudio extends React.Component {
    */
   onEditorAutocomplete = (editor, hintOptions) => {
 
-    console.log(editor);
+    //console.log(editor);
   }
 
   /**
@@ -115,7 +115,6 @@ class ZendroStudio extends React.Component {
         {
           this.state.plot &&
           <Plot
-            config
             className={ this.props.classes.plot }
             { ...this.state.plot }
           />
