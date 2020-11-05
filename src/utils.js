@@ -295,23 +295,32 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             break;
 
           case '[String]':
-            ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
-            o_ors.push({field: modelAttributes[i], value: `${words[w]}`, operator: "contains", valueType: "Array"});
+            ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
+            o_ors.push({field: modelAttributes[i], value: `${words[w]}`, operator: "in"});
             break;
 
           case '[Int]':
-            num = words[w].split(',').map(x=>parseInt(x));
-            if (Array.isArray(num) && !isNaN(num[0])) {
-              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+            console.log("[Int]")
+            console.log(words[w].split(','))
+            num = words[w].split(',').map(x=>{
+              console.log(x.includes('.'))
+              console.log(x)
+              console.log(typeof(x))
+              if (!x.includes('.')) {
+                return parseInt(x)
+              }});
+            console.log(num)
+            if (Array.isArray(num) && !num.includes(NaN) && !num.includes(undefined)) {
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "in"});
             }
             break;
 
           case '[Float]':
             num = words[w].split(',').map(x=>parseFloat(x));
-            if (Array.isArray(num) && !isNaN(num[0])) {
-              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+            if (Array.isArray(num) && !num.includes(NaN) && !num.includes(undefined)) {
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "in"});
             }
             break;
 
@@ -319,35 +328,35 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             num = words[w].split(',')
             if (num[0] === 'true' || num[0] === 'false') {
               num = num.map(x=> x === 'true');
-              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "contains", valueType: "Array"});
+              ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "in"});
             }
             break;
 
           case '[Date]':
             d = words[w].split(',').map(x=>getIsoDate(x));
             if (Array.isArray(d) && d[0] !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${d}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${d}`, operator: "contains", valueType: "Array"});
+              ors += `{field:${modelAttributes[i]}, value:"${d}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${d}`, operator: "in"});
             }
             break;
 
           case '[Time]':
             t = words[w].split(',').map(x=>getIsoTime(x));
             if (Array.isArray(t) && t[0] !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${t}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${t}`, operator: "contains", valueType: "Array"});
+              ors += `{field:${modelAttributes[i]}, value:"${t}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${t}`, operator: "in"});
             }
             break;
 
           case '[DateTime]':
             dt = words[w].split(',').map(x=>getIsoDateTime(x));
             if (Array.isArray(dt) && dt[0] !== '') {
-              ors += `{field:${modelAttributes[i]}, value:"${dt}", operator:contains, valueType: Array},`;
-              o_ors.push({field: modelAttributes[i], value: `${dt}`, operator: "contains", valueType: "Array"});
+              ors += `{field:${modelAttributes[i]}, value:"${dt}", operator:in},`;
+              o_ors.push({field: modelAttributes[i], value: `${dt}`, operator: "in"});
             }
             break;
-
+            
           default:
             break;
         }
