@@ -1,57 +1,80 @@
-export async function createPlot(zendroApi) {
 
+/**
+ * Wrapper function to use in the Zendro Studio interface.
+ * @param {import('../../../utils/request')} zendroApi
+ */
+export async function createPlot(zendroApi) {
   /**
-   * Welcome to the Zendro-Studio code editor interface.
+   * This is the experimental Zendro Studio code editor interface.
    *
-   * You can use this function to request data from the Zendro instance
-   * via the exposed `request` modules API.
+   * The code within this function can be executed to query, manipulate, and
+   * visualize data using a standard set of APIs.
    *
-   * To create a plot, return an object using the standard Plotly.js
-   * API and it will be automatically rendered in the user interface.
+   *   GraphQL
+   *   -------
    *
-   * return {
-   *  data,
-   *  layout,
-   *  config,
-   * }
+   *   The "zendroApi" variable exposes a "graphqlQuery" function that can be used
+   *   to retrieve data from the configured Zendro GraphQL server.
+   *
+   *      zendroApi.graphqlQuery(queryString, userVariables);
+   *
+   *   For more information about the GraphQL types available in the server, please
+   *   visit the GraphiQL endpoint ("https://<host>/graphql") and use the Documentation
+   *   Exporer as needed. Any query that can be executed in GraphiQL is also valid here.
+   *
+   *   Plotly
+   *   ------
+   *
+   *   This function can optionally return an object as specified in the Plotly.js API.
+   *   The typical plot object contains three properties: data, layout, and config, that
+   *   will be used by Plotly to render the visualization.
+   *
+   *   For more information visit the official site at https://plotly.com/javascript/.
+   *
+   *   Example
+   *   -------
+   *
+   *   An example is provided below using the GraphQL and Plotly APIs to query data from
+   *   the server and render a visualization.
    *
    */
 
-  console.log(zendroApi);
+  const query = `
+    query findUserAndRoles($limit: Int!) {
+      role_to_users(pagination: {limit: $limit}) {
+        userId
+        roleId
+      }
+    }
+  `
 
-  const schema = '32e8da70';
-  const apiKey = '8a9a3ce0'
+  const res = await zendroApi.graphqlQuery(query, {
+    limit: 100,
+  })
 
-  const res = await fetch(`https://api.mockaroo.com/api/${schema}?count=10&key=${apiKey}`)
-  if (!res.ok)
-    return;
+  const x = [ ...new Set( res.data.role_to_users.map(x => x.userId) ) ];
+  const y = [ ...new Set( res.data.role_to_users.map(x => x.roleId) ) ];
+  const z = y.map(i => Array(x.length).fill(0))
 
-  const json = await res.json();
-
-  const x = json.map(x => x.name.split(' ').shift());
-  const y1 = json.map(y => y.count);
-  const y2 = json.map(y => Math.floor( Math.random() * (y.count*1.5)) );
-
-  const trace1 = { x, y: y1, name: 'Sierra Nevada', type: 'bar' };
-  const trace2 = { x, y: y2, name: 'Jiuzhai Valley', type: 'bar' };
+  res.data.role_to_users.forEach(({ userId, roleId }) => {
+    z[roleId - 1][userId - 1] = roleId;
+  });
 
   const data = [
-    trace1,
-    trace2,
+    {
+      x, y, z,
+      colorscale: 'Jet',
+      type: 'heatmap',
+      hoverongaps: false
+    }
   ];
-
-  const layout = {
-    barmode: 'group',
-  };
-
-  const config = {
-    responsive: true,
-  }
 
   return {
     data,
-    layout,
-    config,
-  };
-
+    layout: {
+      xaxis: { title: 'User ID' },
+      yaxis: { title: 'Role ID' },
+    },
+    config: { responsive: true }
+  }
 }

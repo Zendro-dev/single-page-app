@@ -11,7 +11,9 @@ import ZendroStudioEditorActions from './ZendroStudioEditorActions';
 
 import { createPlot } from './ZendroStudioEditorCode';
 
-import zendroApi from '../../../requests/requests.index';
+import {
+  graphqlQuery
+} from '../../../utils/request';
 
 
 class ZendroStudio extends React.Component {
@@ -67,7 +69,9 @@ class ZendroStudio extends React.Component {
     this.setState({ loading: true });
 
     try {
-      this.setState({ plot: await asyncCreatePlot(zendroApi) });
+      this.setState({
+        plot: await asyncCreatePlot({ graphqlQuery })
+      });
     }
     catch (error) {
       console.error(error.message);
