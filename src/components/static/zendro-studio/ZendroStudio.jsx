@@ -81,7 +81,7 @@ class ZendroStudio extends React.Component {
 
   render () {
     return (
-      <div className={ this.props.classes.root }>
+      <div className={ this.props.className }>
         <div className={ this.props.classes.editorArea }>
 
           {
@@ -123,9 +123,6 @@ class ZendroStudio extends React.Component {
 }
 
 export default withStyles(theme => ({
-  root: {
-    margin: theme.spacing(8, 0, 0, 0),
-  },
   editorArea: {
     margin: theme.spacing(0, 0, 2, 0),
     position: 'relative',

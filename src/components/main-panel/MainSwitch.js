@@ -1,13 +1,12 @@
-import React from 'react';
-import {
-  Switch,
-  Route
-} from 'react-router-dom'
-import PropTypes from 'prop-types';
-import TablesSwitch from './table-panel/TablesSwitch'
-import HomePage from './pages/HomePage'
+import React             from 'react';
+import { Switch, Route } from 'react-router-dom'
+import PropTypes         from 'prop-types';
+
+import HomePage            from './pages/HomePage'
 import NotFoundSectionPage from './pages/NotFoundSectionPage'
-import ZendroStudio from '../static/zendro-studio/ZendroStudio';
+import ZendroStudioPage    from './pages/ZendroStudioPage';
+import TablesSwitch        from './table-panel/TablesSwitch'
+
 
 export default function StackView(props) {
   const { permissions, zendroStudio } = props;
@@ -33,7 +32,7 @@ export default function StackView(props) {
       {
         zendroStudio &&
         <Route path="/main/zendro-studio" >
-          <ZendroStudio />
+          <ZendroStudioPage />
         </Route>
       }
 
