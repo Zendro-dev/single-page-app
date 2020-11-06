@@ -42,10 +42,7 @@ class ZendroStudio extends React.Component {
    * @param {CodeMirror.EditorFromTextArea}      editor  editor instance
    * @param {CodeMirror.ShowHintOptions}    hintOptions editor hint options
    */
-  onEditorAutocomplete = (editor, hintOptions) => {
-
-    //console.log(editor);
-  }
+  onEditorAutocomplete = (editor, hintOptions) => { }
 
   /**
    * Update internal code state after after each editor change.
@@ -69,9 +66,8 @@ class ZendroStudio extends React.Component {
     this.setState({ loading: true });
 
     try {
-      this.setState({
-        plot: await asyncCreatePlot({ graphqlQuery })
-      });
+      const plot = await asyncCreatePlot({ graphqlQuery });
+      if (plot) this.setState({ plot });
     }
     catch (error) {
       console.error(error.message);
