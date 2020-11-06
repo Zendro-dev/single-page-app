@@ -24,6 +24,15 @@ export default class ZendroStudioEditorActions extends React.Component {
     }
   }
 
+  /* LIFECYCLE METHODS */
+
+  componentDidMount () {
+    if (this.props.autoexec)
+      this.onRunCodeButtonClick(this.props.autoexec)
+  }
+
+  /* EVENT HANDLERS */
+
   /**
    * Download editor code as a javascript file.
    */

@@ -102,6 +102,7 @@ class ZendroStudio extends React.Component {
             onCodeChanged={ this.onCodeChanged }
           >
             <ZendroStudioEditorActions
+              autoexec={ this.state.preloaded && this.state.code }
               onImportCode={ this.onImportCode }
               onRunCode={ this.onRunCode }
             />
