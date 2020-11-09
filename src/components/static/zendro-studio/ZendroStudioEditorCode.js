@@ -22,6 +22,17 @@ export async function createPlot(zendroApi) {
    *   visit the GraphiQL endpoint ("https://<host>/graphql") and use the Documentation
    *   Exporer as needed. Any query that can be executed in GraphiQL is also valid here.
    *
+   *   Additionally, a "graphqlQueryModel" wrapper function can be used to retrieve all
+   *   attributes of a single model, using an iterative strategy.
+   *
+   *      zendroApi.graphqlQueryModel(modelName, options);
+   *
+   *   The options argument is an object with two optional properties: "after" and "limit".
+   *
+   *     "after": the Base64 representation of the record after which the search should begin
+   *     "limit": the total number of records to be retrieved
+   *
+   *
    *   Plotly
    *   ------
    *
