@@ -22,6 +22,7 @@ export default {
         admin: "Admin",
         logout: "Logout",
         translate: "Change language",
+        zendroStudio: "Zendro Studio",
         errors: {
           e1: "An error occurred while trying load the new language.",
         }
@@ -43,6 +44,7 @@ export default {
         //toggle buttons
         table: "Table",
         plot: "Plot",
+        plotEditor: "Plot Editor",
 
         //plot panel
         plot1: {
@@ -460,7 +462,7 @@ export default {
         edit: "Editar",
         delete: "Borrar",
         actions: "Acciones",
-        
+
         //pagination
         rowsPerPage: "Renglones por página",
         of: "de",
