@@ -13,7 +13,7 @@ import {
  * @param {string}             query GraphQL formatted query
  * @param {Object<string,any>} variables query variables
  */
-export async function graphqlQuery(query, variables) {
+export async function graphql(query, variables) {
 
   const token = localStorage.getItem('token');
 
@@ -53,14 +53,14 @@ export async function graphqlQuery(query, variables) {
 
 /**
  * Fetch all records from a given model, using an iterative pagination strategy.
- * @typedef  {Object} GQLQueryAllOptions pagination options
+ * @typedef  {Object} FetchModelOptions pagination options
  * @property {string?} after first record object encoded as a Base64 string
- * @property {number}  limit maximum number of records to retrieve
+ * @property {number?} limit maximum number of records to retrieve
  *
- * @param {string}              modelName name of the model to fetch records from
- * @param {GQLQueryAllOptions?}   options options object for the recursive query
+ * @param {string}             modelName name of the model to fetch records from
+ * @param {FetchModelOptions?} options options object for the recursive query
  */
-export async function graphqlQueryModel(modelName, options) {
+export async function iterativelyFetchModelBatches(modelName, options) {
 
   let results = [];
 
@@ -112,7 +112,7 @@ export async function graphqlQueryModel(modelName, options) {
     }
 
     // Attempt to query the graphql endpoint
-    const response = await graphqlQuery(query, variables);
+    const response = await graphql(query, variables);
 
     /**
      * The server might throw an error before the query execution begins, in which case

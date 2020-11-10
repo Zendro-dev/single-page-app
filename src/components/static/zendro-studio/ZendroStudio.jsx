@@ -12,8 +12,8 @@ import ZendroStudioEditorActions from './ZendroStudioEditorActions';
 import { createPlot } from './ZendroStudioEditorCode';
 
 import {
-  graphqlQuery,
-  graphqlQueryModel,
+  graphql,
+  iterativelyFetchModelBatches,
 } from '../../../utils/request';
 
 
@@ -68,8 +68,8 @@ class ZendroStudio extends React.Component {
 
     try {
       const plot = await asyncCreatePlot({
-        graphqlQuery,
-        graphqlQueryModel,
+        graphql,
+        iterativelyFetchModelBatches,
       });
       if (plot) this.setState({ plot });
     }
