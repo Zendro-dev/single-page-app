@@ -300,16 +300,10 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             break;
 
           case '[Int]':
-            console.log("[Int]")
-            console.log(words[w].split(','))
             num = words[w].split(',').map(x=>{
-              console.log(x.includes('.'))
-              console.log(x)
-              console.log(typeof(x))
-              if (!x.includes('.')) {
-                return parseInt(x)
-              }});
-            console.log(num)
+            if (!x.includes('.')) {
+              return parseInt(x)
+            }});
             if (Array.isArray(num) && !num.includes(NaN) && !num.includes(undefined)) {
               ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
               o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "in"});
