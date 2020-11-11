@@ -303,7 +303,7 @@ export function getSearchArgument(filterName, searchText, ops, format, attribute
             num = words[w].split(',').map(x=>{
             if (!x.includes('.')) {
               return parseInt(x)
-            }});
+            }else return undefined});
             if (Array.isArray(num) && !num.includes(NaN) && !num.includes(undefined)) {
               ors += `{field:${modelAttributes[i]}, value:"${words[w]}", operator:in},`;
               o_ors.push({field: modelAttributes[i], value: `${num}`, operator: "in"});
