@@ -10,7 +10,6 @@ COPY . .
 RUN apk update && \
  apk add git && apk add bash && \
  rm -rf .git && \
- echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p \
  npm install
 
 EXPOSE 8080
