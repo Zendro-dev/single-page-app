@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { 
   BrowserRouter as Router,
   Switch,
@@ -8,35 +8,36 @@ import {
 import { connect } from 'react-redux';
 import { isAuthenticated } from './utils';
 
-//components
-import Login from './components/pages/LoginPage'
-import MainPanel from './components/main-panel/MainPanel'
-import NotFoundPage from './components/pages/NotFoundPage'
-
+//lazy loading
+const Login = lazy(() => import(/* webpackChunkName: "Login" */ './components/pages/LoginPage'));
+const MainPanel = lazy(() => import(/* webpackChunkName: "MainPanel" */ './components/main-panel/MainPanel'));
+const NotFoundPage = lazy(() => import(/* webpackChunkName: "NotFoundPage" */ './components/pages/NotFoundPage'));
 
 function App() {
   return (
     <Router>
       <div>
-        <Switch>
-          
-          <RootRoute exact path="/">
-            <Login />
-          </RootRoute>
+        <Suspense fallback={<div />}>
+          <Switch>
+            
+            <RootRoute exact path="/">
+              <Login />
+            </RootRoute>
 
-          <RootRoute exact path="/login">
-            <Login />
-          </RootRoute>
+            <RootRoute exact path="/login">
+              <Login />
+            </RootRoute>
 
-          <PrivateRoute path="/main">
-            <MainPanel />
-          </PrivateRoute>
+            <PrivateRoute path="/main">
+              <MainPanel />
+            </PrivateRoute>
 
-          <Route path="*">
-            <NotFoundPage />
-          </Route>
-
-        </Switch>
+            <Route path="*">
+              <NotFoundPage />
+            </Route>
+  
+          </Switch>
+        </Suspense>
       </div>
     </Router>
   );
