@@ -6,12 +6,13 @@ import {
   Redirect
 } from 'react-router-dom'
 import { connect } from 'react-redux';
-import { isAuthenticated } from './utils';
+import { isAuthenticated, retry } from './utils';
+import ErrorBoundary from './components/pages/ErrorBoundary';
 
 //lazy loading
-const Login = lazy(() => import(/* webpackChunkName: "Login" */ './components/pages/LoginPage'));
-const MainPanel = lazy(() => import(/* webpackChunkName: "MainPanel" */ './components/main-panel/MainPanel'));
-const NotFoundPage = lazy(() => import(/* webpackChunkName: "NotFoundPage" */ './components/pages/NotFoundPage'));
+const Login = lazy(() => retry(() => import(/* webpackChunkName: "Login" */ './components/pages/LoginPage')));
+const MainPanel = lazy(() => retry(() => import(/* webpackChunkName: "MainPanel" */ './components/main-panel/MainPanel')));
+const NotFoundPage = lazy(() => retry(() => import(/* webpackChunkName: "NotFoundPage" */ './components/pages/NotFoundPage')));
 
 function App() {
   return (
@@ -21,19 +22,27 @@ function App() {
           <Switch>
             
             <RootRoute exact path="/">
-              <Login />
+              <ErrorBoundary showMessage={true}>
+                <Login />
+              </ErrorBoundary>
             </RootRoute>
 
             <RootRoute exact path="/login">
-              <Login />
+              <ErrorBoundary showMessage={true}>
+                <Login />
+              </ErrorBoundary>
             </RootRoute>
 
             <PrivateRoute path="/main">
-              <MainPanel />
+              <ErrorBoundary showMessage={true}>
+                <MainPanel />
+              </ErrorBoundary>
             </PrivateRoute>
 
             <Route path="*">
-              <NotFoundPage />
+              <ErrorBoundary showMessage={true}>
+                <NotFoundPage />
+              </ErrorBoundary>
             </Route>
   
           </Switch>

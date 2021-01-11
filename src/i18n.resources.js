@@ -190,6 +190,10 @@ export default {
           msg11: "Section not found.",
           msg12: "Are you sure it should be here?",
           msg13: "Page not found.",
+          couldNotLoaded: "Component could not be loaded",
+          goodConnection: "Please make sure you have a good network connection",
+          apiCouldNotLoaded: "API could not be loaded",
+          seeConsoleError: "Please see console log for more details on this error"
         },
         errors: {
           details: "Error details:",
@@ -401,6 +405,10 @@ export default {
           msg11: "Abschnitt nicht gefunden.",
           msg12: "Bist du sicher, dass es hier sein sollte?",
           msg13: "Seite nicht gefunden.",
+          couldNotLoaded: "Die Komponente konnte nicht geladen werden",
+          goodConnection: "Stellen Sie sicher, dass Sie eine gute Netzwerkverbindung haben",
+          apiCouldNotLoaded: "API konnte nicht geladen werden",
+          seeConsoleError: "Weitere Informationen zu diesem Fehler finden Sie im Konsolenprotokoll"
         },
         errors: {
           details: "Fehlerdetails:",
@@ -615,6 +623,10 @@ export default {
           msg11: "Sección no encontrada.",
           msg12: "¿Está seguro de que debería estar aquí?",
           msg13: "Página no encontrada.",
+          couldNotLoaded: "No se pudo cargar el componente",
+          goodConnection: "Por favor asegúrese de tener una buena conexión de red",
+          apiCouldNotLoaded: "No se pudo cargar la petición API",
+          seeConsoleError: "Por favor vea la consola de log para obtener más información sobre este error"
         },
         errors: {
           details: "Detalles del error:",

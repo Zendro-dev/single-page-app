@@ -10,8 +10,6 @@ export default function Home() {
         <br />
         <br />
         <h2>Home</h2>
-        <p>Home</p>
-        <p>Home</p>
       </div>
     </Fade>
   );

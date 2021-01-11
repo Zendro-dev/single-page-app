@@ -1,6 +1,7 @@
 import decode from 'jwt-decode';
 import axios from 'axios';
 import getAttributes from './requests/requests.attributes'
+import globals from './config/globals';
 
 /**
  * makeCancelable()
@@ -813,4 +814,32 @@ function getIsoDateTime(text) {
   }
 
   return '';
+}
+
+/**
+ * retry    Implements promise retry pattern as described in:
+ * https://gist.github.com/briancavalier/842626#gistcomment-3377385
+ * 
+ * @param {Promise} p Promise to be retried if fails to resolve.
+ * @param {Int}     retries Number of retries.
+ * @param {Int}     interval  Number of milliseconds to wait after trying again.
+ * 
+ * @return {Promise} Promise resolved or rejected after a maximum of @retries
+ * retries.
+ */
+export async function retry(p, retries = (globals.MAX_DYNAMIC_IMPORT_RETRIES !== undefined ? globals.MAX_DYNAMIC_IMPORT_RETRIES : 10), interval = 200) {
+  return new Promise((resolve, reject) => {
+    return p()
+      .then(resolve)
+      .catch((error) => {
+        if (retries <= 0) {
+          // reject: maximum retries exceeded
+          reject(error);
+          return;
+        }
+        setTimeout(() => {
+          retry(p, retries - 1, interval).then(resolve, reject)
+        }, interval);
+      });
+  });
 }
