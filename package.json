@@ -14,9 +14,6 @@
     "serve": "react-scripts --max_old_space_size=4096 start",
     "serve-big": "react-scripts --max_old_space_size=6144 start"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
