@@ -2,6 +2,43 @@
   "name": "zendro-spa",
   "version": "0.5.6",
   "private": true,
+  "scripts": {
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "start-big": "react-scripts --max_old_space_size=6144 start",
+    "build": "GENERATE_SOURCEMAP=false react-scripts --max_old_space_size=4096 build",
+    "build-big": "GENERATE_SOURCEMAP=false react-scripts --max_old_space_size=6144 build",
+    "build-with-sourcemap": "react-scripts --max_old_space_size=6144 build",
+    "build-with-sourcemap-big": "react-scripts --max_old_space_size=8192 build",
+    "test": "react-scripts --max_old_space_size=4096 test",
+    "eject": "react-scripts eject",
+    "serve": "react-scripts --max_old_space_size=4096 start",
+    "serve-big": "react-scripts --max_old_space_size=6144 start"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/_src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "dependencies": {
     "@date-io/moment": "^1.3.13",
     "@material-ui/core": "^4.11.0",
@@ -32,34 +69,13 @@
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "typeface-roboto": "1.1.13",
+    "typeface-roboto": "1.1.13"
+  },
+  "devDependencies": {
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^10.5.3",
+    "prettier": "^2.2.1",
     "typescript": "^4.1.3"
-  },
-  "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "start-big": "react-scripts --max_old_space_size=6144 start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts --max_old_space_size=4096 build",
-    "build-big": "GENERATE_SOURCEMAP=false react-scripts --max_old_space_size=6144 build",
-    "build-with-sourcemap": "react-scripts --max_old_space_size=6144 build",
-    "build-with-sourcemap-big": "react-scripts --max_old_space_size=8192 build",
-    "test": "react-scripts --max_old_space_size=4096 test",
-    "eject": "react-scripts eject",
-    "serve": "react-scripts --max_old_space_size=4096 start",
-    "serve-big": "react-scripts --max_old_space_size=6144 start"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
