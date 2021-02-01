@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ListItem,
   ListItemText,
@@ -23,7 +24,7 @@ const GetIcon = ({ icon }) => {
   );
 };
 
-export default function NavGroup(props) {
+export default function NavGroup({ icon, label, to, ...props }) {
   // const { t, i18n } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(true);
@@ -35,17 +36,19 @@ export default function NavGroup(props) {
     <>
       <ListItem
         button
+        component={Link}
+        to={to}
         id={'MainPanel-listItem-button-models'}
         onClick={handleNavGroupClick}
       >
-        <ListItemIcon>{props.icon}</ListItemIcon>
+        <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText
           primary={
             <Typography
               id={'MainPanel-listItemText-button-typography-title-models'}
               noWrap={true}
             >
-              <b>{props.label}</b>
+              <b>{label}</b>
             </Typography>
           }
         />

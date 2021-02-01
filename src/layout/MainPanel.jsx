@@ -14,6 +14,7 @@ const routes = [
   {
     label: 'Home',
     icon: HomeIcon,
+    to: '/',
   },
   {
     label: 'Models',
@@ -21,6 +22,7 @@ const routes = [
     children: [
       {
         label: 'no_assoc',
+        to: '/models/no_assoc',
       },
     ],
   },
@@ -30,9 +32,11 @@ const routes = [
     children: [
       {
         label: 'Role',
+        to: '/admin/role',
       },
       {
         label: 'User',
+        to: '/admin/user',
       },
     ],
   },

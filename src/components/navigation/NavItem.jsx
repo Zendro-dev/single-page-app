@@ -1,5 +1,6 @@
 import React from 'react';
 import { ListItem, ListItemText, Typography } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -8,31 +9,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NavItem(props) {
+export default function NavItem({ label, name, ...props }) {
   const classes = useStyles();
   return (
-    <ListItem
-      button
-      className={classes.nested}
-      // selected={selectedIndex === model.id}
-      // onClick={(event) => {
-      //   if (selectedIndex !== model.id) {
-      //     handleIndexChange(event, { index: model.id, url: model.url });
-      //   }
-      // }}
-      {...props}
-    >
+    <ListItem button className={classes.nested} component={Link} {...props}>
       <ListItemText
         primary={
           <Typography
-            id={'MainPanel-listItemText-typography-' + props.name}
+            id={'MainPanel-listItemText-typography-' + name}
             component="span"
             variant="body2"
             display="block"
             noWrap={true}
             color="textPrimary"
           >
-            {props.label}
+            {label}
           </Typography>
         }
       />

@@ -70,10 +70,19 @@ export default function NavDrawer({
         </div>
         <Divider />
         <List>
-          {routes.map(({ label, icon: Icon, children }, i) => (
-            <NavGroup key={`${label}-${i}`} label={label} icon={<Icon />}>
+          {routes.map(({ label, icon: Icon, children, to }, i) => (
+            <NavGroup
+              key={`${label}-${i}`}
+              label={label}
+              icon={<Icon />}
+              to={to}
+            >
               {children?.map((item, ii) => (
-                <NavItem key={`${item.label}-${ii}`} label={item.label} />
+                <NavItem
+                  key={`${item.label}-${ii}`}
+                  label={item.label}
+                  to={item.to}
+                />
               ))}
             </NavGroup>
           ))}
