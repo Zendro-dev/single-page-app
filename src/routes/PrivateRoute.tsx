@@ -1,29 +1,16 @@
-import { Redirect, Route, RouteProps } from 'react-router-dom';
+import { Redirect, Route, RouteProps, useLocation } from 'react-router-dom';
 import { userIsAuthenticated } from '../utils/auth';
 
-interface PrivateRouteProps extends RouteProps {
-  component: React.FC;
-}
-
-const PrivateRoute: React.FC<PrivateRouteProps> = ({
-  component: Component,
-  ...routeProps
-}) => {
-  return (
-    <Route
-      {...routeProps}
-      render={({ location }) =>
-        userIsAuthenticated() && location.pathname !== '/login' ? (
-          <Component />
-        ) : (
-          <Redirect
-            to={{
-              pathname: '/login',
-              state: { from: location },
-            }}
-          />
-        )
-      }
+const PrivateRoute: React.FC<RouteProps> = ({ ...routeProps }) => {
+  const location = useLocation();
+  return userIsAuthenticated() && location.pathname !== '/login' ? (
+    <Route {...routeProps} />
+  ) : (
+    <Redirect
+      to={{
+        pathname: '/login',
+        state: { from: location },
+      }}
     />
   );
 };
