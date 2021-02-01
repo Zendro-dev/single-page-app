@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LanguageSwitcher() {
-  const [translationAnchorEl, setTranslationAnchorEl] = React.useState(null);
+  const [translationAnchorEl, setTranslationAnchorEl] = useState(null);
 
   const handleTranslationIconClick = (event) => {
     setTranslationAnchorEl(event.currentTarget);
@@ -57,8 +57,6 @@ export default function LanguageSwitcher() {
             id={'MainPanel-menuItem-translation-' + translation.lcode}
             className={classes.translationMenuItem}
             key={translation.lcode}
-            // selected={index === translationSelectedIndex}
-            // onClick={event => handleTranslationMenuItemClick(event, index)}
           >
             <Typography variant="inherit" display="block" noWrap={true}>
               {translation.language}
