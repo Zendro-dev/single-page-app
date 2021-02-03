@@ -3,6 +3,9 @@
  * - component receives value => string | null
  * - user types in the input => string (maybe empty)
  * - user clicks on the reset button => null
+ *
+ * Notes: useRef might not be needed here, as long as value={value ?? ''} does
+ * not trigger an onChange event.
  */
 
 import React, { ReactElement, useRef } from 'react';
