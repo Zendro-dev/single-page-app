@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) =>
     leftIcon: {
       width: '2rem',
       height: '2rem',
-      marginTop: theme.spacing(7),
-      marginRight: theme.spacing(2),
+      marginTop: '1.75rem',
+      marginRight: '0.5rem',
       color: theme.palette.grey[700],
     },
   })
