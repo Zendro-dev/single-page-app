@@ -5,6 +5,7 @@ import Import from '@material-ui/icons/UnarchiveOutlined';
 import Export from '@material-ui/icons/SaveAlt';
 
 import ClickableIcon from './clickableIcon.jsx';
+import SearchField from './searchField.jsx';
 
 export default function TableToolBar(props) {
   const {
@@ -21,6 +22,8 @@ export default function TableToolBar(props) {
           <ClickableIcon tooltip="Reload list" handleOnClick={onReloadClick}>
             <Reload color="inherit" fontSize="small" />
           </ClickableIcon>
+
+          <SearchField />
 
           <ClickableIcon
             tooltip="Add new no_assoc"
