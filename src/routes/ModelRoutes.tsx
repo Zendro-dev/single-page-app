@@ -1,18 +1,16 @@
 import { ReactElement } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, RouteComponentProps } from 'react-router-dom';
 import MainPanel from '../layout/MainPanel';
 
-interface Props {
-  path: string;
-}
-
 const ModelHome = () => <div>Home works!</div>;
+const AssocHome: React.FC<RouteComponentProps> = () => <div>Assoc works!</div>;
 
-export default function ModelRoutes({ path }: Props): ReactElement {
+export default function ModelRoutes(props: RouteComponentProps): ReactElement {
   return (
     <MainPanel>
       <Switch>
-        <Route exact path={path} component={ModelHome} />
+        <Route exact path={`/models/no_assoc`} component={AssocHome} />
+        <Route path={'/'} component={ModelHome} />
       </Switch>
     </MainPanel>
   );
