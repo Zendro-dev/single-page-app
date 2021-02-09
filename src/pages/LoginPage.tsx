@@ -3,26 +3,30 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Box, Fade, Typography } from '@material-ui/core';
 import LoginForm from '../components/forms/LoginForm';
 import useAuth from '../hooks/useAuth';
+import { Redirect } from 'react-router-dom';
 
 export default function LoginPage(): ReactElement {
   const classes = useStyles();
-  const { login } = useAuth();
+  const { auth, login } = useAuth();
 
   const onLoginFormSubmit = (email: string, password: string) => {
     if (email && password) login(email, password, { redirectTo: '/' });
   };
 
   return (
-    <div className={classes.root}>
-      <Fade in={true} timeout={500}>
-        <Box className={classes.box}>
-          <Typography variant="h4" component="h2" className={classes.brand}>
-            Zendro
-          </Typography>
-          <LoginForm onSubmit={onLoginFormSubmit} />
-        </Box>
-      </Fade>
-    </div>
+    <>
+      {auth.user?.isValid && <Redirect to={{ pathname: '/' }} />}
+      <div className={classes.root}>
+        <Fade in={true} timeout={500}>
+          <Box className={classes.box}>
+            <Typography variant="h4" component="h2" className={classes.brand}>
+              Zendro
+            </Typography>
+            <LoginForm onSubmit={onLoginFormSubmit} />
+          </Box>
+        </Fade>
+      </div>
+    </>
   );
 }
 
