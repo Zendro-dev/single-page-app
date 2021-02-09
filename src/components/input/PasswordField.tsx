@@ -35,7 +35,9 @@ export default function PasswordField(props: LoginFieldProps): ReactElement {
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
-            <Tooltip title="Show Password">
+            <Tooltip
+              title={state.showPassword ? 'Hide Password' : 'Show Password'}
+            >
               <IconButton
                 onClick={handleClickShowPassword}
                 onMouseDown={handleMouseDownPassword}
