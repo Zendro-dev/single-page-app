@@ -9,14 +9,14 @@ import {
 
 import { SvgIconType } from '../../types/user-interface';
 
-export type StringFieldProps = TextFieldProps & {
+export type LoginFieldProps = TextFieldProps & {
   icon?: SvgIconType;
 };
 
-export default function StringField({
+export default function LoginField({
   icon: Icon,
   ...textFieldProps
-}: StringFieldProps & TextFieldProps): ReactElement {
+}: LoginFieldProps & TextFieldProps): ReactElement {
   const classes = useStyles();
   return (
     <div className={classes.root}>

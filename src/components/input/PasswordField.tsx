@@ -6,13 +6,13 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 
-import StringField, { StringFieldProps } from './LoginField';
+import LoginField, { LoginFieldProps } from './LoginField';
 
 interface State {
   showPassword: boolean;
 }
 
-export default function PasswordField(props: StringFieldProps): ReactElement {
+export default function PasswordField(props: LoginFieldProps): ReactElement {
   const [state, setState] = useState<State>({
     showPassword: false,
   });
@@ -28,7 +28,7 @@ export default function PasswordField(props: StringFieldProps): ReactElement {
   };
 
   return (
-    <StringField
+    <LoginField
       {...props}
       type={state.showPassword ? 'text' : 'password'}
       autoComplete="off"
