@@ -87,12 +87,13 @@ export function clearAuthToken(): void {
  */
 export function createUser(decodedToken: AuthToken): User {
   const { id, roles, exp } = decodedToken;
+  const expDate = new Date(exp * 1000);
   return {
     id,
     roles,
     exp,
     get isValid() {
-      const isValid = new Date() < new Date(decodedToken.exp * 1000);
+      const isValid = new Date() < expDate;
       if (!isValid) clearAuthToken();
       return isValid;
     },
