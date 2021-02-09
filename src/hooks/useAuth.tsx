@@ -29,10 +29,10 @@ export default function useAuth(): UseAuth {
   const history = useHistory();
 
   useEffect(() => {
+    if (!redirect) return;
+
     const isLoggedIn = auth.user && auth.status === 'success';
     const isLoggedOut = !auth.user && auth.status === 'idle';
-
-    if (!redirect) return;
 
     if (isLoggedIn || isLoggedOut) history.push(redirect);
   }, [auth, history, redirect]);
