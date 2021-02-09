@@ -2,10 +2,10 @@ import Grid from '@material-ui/core/Grid';
 import Reload from '@material-ui/icons/Replay';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
-import Export from '@material-ui/icons/SaveAlt';
 
 import ClickableIcon from './clickableIcon.jsx';
 import SearchField from './searchField.jsx';
+import DownloadMenu from './downloadMenu.jsx';
 
 export default function TableToolBar(props) {
   const {
@@ -39,12 +39,7 @@ export default function TableToolBar(props) {
             <Import color="primary" />
           </ClickableIcon>
 
-          <ClickableIcon
-            tooltip="Download options"
-            handleOnClick={handleDownloadsIconClick}
-          >
-            <Export color="primary" />
-          </ClickableIcon>
+          <DownloadMenu></DownloadMenu>
         </Grid>
       </Grid>
     </Grid>
