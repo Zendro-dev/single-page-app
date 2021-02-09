@@ -6,6 +6,7 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'start',
     },
     leftIcon: {
@@ -30,8 +31,7 @@ const useStyles = makeStyles((theme) =>
       color: 'red',
     },
     errMsg: {
-      marginTop: '5rem',
-      marginLeft: '-2.7rem',
+      marginLeft: '0.8rem',
       color: 'red',
       fontSize: 13,
       fontFamily: 'sans-serif',

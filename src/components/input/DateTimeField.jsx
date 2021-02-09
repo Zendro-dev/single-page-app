@@ -46,7 +46,7 @@ export default function DateTimeField({
   const mdate = useRef(initialDate.isValid() ? initialDate : moment.invalid());
 
   const handleOnChange = (date) => {
-    if (date._i !== undefined && date._i.includes('_')) {
+    if (date && date._i && date._i.includes('_')) {
       return;
     } else {
       setSelectedDate(date);
