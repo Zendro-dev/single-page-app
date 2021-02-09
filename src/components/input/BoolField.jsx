@@ -1,105 +1,100 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core/styles";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormLabel from "@material-ui/core/FormLabel";
-import Grid from "@material-ui/core/Grid";
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Checkbox, FormControlLabel } from '@material-ui/core';
+import React, { useState } from 'react';
 
-export default function BoolField(props) {
-  const {
-    itemKey,
-    name,
-    label,
-    text,
-    autoFocus,
-    handleSetValue,
-    readOnly,
-    errMsg,
-  } = props;
-
-  const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) =>
+  createStyles({
     root: {
-      paddingLeft: theme.spacing(0),
+      display: 'flex',
+      alignItems: 'start',
     },
-    formControlLabel: {
-      margin: theme.spacing(0),
+    leftIcon: {
+      width: '2rem',
+      height: '2rem',
+      marginTop: '1.75rem',
+      marginRight: '0.5rem',
+      color: theme.palette.grey[700],
     },
     checkbox: {
-      padding: theme.spacing(2),
+      padding: '1rem',
     },
-  }));
-  const classes = useStyles();
-  const { t } = useTranslation();
+    checkboxError: {
+      padding: '1rem',
+      color: 'red',
+    },
+    formControlLabel: {
+      margin: '0rem',
+    },
+    formControlLabelError: {
+      margin: '0rem',
+      color: 'red',
+    },
+    errMsg: {
+      marginTop: '5rem',
+      marginLeft: '-2.7rem',
+      color: 'red',
+      fontSize: 13,
+      fontFamily: 'sans-serif',
+    },
+  })
+);
 
-  const [checked, setChecked] = useState(text || false);
+export default function BoolField({
+  icon: Icon,
+  value,
+  error,
+  helperText,
+  ...props
+}) {
+  const classes = useStyles();
+
+  const [checked, setChecked] = useState(value || false);
   const [indeterminate, setIndeterminate] = useState(
-    text !== undefined && text !== null ? false : true
+    value !== undefined && value !== null ? false : true
   );
 
   const handleOnChange = (event) => {
-    if (!readOnly) {
-      if (event.target.checked && !indeterminate) {
-        setChecked(true);
-        handleSetValue(true, 1, itemKey);
-        console.log("I am true");
-      } else if (!event.target.checked && !indeterminate) {
-        setIndeterminate(true);
-        setChecked(false);
-        handleSetValue(null, 0, itemKey);
-        console.log("I am null");
-      } else if (event.target.checked && indeterminate) {
-        setChecked(false);
-        setIndeterminate(false);
-        handleSetValue(false, 1, itemKey);
-        console.log("I am false");
-      } else {
-        console.log("should never go here");
+    if (event.target.checked && !indeterminate) {
+      setChecked(true);
+      if (props.onChange) {
+        props.onChange(props.label, true);
       }
-    }
-  };
-
-  const handleOnKeyDown = (event) => {
-    if (!readOnly) {
-      if (event.key === "Delete") {
-        handleSetValue(null, 0, itemKey);
-        setChecked(false);
+    } else if (!event.target.checked && !indeterminate) {
+      setChecked(false);
+      setIndeterminate(true);
+      if (props.onChange) {
+        props.onChange(props.label, null);
+      }
+    } else if (event.target.checked && indeterminate) {
+      setChecked(false);
+      setIndeterminate(false);
+      if (props.onChange) {
+        props.onChange(props.label, false);
       }
     }
   };
 
   return (
-    <Grid container justify="flex-start" alignItems="center" spacing={0}>
-      <Grid item>
-        <FormControl className={classes.root} component="fieldset">
-          <FormLabel component="legend">{label}</FormLabel>
-          <FormControlLabel
-            className={classes.formControlLabel}
-            control={
-              <Checkbox
-                id={"BoolField-" + name}
-                className={classes.checkbox}
-                checked={checked}
-                indeterminate={indeterminate}
-                autoFocus={
-                  autoFocus !== undefined && autoFocus === true ? true : false
-                }
-                color={
-                  errMsg !== undefined && errMsg !== ""
-                    ? "secondary"
-                    : "primary"
-                }
-                error={errMsg !== undefined && errMsg !== "" ? true : undefined}
-                helpertext={errMsg}
-                onChange={handleOnChange}
-                onKeyDown={handleOnKeyDown}
-                inputProps={{ readOnly: readOnly ? true : false }}
-              />
-            }
+    <div className={classes.root}>
+      {Icon && <Icon className={classes.leftIcon} />}
+      <FormControlLabel
+        className={
+          error ? classes.formControlLabelError : classes.formControlLabel
+        }
+        control={
+          <Checkbox
+            {...props}
+            className={error ? classes.checkboxError : classes.checkbox}
+            color="default"
+            checked={checked}
+            indeterminate={indeterminate}
+            onChange={handleOnChange}
           />
-        </FormControl>
-      </Grid>
-    </Grid>
+        }
+        label={props.label}
+        labelPlacement="top"
+      />
+      {error && <div className={classes.errMsg}>{helperText}</div>}
+    </div>
   );
 }

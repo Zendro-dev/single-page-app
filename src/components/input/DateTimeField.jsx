@@ -1,185 +1,105 @@
-import React, { useState, useEffect, useRef } from "react";
-import classnames from "classnames";
-import { useTranslation } from "react-i18next";
-import moment from "moment";
-import MomentUtils from "@date-io/moment";
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import moment from 'moment';
+import MomentUtils from '@date-io/moment';
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
-} from "@material-ui/pickers";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import FormControl from "@material-ui/core/FormControl";
-import "moment/locale/es.js";
-import "moment/locale/de.js";
+} from '@material-ui/pickers';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import 'moment/locale/es.js';
+import 'moment/locale/de.js';
 
-const useStyles = makeStyles((theme) => ({
-  input: {
-    margin: theme.spacing(0),
-  },
-  formControl: {
-    marginRight: theme.spacing(1),
-  },
-  ajvError: {
-    color: "red",
-  },
-}));
-
-export default function DateTimeField(props) {
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      alignItems: 'start',
+    },
+    leftIcon: {
+      width: '2rem',
+      height: '2rem',
+      marginTop: '1.75rem',
+      marginRight: '0.5rem',
+      color: theme.palette.grey[700],
+    },
+  })
+);
+export default function DateTimeField({
+  icon: Icon,
+  value,
+  error,
+  helperText,
+  ...props
+}) {
   const classes = useStyles();
-  const { t, i18n } = useTranslation();
-  const {
-    itemKey,
-    name,
-    label,
-    text,
-    autoFocus,
-    handleSetValue,
-    readOnly,
-    errMsg,
-  } = props;
-
-  const [selectedDate, setSelectedDate] = useState(getInitialSelectedDate());
-  const mdate = useRef(getInitialMdate());
-
-  function getInitialSelectedDate() {
-    moment.locale(i18n.language);
-
-    if (
-      text !== undefined &&
-      text !== null &&
-      typeof text === "string" &&
-      text.trim() !== ""
-    ) {
-      let m = moment(text, "YYYY-MM-DDTHH:mm:ss.SSSZ");
-      if (m.isValid()) {
-        return m;
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  function getInitialMdate() {
-    moment.locale(i18n.language);
-
-    if (
-      text !== undefined &&
-      text !== null &&
-      typeof text === "string" &&
-      text.trim() !== ""
-    ) {
-      let m = moment(text, "YYYY-MM-DDTHH:mm:ss.SSSZ");
-      if (m.isValid()) {
-        return m;
-      } else {
-        return moment.invalid();
-      }
-    } else {
-      return moment.invalid();
-    }
-  }
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     moment.locale(i18n.language);
   }, [i18n.language]);
+  const initialDate = moment(value ?? '', 'YYYY-MM-DDTHH:mm:ss.SSSZ');
 
-  const handleOnChange = (date, value) => {
-    if (!readOnly) {
+  const [selectedDate, setSelectedDate] = useState(
+    initialDate.isValid() ? initialDate : null
+  );
+  const mdate = useRef(initialDate.isValid() ? initialDate : moment.invalid());
+
+  const handleOnChange = (date) => {
+    if (date._i !== undefined && date._i.includes('_')) {
+      return;
+    } else {
       setSelectedDate(date);
-
       if (date !== null) {
         mdate.current = date;
 
         if (mdate.current.isValid()) {
-          handleSetValue(
-            mdate.current.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-            1,
-            itemKey
-          );
+          if (props.onChange) {
+            props.onChange(
+              props.label,
+              mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+            );
+          }
         } else {
-          handleSetValue(null, -1, itemKey);
+          if (props.onChange) {
+            props.onChange(props.label, null);
+          }
         }
       } else {
         mdate.current = moment.invalid();
-        handleSetValue(null, 0, itemKey);
-      }
-    }
-  };
-
-  const handleOnBlur = (event) => {
-    if (!readOnly) {
-      if (mdate.current.isValid()) {
-        handleSetValue(
-          mdate.current.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-          1,
-          itemKey
-        );
-      }
-    }
-  };
-
-  const handleOnKeyDown = (event) => {
-    if (!readOnly) {
-      if (event.key === "Enter") {
-        if (mdate.current.isValid()) {
-          handleSetValue(
-            mdate.current.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-            1,
-            itemKey
-          );
+        if (props.onChange) {
+          props.onChange(props.label, null);
         }
       }
     }
   };
 
   return (
-    <Grid container justify="flex-start" alignItems="center" spacing={0}>
-      <Grid item>
-        <MuiPickersUtilsProvider
-          libInstance={moment}
-          utils={MomentUtils}
-          locale={i18n.language}
-        >
-          <FormControl className={classes.formControl}>
-            <KeyboardDateTimePicker
-              id={"DateTimeField-" + name}
-              className={classes.input}
-              label={label}
-              format={"YYYY-MM-DD HH:mm:ss.SSS"}
-              value={selectedDate}
-              margin={"normal"}
-              autoFocus={autoFocus === true ? true : false}
-              autoOk={readOnly ? true : false}
-              error={errMsg !== undefined && errMsg !== "" ? true : undefined}
-              helpertext={errMsg}
-              variant={readOnly ? "inline" : undefined}
-              inputVariant={readOnly ? "outlined" : "filled"}
-              invalidDateMessage={t(
-                "modelPanels.invalidDate",
-                "Invalid date format"
-              )}
-              InputAdornmentProps={{
-                id: "DateTimeField-input-inputAdornment-" + name,
-              }}
-              KeyboardButtonProps={{
-                id: "DateTimeField-input-inputAdornment-button-" + name,
-              }}
-              InputProps={{
-                className: classnames({
-                  [classes.ajvError]: errMsg !== undefined && errMsg !== "",
-                }),
-                readOnly: readOnly ? true : false,
-              }}
-              onChange={handleOnChange}
-              onBlur={handleOnBlur}
-              onKeyDown={handleOnKeyDown}
-            />
-          </FormControl>
-        </MuiPickersUtilsProvider>
-      </Grid>
-    </Grid>
+    <div className={classes.root}>
+      {Icon && <Icon className={classes.leftIcon} />}
+      <MuiPickersUtilsProvider
+        libInstance={moment}
+        utils={MomentUtils}
+        locale={i18n.language}
+      >
+        <KeyboardDateTimePicker
+          {...props}
+          format={'YYYY-MM-DD HH:mm:ss.SSS'}
+          value={selectedDate}
+          margin={'normal'}
+          variant={'dialog'}
+          inputVariant={'outlined'}
+          invalidDateMessage={helperText ?? 'Invalid date format'}
+          InputAdornmentProps={{
+            id: 'DateTimeField-input-inputAdornment-' + props.label,
+          }}
+          KeyboardButtonProps={{
+            id: 'DateTimeField-input-inputAdornment-button-' + props.label,
+          }}
+          onChange={handleOnChange}
+          clearable={true}
+        />
+      </MuiPickersUtilsProvider>
+    </div>
   );
 }

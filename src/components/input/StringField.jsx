@@ -46,6 +46,7 @@ export default function StringField({ icon: Icon, value, ...props }) {
       <TextField
         {...props}
         fullWidth
+        multiline
         margin="normal"
         variant="outlined"
         value={value ?? ''}
