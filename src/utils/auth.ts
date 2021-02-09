@@ -86,12 +86,14 @@ export function clearAuthToken(): void {
  * @param decodedToken decoded auth JWT from the remote or local storage
  */
 export function createUser(decodedToken: AuthToken): User {
-  const { id, roles, exp } = decodedToken;
+  const { email, exp, id, roles } = decodedToken;
   const expDate = new Date(exp * 1000);
+
   return {
+    email,
+    exp,
     id,
     roles,
-    exp,
     get isValid() {
       const isValid = new Date() < expDate;
       if (!isValid) clearAuthToken();

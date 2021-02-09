@@ -22,12 +22,14 @@ export interface AuthState extends AuthResponse {
 }
 
 export interface AuthToken {
+  email: string;
+  exp: number;
   id: string | number;
   roles: string[];
-  exp: number;
 }
 
 export interface User extends AuthToken {
+  email: string;
   isValid: boolean;
 }
 
