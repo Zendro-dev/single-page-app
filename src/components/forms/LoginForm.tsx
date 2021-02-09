@@ -3,7 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { Button, Typography } from '@material-ui/core';
 
-import EmailField from '../input/LoginField.tsx';
+import EmailField from '../input/LoginField';
 import PasswordField from '../input/PasswordField';
 
 import {

@@ -6,7 +6,7 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@material-ui/icons';
 
-import StringField, { StringFieldProps } from './LoginField.tsx';
+import StringField, { StringFieldProps } from './LoginField';
 
 interface State {
   showPassword: boolean;
