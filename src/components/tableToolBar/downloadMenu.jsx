@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
+import ButtonBase from '@material-ui/core/ButtonBase';
 
 import ClickableIcon from './clickableIcon.jsx';
 export default function DownloadMenu() {
@@ -15,6 +16,7 @@ export default function DownloadMenu() {
     setDownloadAnchorEl(null);
   };
 
+  const exportServerUrl = 'http://localhost:3000/export';
   return (
     <>
       <ClickableIcon tooltip="Download options" handleOnClick={handleClick}>
@@ -31,10 +33,10 @@ export default function DownloadMenu() {
         </MenuItem>
         <MenuItem onClick={handleClose}>Export data to CSV file</MenuItem>
         <MenuItem>
-          <form className={classes.formButton} action={exportServerUrl}>
+          <form action={exportServerUrl}>
             <input type="hidden" name="model" value="user" />
             <ButtonBase color="default" type="submit" onClick={handleClose}>
-              <span>Export data to CSV file 2</span>
+              Export data to CSV file 2
             </ButtonBase>
           </form>
         </MenuItem>
