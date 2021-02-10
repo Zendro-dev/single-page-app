@@ -30,6 +30,14 @@ export default function DownloadMenu() {
           Download table template to CSV file
         </MenuItem>
         <MenuItem onClick={handleClose}>Export data to CSV file</MenuItem>
+        <MenuItem>
+          <form className={classes.formButton} action={exportServerUrl}>
+            <input type="hidden" name="model" value="user" />
+            <ButtonBase color="default" type="submit" onClick={handleClose}>
+              <span>Export data to CSV file 2</span>
+            </ButtonBase>
+          </form>
+        </MenuItem>
       </Menu>
     </>
   );
