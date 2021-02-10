@@ -1,9 +1,11 @@
 import { Redirect, Route, RouteProps, useLocation } from 'react-router-dom';
-import { userIsAuthenticated } from '../utils/auth';
+import useAuth from '../hooks/useAuth';
 
 const PrivateRoute: React.FC<RouteProps> = ({ ...routeProps }) => {
   const location = useLocation();
-  return userIsAuthenticated() && location.pathname !== '/login' ? (
+  const { auth } = useAuth();
+
+  return auth.user?.isValid ? (
     <Route {...routeProps} />
   ) : (
     <Redirect

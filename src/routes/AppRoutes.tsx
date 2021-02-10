@@ -9,8 +9,8 @@ const AppSwitch: React.FC = () => {
   return (
     <Suspense fallback={<div />}>
       <Switch>
-        <PrivateRoute exact path="/" component={ModelRoutes} />
         <Route exact path="/login" component={Login} />
+        <PrivateRoute path="/" component={ModelRoutes} />
         <Route path="*" component={NotFoundPage} />
       </Switch>
     </Suspense>

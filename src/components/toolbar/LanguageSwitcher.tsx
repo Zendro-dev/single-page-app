@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { ReactElement } from 'react';
+import { useRef, useState } from 'react';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
   Tooltip,
@@ -9,21 +10,19 @@ import {
 } from '@material-ui/core';
 import Translate from '@material-ui/icons/TranslateRounded';
 
-const useStyles = makeStyles((theme) => ({
-  translationMenuItem: {
-    margin: theme.spacing(1),
-  },
-}));
+export default function LanguageSwitcher(): ReactElement {
+  const [translationAnchorEl, setTranslationAnchorEl] = useState<
+    EventTarget & HTMLButtonElement
+  >();
 
-export default function LanguageSwitcher() {
-  const [translationAnchorEl, setTranslationAnchorEl] = useState(null);
-
-  const handleTranslationIconClick = (event) => {
+  const handleTranslationIconClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     setTranslationAnchorEl(event.currentTarget);
   };
 
   const handleTranslationMenuClose = () => {
-    setTranslationAnchorEl(null);
+    setTranslationAnchorEl(undefined);
   };
 
   const translations = useRef([
@@ -67,3 +66,11 @@ export default function LanguageSwitcher() {
     </>
   );
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    translationMenuItem: {
+      margin: theme.spacing(1),
+    },
+  })
+);

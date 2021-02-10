@@ -9,25 +9,27 @@ const {
   REACT_APP_ZENDRO_MAX_DYNAMIC_IMPORT_RETRIES,
 } = process.env;
 
-const GRAPHQL_SERVER_URL =
+export const GRAPHQL_SERVER_URL =
   REACT_APP_ZENDRO_GRAPHQL_SERVER_URL ??
   REACT_APP_ZENDRO_API_URL?.concat('/graphql') ??
   'http://localhost:3000/graphql';
 
-const LOGIN_URL =
+export const LOGIN_URL =
   REACT_APP_ZENDRO_LOGIN_URL ??
   REACT_APP_ZENDRO_API_URL?.concat('/login') ??
   'http://localhost:3000/login';
 
-const EXPORT_URL =
+export const EXPORT_URL =
   REACT_APP_ZENDRO_EXPORT_URL ??
   REACT_APP_ZENDRO_API_URL?.concat('/export') ??
   'http://localhost:3000/export';
 
-const MAX_UPLOAD_SIZE = Number(REACT_APP_ZENDRO_MAX_UPLOAD_SIZE ?? 500); // size in MB
-const MAX_RECORD_LIMIT = Number(REACT_APP_ZENDRO_MAX_RECORD_LIMIT ?? 10000);
-const REQUEST_LOGGER = REACT_APP_ZENDRO_REQUEST_LOGGER ?? true; // TODO: review this statement
-const MAX_DYNAMIC_IMPORT_RETRIES = Number(
+export const MAX_UPLOAD_SIZE = Number(REACT_APP_ZENDRO_MAX_UPLOAD_SIZE ?? 500); // size in MB
+export const MAX_RECORD_LIMIT = Number(
+  REACT_APP_ZENDRO_MAX_RECORD_LIMIT ?? 10000
+);
+export const REQUEST_LOGGER = REACT_APP_ZENDRO_REQUEST_LOGGER ?? true; // TODO: review this statement
+export const MAX_DYNAMIC_IMPORT_RETRIES = Number(
   REACT_APP_ZENDRO_MAX_DYNAMIC_IMPORT_RETRIES ?? 10
 );
 
