@@ -17,7 +17,6 @@ export default function TableLayout() {
   return (
     <div className={classes.root}>
       <TableToolBar />
-      <EnhancedTable attributes={attributes} />
     </div>
   );
 }

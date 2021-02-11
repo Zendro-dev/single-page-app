@@ -44,6 +44,8 @@
     "classnames": "^2.2.6",
     "codemirror": "^5.58.1",
     "date-fns": "^2.15.0",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
     "i18next": "^19.6.3",
     "i18next-browser-languagedetector": "^6.0.1",
     "jwt-decode": "^3.1.2",
@@ -63,6 +65,7 @@
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "swr": "^0.4.2",
     "typeface-roboto": "1.1.13"
   },
   "devDependencies": {
