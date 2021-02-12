@@ -14,9 +14,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TableLayout() {
   const classes = useStyles();
+  const modelName = 'User';
   return (
     <div className={classes.root}>
-      <TableToolBar />
+      <TableToolBar modelName={modelName} />
     </div>
   );
 }

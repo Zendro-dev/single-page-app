@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import { request } from 'graphql-request';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 
 import ClickableIcon from './clickableIcon.jsx';
 
@@ -17,6 +17,17 @@ export default function DownloadMenu(props) {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [downloadTemplate, setDownloadTemplate] = useState(false);
 
+  const download = (data) => {
+    console.log('from download data', data);
+    setDownloadTemplate(false);
+  };
+
+  const { data, error } = useSWR(
+    downloadTemplate ? `{csvTableTemplate${props.modelName}}` : null,
+    fetcher,
+    { onSuccess: download }
+  );
+
   const handleClick = (event) => {
     setDownloadAnchorEl(event.currentTarget);
   };
@@ -27,23 +38,11 @@ export default function DownloadMenu(props) {
 
   const exportServerUrl = 'http://localhost:3000/export';
 
-  const { data, error } = useSWR(
-    downloadTemplate ? `{csvTableTemplateNo_assoc}` : null,
-    fetcher
-  );
-
   const handleDownloadTemplate = () => {
     setDownloadTemplate(true);
-    console.log('Downloading...', data);
-    if (data) {
-      console.log(data);
-      setDownloadTemplate(false);
-    }
-
-    if (error) {
-      throw error;
-    }
+    setDownloadAnchorEl(null);
   };
+
   return (
     <>
       <ClickableIcon tooltip="Download options" handleOnClick={handleClick}>

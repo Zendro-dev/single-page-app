@@ -13,6 +13,7 @@ export default function TableToolBar(props) {
     handleAddClicked,
     handleBulkImportClicked,
     handleDownloadsIconClick,
+    modelName,
   } = props;
 
   return (
@@ -39,7 +40,7 @@ export default function TableToolBar(props) {
             <Import color="primary" />
           </ClickableIcon>
 
-          <DownloadMenu></DownloadMenu>
+          <DownloadMenu modelName={modelName}></DownloadMenu>
         </Grid>
       </Grid>
     </Grid>
