@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
-      alignItems: 'start',
+      alignItems: 'center',
     },
     leftIcon: {
       width: '2rem',
@@ -15,10 +15,19 @@ const useStyles = makeStyles((theme) =>
       marginRight: '0.5rem',
       color: theme.palette.grey[700],
     },
+    rightIcon: {
+      marginLeft: '0rem',
+      color: theme.palette.grey[700],
+    },
   })
 );
 
-export default function FloatField({ icon: Icon, value, ...props }) {
+export default function FloatField({
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
+  value,
+  ...props
+}) {
   const classes = useStyles();
   const floatValue = useRef(value ?? null);
 
@@ -26,13 +35,13 @@ export default function FloatField({ icon: Icon, value, ...props }) {
     floatValue.current = parseFloat(event.target.value);
 
     if (!isNaN(floatValue.current) && props.onChange) {
-      props.onChange(props.label, floatValue.current);
+      props.onChange(floatValue.current);
     }
   };
 
   return (
     <div className={classes.root}>
-      {Icon && <Icon className={classes.leftIcon} />}
+      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
       <TextField
         {...props}
         value={value !== undefined && value !== null ? value.toString() : ''}
@@ -41,6 +50,7 @@ export default function FloatField({ icon: Icon, value, ...props }) {
         variant={'outlined'}
         onChange={handleOnChange}
       />
+      {RightIcon && <RightIcon className={classes.rightIcon} />}
     </div>
   );
 }

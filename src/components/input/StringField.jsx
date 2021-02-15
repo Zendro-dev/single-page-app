@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
-      alignItems: 'start',
+      alignItems: 'center',
     },
     leftIcon: {
       width: '2rem',
@@ -25,10 +25,19 @@ const useStyles = makeStyles((theme) =>
       marginRight: '0.5rem',
       color: theme.palette.grey[700],
     },
+    rightIcon: {
+      marginRight: '0.5rem',
+      color: theme.palette.grey[700],
+    },
   })
 );
 
-export default function StringField({ icon: Icon, value, ...props }) {
+export default function StringField({
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
+  value,
+  ...props
+}) {
   const computedValue = useRef(value);
 
   const classes = useStyles();
@@ -36,13 +45,13 @@ export default function StringField({ icon: Icon, value, ...props }) {
     computedValue.current = event.target.value;
 
     if (props.onChange) {
-      props.onChange(props.label, computedValue.current);
+      props.onChange(computedValue.current);
     }
   };
 
   return (
     <div className={classes.root}>
-      {Icon && <Icon className={classes.leftIcon} />}
+      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
       <TextField
         {...props}
         fullWidth
@@ -52,6 +61,7 @@ export default function StringField({ icon: Icon, value, ...props }) {
         value={value ?? ''}
         onChange={handleOnChange}
       />
+      {RightIcon && <RightIcon className={classes.rightIcon} />}
     </div>
   );
 }

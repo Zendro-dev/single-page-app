@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
-      alignItems: 'start',
+      alignItems: 'center',
     },
     leftIcon: {
       width: '2rem',
@@ -23,13 +23,19 @@ const useStyles = makeStyles((theme) =>
       marginRight: '0.5rem',
       color: theme.palette.grey[700],
     },
+    rightIcon: {
+      marginLeft: '0rem',
+      color: theme.palette.grey[700],
+    },
   })
 );
 export default function DateTimeField({
-  icon: Icon,
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
   value,
   error,
   helperText,
+  InputProps,
   ...props
 }) {
   const classes = useStyles();
@@ -55,20 +61,17 @@ export default function DateTimeField({
 
         if (mdate.current.isValid()) {
           if (props.onChange) {
-            props.onChange(
-              props.label,
-              mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-            );
+            props.onChange(mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
           }
         } else {
           if (props.onChange) {
-            props.onChange(props.label, null);
+            props.onChange(null);
           }
         }
       } else {
         mdate.current = moment.invalid();
         if (props.onChange) {
-          props.onChange(props.label, null);
+          props.onChange(null);
         }
       }
     }
@@ -76,7 +79,7 @@ export default function DateTimeField({
 
   return (
     <div className={classes.root}>
-      {Icon && <Icon className={classes.leftIcon} />}
+      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
       <MuiPickersUtilsProvider
         libInstance={moment}
         utils={MomentUtils}
@@ -98,8 +101,10 @@ export default function DateTimeField({
           }}
           onChange={handleOnChange}
           clearable={true}
+          disabled={InputProps.readOnly ? true : false}
         />
       </MuiPickersUtilsProvider>
+      {RightIcon && <RightIcon className={classes.rightIcon} />}
     </div>
   );
 }

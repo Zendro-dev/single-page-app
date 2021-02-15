@@ -6,14 +6,19 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: '5rem',
     },
     leftIcon: {
       width: '2rem',
       height: '2rem',
       marginTop: '1.75rem',
       marginRight: '0.5rem',
+      color: theme.palette.grey[700],
+    },
+    rightIcon: {
+      marginLeft: '0rem',
       color: theme.palette.grey[700],
     },
     checkbox: {
@@ -31,7 +36,15 @@ const useStyles = makeStyles((theme) =>
       color: 'red',
     },
     errMsg: {
-      marginLeft: '0.8rem',
+      marginTop: '4.5rem',
+      marginLeft: '-3rem',
+      color: 'red',
+      fontSize: 13,
+      fontFamily: 'sans-serif',
+    },
+    errMsgReadOnly: {
+      marginTop: '4.5rem',
+      marginLeft: '-9rem',
       color: 'red',
       fontSize: 13,
       fontFamily: 'sans-serif',
@@ -40,10 +53,12 @@ const useStyles = makeStyles((theme) =>
 );
 
 export default function BoolField({
-  icon: Icon,
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
   value,
   error,
   helperText,
+  InputProps,
   ...props
 }) {
   const classes = useStyles();
@@ -57,26 +72,26 @@ export default function BoolField({
     if (event.target.checked && !indeterminate) {
       setChecked(true);
       if (props.onChange) {
-        props.onChange(props.label, true);
+        props.onChange(true);
       }
     } else if (!event.target.checked && !indeterminate) {
       setChecked(false);
       setIndeterminate(true);
       if (props.onChange) {
-        props.onChange(props.label, null);
+        props.onChange(null);
       }
     } else if (event.target.checked && indeterminate) {
       setChecked(false);
       setIndeterminate(false);
       if (props.onChange) {
-        props.onChange(props.label, false);
+        props.onChange(false);
       }
     }
   };
 
   return (
     <div className={classes.root}>
-      {Icon && <Icon className={classes.leftIcon} />}
+      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
       <FormControlLabel
         className={
           error ? classes.formControlLabelError : classes.formControlLabel
@@ -89,12 +104,22 @@ export default function BoolField({
             checked={checked}
             indeterminate={indeterminate}
             onChange={handleOnChange}
+            disabled={InputProps.readOnly ? true : false}
           />
         }
         label={props.label}
         labelPlacement="top"
       />
-      {error && <div className={classes.errMsg}>{helperText}</div>}
+      {RightIcon && <RightIcon className={classes.rightIcon} />}
+      {error && (
+        <div
+          className={
+            InputProps.readOnly ? classes.errMsgReadOnly : classes.errMsg
+          }
+        >
+          {helperText}
+        </div>
+      )}
     </div>
   );
 }

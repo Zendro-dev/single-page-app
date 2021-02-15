@@ -7,30 +7,18 @@ import IntegerField from '../input/IntField';
 import FloatField from '../input/FloatField';
 import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardHeader from '@material-ui/core/CardHeader';
 import Key from '@material-ui/icons/VpnKey';
-import Attributes from '@material-ui/icons/HdrWeakTwoTone';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-const useStyles = makeStyles((theme) => ({
-  root: {
-    margin: '0rem',
+const useStyles = makeStyles(() => ({
+  header: {
+    marginTop: '1rem',
+    marginLeft: '2rem',
   },
-  card: {
-    margin: '0rem',
-    maxHeight: '70vh',
-    overflow: 'auto',
-  },
-  cardB: {
-    margin: '0rem',
-    padding: '0rem',
-  },
-  cardContent: {
+  field: {
     marginLeft: '5rem',
     marginRight: '5rem',
-    minWidth: 200,
+    minWidth: '10rem',
+    maxWidth: '40rem',
   },
 }));
 
@@ -42,141 +30,96 @@ const field = {
   Float: FloatField,
 };
 
-export default function AttributeForm({ attributes, setAttributes, ...props }) {
+export default function AttributeForm({ records, setRecords, ...props }) {
   const classes = useStyles();
   const { t } = useTranslation();
-  const handleSetValue = (attrName, value) => {
-    setAttributes({ ...attributes, [attrName]: value });
-  };
-  const handleClearButton = (attrName) => {
-    if (!props.readOnly) {
-      setAttributes({ ...attributes, [attrName]: null });
-    }
-  };
-
   const completedAttr = () => {
     let number = 0;
-    for (let attrName of Object.keys(attributes)) {
-      if (attributes[attrName] !== null && attributes[attrName] !== undefined) {
+    for (let attrName of Object.keys(records)) {
+      if (records[attrName] !== null && records[attrName] !== undefined) {
         number += 1;
       }
     }
     return number;
   };
 
-  const idAttrName = Object.keys(props.dataModel).filter(
-    (attrName) => props.dataModel[attrName].isId
-  );
+  const handleSetValue = (attrName) => (value) => {
+    setRecords({ ...records, [attrName]: value });
+  };
+  const handleClearButton = (attrName) => {
+    if (!props.readOnly[attrName]) {
+      setRecords({ ...records, [attrName]: null });
+    }
+  };
 
-  console.log('render:');
-  console.log(attributes);
-  return (
-    <form id="AttributesForm-div-root" className={classes.root}>
-      <Card className={classes.cardB} elevation={0}>
-        {/* Header */}
-        <CardHeader
-          avatar={<Attributes color="primary" fontSize="small" />}
-          title={
-            <Typography variant="h6">
-              {t('modelPanels.model') + ': ' + props.modelName}
-            </Typography>
-          }
-          subheader={
-            completedAttr() +
-            ' / ' +
-            Object.keys(attributes).length +
-            ' ' +
-            t('modelPanels.completed')
-          }
-        ></CardHeader>
-      </Card>
-      <Card className={classes.card}>
-        <CardContent key={idAttrName} className={classes.cardContent}>
-          <Grid
-            container
-            alignItems="center"
-            alignContent="center"
-            wrap="nowrap"
-            spacing={1}
+  const clearButton = (attrName) => {
+    return (
+      <InputAdornment position="end">
+        <Tooltip title="Reset">
+          <IconButton
+            onClick={() => {
+              handleClearButton(attrName);
+            }}
+            onMouseDown={(event) => event.preventDefault()}
           >
-            {props.readOnly || props.lockId ? (
-              <Grid item>
-                <Typography variant="h6" display="inline">
-                  idField:
-                </Typography>
-                <Typography variant="h6" display="inline" color="textSecondary">
-                  &nbsp;{attributes[idAttrName]}
-                </Typography>
-              </Grid>
-            ) : (
-              <Grid item>
-                <StringField
-                  label={idAttrName}
-                  value={attributes[idAttrName]}
-                  onChange={handleSetValue}
-                  error={props.errMsg[idAttrName] ? true : false}
-                  helperText={props.errMsg[idAttrName]}
-                />
-              </Grid>
-            )}
-            {/*Key icon*/}
-            <Grid item>
-              <Tooltip title={t('modelPanels.internalId', 'Unique Identifier')}>
-                <Key
-                  fontSize="small"
-                  color="disabled"
-                  style={{ marginTop: 8 }}
-                />
-              </Tooltip>
-            </Grid>
-          </Grid>
-        </CardContent>
+            <ClearIcon />
+          </IconButton>
+        </Tooltip>
+      </InputAdornment>
+    );
+  };
 
-        {Object.keys(props.dataModel).flatMap((attrName) => {
-          const attrType = props.dataModel[attrName].type;
-          const InputField = field[attrType];
-          let otherProp = {};
-          const clearButton = (
-            <InputAdornment position="end">
-              <Tooltip title="Reset">
-                <IconButton
-                  onClick={() => {
-                    handleClearButton(attrName);
-                  }}
-                  onMouseDown={(event) => event.preventDefault()}
-                >
-                  <ClearIcon />
-                </IconButton>
-              </Tooltip>
-            </InputAdornment>
-          );
+  const keyIcon = () => {
+    return (
+      <Tooltip title={t('modelPanels.internalId', 'Unique Identifier')}>
+        <Key
+          fontSize="small"
+          color="disabled"
+          style={{
+            marginRight: '5rem',
+            marginLeft: '0rem',
+          }}
+        />
+      </Tooltip>
+    );
+  };
 
-          if (['Integer', 'Float', 'String'].includes(attrType)) {
-            otherProp.InputProps = {
-              readOnly: props.readOnly ? true : false,
-              endAdornment: clearButton,
-            };
-          } else if (['Boolean', 'DateTime'].includes(attrType)) {
-            otherProp.disabled = props.readOnly ? true : false;
-          }
-          return props.dataModel[attrName].foreignKey ||
-            props.dataModel[attrName].isId
-            ? []
-            : [
-                <CardContent key={attrName} className={classes.cardContent}>
-                  <InputField
-                    {...otherProp}
-                    id={attrName + '-' + attrType + 'Field'}
-                    label={attrName}
-                    value={attributes[attrName]}
-                    onChange={handleSetValue}
-                    error={props.errMsg[attrName] ? true : false}
-                    helperText={props.errMsg[attrName]}
-                  />
-                </CardContent>,
-              ];
-        })}
-      </Card>
+  return (
+    <form id="AttributesForm-div-root">
+      <legend className={classes.header}>
+        <Typography variant="h6" component="h1">
+          {' '}
+          {t('modelPanels.model') + ': ' + props.modelName}
+        </Typography>
+        <Typography variant="subtitle1">
+          {completedAttr() +
+            ' / ' +
+            Object.keys(records).length +
+            ' ' +
+            t('modelPanels.completed')}
+        </Typography>
+      </legend>
+      ,
+      {Object.keys(props.dataModel).map((attrName) => {
+        const attrType = props.dataModel[attrName];
+        const InputField = field[attrType];
+        return (
+          <InputField
+            className={classes.field}
+            key={attrName + '-' + attrType + 'Field'}
+            label={attrName}
+            value={records[attrName]}
+            onChange={handleSetValue(attrName)}
+            error={props.errMsg[attrName] ? true : false}
+            helperText={props.errMsg[attrName]}
+            InputProps={{
+              readOnly: props.readOnly[attrName] ? true : false,
+              endAdornment: clearButton(attrName),
+            }}
+            rightIcon={props.readOnly[attrName] ? keyIcon : undefined}
+          />
+        );
+      })}
     </form>
   );
 }
