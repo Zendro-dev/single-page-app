@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useTranslation } from 'react-i18next';
 import StringField from '../input/StringField';
@@ -30,43 +31,46 @@ const field = {
   Float: FloatField,
 };
 
-export default function AttributeForm({ records, setRecords, ...props }) {
+const clearButton = (attrName, handleClearButton) => {
+  return (
+    <InputAdornment position="end">
+      <Tooltip title="Reset">
+        <IconButton
+          onClick={handleClearButton(attrName)}
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <ClearIcon />
+        </IconButton>
+      </Tooltip>
+    </InputAdornment>
+  );
+};
+
+export default function AttributeForm({ attributes, onChange, ...props }) {
   const classes = useStyles();
   const { t } = useTranslation();
-  const completedAttr = () => {
+
+  const completedAttr = useMemo(() => {
     let number = 0;
-    for (let attrName of Object.keys(records)) {
-      if (records[attrName] !== null && records[attrName] !== undefined) {
+    for (let attrName of Object.keys(attributes)) {
+      if (
+        attributes[attrName].value !== null &&
+        attributes[attrName].value !== undefined
+      ) {
         number += 1;
       }
     }
-    return number;
-  };
+    return number + ' / ' + Object.keys(attributes).length;
+  }, [attributes]);
 
   const handleSetValue = (attrName) => (value) => {
-    setRecords({ ...records, [attrName]: value });
-  };
-  const handleClearButton = (attrName) => {
-    if (!props.readOnly[attrName]) {
-      setRecords({ ...records, [attrName]: null });
-    }
+    onChange(attrName, value);
   };
 
-  const clearButton = (attrName) => {
-    return (
-      <InputAdornment position="end">
-        <Tooltip title="Reset">
-          <IconButton
-            onClick={() => {
-              handleClearButton(attrName);
-            }}
-            onMouseDown={(event) => event.preventDefault()}
-          >
-            <ClearIcon />
-          </IconButton>
-        </Tooltip>
-      </InputAdornment>
-    );
+  const handleClearButton = (attrName) => () => {
+    if (!attributes[attrName].readOnly) {
+      onChange(attrName, null);
+    }
   };
 
   const keyIcon = () => {
@@ -92,31 +96,26 @@ export default function AttributeForm({ records, setRecords, ...props }) {
           {t('modelPanels.model') + ': ' + props.modelName}
         </Typography>
         <Typography variant="subtitle1">
-          {completedAttr() +
-            ' / ' +
-            Object.keys(records).length +
-            ' ' +
-            t('modelPanels.completed')}
+          {completedAttr + ' ' + t('modelPanels.completed')}
         </Typography>
       </legend>
-      ,
-      {Object.keys(props.dataModel).map((attrName) => {
-        const attrType = props.dataModel[attrName];
+      {Object.keys(attributes).map((attrName) => {
+        const attrType = attributes[attrName].type;
         const InputField = field[attrType];
         return (
           <InputField
             className={classes.field}
             key={attrName + '-' + attrType + 'Field'}
             label={attrName}
-            value={records[attrName]}
+            value={attributes[attrName].value}
             onChange={handleSetValue(attrName)}
-            error={props.errMsg[attrName] ? true : false}
-            helperText={props.errMsg[attrName]}
+            error={attributes[attrName].errMsg ? true : false}
+            helperText={attributes[attrName].errMsg}
             InputProps={{
-              readOnly: props.readOnly[attrName] ? true : false,
-              endAdornment: clearButton(attrName),
+              readOnly: attributes[attrName].readOnly ? true : false,
+              endAdornment: clearButton(attrName, handleClearButton),
             }}
-            rightIcon={props.readOnly[attrName] ? keyIcon : undefined}
+            rightIcon={attributes[attrName].readOnly ? keyIcon : undefined}
           />
         );
       })}
