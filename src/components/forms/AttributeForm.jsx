@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useTranslation } from 'react-i18next';
 import StringField from '../input/StringField';
@@ -6,10 +6,19 @@ import BoolField from '../input/BoolField';
 import DateTimeField from '../input/DateTimeField';
 import IntegerField from '../input/IntField';
 import FloatField from '../input/FloatField';
-import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
-import { Clear as ClearIcon } from '@material-ui/icons';
-import Key from '@material-ui/icons/VpnKey';
-import Typography from '@material-ui/core/Typography';
+import {
+  IconButton,
+  InputAdornment,
+  Tooltip,
+  Button,
+  Typography,
+} from '@material-ui/core';
+import {
+  Clear as ClearIcon,
+  Save as SaveIcon,
+  VpnKey as Key,
+} from '@material-ui/icons';
+
 const useStyles = makeStyles(() => ({
   header: {
     marginTop: '1rem',
@@ -20,6 +29,9 @@ const useStyles = makeStyles(() => ({
     marginRight: '5rem',
     minWidth: '10rem',
     maxWidth: '40rem',
+  },
+  saveButton: {
+    marginLeft: '22rem',
   },
 }));
 
@@ -46,30 +58,33 @@ const clearButton = (attrName, handleClearButton) => {
   );
 };
 
-export default function AttributeForm({ attributes, onChange, ...props }) {
+export default function AttributeForm({ attributes, onSubmit, ...props }) {
   const classes = useStyles();
   const { t } = useTranslation();
+  let record = {};
+  for (let attrName of Object.keys(attributes)) {
+    record[attrName] = attributes[attrName].value;
+  }
+
+  const [records, setRecords] = useState(record);
 
   const completedAttr = useMemo(() => {
     let number = 0;
-    for (let attrName of Object.keys(attributes)) {
-      if (
-        attributes[attrName].value !== null &&
-        attributes[attrName].value !== undefined
-      ) {
+    for (let attrName of Object.keys(records)) {
+      if (records[attrName] !== null && records[attrName] !== undefined) {
         number += 1;
       }
     }
-    return number + ' / ' + Object.keys(attributes).length;
-  }, [attributes]);
+    return number + ' / ' + Object.keys(records).length;
+  }, [records]);
 
   const handleSetValue = (attrName) => (value) => {
-    onChange(attrName, value);
+    setRecords({ ...records, [attrName]: value });
   };
 
   const handleClearButton = (attrName) => () => {
     if (!attributes[attrName].readOnly) {
-      onChange(attrName, null);
+      setRecords({ ...records, [attrName]: null });
     }
   };
 
@@ -99,6 +114,16 @@ export default function AttributeForm({ attributes, onChange, ...props }) {
           {completedAttr + ' ' + t('modelPanels.completed')}
         </Typography>
       </legend>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        className={classes.saveButton}
+        startIcon={<SaveIcon />}
+        onClick={onSubmit(records)}
+      >
+        Save
+      </Button>
       {Object.keys(attributes).map((attrName) => {
         const attrType = attributes[attrName].type;
         const InputField = field[attrType];
@@ -107,7 +132,7 @@ export default function AttributeForm({ attributes, onChange, ...props }) {
             className={classes.field}
             key={attrName + '-' + attrType + 'Field'}
             label={attrName}
-            value={attributes[attrName].value}
+            value={records[attrName]}
             onChange={handleSetValue(attrName)}
             error={attributes[attrName].errMsg ? true : false}
             helperText={attributes[attrName].errMsg}
