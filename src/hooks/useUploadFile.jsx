@@ -1,35 +1,12 @@
-import axios from 'axios';
-import useSWR from 'swr';
+// import axios from 'axios';
+// import useSWR from 'swr';
 
-const graphqlServerUrl = '';
+// export default function useUploadFile({ model_name, token, file }) {
+//   let query = `mutation {bulkAdd${model_name} }`;
 
-const fetcher = (query, token, file) => {
-  let formData = new FormData();
-  formData.append('csv_file', file);
-  formData.append('query', query);
+//   const { data, error } = useSWR([query, token, file], fetcher);
 
-  let headers = {
-    'Content-Type': 'multipart/form-data',
-    Accept: 'application/graphql',
-    Authorization: 'Bearer ' + token,
-  };
+//   //we might add loading handling
 
-  //return axios.post(graphqlServerUrl, formData, { headers: headers});
-
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      resolve({ data: 'Query result' });
-    }, 3000)
-  );
-  //return  {data:"SOMETHING"}
-};
-
-export default function useUploadFile({ model_name, token, file }) {
-  let query = `mutation {bulkAdd${model_name} }`;
-
-  const { data, error } = useSWR([query, token, file], fetcher);
-
-  //we might add loading handling
-
-  return { data, error };
-}
+//   return { data, error };
+// }
