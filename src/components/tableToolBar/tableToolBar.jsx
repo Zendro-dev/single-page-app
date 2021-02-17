@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Reload from '@material-ui/icons/Replay';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
-
 import ClickableIcon from './clickableIcon.jsx';
 import SearchField from './searchField.jsx';
 import DownloadMenu from './downloadMenu.jsx';
-
+import UploadDialog from './uploadDialog.jsx';
 export default function TableToolBar(props) {
   const {
     onReloadClick,
@@ -15,6 +15,16 @@ export default function TableToolBar(props) {
     handleDownloadsIconClick,
     modelName,
   } = props;
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleImportClicked = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDone = () => {
+    setDialogOpen(false);
+  };
 
   return (
     <Grid container>
@@ -35,10 +45,12 @@ export default function TableToolBar(props) {
 
           <ClickableIcon
             tooltip="Import from csv"
-            handleOnClick={handleBulkImportClicked}
+            handleOnClick={handleImportClicked}
           >
             <Import color="primary" />
           </ClickableIcon>
+
+          {dialogOpen && <UploadDialog handleDone={handleDone} />}
 
           <DownloadMenu modelName={modelName}></DownloadMenu>
         </Grid>
