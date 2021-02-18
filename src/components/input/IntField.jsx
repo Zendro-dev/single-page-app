@@ -1,46 +1,29 @@
-import React, { useRef } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
+import InputContainer from './InputContainer';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      alignItems: 'start',
-    },
-    leftIcon: {
-      width: '2rem',
-      height: '2rem',
-      marginTop: '1.75rem',
-      marginRight: '0.5rem',
-      color: theme.palette.grey[700],
-    },
-  })
-);
-
-export default function IntField({ icon: Icon, value, ...props }) {
-  const classes = useStyles();
-  const intValue = useRef(value ?? null);
-
+export default function IntField({ leftIcon, rightIcon, value, ...props }) {
   const handleOnChange = (event) => {
-    intValue.current = Math.round(parseFloat(event.target.value));
+    const intValue =
+      event.target.value === ''
+        ? null
+        : Math.round(parseFloat(event.target.value));
 
-    if (!isNaN(intValue.current) && props.onChange) {
-      props.onChange(props.label, intValue.current);
+    if (!isNaN(intValue) && props.onChange) {
+      props.onChange(intValue);
     }
   };
 
   return (
-    <div className={classes.root}>
-      {Icon && <Icon className={classes.leftIcon} />}
+    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
         {...props}
-        value={value !== undefined && value !== null ? value.toString() : ''}
+        fullWidth
+        value={value ?? ''}
         type="number"
         margin="normal"
-        variant={'outlined'}
+        variant="outlined"
         onChange={handleOnChange}
       />
-    </div>
+    </InputContainer>
   );
 }
