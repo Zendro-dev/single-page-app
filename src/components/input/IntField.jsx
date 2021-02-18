@@ -21,7 +21,7 @@ export default function IntField({ leftIcon, rightIcon, value, ...props }) {
         value={value ?? ''}
         type="number"
         margin="normal"
-        variant={'outlined'}
+        variant="outlined"
         onChange={handleOnChange}
       />
     </InputContainer>

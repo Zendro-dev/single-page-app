@@ -61,11 +61,11 @@ export default function DateTimeField({
         <KeyboardDateTimePicker
           {...props}
           fullWidth
-          format={'YYYY-MM-DD HH:mm:ss.SSS'}
+          format="YYYY-MM-DD HH:mm:ss.SSS"
           value={selectedDate}
-          margin={'normal'}
-          variant={'dialog'}
-          inputVariant={'outlined'}
+          margin="normal"
+          variant="dialog"
+          inputVariant="outlined"
           invalidDateMessage={helperText ?? 'Invalid date format'}
           onChange={handleOnChange}
           clearable={true}
