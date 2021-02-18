@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useRef } from 'react';
 import moment from 'moment';
 import MomentUtils from '@date-io/moment';
 import {
@@ -19,11 +18,6 @@ export default function DateTimeField({
   InputProps,
   ...props
 }) {
-  const { i18n } = useTranslation();
-
-  useEffect(() => {
-    moment.locale(i18n.language);
-  }, [i18n.language]);
   const initialDate = moment(value ?? '', 'YYYY-MM-DDTHH:mm:ss.SSSZ');
 
   const [selectedDate, setSelectedDate] = useState(
@@ -62,7 +56,7 @@ export default function DateTimeField({
       <MuiPickersUtilsProvider
         libInstance={moment}
         utils={MomentUtils}
-        locale={i18n.language}
+        locale="en"
       >
         <KeyboardDateTimePicker
           {...props}
