@@ -63,7 +63,11 @@ export default function BoolField({
           }
           label={props.label}
         />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+        {helperText && (
+          <FormHelperText className={classes.helperText}>
+            {helperText}
+          </FormHelperText>
+        )}
       </FormControl>
     </InputContainer>
   );
@@ -73,6 +77,9 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     error: {
       color: 'red',
+    },
+    helperText: {
+      marginLeft: theme.spacing(4),
     },
   })
 );
