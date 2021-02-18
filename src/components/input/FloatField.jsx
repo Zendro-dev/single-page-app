@@ -19,9 +19,9 @@ export default function FloatField({ leftIcon, rightIcon, value, ...props }) {
         {...props}
         fullWidth
         value={value !== undefined && value !== null ? value.toString() : ''}
-        type={'number'}
-        margin={'normal'}
-        variant={'outlined'}
+        type="number"
+        margin="normal"
+        variant="outlined"
         onChange={handleOnChange}
       />
     </InputContainer>
