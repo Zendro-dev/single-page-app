@@ -1,15 +1,15 @@
-import { useRef } from 'react';
 import { TextField } from '@material-ui/core';
 import InputContainer from './InputContainer';
 
 export default function IntField({ leftIcon, rightIcon, value, ...props }) {
-  const intValue = useRef(value ?? null);
-
   const handleOnChange = (event) => {
-    intValue.current = Math.round(parseFloat(event.target.value));
+    const intValue =
+      event.target.value === ''
+        ? null
+        : Math.round(parseFloat(event.target.value));
 
-    if (!isNaN(intValue.current) && props.onChange) {
-      props.onChange(intValue.current);
+    if (!isNaN(intValue) && props.onChange) {
+      props.onChange(intValue);
     }
   };
 
@@ -18,7 +18,7 @@ export default function IntField({ leftIcon, rightIcon, value, ...props }) {
       <TextField
         {...props}
         fullWidth
-        value={value !== undefined && value !== null ? value.toString() : ''}
+        value={value ?? ''}
         type="number"
         margin="normal"
         variant={'outlined'}

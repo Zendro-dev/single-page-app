@@ -3,7 +3,8 @@ import InputContainer from './InputContainer';
 
 export default function FloatField({ leftIcon, rightIcon, value, ...props }) {
   const handleOnChange = (event) => {
-    const floatValue = parseFloat(event.target.value);
+    const floatValue =
+      event.target.value === '' ? null : parseFloat(event.target.value);
 
     if (!isNaN(floatValue) && props.onChange) {
       props.onChange(floatValue);
