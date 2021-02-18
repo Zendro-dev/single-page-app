@@ -67,12 +67,6 @@ export default function DateTimeField({
           variant={'dialog'}
           inputVariant={'outlined'}
           invalidDateMessage={helperText ?? 'Invalid date format'}
-          InputAdornmentProps={{
-            id: 'DateTimeField-input-inputAdornment-' + props.label,
-          }}
-          KeyboardButtonProps={{
-            id: 'DateTimeField-input-inputAdornment-button-' + props.label,
-          }}
           onChange={handleOnChange}
           clearable={true}
           disabled={InputProps.readOnly ? true : false}
