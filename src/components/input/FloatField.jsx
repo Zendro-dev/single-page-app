@@ -1,15 +1,12 @@
-import { useRef } from 'react';
 import { TextField } from '@material-ui/core';
 import InputContainer from './InputContainer';
 
 export default function FloatField({ leftIcon, rightIcon, value, ...props }) {
-  const floatValue = useRef(value ?? null);
-
   const handleOnChange = (event) => {
-    floatValue.current = parseFloat(event.target.value);
+    const floatValue = parseFloat(event.target.value);
 
-    if (!isNaN(floatValue.current) && props.onChange) {
-      props.onChange(floatValue.current);
+    if (!isNaN(floatValue) && props.onChange) {
+      props.onChange(floatValue);
     }
   };
 
@@ -18,7 +15,7 @@ export default function FloatField({ leftIcon, rightIcon, value, ...props }) {
       <TextField
         {...props}
         fullWidth
-        value={value !== undefined && value !== null ? value.toString() : ''}
+        value={value ?? ''}
         type="number"
         margin="normal"
         variant="outlined"
