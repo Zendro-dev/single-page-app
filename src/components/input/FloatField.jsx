@@ -1,34 +1,8 @@
-import React, { useRef } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { useRef } from 'react';
 import { TextField } from '@material-ui/core';
+import InputContainer from './InputContainer';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    leftIcon: {
-      width: '2rem',
-      height: '2rem',
-      marginTop: '1.75rem',
-      marginRight: '0.5rem',
-      color: theme.palette.grey[700],
-    },
-    rightIcon: {
-      marginLeft: '0rem',
-      color: theme.palette.grey[700],
-    },
-  })
-);
-
-export default function FloatField({
-  leftIcon: LeftIcon,
-  rightIcon: RightIcon,
-  value,
-  ...props
-}) {
-  const classes = useStyles();
+export default function FloatField({ leftIcon, rightIcon, value, ...props }) {
   const floatValue = useRef(value ?? null);
 
   const handleOnChange = (event) => {
@@ -40,17 +14,16 @@ export default function FloatField({
   };
 
   return (
-    <div className={classes.root}>
-      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
+    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
         {...props}
+        fullWidth
         value={value !== undefined && value !== null ? value.toString() : ''}
         type={'number'}
         margin={'normal'}
         variant={'outlined'}
         onChange={handleOnChange}
       />
-      {RightIcon && <RightIcon className={classes.rightIcon} />}
-    </div>
+    </InputContainer>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 import MomentUtils from '@date-io/moment';
@@ -6,39 +6,19 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
 } from '@material-ui/pickers';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import 'moment/locale/es.js';
 import 'moment/locale/de.js';
+import InputContainer from './InputContainer';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    leftIcon: {
-      width: '2rem',
-      height: '2rem',
-      marginTop: '1.75rem',
-      marginRight: '0.5rem',
-      color: theme.palette.grey[700],
-    },
-    rightIcon: {
-      marginLeft: '0rem',
-      color: theme.palette.grey[700],
-    },
-  })
-);
 export default function DateTimeField({
-  leftIcon: LeftIcon,
-  rightIcon: RightIcon,
+  leftIcon,
+  rightIcon,
   value,
   error,
   helperText,
   InputProps,
   ...props
 }) {
-  const classes = useStyles();
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -78,8 +58,7 @@ export default function DateTimeField({
   };
 
   return (
-    <div className={classes.root}>
-      {LeftIcon && <LeftIcon className={classes.leftIcon} />}
+    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <MuiPickersUtilsProvider
         libInstance={moment}
         utils={MomentUtils}
@@ -87,6 +66,7 @@ export default function DateTimeField({
       >
         <KeyboardDateTimePicker
           {...props}
+          fullWidth
           format={'YYYY-MM-DD HH:mm:ss.SSS'}
           value={selectedDate}
           margin={'normal'}
@@ -104,7 +84,6 @@ export default function DateTimeField({
           disabled={InputProps.readOnly ? true : false}
         />
       </MuiPickersUtilsProvider>
-      {RightIcon && <RightIcon className={classes.rightIcon} />}
-    </div>
+    </InputContainer>
   );
 }
