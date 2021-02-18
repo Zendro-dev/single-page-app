@@ -31,7 +31,6 @@ const field = {
 const ClearButton = ({ onClick, ...buttonProps }) => {
   const handleOnClick = (event) => {
     event.preventDefault();
-    console.log('clear');
     onClick();
   };
 
