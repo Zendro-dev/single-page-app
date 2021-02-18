@@ -1,16 +1,12 @@
 import { useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useTranslation } from 'react-i18next';
 import StringField from '../input/StringField';
-import BoolField from '../input/BoolField';
-import DateTimeField from '../input/DateTimeField';
-import IntegerField from '../input/IntField';
-import FloatField from '../input/FloatField';
 import {
+  Box,
+  Button,
   IconButton,
   InputAdornment,
   Tooltip,
-  Button,
   Typography,
 } from '@material-ui/core';
 import {
@@ -19,21 +15,10 @@ import {
   VpnKey as Key,
 } from '@material-ui/icons';
 
-const useStyles = makeStyles(() => ({
-  header: {
-    marginTop: '1rem',
-    marginLeft: '2rem',
-  },
-  field: {
-    marginLeft: '5rem',
-    marginRight: '5rem',
-    minWidth: '10rem',
-    maxWidth: '40rem',
-  },
-  saveButton: {
-    marginLeft: '22rem',
-  },
-}));
+import BoolField from '../input/BoolField';
+import DateTimeField from '../input/DateTimeField';
+import IntegerField from '../input/IntField';
+import FloatField from '../input/FloatField';
 
 const field = {
   String: StringField,
@@ -43,14 +28,17 @@ const field = {
   Float: FloatField,
 };
 
-const clearButton = (attrName, handleClearButton) => {
+const ClearButton = ({ onClick, ...buttonProps }) => {
+  const handleOnClick = (event) => {
+    event.preventDefault();
+    console.log('clear');
+    onClick();
+  };
+
   return (
     <InputAdornment position="end">
       <Tooltip title="Reset">
-        <IconButton
-          onClick={handleClearButton(attrName)}
-          onMouseDown={(event) => event.preventDefault()}
-        >
+        <IconButton {...buttonProps} onClick={handleOnClick}>
           <ClearIcon />
         </IconButton>
       </Tooltip>
@@ -58,9 +46,21 @@ const clearButton = (attrName, handleClearButton) => {
   );
 };
 
-export default function AttributeForm({ attributes, onSubmit, ...props }) {
+const KeyIcon = (props) => {
+  return (
+    <Tooltip title="This field cannot be edited">
+      <Key {...props} fontSize="small" color="disabled" />
+    </Tooltip>
+  );
+};
+
+export default function AttributeForm({
+  attributes,
+  onSubmit,
+  modelName,
+  ...formProps
+}) {
   const classes = useStyles();
-  const { t } = useTranslation();
   let record = {};
   for (let attrName of Object.keys(attributes)) {
     record[attrName] = attributes[attrName].value;
@@ -75,7 +75,7 @@ export default function AttributeForm({ attributes, onSubmit, ...props }) {
         number += 1;
       }
     }
-    return number + ' / ' + Object.keys(records).length;
+    return number + ' / ' + Object.keys(records).length + ' completed';
   }, [records]);
 
   const handleSetValue = (attrName) => (value) => {
@@ -88,62 +88,63 @@ export default function AttributeForm({ attributes, onSubmit, ...props }) {
     }
   };
 
-  const keyIcon = () => {
-    return (
-      <Tooltip title={t('modelPanels.internalId', 'Unique Identifier')}>
-        <Key
-          fontSize="small"
-          color="disabled"
-          style={{
-            marginRight: '5rem',
-            marginLeft: '0rem',
-          }}
-        />
-      </Tooltip>
-    );
+  const handleOnSubmit = (event) => {
+    event.preventDefault();
+    onSubmit(records);
   };
 
   return (
-    <form id="AttributesForm-div-root">
-      <legend className={classes.header}>
+    <form {...formProps} onSubmit={handleOnSubmit}>
+      <legend className={classes.legend}>
         <Typography variant="h6" component="h1">
-          {' '}
-          {t('modelPanels.model') + ': ' + props.modelName}
+          Model: {modelName}
         </Typography>
-        <Typography variant="subtitle1">
-          {completedAttr + ' ' + t('modelPanels.completed')}
+        <Typography variant="subtitle1" color="textSecondary">
+          {completedAttr}
         </Typography>
       </legend>
-      <Button
-        variant="contained"
-        color="primary"
-        size="large"
-        className={classes.saveButton}
-        startIcon={<SaveIcon />}
-        onClick={onSubmit(records)}
-      >
-        Save
-      </Button>
       {Object.keys(attributes).map((attrName) => {
-        const attrType = attributes[attrName].type;
-        const InputField = field[attrType];
+        const { type, readOnly, errMsg } = attributes[attrName];
+        const InputField = field[type];
         return (
           <InputField
-            className={classes.field}
-            key={attrName + '-' + attrType + 'Field'}
+            key={attrName + '-' + type + 'Field'}
             label={attrName}
             value={records[attrName]}
             onChange={handleSetValue(attrName)}
-            error={attributes[attrName].errMsg ? true : false}
-            helperText={attributes[attrName].errMsg}
+            error={errMsg ? true : false}
+            helperText={errMsg}
             InputProps={{
-              readOnly: attributes[attrName].readOnly ? true : false,
-              endAdornment: clearButton(attrName, handleClearButton),
+              readOnly: readOnly ? true : false,
+              endAdornment: readOnly ? undefined : (
+                <ClearButton onClick={handleClearButton(attrName)} />
+              ),
             }}
-            rightIcon={attributes[attrName].readOnly ? keyIcon : undefined}
+            leftIcon={readOnly ? KeyIcon : false}
           />
         );
       })}
+      <Box display="flex" justifyContent="flex-end" mr={9.5} mt={4}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          type="submit"
+          startIcon={<SaveIcon />}
+        >
+          Save
+        </Button>
+      </Box>
     </form>
   );
 }
+
+const useStyles = makeStyles((theme) => ({
+  legend: {
+    marginBottom: theme.spacing(6),
+  },
+  submitButtonContainer: {
+    display: 'flex',
+    justifyContent: 'left',
+  },
+}));
