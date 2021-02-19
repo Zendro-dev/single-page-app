@@ -23,7 +23,7 @@ export default function DownloadMenu(props) {
     setDownloadTemplate(false);
   };
 
-  const onErro = (error) => {
+  const onError = (error) => {
     //send error to user
   };
 
