@@ -17,6 +17,7 @@ export default function TableToolBar(props) {
   } = props;
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [downloadMenu, setDownloadMenu] = useState(false);
 
   const handleImportClicked = () => {
     setDialogOpen(true);
@@ -50,9 +51,11 @@ export default function TableToolBar(props) {
             <Import color="primary" />
           </ClickableIcon>
 
-          {dialogOpen && <UploadDialog handleDone={handleDone} />}
+          {dialogOpen && (
+            <UploadDialog modelName={modelName} handleDone={handleDone} />
+          )}
 
-          <DownloadMenu modelName={modelName}></DownloadMenu>
+          <DownloadMenu modelName="user"></DownloadMenu>
         </Grid>
       </Grid>
     </Grid>
