@@ -1,83 +1,89 @@
 module.exports = {
+  root: true,
+  // We don't want to lint generated files nor node_modules, but we want to lint
+  // .prettierrc.js (ignored by default by eslint)
+  ignorePatterns: ['node_modules/*', '.next/*', '.out/*', '!.prettierrc.js'],
   overrides: [
     {
-      files: ['**/*.js?(x)'],
-      extends: [
-        'react-app',
-        'plugin:react-hooks/recommended',
-        'plugin:jest/recommended',
-        'prettier',
-        'prettier/react',
-        'plugin:prettier/recommended',
-      ],
-      plugins: ['react', 'jest'],
-      env: {
-        browser: true,
-        es6: true,
-        jest: true,
-      },
-      globals: {
-        Atomics: 'readonly',
-        SharedArrayBuffer: 'readonly',
-      },
-      parser: '@typescript-eslint/parser',
+      files: ['**/*.js', '**/*.jsx'],
       parserOptions: {
+        ecmaVersion: 2019,
+        sourceType: 'module',
         ecmaFeatures: {
           jsx: true,
         },
-        ecmaVersion: 2018,
-        sourceType: 'module',
-        project: './tsconfig.json',
       },
+      settings: { react: { version: 'detect' } },
+      env: {
+        browser: true,
+        node: true,
+        es6: true,
+      },
+      extends: [
+        'eslint:recommended',
+        'plugin:react/recommended', // React rules
+        'plugin:react-hooks/recommended', // React hooks rules
+        'plugin:jsx-a11y/recommended', // Accessibility rules
+        'plugin:prettier/recommended', // Prettier recommended rules
+      ],
       rules: {
-        'linebreak-style': 'off',
-        'prettier/prettier': [
-          'warn',
-          {
-            singleQuote: true,
-            endOfLine: 'auto',
-          },
-        ],
+        // This rule is not compatible with Next.js's <Link /> components
+        'jsx-a11y/anchor-is-valid': 'off',
+
+        'no-unused-vars': 'warn',
+
+        // Display .prettierrc.js rules as errors
+        'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
+
+        // We will use TypeScript's types for component props instead
+        'react/prop-types': 'off',
+
+        // No need to import React when using Next.js
+        'react/react-in-jsx-scope': 'off',
       },
     },
+    // This configuration will apply only to TypeScript files
     {
-      files: ['**/*.ts?(x)'],
-      extends: [
-        'react-app',
-        'plugin:react-hooks/recommended',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:jest/recommended',
-        'prettier',
-        'prettier/react',
-        'prettier/@typescript-eslint',
-        'plugin:prettier/recommended',
-      ],
-      plugins: ['react', '@typescript-eslint', 'jest'],
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
+      settings: { react: { version: 'detect' } },
       env: {
         browser: true,
+        node: true,
         es6: true,
-        jest: true,
       },
-      globals: {
-        Atomics: 'readonly',
-        SharedArrayBuffer: 'readonly',
-      },
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-        ecmaVersion: 2018,
-        sourceType: 'module',
-        project: './tsconfig.json',
-      },
+      parserOptions: { ecmaVersion: 2019 },
+      extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended', // TypeScript rules
+        'plugin:react/recommended', // React rules
+        'plugin:react-hooks/recommended', // React hooks rules
+        'plugin:jsx-a11y/recommended', // Accessibility rules
+        'prettier/@typescript-eslint', // Prettier plugin
+        'plugin:prettier/recommended', // Prettier recommended rules
+      ],
       rules: {
-        'linebreak-style': 'off',
-        'prettier/prettier': [
-          'error',
+        // This rule is not compatible with Next.js's <Link /> components
+        'jsx-a11y/anchor-is-valid': 'off',
+
+        // Display .prettierrc.js rules as errors
+        'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
+
+        // We will use TypeScript's types for component props instead
+        'react/prop-types': 'off',
+
+        // No need to import React when using Next.js
+        'react/react-in-jsx-scope': 'off',
+
+        // Warn about unused variables
+        '@typescript-eslint/no-unused-vars': ['warn'],
+
+        // Require return types on functions only where useful
+        '@typescript-eslint/explicit-function-return-type': [
+          'warn',
           {
-            singleQuote: true,
-            endOfLine: 'auto',
+            allowExpressions: true,
+            allowConciseArrowFunctionExpressionsStartingWithVoid: true,
           },
         ],
       },

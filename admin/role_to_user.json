@@ -1,0 +1,8 @@
+{
+  "model": "role_to_user",
+  "storageType": "SQL",
+  "attributes": {
+    "userId": "Int",
+    "roleId": "Int"
+  }
+}

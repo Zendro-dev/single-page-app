@@ -1,40 +1,23 @@
-const {
-  REACT_APP_ZENDRO_API_URL,
-  REACT_APP_ZENDRO_GRAPHQL_SERVER_URL,
-  REACT_APP_ZENDRO_LOGIN_URL,
-  REACT_APP_ZENDRO_EXPORT_URL,
-  REACT_APP_ZENDRO_MAX_UPLOAD_SIZE,
-  REACT_APP_ZENDRO_MAX_RECORD_LIMIT,
-  REACT_APP_ZENDRO_REQUEST_LOGGER,
-  REACT_APP_ZENDRO_MAX_DYNAMIC_IMPORT_RETRIES,
-} = process.env;
-
+export const PORT = Number(process.env.NEXT_PUBLIC_PORT);
 export const GRAPHQL_SERVER_URL =
-  REACT_APP_ZENDRO_GRAPHQL_SERVER_URL ??
-  REACT_APP_ZENDRO_API_URL?.concat('/graphql') ??
-  'http://localhost:3000/graphql';
-
-export const LOGIN_URL =
-  REACT_APP_ZENDRO_LOGIN_URL ??
-  REACT_APP_ZENDRO_API_URL?.concat('/login') ??
-  'http://localhost:3000/login';
-
-export const EXPORT_URL =
-  REACT_APP_ZENDRO_EXPORT_URL ??
-  REACT_APP_ZENDRO_API_URL?.concat('/export') ??
-  'http://localhost:3000/export';
-
-export const MAX_UPLOAD_SIZE = Number(REACT_APP_ZENDRO_MAX_UPLOAD_SIZE ?? 500); // size in MB
+  process.env.NEXT_PUBLIC_ZENDRO_GRAPHQL_SERVER_URL ??
+  process.env.NEXT_PUBLIC_ZENDRO_API_URL;
+export const LOGIN_URL = process.env.NEXT_PUBLIC_ZENDRO_LOGIN_URL;
+export const EXPORT_URL = process.env.NEXT_PUBLIC_ZENDRO_EXPORT_URL;
+export const MAX_UPLOAD_SIZE = Number(
+  process.env.NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE
+); // size in MB
 export const MAX_RECORD_LIMIT = Number(
-  REACT_APP_ZENDRO_MAX_RECORD_LIMIT ?? 10000
+  process.env.NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT
 );
-export const REQUEST_LOGGER = REACT_APP_ZENDRO_REQUEST_LOGGER ?? true; // TODO: review this statement
+export const REQUEST_LOGGER =
+  process.env.NEXT_PUBLIC_REQUEST_LOGGER === 'true' ? true : false; // TODO: review this statement
 export const MAX_DYNAMIC_IMPORT_RETRIES = Number(
-  REACT_APP_ZENDRO_MAX_DYNAMIC_IMPORT_RETRIES ?? 10
+  process.env.NEXT_PUBLIC_ZENDRO_MAX_DYNAMIC_IMPORT_RETRIES
 );
 
 const config = {
-  PORT: 8080,
+  PORT,
   GRAPHQL_SERVER_URL,
   LOGIN_URL,
   EXPORT_URL,
