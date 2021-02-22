@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev -p 8081",
     "build": "next build",
-    "export": "next build && next export",
+    "export": "next export",
     "start": "next start -p 8081",
-    "start:static": "serve ./out",
+    "serve": "serve ./out",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "lint": "eslint --ext js,jsx,ts,tsx --fix",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
