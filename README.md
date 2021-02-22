@@ -115,3 +115,21 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+
+## Troubleshooting
+
+### Husky and Lint-Staged
+
+To both keep formatting consistent and catch potential errors in the project, this repository uses an ESLint + Prettier setup. On every commit, a [Husky](https://github.com/typicode/husky) git hook is configured to lint and format staged files.
+
+When trying to commit, the following error may occur:
+
+> Command "husky-run" not found
+
+If this happens, please make sure you have run the following commands in your terminal.
+
+```bash
+yarn install          # install node modules
+yarn husky install    # install git hooks
+```
