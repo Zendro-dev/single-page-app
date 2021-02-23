@@ -1,11 +1,19 @@
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { SvgIconType } from '@/types/elements';
+import { ReactElement, PropsWithChildren } from 'react';
 
-export default function StringField({
+export interface InputContainerProps {
+  className?: string;
+  leftIcon?: SvgIconType;
+  rightIcon?: SvgIconType;
+}
+
+export default function InputContainer({
   leftIcon: LeftIcon,
   rightIcon: RightIcon,
   ...props
-}) {
+}: PropsWithChildren<InputContainerProps>): ReactElement {
   const classes = useStyles();
 
   return (

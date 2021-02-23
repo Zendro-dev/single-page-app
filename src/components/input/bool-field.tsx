@@ -8,18 +8,14 @@ import {
   FormHelperText,
   InputProps,
 } from '@material-ui/core';
-import InputContainer from './InputContainer';
-
-import { SvgIconType } from '@/types/elements';
+import InputContainer, { InputContainerProps } from './input-container';
 
 interface BoolFieldProps {
   error?: boolean;
   helperText?: string;
   InputProps?: InputProps;
   label: string;
-  leftIcon?: SvgIconType;
   onChange: (value: boolean | null) => void;
-  rightIcon?: SvgIconType;
   value: boolean | null;
 }
 
@@ -32,7 +28,7 @@ export default function BoolField({
   helperText,
   InputProps,
   ...props
-}: BoolFieldProps & CheckboxProps): ReactElement {
+}: BoolFieldProps & InputContainerProps & CheckboxProps): ReactElement {
   const classes = useStyles();
 
   const [checked, setChecked] = useState(value || false);
