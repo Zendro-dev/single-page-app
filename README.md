@@ -28,14 +28,11 @@ For the Zendro frontend to know the location of its GraphQL endpoint, as well as
 
 This file is also used by Next.js to set any environment variables that should be available to either the built-in generator, or in the browser. Read more about Next.js environmental variables [in the official documentation](https://nextjs.org/docs/basic-features/environment-variables).
 
-For security reasons, this file is never committed to the remote repository. However, we have included an example `.env.local.example` file with some reasonable defaults that may be used in development. To get started, you can begin by renaming `.env.local.example` to `.env.local`.
+For security reasons, this file is never committed to the remote repository. However, we have included a `.env.local.example` file with some reasonable defaults that may be used in development. To get started, you can begin by renaming `.env.local.example` to `.env.local`.
 
 Below there is a brief explanation of what each variable is used for.
 
 ```bash
-# Public port where the application is served
-NEXT_PUBLIC_PORT=8080
-
 # GraphQL endpoint address. Used to send data queries and mutations.
 NEXT_PUBLIC_ZENDRO_GRAPHQL_URL='http://localhost:3000/graphql'
 
@@ -58,9 +55,11 @@ To start a development server, the following command is available.
 
 ```bash
 yarn dev
+# or to serve it from a custom port
+PORT=5000 yarn dev
 ```
 
-- The Open [http://localhost:8080](http://localhost:8080) with your browser to see the result.
+- Open [http://localhost:8080](http://localhost:8080) with your browser to see the result.
 - You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 - The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
@@ -73,7 +72,7 @@ The default Zendro application is configured as a fully static site. The final b
 ```bash
 yarn build    # build the application in `.next` folder
 yarn export   # export to `out` folder as as a static site
-yarn serve    # optionally preview the exported static site
+yarn serve    # preview the exported static site
 ```
 
 Once the `out` folder is generated, it can be served as static content from a custom webserver, for example using [NGINX](https://docs.nginx.com/nginx/admin-guide/web-server/serving-static-content/), or deployed to a static hosting site, such as [Netlify](https://www.netlify.com/blog/2020/11/30/how-to-deploy-next.js-sites-to-netlify/) or [Github Pages](https://pages.github.com).
