@@ -12,19 +12,16 @@ import App from './App';
 import store from './store';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <SnackbarProvider
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        hideIconVariant
-      >
+  <SnackbarProvider
+    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    hideIconVariant
+  >
+    <React.StrictMode>
+      <Provider store={store}>
         <App />
-      </SnackbarProvider>
-    </Provider>
-  </React.StrictMode>,
+      </Provider>
+    </React.StrictMode>
+  </SnackbarProvider>,
   document.getElementById('root')
 );
 

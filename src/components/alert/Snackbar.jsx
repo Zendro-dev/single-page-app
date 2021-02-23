@@ -1,41 +1,35 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSnackbar } from 'notistack';
-import { useTranslation } from 'react-i18next';
-import Collapse from '@material-ui/core/Collapse';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import green from '@material-ui/core/colors/green';
-import red from '@material-ui/core/colors/red';
-import blue from '@material-ui/core/colors/blue';
-import orange from '@material-ui/core/colors/orange';
+import { useSnackbar, SnackbarContent } from 'notistack';
+import {
+  Collapse,
+  Paper,
+  Typography,
+  Card,
+  CardActions,
+  IconButton,
+} from '@material-ui/core';
+import {
+  Close as CloseIcon,
+  ExpandMore as ExpandMoreIcon,
+} from '@material-ui/icons';
+import { green, red, blue, orange } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    [theme.breakpoints.up('sm')]: {
+      minWidth: '344px !important',
+    },
+  },
   card: {
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'wrap',
     flexGrow: 1,
-    [theme.breakpoints.up('sm')]: {
-      flexGrow: 'initial',
-      minWidth: 344,
-    },
-  },
-  typography: {
-    fontWeight: 'bold',
   },
   actionRoot: {
     padding: '8px 8px 8px 16px',
-  },
-  icons: {
-    marginLeft: 'auto',
   },
   expand: {
     padding: '8px 8px',
@@ -54,28 +48,6 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: '80vh',
     minHeight: 344,
     overflow: 'auto',
-  },
-  collapseTypographyTitle: {
-    fontWeight: 'bold',
-  },
-  actionIcon: {
-    leftPadding: theme.spacing(1),
-  },
-  button: {
-    padding: 0,
-    textTransform: 'none',
-  },
-  successColor: {
-    color: green[600],
-  },
-  errorColor: {
-    color: red[700],
-  },
-  warningColor: {
-    color: orange[500],
-  },
-  infoColor: {
-    color: blue[500],
   },
   successBackgroundColor: {
     backgroundColor: green[600],
@@ -105,8 +77,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Snackbar = React.forwardRef((props, ref) => {
   const classes = useStyles();
-  const { id, message, variant, errors } = props;
-  const { t } = useTranslation();
   const { closeSnackbar } = useSnackbar();
   const [expanded, setExpanded] = useState(false);
 
@@ -115,110 +85,63 @@ const Snackbar = React.forwardRef((props, ref) => {
   };
 
   const handleDismiss = () => {
-    closeSnackbar(id);
+    closeSnackbar(props.id);
   };
 
+  const backgroundColor = clsx(
+    classes.card,
+    { [classes.successBackgroundColor]: props.variant === 'success' },
+    { [classes.errorBackgroundColor]: props.variant === 'error' },
+    { [classes.warningBackgroundColor]: props.variant === 'warning' },
+    { [classes.infoBackgroundColor]: props.variant === 'info' }
+  );
+
+  const textColor = clsx(
+    { [classes.successContrastColor]: props.variant === 'success' },
+    { [classes.errorContrastColor]: props.variant === 'error' },
+    { [classes.warningContrastColor]: props.variant === 'warning' },
+    { [classes.infoContrastColor]: props.variant === 'info' }
+  );
+
   return (
-    <Card
-      id={'Snackbar-card'}
-      ref={ref}
-      className={classnames(
-        classes.card,
-        { [classes.successBackgroundColor]: variant === 'success' },
-        { [classes.errorBackgroundColor]: variant === 'error' },
-        { [classes.warningBackgroundColor]: variant === 'warning' },
-        { [classes.infoBackgroundColor]: variant === 'info' }
-      )}
-    >
-      <CardActions
-        id={'Snackbar-card-cardActions'}
-        classes={{ root: classes.actionRoot }}
-      >
-        <Typography
-          variant="subtitle2"
-          className={classnames(
-            classes.typography,
-            { [classes.successContrastColor]: variant === 'success' },
-            { [classes.errorContrastColor]: variant === 'error' },
-            { [classes.warningContrastColor]: variant === 'warning' },
-            { [classes.infoContrastColor]: variant === 'info' }
-          )}
-        >
-          {message}
-        </Typography>
-        <div className={classes.icons}>
-          <IconButton
-            id={'Snackbar-button-showMore'}
-            aria-label="Show more"
-            className={classnames(classes.expand, {
-              [classes.expandOpen]: expanded,
-            })}
-            onClick={handleExpandClick}
-          >
-            <ExpandMoreIcon
-              className={classnames(
-                classes.actionIcon,
-                { [classes.successContrastColor]: variant === 'success' },
-                { [classes.errorContrastColor]: variant === 'error' },
-                { [classes.warningContrastColor]: variant === 'warning' },
-                { [classes.infoContrastColor]: variant === 'info' }
-              )}
-            />
-          </IconButton>
-          <IconButton
-            id={'Snackbar-button-close'}
-            className={classes.expand}
-            onClick={handleDismiss}
-          >
-            <CloseIcon
-              className={classnames(
-                classes.actionIcon,
-                { [classes.successContrastColor]: variant === 'success' },
-                { [classes.errorContrastColor]: variant === 'error' },
-                { [classes.warningContrastColor]: variant === 'warning' },
-                { [classes.infoContrastColor]: variant === 'info' }
-              )}
-            />
-          </IconButton>
-        </div>
-      </CardActions>
-      {errors ? (
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Paper
-            id={'Snackbar-card-collapse-paper-details'}
-            className={classes.collapse}
-          >
-            <Typography
-              className={classes.collapseTypographyTitle}
-              component="pre"
-              variant="caption"
-              gutterBottom
-            >
-              {t('modelPanels.errors.details', 'Error details:')}
-            </Typography>
-            <Typography component="pre" variant="caption" gutterBottom>
-              {JSON.stringify(errors, null, 5)}
-            </Typography>
-          </Paper>
-        </Collapse>
-      ) : (
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Paper
-            id={'Snackbar-card-collapse-paper-noDetails'}
-            className={classes.collapse}
-          >
-            <Typography gutterBottom>
-              {t('modelPanels.errors.noDetails', 'No details.')}
-            </Typography>
-          </Paper>
-        </Collapse>
-      )}
-    </Card>
+    <SnackbarContent ref={ref} className={classes.root}>
+      <Card className={backgroundColor}>
+        <CardActions classes={{ root: classes.actionRoot }}>
+          <Typography variant="h6" className={textColor}>
+            {props.message}
+          </Typography>
+          <div>
+            {props.errors.length > 0 && (
+              <IconButton
+                aria-label="Show more"
+                className={clsx(classes.expand, {
+                  [classes.expandOpen]: expanded,
+                })}
+                onClick={handleExpandClick}
+              >
+                <ExpandMoreIcon className={textColor} />
+              </IconButton>
+            )}
+            <IconButton className={classes.expand} onClick={handleDismiss}>
+              <CloseIcon className={textColor} />
+            </IconButton>
+          </div>
+        </CardActions>
+        {props.errors.length > 0 && (
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <Paper className={classes.collapse}>
+              <Typography variant="subtitle1" gutterBottom>
+                Error details:
+              </Typography>
+              <Typography component="pre" variant="subtitle2" gutterBottom>
+                {JSON.stringify(props.errors, null, 5)}
+              </Typography>
+            </Paper>
+          </Collapse>
+        )}
+      </Card>
+    </SnackbarContent>
   );
 });
-
-Snackbar.propTypes = {
-  id: PropTypes.number.isRequired,
-};
 
 export default Snackbar;
