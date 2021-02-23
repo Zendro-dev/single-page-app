@@ -5,8 +5,7 @@ import EnhancedTableRow from './EnhancedTableRow';
 import useSWR from 'swr';
 // import { useSelector } from 'react-redux';
 // import { authSelector } from '@/store/auth-slice';
-import { GRAPHQL_SERVER_URL } from '@/config/globals';
-import axios from 'axios';
+import { readMany } from '@/utils/requests';
 
 const useStyles = makeStyles(() => ({
   tableWrapper: {
@@ -26,80 +25,28 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const fetcher = async (query, token) => {
-  let response;
-  try {
-    response = await axios({
-      url: GRAPHQL_SERVER_URL,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8',
-        common: {
-          Authorization: token ? `Bearer ${token}` : null,
-        },
-      },
-      data: {
-        query,
-        // variables,
-      },
-    });
-  } catch (error) {
-    return {
-      errors: [error],
-    };
-  }
+// ! Hardcoded for now. The component will get the variables from its children
+const variables = { pagination: { first: 10 } };
 
-  return {
-    data: response.data.data.no_assocs,
-    errors: response.data.errors,
-    status: response.status,
-    statusText: response.statusText,
-  };
-};
-
-export default function EnhancedTable({ attributes }) {
+export default function EnhancedTable({ modelName, attributes, query }) {
   // ? To accomodate associations will need to recive the operation as well
   const classes = useStyles();
 
   // const auth = useSelector(authSelector);
 
-  const { data, errors } = useSWR(
-    `{
-      no_assocs(pagination:{limit:10}){
-        idField
-        stringField
-        intField
-        floatField
-        datetimeField
-        booleanField
-        stringArrayField
-        intArrayField
-        floatArrayField
-        datetimeArrayField
-        booleanArrayField
-      }
-    }`,
-    fetcher
-  );
-
-  console.log(data);
-  console.log(errors);
+  const { data, error } = useSWR([query, variables], readMany(modelName));
 
   return (
-    // TODO attribute props
-    // ? since the TableHead is static it can directly recieve the attributes.
-    // ? Be aware that depending on the datamodel id needs to be added
-
-    // ? root Table container. Inside the paper add Toolbar and pagination components
+    // ? root Table container. Inside the paper add Toolbar and pagination components.
+    // ? Consider "un-nesting" this
     <div className={classes.root}>
       <Paper className={classes.paper}>
         <div className={classes.tableWrapper}>
           <Table stickyHeader size="small">
             <EnhancedTableHead attributes={attributes} />
-            <TableBody>
-              {data &&
-                data.data.map((record, index) => (
+            {data && (
+              <TableBody>
+                {data.map((record, index) => (
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
@@ -107,7 +54,8 @@ export default function EnhancedTable({ attributes }) {
                     key={`${record[0]}-${index}`}
                   />
                 ))}
-            </TableBody>
+              </TableBody>
+            )}
           </Table>
         </div>
       </Paper>

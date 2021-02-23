@@ -7,13 +7,18 @@ import {
   getStaticModelPaths,
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
+import { getInflections } from '@/utils/inflection';
+import { getTableQuery } from '@/utils/queries';
 import { DataModel, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
 import EnhancedTable from '@/components/table/EnhancedTable';
+
 interface ModelProps {
+  modelName: string;
   tableColumns: unknown;
+  tableQuery: string;
   routes: AppRoutes;
 }
 
@@ -31,19 +36,31 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const params = context.params as PathParams;
   const routes = await getStaticRoutes();
   const dataModel = await getStaticModel(params.model);
+
   const tableColumns = getAttributeList(dataModel);
+  const attributesList = tableColumns.map((attr) => attr.name).toString();
+
+  const inflections = getInflections(dataModel);
+  const tableQuery = getTableQuery(attributesList, inflections);
 
   return {
     props: {
+      modelName: dataModel.model,
       tableColumns,
+      tableQuery,
       routes,
     },
   };
 };
 
-const Model: NextPage<ModelProps> = ({ tableColumns, routes }) => {
+const Model: NextPage<ModelProps> = ({
+  modelName,
+  tableColumns,
+  tableQuery,
+  routes,
+}) => {
   useAuth({ redirectTo: '/' });
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
@@ -51,7 +68,11 @@ const Model: NextPage<ModelProps> = ({ tableColumns, routes }) => {
       <div>{JSON.stringify(router.query)}</div>
       <div>{JSON.stringify(dataModel)}</div> */}
       {/* <div>{JSON.stringify(tableColumns)}</div> */}
-      <EnhancedTable attributes={tableColumns} />
+      <EnhancedTable
+        modelName={modelName}
+        attributes={tableColumns}
+        query={tableQuery}
+      />
     </ModelsLayout>
   );
 };
