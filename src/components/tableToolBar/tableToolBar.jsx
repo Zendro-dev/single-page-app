@@ -8,16 +8,9 @@ import SearchField from './searchField.jsx';
 import DownloadMenu from './downloadMenu.jsx';
 import UploadDialog from './uploadDialog.jsx';
 export default function TableToolBar(props) {
-  const {
-    onReloadClick,
-    handleAddClicked,
-    handleBulkImportClicked,
-    handleDownloadsIconClick,
-    modelName,
-  } = props;
+  const { onReload, modelName, onSearch, onAdd } = props;
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [downloadMenu, setDownloadMenu] = useState(false);
 
   const handleImportClicked = () => {
     setDialogOpen(true);
@@ -31,16 +24,13 @@ export default function TableToolBar(props) {
     <Grid container>
       <Grid item xs={12}>
         <Grid container justify="flex-end" alignItems="center" wrap="wrap">
-          <ClickableIcon tooltip="Reload list" handleOnClick={onReloadClick}>
+          <ClickableIcon tooltip="Reload list" handleOnClick={onReload}>
             <Reload color="inherit" fontSize="small" />
           </ClickableIcon>
 
-          <SearchField />
+          <SearchField onSearchClick={onSearch} />
 
-          <ClickableIcon
-            tooltip="Add new no_assoc"
-            handleOnClick={handleAddClicked}
-          >
+          <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
             <Add color="primary" />
           </ClickableIcon>
 

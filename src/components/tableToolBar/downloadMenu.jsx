@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
@@ -6,20 +7,16 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from './clickableIcon.jsx';
 import useSWR from 'swr';
-import { fetcherTemplate } from '../../utils/fetcher';
+import { authSelector } from '../../store/auth-slice';
+import { fetcherTemplate, downloadFile } from '../../utils/tableToolBar';
 
 export default function DownloadMenu(props) {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [downloadTemplate, setDownloadTemplate] = useState(false);
+  const auth = useSelector(authSelector);
 
   const onDownload = (data) => {
-    let file = data.join('\n');
-    const url = window.URL.createObjectURL(new Blob([file]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${props.modelName}no_assoc-template.csv`);
-    document.body.appendChild(link);
-    link.click();
+    downloadFile(data, `${props.modelName}-template.csv`);
     setDownloadTemplate(false);
   };
 
@@ -27,7 +24,7 @@ export default function DownloadMenu(props) {
     //send error to user
   };
 
-  useSWR(downloadTemplate ? ['User'] : null, fetcherTemplate, {
+  useSWR(downloadTemplate ? ['User', auth.user.token] : null, fetcherTemplate, {
     onSuccess: onDownload,
     onError: onError,
   });

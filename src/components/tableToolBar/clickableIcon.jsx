@@ -8,9 +8,15 @@ export default function ClickableIcon(props) {
   return (
     <Grid item>
       <Tooltip title={tooltip}>
-        <IconButton color="inherit" disabled={disabled} onClick={handleOnClick}>
-          {props.children}
-        </IconButton>
+        <span>
+          <IconButton
+            color="inherit"
+            disabled={disabled}
+            onClick={handleOnClick}
+          >
+            {props.children}
+          </IconButton>
+        </span>
       </Tooltip>
     </Grid>
   );

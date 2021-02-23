@@ -15,9 +15,30 @@ const useStyles = makeStyles((theme) => ({
 export default function TableLayout() {
   const classes = useStyles();
   const modelName = 'User';
+
+  const onSearch = (value) => {
+    /** Code for searching records goes here */
+    console.log('Search and display records with filter: ', value);
+  };
+
+  const onReload = () => {
+    /** Code for reload goes here */
+    console.log('Reload records, considering the search value');
+  };
+
+  const onAdd = () => {
+    /** Code for adding (redirecting to create) a record goes here */
+    console.log('Add record');
+  };
+
   return (
     <div className={classes.root}>
-      <TableToolBar modelName={modelName} />
+      <TableToolBar
+        modelName={modelName}
+        onAdd={onAdd}
+        onReload={onReload}
+        onSearch={onSearch}
+      />
     </div>
   );
 }

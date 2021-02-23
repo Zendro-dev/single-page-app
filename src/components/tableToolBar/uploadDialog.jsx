@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { MAX_UPLOAD_SIZE } from '../../config/globals';
-import { fetcherUpload } from '../../utils/fetcher';
+import { fetcherUpload } from '../../utils/tableToolBar';
 import { authSelector } from '../../store/auth-slice';
 import useSWR from 'swr';
 
