@@ -1,6 +1,6 @@
 import React from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import {
   getStaticModel,
   getStaticRoutes,
@@ -9,7 +9,7 @@ import {
 import { getAttributeList } from '@/utils/models';
 import { getInflections } from '@/utils/inflection';
 import { getTableQuery } from '@/utils/queries';
-import { DataModel, PathParams } from '@/types/models';
+import { PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
@@ -40,7 +40,7 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const tableColumns = getAttributeList(dataModel);
   const attributesList = tableColumns.map((attr) => attr.name).toString();
 
-  const inflections = getInflections(dataModel);
+  const inflections = getInflections(dataModel.model);
   const tableQuery = getTableQuery(attributesList, inflections);
 
   return {

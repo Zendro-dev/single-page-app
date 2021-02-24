@@ -1,4 +1,3 @@
-import { DataModel } from '@/types/models';
 import { pluralize } from 'inflection';
 
 export interface Inflection {
@@ -9,13 +8,13 @@ export interface Inflection {
   namePlCp: string;
 }
 
-export function getInflections(dataModel: DataModel): Inflection {
+export function getInflections(modelName: string): Inflection {
   const inflection: Inflection = {
-    name: dataModel.model,
-    nameCp: capitalizeString(dataModel.model),
-    nameLc: uncapitalizeString(dataModel.model),
-    namePlLc: pluralize(uncapitalizeString(dataModel.model)),
-    namePlCp: pluralize(capitalizeString(dataModel.model)),
+    name: modelName,
+    nameCp: capitalizeString(modelName),
+    nameLc: uncapitalizeString(modelName),
+    namePlLc: pluralize(uncapitalizeString(modelName)),
+    namePlCp: pluralize(capitalizeString(modelName)),
   };
 
   return inflection;
