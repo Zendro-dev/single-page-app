@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(7),
       marginRight: theme.spacing(2),
       color: theme.palette.grey[700],
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('sm')]: {
         display: 'none',
       },
     },

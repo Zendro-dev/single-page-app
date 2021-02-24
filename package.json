@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8081",
+    "dev": "next dev -p ${PORT:-8080}",
     "build": "next build",
-    "export": "next build && next export",
-    "start": "next start -p 8081",
-    "start:static": "serve ./out",
+    "export": "next export",
+    "start": "next start -p ${PORT:-8080}",
+    "serve": "serve ./out",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "lint": "eslint --ext js,jsx,ts,tsx --fix",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
@@ -16,7 +16,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "yarn lint-staged"
     }
   },
   "dependencies": {

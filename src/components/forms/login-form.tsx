@@ -1,7 +1,8 @@
 import React, { ReactElement, useState } from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { useRouter } from 'next/router';
 
-import { Button, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
 
 import EmailField from '../input/login-field';
 import PasswordField from '../input/password-field';
@@ -22,6 +23,7 @@ interface LoginFormState {
 
 export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
   const classes = useStyles();
+  const router = useRouter();
   const [state, setState] = useState<LoginFormState>({
     email: '',
     password: '',
@@ -36,6 +38,11 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (onSubmit) onSubmit(state.email, state.password);
+  };
+
+  const handleCancel = (event: React.FormEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+    router.back();
   };
 
   return (
@@ -64,7 +71,16 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
           color="primary"
           type="submit"
         >
-          <Typography className={classes.buttonText}>Login</Typography>
+          Login
+        </Button>
+        <Button
+          className={classes.button}
+          size="medium"
+          variant="outlined"
+          color="secondary"
+          onClick={handleCancel}
+        >
+          Cancel
         </Button>
       </div>
     </form>
@@ -75,16 +91,26 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     buttonContainer: {
       display: 'flex',
-      justifyContent: 'center',
+      flexDirection: 'column',
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
       marginTop: theme.spacing(6),
+      [theme.breakpoints.up('sm')]: {
+        flexDirection: 'row',
+      },
     },
     button: {
+      ...theme.typography.body1,
       padding: theme.spacing(2, 0),
-      width: theme.spacing(32),
-    },
-    buttonText: {
-      fontWeight: theme.typography.fontWeightMedium,
-      fontSize: theme.spacing(5),
+      width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        '&:nth-child(1)': {
+          marginBottom: theme.spacing(2),
+        },
+      },
+      [theme.breakpoints.up('sm')]: {
+        width: theme.spacing(32),
+      },
     },
   })
 );

@@ -1,14 +1,26 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
+  CheckboxProps,
   FormControl,
   FormControlLabel,
   FormHelperText,
+  InputProps,
 } from '@material-ui/core';
-import InputContainer from './InputContainer';
+import InputContainer, { InputContainerProps } from './input-container';
+
+interface BoolFieldProps {
+  error?: boolean;
+  helperText?: string;
+  InputProps?: InputProps;
+  label: string;
+  onChange: (value: boolean | null) => void;
+  value: boolean | null;
+}
 
 export default function BoolField({
+  label,
   leftIcon,
   rightIcon,
   value,
@@ -16,7 +28,7 @@ export default function BoolField({
   helperText,
   InputProps,
   ...props
-}) {
+}: BoolFieldProps & InputContainerProps & CheckboxProps): ReactElement {
   const classes = useStyles();
 
   const [checked, setChecked] = useState(value || false);
@@ -24,7 +36,9 @@ export default function BoolField({
     value !== undefined && value !== null ? false : true
   );
 
-  const handleOnChange = (event) => {
+  const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
     if (event.target.checked && !indeterminate) {
       setChecked(true);
       if (props.onChange) {
@@ -58,10 +72,10 @@ export default function BoolField({
               checked={checked}
               indeterminate={indeterminate}
               onChange={handleOnChange}
-              disabled={InputProps.readOnly ? true : false}
+              disabled={InputProps?.readOnly ? true : false}
             />
           }
-          label={props.label}
+          label={label}
         />
         {helperText && (
           <FormHelperText className={classes.helperText}>
