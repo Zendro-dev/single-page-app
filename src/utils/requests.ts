@@ -1,13 +1,47 @@
 import { GRAPHQL_SERVER_URL } from '@/config/globals';
-import axios from 'axios';
-import { AttributeScalarType, AttributeArrayType } from '../types/models';
+import axios, { AxiosResponse } from 'axios';
+import { getInflections } from '@/utils/inflection';
+import { AttributeScalarType } from '@/types/models';
 
-interface ServerResponse {
-  // ! in need of correct typing
-  data?: any;
-  errors: unknown;
-  status?: unknown;
-  statusText?: unknown;
+interface ServerResponse<D, E> {
+  data?: D | null;
+  errors?: Array<E>;
+  status: number;
+  statusText: string;
+}
+
+interface QueryVariables {
+  search: {
+    field: string;
+    value: string;
+    valueType: AttributeScalarType;
+  };
+  pagination: {
+    first: number;
+    last: number;
+    after: string;
+    before: string;
+    includeCursor: boolean;
+  };
+  order: {
+    field: string;
+    order: 'ASC' | 'DESC';
+  };
+}
+
+interface Query {
+  [key: string]: {
+    edges: QueryEdge[];
+  };
+}
+
+interface QueryEdge {
+  node: QueryNode;
+}
+
+// TODO type this correctly
+interface QueryNode {
+  [key: string]: any;
 }
 
 /**
@@ -17,12 +51,12 @@ interface ServerResponse {
  * @param variables
  * @param token
  */
-export async function graphql(
+export async function graphql<D, E = any>(
   query: string,
-  variables: Record<string, unknown>,
+  variables: QueryVariables,
   token: string
-): Promise<ServerResponse> {
-  let response;
+): Promise<ServerResponse<D, E>> {
+  let response: AxiosResponse;
   try {
     response = await axios({
       url: GRAPHQL_SERVER_URL,
@@ -40,6 +74,8 @@ export async function graphql(
   } catch (error) {
     return {
       errors: [error],
+      status: error.response.status,
+      statusText: error.response.statusText,
     };
   }
 
@@ -51,21 +87,25 @@ export async function graphql(
   };
 }
 
-export const readMany = () => async (
+export const readMany = <Q extends Query>(modelName: string) => async (
   query: string,
-  variables: Record<string, unknown>,
+  variables: QueryVariables,
   token: string
-): Promise<Array<Record<string, AttributeScalarType | AttributeArrayType>>> => {
-  const response = await graphql(query, variables, token);
-
+): Promise<any> => {
+  const response = await graphql<Q>(query, variables, token);
   const resData = response.data;
-  // ! figure out where to get the resolver name from
-  const resolver = Object.keys(resData)[0];
+  // ? useSWR hook returns this as {error}
+  const resErrors = response.errors;
+  if (resErrors) {
+    throw resErrors;
+  }
 
-  const data = resData[resolver].edges.map(
-    (edge: {
-      node: Record<string, AttributeArrayType | AttributeScalarType>;
-    }) => edge.node
-  );
+  const resolver = `${getInflections(modelName).namePlLc}Connection` as keyof Q;
+
+  let data: QueryNode[] = [];
+
+  if (resData) {
+    data = resData[resolver].edges.map((edge) => edge.node);
+  }
   return data;
 };
