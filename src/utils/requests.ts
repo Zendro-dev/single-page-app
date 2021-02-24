@@ -1,4 +1,4 @@
-import { GRAPHQL_SERVER_URL } from '@/config/globals';
+import { GRAPHQL_URL } from '@/config/globals';
 import axios, { AxiosResponse } from 'axios';
 import { getInflections } from '@/utils/inflection';
 import { AttributeScalarType } from '@/types/models';
@@ -59,7 +59,7 @@ export async function graphql<D, E = any>(
   let response: AxiosResponse;
   try {
     response = await axios({
-      url: GRAPHQL_SERVER_URL,
+      url: GRAPHQL_URL,
       method: 'POST',
       headers: {
         Accept: 'application/json',
