@@ -1,0 +1,20 @@
+
+{
+  "model": "author",
+  "storageType": "sql",
+  "attributes": {
+    "author_id": "String",
+    "name": "String"
+  },
+  "associations":{
+    "books":{
+      "type": "to_many",
+      "target": "book",
+      "targetKey": "fk_books_authors",
+      "keyIn": "book",
+      "targetStorageType": "sql",
+      "label": "name"
+    }
+  },
+  "internalId" : "author_id"
+}
