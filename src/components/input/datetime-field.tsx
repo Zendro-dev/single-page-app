@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import moment from 'moment';
+import { useState, useRef, ReactElement } from 'react';
+import moment, { Moment } from 'moment';
 import MomentUtils from '@date-io/moment';
 import {
   MuiPickersUtilsProvider,
@@ -7,46 +7,55 @@ import {
 } from '@material-ui/pickers';
 import 'moment/locale/es.js';
 import 'moment/locale/de.js';
-import InputContainer from './InputContainer';
+
+import { InputProps } from '@material-ui/core';
+import InputContainer, { InputContainerProps } from './input-container';
+
+interface DateTimeFieldProps {
+  helperText?: string;
+  InputProps: InputProps;
+  onChange: (date: string | null) => void;
+  value: string | null;
+}
 
 export default function DateTimeField({
   leftIcon,
   rightIcon,
   value,
-  error,
+  // error,
   helperText,
   InputProps,
   ...props
-}) {
+}: DateTimeFieldProps & InputContainerProps): ReactElement {
   const initialDate = moment(value ?? '', 'YYYY-MM-DDTHH:mm:ss.SSSZ');
 
   const [selectedDate, setSelectedDate] = useState(
     initialDate.isValid() ? initialDate : null
   );
+
   const mdate = useRef(initialDate.isValid() ? initialDate : moment.invalid());
 
-  const handleOnChange = (date) => {
-    if (date && date._i && date._i.includes('_')) {
-      return;
-    } else {
-      setSelectedDate(date);
-      if (date !== null) {
-        mdate.current = date;
+  const handleOnChange = (date: Moment | null): void => {
+    if (date === undefined || !date?.isValid()) return;
 
-        if (mdate.current.isValid()) {
-          if (props.onChange) {
-            props.onChange(mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-          }
-        } else {
-          if (props.onChange) {
-            props.onChange(null);
-          }
+    setSelectedDate(date);
+
+    if (date !== null) {
+      mdate.current = date;
+
+      if (mdate.current.isValid()) {
+        if (props.onChange) {
+          props.onChange(mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
         }
       } else {
-        mdate.current = moment.invalid();
         if (props.onChange) {
           props.onChange(null);
         }
+      }
+    } else {
+      mdate.current = moment.invalid();
+      if (props.onChange) {
+        props.onChange(null);
       }
     }
   };
