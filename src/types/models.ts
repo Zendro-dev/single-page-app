@@ -18,6 +18,28 @@ export interface Attributes {
   [key: string]: AttributeScalarType | AttributeArrayType;
 }
 
+export type AttributeValue =
+  | boolean
+  | boolean[]
+  | number
+  | number[]
+  | string
+  | string[]
+  | null;
+
+export interface AttributeMap {
+  Boolean: boolean;
+  DateTime: Date;
+  Float: number;
+  Int: number;
+  String: number;
+  '[Boolean]': boolean[];
+  '[DateTime]': Date[];
+  '[Float]': number[];
+  '[Int]': number[];
+  '[String]': string[];
+}
+
 export interface Association {
   type: 'to_one' | 'to_many';
   target: string;

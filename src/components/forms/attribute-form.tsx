@@ -1,11 +1,18 @@
-import { useMemo, useState } from 'react';
+import {
+  ReactElement,
+  useMemo,
+  useState,
+  DetailedHTMLProps,
+  FormHTMLAttributes,
+} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import StringField from '../input/StringField';
 import {
   Box,
   Button,
   IconButton,
+  IconButtonProps,
   InputAdornment,
+  SvgIconProps,
   Tooltip,
   Typography,
 } from '@material-ui/core';
@@ -15,21 +22,44 @@ import {
   VpnKey as Key,
 } from '@material-ui/icons';
 
-import BoolField from '../input/BoolField';
-import DateTimeField from '../input/DateTimeField';
-import IntegerField from '../input/IntField';
-import FloatField from '../input/FloatField';
+import {
+  AttributeScalarType,
+  AttributeArrayType,
+  AttributeValue,
+} from '@/types/models';
 
-const field = {
+import BoolField from '../input/bool-field';
+import DateTimeField from '../input/datetime-field';
+import IntField from '../input/int-field';
+import FloatField from '../input/float-field';
+import StringField from '../input/string-field';
+
+interface InputField {
+  [key: string]:
+    | typeof StringField
+    | typeof BoolField
+    | typeof DateTimeField
+    | typeof IntField
+    | typeof FloatField;
+}
+
+const field: InputField = {
   String: StringField,
   Boolean: BoolField,
   DateTime: DateTimeField,
-  Integer: IntegerField,
+  Int: IntField,
   Float: FloatField,
 };
 
-const ClearButton = ({ onClick, ...buttonProps }) => {
-  const handleOnClick = (event) => {
+interface ClearButtonProps {
+  onClick: () => void;
+}
+
+const ClearButton = ({
+  onClick,
+  ...buttonProps
+}: ClearButtonProps & IconButtonProps): ReactElement => {
+  const handleOnClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
     onClick();
   };
@@ -45,7 +75,7 @@ const ClearButton = ({ onClick, ...buttonProps }) => {
   );
 };
 
-const KeyIcon = (props) => {
+const KeyIcon = (props: SvgIconProps): ReactElement => {
   return (
     <Tooltip title="This field cannot be edited">
       <Key {...props} fontSize="small" color="disabled" />
@@ -53,15 +83,40 @@ const KeyIcon = (props) => {
   );
 };
 
+interface AttributeFormProps {
+  attributes: FormAttributes;
+  className: string;
+  modelName: string;
+  onSubmit: (records: FormRecords) => void;
+}
+
+export interface FormAttributes {
+  [key: string]: {
+    type: AttributeScalarType | AttributeArrayType;
+    readOnly: boolean;
+    errMsg: string | null;
+    value: AttributeValue;
+  };
+}
+
+interface FormRecords {
+  [key: string]: AttributeValue;
+}
+
 export default function AttributeForm({
   attributes,
   onSubmit,
   modelName,
   ...formProps
-}) {
+}: AttributeFormProps &
+  DetailedHTMLProps<
+    FormHTMLAttributes<HTMLFormElement>,
+    HTMLFormElement
+  >): ReactElement {
   const classes = useStyles();
-  let record = {};
-  for (let attrName of Object.keys(attributes)) {
+  const record: FormRecords = {};
+
+  for (const attrName of Object.keys(attributes)) {
     record[attrName] = attributes[attrName].value;
   }
 
@@ -69,7 +124,7 @@ export default function AttributeForm({
 
   const completedAttr = useMemo(() => {
     let number = 0;
-    for (let attrName of Object.keys(records)) {
+    for (const attrName of Object.keys(records)) {
       if (records[attrName] !== null && records[attrName] !== undefined) {
         number += 1;
       }
@@ -77,17 +132,17 @@ export default function AttributeForm({
     return number + ' / ' + Object.keys(records).length + ' completed';
   }, [records]);
 
-  const handleSetValue = (attrName) => (value) => {
+  const handleSetValue = (attrName: string) => (value: AttributeValue) => {
     setRecords({ ...records, [attrName]: value });
   };
 
-  const handleClearButton = (attrName) => () => {
+  const handleClearButton = (attrName: string) => () => {
     if (!attributes[attrName].readOnly) {
       setRecords({ ...records, [attrName]: null });
     }
   };
 
-  const handleOnSubmit = (event) => {
+  const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     onSubmit(records);
   };
@@ -104,22 +159,23 @@ export default function AttributeForm({
       </legend>
       {Object.keys(attributes).map((attrName) => {
         const { type, readOnly, errMsg } = attributes[attrName];
-        const InputField = field[type];
+        const _type = type as AttributeScalarType;
+        const InputField = field[_type];
         return (
           <InputField
             key={attrName + '-' + type + 'Field'}
             label={attrName}
-            value={records[attrName]}
-            onChange={handleSetValue(attrName)}
+            value={records[attrName] as any}
+            onChange={handleSetValue(attrName) as any}
             error={errMsg ? true : false}
-            helperText={errMsg}
+            helperText={errMsg ?? ''}
             InputProps={{
               readOnly: readOnly ? true : false,
               endAdornment: readOnly ? undefined : (
                 <ClearButton onClick={handleClearButton(attrName)} />
               ),
             }}
-            leftIcon={readOnly ? KeyIcon : false}
+            leftIcon={readOnly ? KeyIcon : undefined}
           />
         );
       })}
