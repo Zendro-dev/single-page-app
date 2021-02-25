@@ -233,7 +233,7 @@ export default function ModelsDashboard({
 }
 
 const useStyles = makeStyles((theme: Theme) => {
-  const drawerWidth = theme.spacing(70);
+  const drawerWidth = 280;
   return createStyles({
     root: {
       display: 'flex',
@@ -245,7 +245,7 @@ const useStyles = makeStyles((theme: Theme) => {
       }),
     },
     appBarShift: {
-      width: `calc(100% - ${drawerWidth})`,
+      width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
       transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.easeOut,
@@ -282,18 +282,20 @@ const useStyles = makeStyles((theme: Theme) => {
     mainContent: {
       flexGrow: 1,
       padding: theme.spacing(3),
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      marginLeft: `-${drawerWidth}`,
+      marginLeft: -drawerWidth,
+      width: '100%',
     },
     mainContentShift: {
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
       marginLeft: 0,
+      width: `calc(100% - ${drawerWidth}px)`,
     },
   });
 });

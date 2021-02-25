@@ -64,10 +64,6 @@ const Model: NextPage<ModelProps> = ({
 
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
-      {/* <div>{JSON.stringify(router.asPath)}</div>
-      <div>{JSON.stringify(router.query)}</div>
-      <div>{JSON.stringify(dataModel)}</div> */}
-      {/* <div>{JSON.stringify(tableColumns)}</div> */}
       <EnhancedTable
         modelName={modelName}
         attributes={tableColumns}
