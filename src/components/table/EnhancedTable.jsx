@@ -37,7 +37,8 @@ export default function EnhancedTable({ modelName, attributes, query }) {
   const auth = useSelector(authSelector);
 
   const { data, error } = useSWR(
-    [query, variables, auth.user.token],
+    // TODO pass auth token
+    [query, variables],
     readMany(modelName)
   );
 

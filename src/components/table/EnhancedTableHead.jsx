@@ -17,7 +17,7 @@ export default function EnhancedTableHead({ attributes }) {
 
   return (
     // TODO colspan depending on permissions
-    <TableHead style={{ height: '2rem' }}>
+    <TableHead>
       <TableRow>
         <TableCell colSpan={3} align="center" padding="checkbox">
           <Typography
@@ -40,7 +40,7 @@ export default function EnhancedTableHead({ attributes }) {
                 : 'left'
             }
             disableSort={false}
-            activeOrder={activeOrderCol === attribute}
+            activeOrder={activeOrderCol === attribute.name}
             orderDirection={
               activeOrderCol === attribute.name ? activeOrder : 'asc'
             }
