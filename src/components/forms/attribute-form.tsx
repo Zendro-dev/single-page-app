@@ -30,6 +30,7 @@ import {
 
 import BoolField from '../input/bool-field';
 import DateTimeField from '../input/datetime-field';
+import DateTimeField2 from '../input/datetime-field2';
 import IntField from '../input/int-field';
 import FloatField from '../input/float-field';
 import StringField from '../input/string-field';
@@ -39,6 +40,7 @@ interface InputField {
     | typeof StringField
     | typeof BoolField
     | typeof DateTimeField
+    | typeof DateTimeField2
     | typeof IntField
     | typeof FloatField;
 }
@@ -47,6 +49,7 @@ const field: InputField = {
   String: StringField,
   Boolean: BoolField,
   DateTime: DateTimeField,
+  DateTime2: DateTimeField2,
   Int: IntField,
   Float: FloatField,
 };
