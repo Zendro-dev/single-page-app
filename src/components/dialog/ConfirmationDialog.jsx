@@ -6,8 +6,10 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 export default function ConfirmationDialog(props) {
+  const classes = useStyles();
   let handleOnAccept = () => {
     props.onAccept();
   };
@@ -29,9 +31,15 @@ export default function ConfirmationDialog(props) {
         maxWidth="sm"
         onClose={handleOnClose}
       >
-        <DialogTitle>{props.title}</DialogTitle>
+        <DialogTitle className={props.warning ? classes.warning : undefined}>
+          {props.title}
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>{props.text}</DialogContentText>
+          <DialogContentText
+            className={props.warning ? classes.warning : undefined}
+          >
+            {props.text}
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           {/* Action: Accept */}
@@ -60,3 +68,11 @@ export default function ConfirmationDialog(props) {
     </div>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    warning: {
+      color: 'red',
+    },
+  })
+);
