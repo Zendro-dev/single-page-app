@@ -1,18 +1,23 @@
-import { TextField, TextFieldProps } from '@material-ui/core';
+import { BaseInputFieldProps } from '@/types/elements';
+import { TextField } from '@material-ui/core';
 import { ReactElement } from 'react';
-import InputContainer, { InputContainerProps } from './input-container';
+import InputContainer, { WithContainerProps } from './input-container';
 
 interface IntFieldProps {
-  onChange: (value: number | null) => void;
+  onChange?: (value: number | null) => void;
   value: number | null;
 }
 
+type Props = WithContainerProps<BaseInputFieldProps<IntFieldProps>>;
+
 export default function IntField({
+  InputProps,
+  label,
   leftIcon,
+  onChange,
   rightIcon,
   value,
-  ...props
-}: IntFieldProps & InputContainerProps & TextFieldProps): ReactElement {
+}: Props): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -21,21 +26,22 @@ export default function IntField({
         ? null
         : Math.round(parseFloat(event.target.value));
 
-    if ((intValue === null || !isNaN(intValue)) && props.onChange) {
-      props.onChange(intValue);
+    if ((intValue === null || !isNaN(intValue)) && onChange) {
+      onChange(intValue);
     }
   };
 
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
-        {...props}
         fullWidth
-        value={value ?? ''}
-        type="number"
+        InputProps={InputProps}
+        label={label}
         margin="normal"
-        variant="outlined"
         onChange={handleOnChange}
+        type="number"
+        variant="outlined"
+        value={value ?? ''}
       />
     </InputContainer>
   );

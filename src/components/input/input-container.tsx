@@ -9,6 +9,9 @@ export interface InputContainerProps {
   rightIcon?: SvgIconType;
 }
 
+export type WithContainerProps<T> = T &
+  Pick<InputContainerProps, 'leftIcon' | 'rightIcon'>;
+
 export default function InputContainer({
   leftIcon: LeftIcon,
   rightIcon: RightIcon,

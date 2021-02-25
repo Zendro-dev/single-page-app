@@ -1,19 +1,16 @@
 import { enUS as en, es, de } from 'date-fns/locale';
 import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
-import { InputProps, TextField } from '@material-ui/core';
-
+import { TextField } from '@material-ui/core';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
-
-import InputContainer, { InputContainerProps } from './input-container';
+import InputContainer, { WithContainerProps } from './input-container';
+import { BaseInputFieldProps } from '@/types/elements';
 
 interface DateTimePickerProps {
-  error: boolean;
-  helperText?: string;
-  InputProps?: InputProps;
-  label?: string;
   onChange?: (value: Date | null) => void;
   value: Date | null;
 }
+
+type Props = WithContainerProps<BaseInputFieldProps<DateTimePickerProps>>;
 
 const localeMap = { en, es, de };
 const mask = {
@@ -31,7 +28,7 @@ export default function DateTimePicker({
   rightIcon,
   onChange,
   value,
-}: DateTimePickerProps & InputContainerProps): React.ReactElement {
+}: Props): React.ReactElement {
   const handleOnChange = (date: Date | null): void => {
     if (onChange) onChange(date);
   };

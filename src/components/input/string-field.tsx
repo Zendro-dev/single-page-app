@@ -1,38 +1,41 @@
 import { ReactElement } from 'react';
-import { TextField, TextFieldProps } from '@material-ui/core';
-import InputContainer, { InputContainerProps } from './input-container';
+import { TextField } from '@material-ui/core';
+import InputContainer, { WithContainerProps } from './input-container';
+import { BaseInputFieldProps } from '@/types/elements';
 
 interface StringFieldProps {
-  onChange: (value: string | null) => void;
+  onChange?: (value: string | null) => void;
   value: string | null;
 }
 
+type Props = WithContainerProps<BaseInputFieldProps<StringFieldProps>>;
+
 export default function StringField({
+  InputProps,
+  label,
   leftIcon,
+  onChange,
   rightIcon,
   value,
-  ...props
-}: StringFieldProps & InputContainerProps & TextFieldProps): ReactElement {
+}: Props): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    const computedValue = event.target.value === '' ? null : event.target.value;
-
-    if (props.onChange) {
-      props.onChange(computedValue);
+    if (onChange) {
+      onChange(event.target.value || null);
     }
   };
 
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
-        {...props}
+        InputProps={InputProps}
         fullWidth
-        multiline
+        label={label}
         margin="normal"
+        onChange={handleOnChange}
         variant="outlined"
         value={value ?? ''}
-        onChange={handleOnChange}
       />
     </InputContainer>
   );
