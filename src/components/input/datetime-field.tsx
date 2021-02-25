@@ -27,6 +27,8 @@ export default function DateTimePicker({
   helperText,
   InputProps,
   label,
+  leftIcon,
+  rightIcon,
   onChange,
   value,
 }: DateTimePickerProps & InputContainerProps): React.ReactElement {
@@ -35,7 +37,7 @@ export default function DateTimePicker({
   };
 
   return (
-    <InputContainer>
+    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <LocalizationProvider
         dateAdapter={AdapterDateFns}
         locale={localeMap['en']}
