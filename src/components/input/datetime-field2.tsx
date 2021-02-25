@@ -4,7 +4,7 @@ import { InputProps, TextField } from '@material-ui/core';
 
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
 
-import InputContainer, { InputContainerProps } from './input-container';
+import InputContainer, { InputContainerProps } from '../input/input-container';
 
 interface DateTimePickerProps {
   error: boolean;
