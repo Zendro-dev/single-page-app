@@ -1,4 +1,4 @@
-import { useState, useRef, ReactElement } from 'react';
+import { useState, ReactElement } from 'react';
 import moment, { Moment } from 'moment';
 import MomentUtils from '@date-io/moment';
 import {
@@ -22,42 +22,17 @@ export default function DateTimeField({
   leftIcon,
   rightIcon,
   value,
-  // error,
-  helperText,
   InputProps,
   ...props
 }: DateTimeFieldProps & InputContainerProps): ReactElement {
-  const initialDate = moment(value ?? '', 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+  const dateFormat = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
+  const initialDate = moment(value ?? '', dateFormat);
+  const [date, setDate] = useState(initialDate.isValid() ? initialDate : null);
 
-  const [selectedDate, setSelectedDate] = useState(
-    initialDate.isValid() ? initialDate : null
-  );
-
-  const mdate = useRef(initialDate.isValid() ? initialDate : moment.invalid());
-
-  const handleOnChange = (date: Moment | null): void => {
-    if (date === undefined || !date?.isValid()) return;
-
-    setSelectedDate(date);
-
-    if (date !== null) {
-      mdate.current = date;
-
-      if (mdate.current.isValid()) {
-        if (props.onChange) {
-          props.onChange(mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        }
-      } else {
-        if (props.onChange) {
-          props.onChange(null);
-        }
-      }
-    } else {
-      mdate.current = moment.invalid();
-      if (props.onChange) {
-        props.onChange(null);
-      }
-    }
+  const handleOnChange = (value: Moment | null): void => {
+    setDate(value);
+    const _date = value?.isValid() ? value.format(dateFormat) : null;
+    props.onChange(_date);
   };
 
   return (
@@ -71,14 +46,13 @@ export default function DateTimeField({
           {...props}
           fullWidth
           format="YYYY-MM-DD HH:mm:ss.SSS"
-          value={selectedDate}
+          value={date}
           margin="normal"
           variant="dialog"
           inputVariant="outlined"
-          invalidDateMessage={helperText ?? 'Invalid date format'}
           onChange={handleOnChange}
           clearable={true}
-          disabled={InputProps.readOnly ? true : false}
+          disabled={InputProps.readOnly}
         />
       </MuiPickersUtilsProvider>
     </InputContainer>
