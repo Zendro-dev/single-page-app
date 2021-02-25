@@ -38,10 +38,10 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const dataModel = await getStaticModel(params.model);
 
   const tableColumns = getAttributeList(dataModel);
-  const attributesList = tableColumns.map((attr) => attr.name).toString();
+  const attributeNames = tableColumns.map((attr) => attr.name).toString();
 
   const inflections = getInflections(dataModel.model);
-  const tableQuery = getTableQuery(attributesList, inflections);
+  const tableQuery = getTableQuery(attributeNames, inflections);
 
   return {
     props: {
