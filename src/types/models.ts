@@ -3,7 +3,6 @@ import { ParsedUrlQuery } from 'querystring';
 export type AttributeScalarType =
   | 'Boolean'
   | 'DateTime'
-  | 'DateTime2'
   | 'Float'
   | 'Int'
   | 'String';
