@@ -21,6 +21,8 @@ export interface Attributes {
 export type AttributeValue =
   | boolean
   | boolean[]
+  | Date
+  | Date[]
   | number
   | number[]
   | string

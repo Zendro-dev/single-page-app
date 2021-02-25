@@ -1,86 +1,68 @@
-import { useState, useRef, ReactElement } from 'react';
-import moment, { Moment } from 'moment';
-import MomentUtils from '@date-io/moment';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDateTimePicker,
-} from '@material-ui/pickers';
-import 'moment/locale/es.js';
-import 'moment/locale/de.js';
+import { enUS as en, es, de } from 'date-fns/locale';
+import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
+import { InputProps, TextField } from '@material-ui/core';
 
-import { InputProps } from '@material-ui/core';
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
+
 import InputContainer, { InputContainerProps } from './input-container';
 
-interface DateTimeFieldProps {
+interface DateTimePickerProps {
+  error: boolean;
   helperText?: string;
-  InputProps: InputProps;
-  onChange: (date: string | null) => void;
-  value: string | null;
+  InputProps?: InputProps;
+  label?: string;
+  onChange?: (value: Date | null) => void;
+  value: Date | null;
 }
 
-export default function DateTimeField({
-  leftIcon,
-  rightIcon,
-  value,
-  // error,
+const localeMap = { en, es, de };
+const mask = {
+  en: '__/__/____ __:__',
+  es: '__/__/____ __:__',
+  de: '__/__/____ __:__',
+};
+
+export default function DateTimePicker({
+  error,
   helperText,
   InputProps,
-  ...props
-}: DateTimeFieldProps & InputContainerProps): ReactElement {
-  const initialDate = moment(value ?? '', 'YYYY-MM-DDTHH:mm:ss.SSSZ');
-
-  const [selectedDate, setSelectedDate] = useState(
-    initialDate.isValid() ? initialDate : null
-  );
-
-  const mdate = useRef(initialDate.isValid() ? initialDate : moment.invalid());
-
-  const handleOnChange = (date: Moment | null): void => {
-    if (date === undefined || !date?.isValid()) return;
-
-    setSelectedDate(date);
-
-    if (date !== null) {
-      mdate.current = date;
-
-      if (mdate.current.isValid()) {
-        if (props.onChange) {
-          props.onChange(mdate.current.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
-        }
-      } else {
-        if (props.onChange) {
-          props.onChange(null);
-        }
-      }
-    } else {
-      mdate.current = moment.invalid();
-      if (props.onChange) {
-        props.onChange(null);
-      }
-    }
+  label,
+  leftIcon,
+  rightIcon,
+  onChange,
+  value,
+}: DateTimePickerProps & InputContainerProps): React.ReactElement {
+  const handleOnChange = (date: Date | null): void => {
+    if (onChange) onChange(date);
   };
 
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <MuiPickersUtilsProvider
-        libInstance={moment}
-        utils={MomentUtils}
-        locale="en"
+      <LocalizationProvider
+        dateAdapter={AdapterDateFns}
+        locale={localeMap['en']}
       >
-        <KeyboardDateTimePicker
-          {...props}
-          fullWidth
-          format="YYYY-MM-DD HH:mm:ss.SSS"
-          value={selectedDate}
-          margin="normal"
-          variant="dialog"
-          inputVariant="outlined"
-          invalidDateMessage={helperText ?? 'Invalid date format'}
+        <MobileDateTimePicker
+          ampm={false}
+          clearable
+          mask={mask['en']}
+          disabled={InputProps?.readOnly}
           onChange={handleOnChange}
-          clearable={true}
-          disabled={InputProps.readOnly ? true : false}
+          renderInput={(props) => (
+            <TextField
+              {...props}
+              error={error}
+              fullWidth
+              helperText={helperText}
+              margin="normal"
+              label={label}
+              variant="outlined"
+              InputProps={InputProps}
+            />
+          )}
+          value={value}
         />
-      </MuiPickersUtilsProvider>
+      </LocalizationProvider>
     </InputContainer>
   );
 }
