@@ -5,6 +5,7 @@ import {
   Typography,
   Tooltip,
   Grid,
+  Box,
 } from '@material-ui/core';
 
 export default function EnhancedTableHeadCell({
@@ -27,23 +28,16 @@ export default function EnhancedTableHeadCell({
           onClick(event, label);
         }}
       >
-        <Grid
-          container
+        <Box
+          display="flex"
           alignItems="center"
+          flexWrap="nowrap"
           alignContent="center"
-          wrap="nowrap"
-          // spacing={1}
         >
           {Icon && tooltip && (
-            <Grid item>
-              <Tooltip title={tooltip}>
-                <Icon
-                  fontSize="small"
-                  color="disabled"
-                  style={{ marginTop: 6, marginRight: 5 }}
-                />
-              </Tooltip>
-            </Grid>
+            <Tooltip title={tooltip}>
+              <Icon fontSize="small" color="disabled" />
+            </Tooltip>
           )}
           <Typography
             color="inherit"
@@ -53,7 +47,7 @@ export default function EnhancedTableHeadCell({
           >
             {label}
           </Typography>
-        </Grid>
+        </Box>
       </TableSortLabel>
     </TableCell>
   );
