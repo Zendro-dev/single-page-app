@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo, useState } from 'react';
-import { Attribute } from '@/utils/models';
 
 import {
   Clear as ClearIcon,
@@ -28,13 +27,24 @@ import {
   StringField,
   WithContainerProps,
 } from '../input';
+
 import { AttributeValue } from '@/types/models';
 import { BaseInputFieldProps } from '@/types/elements';
 
+import { Attribute } from '@/utils/models';
+import { readOne } from '@/utils/requests';
+import { queryRecordAttributes } from '@/utils/queries';
+import useAuth from '@/hooks/useAuth';
+import useSWR from 'swr';
+
 interface AttributesFormProps {
-  attributes: Attribute[];
   className?: string;
-  title: string;
+  attributes: Attribute[];
+  model: string;
+  operation: {
+    mode: 'create' | 'read' | 'update';
+    id?: string;
+  };
 }
 
 const ClearButton = (props: { onClick: () => void }): ReactElement => (
@@ -56,11 +66,13 @@ const ReadOnlyIcon = (props: SvgIconProps): ReactElement => (
 );
 
 export default function AttributesForm({
-  title,
+  model,
   attributes,
   className,
+  operation,
 }: AttributesFormProps): ReactElement {
   const classes = useStyles();
+  const { auth } = useAuth();
 
   const [values, setValues] = useState<Map<string, AttributeValue>>(
     attributes.reduce(
@@ -68,7 +80,22 @@ export default function AttributesForm({
       new Map<string, AttributeValue>()
     )
   );
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const request = useMemo(
+    () => queryRecordAttributes(model, attributes, { id: operation.id ?? '' }),
+    [attributes, model, operation.id]
+  );
+
+  useSWR<Record<string, AttributeValue> | null>(
+    operation.id && auth?.user?.token ? [auth.user.token, request] : null,
+    readOne,
+    {
+      revalidateOnFocus: false,
+      onSuccess: (data) => data && setValues(new Map(Object.entries(data))),
+    }
+  );
 
   /**
    * Computes the number of values that are currently set.
@@ -109,7 +136,7 @@ export default function AttributesForm({
       <Box display="flex" justifyContent="space-between" marginX={9.5} mb={6}>
         <legend className={classes.legend}>
           <Typography variant="h6" component="h1">
-            {title}
+            {model}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
             Completed: {nonNullValues} / {attributes.length}
@@ -122,8 +149,9 @@ export default function AttributesForm({
         </Tooltip>
       </Box>
 
-      {attributes.map((attribute) => {
-        const { name, readOnly, type } = attribute;
+      {attributes.map((attribute, index) => {
+        const { name, type } = attribute;
+        const readOnly = index === 0 && operation.mode !== 'create';
 
         // Set common props to all input fields
         const props: WithContainerProps<
