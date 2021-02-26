@@ -1,65 +1,134 @@
-# Single Page App (skeleton)
+<h1 align=center> Zendro Frontend</h1>
 
-> A React.js project.
+<p align=center>A generic web application to send CRUD requests to a Zendro GraphQL API.</p>
 
-### Environment variables
 
-* `REACT_APP_ZENDRO_GRAPHQL_SERVER_URL` - url where your backend server will be running, default value is `http://localhost:3000/graphql`
-* `REACT_APP_ZENDRO_LOGIN_URL` - url where your backend will check authentication, default value is `http://localhost:3000/login`
-* `REACT_APP_ZENDRO_EXPORT_URL` - url where your backend will serve the export requests, default value is `http://localhost:3000/export`
-* `REACT_APP_ZENDRO_MAX_UPLOAD_SIZE`- maximum size(in MB) of a file intended to be uploaded, default value is `500`, which means that user can not upload a file larger than 500MB.
-* `PORT` - for dev mode, this variable allows to modify the port where the app will be listening, default value is 8080.
+## Description
 
-## Build Setup
+This application offers a generic graphical user interface to send CRUD requests to a Zendro-enabled GraphQL endpoint, and can serve as a starting point to design a fully customized user experience for your project.
 
-In the project directory, you can run:
+The project leverages [Next.js](https://nextjs.org/) APIs to create a static site that is tailored specifically to support your custom data models, and contains all the necessary functionality used to communicate with the Zendro backend.
 
-### `npm install`
+## Setup
 
-Install dependencies.
+Two steps are required before using the Zendro frontend:
 
-### `npm start`
+- Adding your custom data model definitions (using our unified JSON schema format) to the `models` folder.
+- Configuring of the Zendro GraphQL endpoint to be used. This is done in the `env.local` file.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Data Models
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Each model is an independent file that describes the shape, or schema, of one data set. These models also include the relations, or associations, that they have with other models.
 
-### `npm test`
+To facilitate the development process, we use a unified `JSON` format that works in both Zendro backend and frontend projects. To learn more about how to set up data models, please visit our documentation on [how to define data models for developers](https://zendro-dev.github.io/setup_data_scheme.html). We also have available [documentation for non-developers](https://zendro-dev.github.io/non-developer_documentation.html) with a more abstract approach.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Configuration
 
-### `npm run build`
+For the Zendro frontend to know the location of its GraphQL endpoint, as well as other parameters required for its functionality, several environmental variables need to be defined in an `.env.local` file.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This file is also used by Next.js to set any environment variables that should be available to either the built-in generator, or in the browser. Read more about Next.js environmental variables [in the official documentation](https://nextjs.org/docs/basic-features/environment-variables).
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+For security reasons, this file is never committed to the remote repository. However, we have included a `.env.local.example` file with some reasonable defaults that may be used in development. To get started, you can begin by renaming `.env.local.example` to `.env.local`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Below there is a brief explanation of what each variable is used for.
 
-### `npm run eject`
+```bash
+# GraphQL endpoint address. Used to send data queries and mutations.
+NEXT_PUBLIC_ZENDRO_GRAPHQL_URL='http://localhost:3000/graphql'
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# Endpoing login address. Used for authentication.
+NEXT_PUBLIC_ZENDRO_LOGIN_URL='http://localhost:3000/login'
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Endpoint export address. Used to request table downloads in CSV format.
+NEXT_PUBLIC_ZENDRO_EXPORT_URL='http://localhost:3000/export'
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# Maximum allowed upload size in megabytes.
+NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE=500
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# Maximum number of records that can be returned per request.
+NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT=10000
+```
 
-### `Hardware requirements for large builds`
+## Development
 
-Memory | Minimum | Recomended
---- | --- | ---
-RAM | 4GB | 8GB
-Swap memory | 4GB | 8GB
+To start a development server, the following command is available.
 
-## Learn More
+```bash
+yarn dev
+# or to serve it from a custom port
+PORT=5000 yarn dev
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Open [http://localhost:8080](http://localhost:8080) with your browser to see the result.
+- You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+- The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Deployment
+
+### Static Application
+
+The default Zendro application is configured as a fully static site. The final build can be generated, and optionally previewed, via the following commands.
+
+```bash
+yarn build    # build the application in `.next` folder
+yarn export   # export to `out` folder as as a static site
+yarn serve    # preview the exported static site
+```
+
+Once the `out` folder is generated, it can be served as static content from a custom webserver, for example using [NGINX](https://docs.nginx.com/nginx/admin-guide/web-server/serving-static-content/), or deployed to a static hosting site, such as [Netlify](https://www.netlify.com/blog/2020/11/30/how-to-deploy-next.js-sites-to-netlify/) or [Github Pages](https://pages.github.com).
+
+### Hybrid Application
+
+If you have modified the application to use server-side logic, for example by adding support for [Incremental Static Generation](https://nextjs.org/blog/next-9-3#next-gen-static-site-generation-ssg-support) or [Server-Side Rendering](https://nextjs.org/docs/basic-features/pages#server-side-rendering), a Node.js server is required to host the application.
+
+```bash
+yarn build    # build the application in `.next` folder
+yarn start    # serve the application using the provided Node.js server
+```
+
+Alternatively, you can deploy to the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js. Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Customization
+
+### Custom Pages
+
+Routes in the application automatically mirror the structure of the pages folder. The default static site contains a dynamic `[model]` route, with a home page ([`index.tsx`](./src/pages/[model]/index.tsx)) to display an interactive table of records, and one child route ([`item.tsx`](./src/pages/[model]/item.tsx)) to display data for a single record.
+
+Overriding a model route with a custom page only requires to provide an appropriately named file within the pages folder. Because in Next.js predefined routes take precedence over dynamic routes, all requests for that model will now point to the new page.
+
+In the example below, a custom `books.tsx` page is overriding the default `/books` route that would be otherwise provided by `[model]/index.tsx`.
+
+```
+pages
+├── [model]
+│   ├── index.tsx
+│   └── [item].tsx
+├── books.tsx
+├── index.tsx
+└── login.tsx
+```
+
+### Next.js Resources
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+
+## Troubleshooting
+
+### Husky and Lint-Staged
+
+To both keep formatting consistent and catch potential errors in the project, this repository uses an ESLint + Prettier setup. On every commit, a [Husky](https://github.com/typicode/husky) git hook is configured to lint and format staged files.
+
+When trying to commit, the following error may occur:
+
+> Command "husky-run" not found
+
+If this happens, please make sure you have run the following commands in your terminal.
+
+```bash
+yarn install          # install node modules
+yarn husky install    # install git hooks
+```

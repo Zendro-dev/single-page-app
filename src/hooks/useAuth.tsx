@@ -1,20 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { authSelector, logUserIn, logUserOut } from '../store/auth-slice';
 import { AuthState } from '../types/auth';
 
 interface AuthOptions {
-  redirectTo?: string;
+  redirectTo: string;
+  redirectIfFound?: boolean;
 }
-
-type AuthLogin = (
-  email: string,
-  password: string,
-  options: AuthOptions
-) => void;
-
-type AuthLogout = (options: AuthOptions) => void;
+type AuthLogin = (email: string, password: string) => void;
+type AuthLogout = () => void;
 
 interface UseAuth {
   auth: AuthState;
@@ -22,28 +17,32 @@ interface UseAuth {
   logout: AuthLogout;
 }
 
-export default function useAuth(): UseAuth {
-  const [redirect, setRedirect] = useState<string>();
+export default function useAuth(options?: AuthOptions): UseAuth {
+  const { redirectTo, redirectIfFound } = options ?? {};
   const auth = useSelector(authSelector);
   const dispatch = useDispatch();
-  const history = useHistory();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!redirect) return;
+    // if no redirect needed, just return
+    // if user data not yet there (fetch in progress, logged in or not) then don't do anything yet
+    if (!redirectTo || auth.status === 'loading') return;
 
-    const isLoggedIn = auth.user && auth.status === 'success';
-    const isLoggedOut = !auth.user && auth.status === 'idle';
+    if (
+      // If redirectTo is set, redirect if the user was not found.
+      (redirectTo && !redirectIfFound && !auth.user) ||
+      // If redirectIfFound is also set, redirect if the user was found
+      (redirectIfFound && auth.user)
+    ) {
+      router.push(redirectTo);
+    }
+  }, [auth, redirectTo, redirectIfFound, router]);
 
-    if (isLoggedIn || isLoggedOut) history.push(redirect);
-  }, [auth, history, redirect]);
-
-  const login: AuthLogin = (email, password, options = {}) => {
-    if (options.redirectTo) setRedirect(options.redirectTo);
+  const login: AuthLogin = (email, password) => {
     if (email && password) dispatch(logUserIn({ email, password }));
   };
 
-  const logout: AuthLogout = (options = {}) => {
-    if (options.redirectTo) setRedirect(options.redirectTo);
+  const logout: AuthLogout = () => {
     dispatch(logUserOut());
   };
 

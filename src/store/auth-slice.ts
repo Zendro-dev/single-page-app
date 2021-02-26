@@ -5,11 +5,8 @@ import {
   User,
   UserRequest,
 } from '../types/auth';
-import {
-  authenticateFromRemote,
-  clearAuthToken,
-  authenticateFromToken,
-} from '../utils/auth';
+import { authenticateFromRemote, authenticateFromToken } from '../utils/auth';
+import { localStorage } from '../utils/storage';
 
 import { AuthState } from '../types/auth';
 
@@ -52,7 +49,7 @@ const authSlice = createSlice({
   reducers: {
     logUserOut: (state) => {
       state.user = undefined;
-      clearAuthToken();
+      localStorage.removeItem('token');
       state.status = 'idle';
     },
     cancelLogin: (state) => {
@@ -60,7 +57,7 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(logUserIn.pending, (state, action) => {
+    builder.addCase(logUserIn.pending, (state) => {
       state.status = 'loading';
     });
     builder.addCase(logUserIn.fulfilled, (state, action) => {

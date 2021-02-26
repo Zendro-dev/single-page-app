@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GRAPHQL_SERVER_URL } from '../config/globals';
+import { GRAPHQL_URL } from '../config/globals';
 
 export function fetcherUpload(model_name, token, file) {
   let query_name = `bulkAdd${model_name}Csv`; //to be updated with query from queries module
@@ -14,7 +14,7 @@ export function fetcherUpload(model_name, token, file) {
   };
 
   return axios
-    .post(GRAPHQL_SERVER_URL, formData, { headers: headers })
+    .post(GRAPHQL_URL, formData, { headers: headers })
     .then((response) => response.data.data[query_name])
     .catch((error) => {
       throw error;
@@ -31,7 +31,7 @@ export function fetcherTemplate(model_name, token) {
 
   return axios
     .post(
-      GRAPHQL_SERVER_URL,
+      GRAPHQL_URL,
       { query: `query {${query_name}}` },
       { headers: headers }
     )
