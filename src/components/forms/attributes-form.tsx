@@ -26,8 +26,10 @@ import {
   FloatField,
   IntField,
   StringField,
+  WithContainerProps,
 } from '../input';
 import { AttributeValue } from '@/types/models';
+import { BaseInputFieldProps } from '@/types/elements';
 
 interface AttributesFormProps {
   attributes: Attribute[];
@@ -122,7 +124,14 @@ export default function AttributesForm({
 
       {attributes.map((attribute) => {
         const { name, readOnly, type } = attribute;
-        const props = {
+
+        // Set common props to all input fields
+        const props: WithContainerProps<
+          BaseInputFieldProps<{
+            key: string;
+            onChange: (value: AttributeValue) => void;
+          }>
+        > = {
           InputProps: {
             endAdornment: !readOnly && (
               <ClearButton onClick={handleOnClear(name)} />
@@ -134,46 +143,23 @@ export default function AttributesForm({
           leftIcon: readOnly ? ReadOnlyIcon : undefined,
           onChange: handleOnChange(name),
         };
+
+        const value = values.get(name);
+
+        // Cast the value and return the appropriate input field
         switch (type) {
           case 'Boolean':
-            return (
-              <BoolField
-                {...props}
-                value={values.get(name) as boolean | null}
-              />
-            );
+            return <BoolField {...props} value={value as boolean | null} />;
           case 'DateTime':
-            return (
-              <DateTimeField
-                {...props}
-                value={values.get(name) as Date | null}
-              />
-            );
+            return <DateTimeField {...props} value={value as Date | null} />;
           case 'Float':
-            return (
-              <FloatField
-                {...props}
-                value={values.get(name) as number | null}
-              />
-            );
+            return <FloatField {...props} value={value as number | null} />;
           case 'Int':
-            return (
-              <IntField {...props} value={values.get(name) as number | null} />
-            );
+            return <IntField {...props} value={value as number | null} />;
           case 'String':
-            return (
-              <StringField
-                {...props}
-                value={values.get(name) as string | null}
-              />
-            );
+            return <StringField {...props} value={value as string | null} />;
           default:
-            return (
-              <StringField
-                {...props}
-                value={values.get(name) as string | null}
-              />
-            );
+            return <StringField {...props} value={value as string | null} />;
         }
       })}
     </form>
