@@ -3,7 +3,7 @@ import { ReactElement } from 'react';
 import InputContainer, { WithContainerProps } from './input-container';
 import { BaseInputFieldProps } from '@/types/elements';
 
-interface FloatFieldProps {
+export interface FloatFieldProps {
   onChange?: (value: number | null) => void;
   value: number | null;
 }

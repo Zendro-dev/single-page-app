@@ -9,7 +9,7 @@ import {
 import InputContainer, { WithContainerProps } from './input-container';
 import { BaseInputFieldProps } from '@/types/elements';
 
-interface BoolFieldProps {
+export interface BoolFieldProps {
   onChange?: (value: boolean | null) => void;
   value: boolean | null;
 }

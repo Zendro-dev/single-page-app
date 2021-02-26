@@ -3,7 +3,7 @@ import { TextField } from '@material-ui/core';
 import InputContainer, { WithContainerProps } from './input-container';
 import { BaseInputFieldProps } from '@/types/elements';
 
-interface StringFieldProps {
+export interface StringFieldProps {
   onChange?: (value: string | null) => void;
   value: string | null;
 }

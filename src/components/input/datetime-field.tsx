@@ -5,12 +5,12 @@ import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
 import InputContainer, { WithContainerProps } from './input-container';
 import { BaseInputFieldProps } from '@/types/elements';
 
-interface DateTimePickerProps {
+export interface DateTimeFieldProps {
   onChange?: (value: Date | null) => void;
   value: Date | null;
 }
 
-type Props = WithContainerProps<BaseInputFieldProps<DateTimePickerProps>>;
+type Props = WithContainerProps<BaseInputFieldProps<DateTimeFieldProps>>;
 
 const localeMap = { en, es, de };
 const mask = {

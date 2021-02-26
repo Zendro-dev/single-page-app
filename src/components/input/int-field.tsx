@@ -3,7 +3,7 @@ import { TextField } from '@material-ui/core';
 import { ReactElement } from 'react';
 import InputContainer, { WithContainerProps } from './input-container';
 
-interface IntFieldProps {
+export interface IntFieldProps {
   onChange?: (value: number | null) => void;
   value: number | null;
 }
