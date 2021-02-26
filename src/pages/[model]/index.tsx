@@ -10,6 +10,7 @@ import { DataModel, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
+import TableToolBar from '@/components/tableToolBar/tableToolBar'
 
 interface ModelProps {
   dataModel: DataModel;
@@ -47,6 +48,7 @@ const Model: NextPage<ModelProps> = ({ routes }) => {
     <ModelsLayout brand="Zendro" routes={routes}>
       <div>{JSON.stringify(router.asPath)}</div>
       <div>{JSON.stringify(router.query)}</div>
+      <TableToolBar></TableToolBar>
     </ModelsLayout>
   );
 };

@@ -35,6 +35,7 @@ export default function SearchField(props) {
     <TextField
       placeholder={'Type your search'}
       value={searchValue}
+      variant="standard"
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
