@@ -29,9 +29,7 @@ export default function BoolField({
   const classes = useStyles();
 
   const [checked, setChecked] = useState(value || false);
-  const [indeterminate, setIndeterminate] = useState(
-    value !== undefined && value !== null ? false : true
-  );
+  const [indeterminate, setIndeterminate] = useState(value === null);
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
