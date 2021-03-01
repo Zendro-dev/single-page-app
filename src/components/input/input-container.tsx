@@ -5,7 +5,6 @@ import { ReactElement, PropsWithChildren } from 'react';
 
 export interface InputContainerProps {
   className?: string;
-  inputType?: 'checkbox' | 'text-field';
   leftIcon?: SvgIconType;
   rightIcon?: SvgIconType;
 }
@@ -14,7 +13,6 @@ export type WithContainerProps<T> = T &
   Pick<InputContainerProps, 'leftIcon' | 'rightIcon'>;
 
 export default function InputContainer({
-  inputType,
   leftIcon: LeftIcon,
   rightIcon: RightIcon,
   ...props
@@ -24,15 +22,7 @@ export default function InputContainer({
   return (
     <div className={clsx(classes.root, props.className ?? '')}>
       {LeftIcon ? (
-        <LeftIcon
-          className={clsx(
-            inputType === 'checkbox'
-              ? classes.iconCheckbox
-              : classes.iconTextField,
-            classes.icon,
-            classes.leftIcon
-          )}
-        />
+        <LeftIcon className={clsx(classes.icon, classes.leftIcon)} />
       ) : (
         <span className={classes.iconPlaceholder} />
       )}
@@ -58,12 +48,6 @@ const useStyles = makeStyles((theme) =>
       marginTop: theme.spacing(8),
       width: theme.spacing(5),
       height: theme.spacing(5),
-    },
-    iconTextField: {
-      marginTop: theme.spacing(8),
-    },
-    iconCheckbox: {
-      marginTop: theme.spacing(2.5),
     },
     leftIcon: {
       marginRight: theme.spacing(4),

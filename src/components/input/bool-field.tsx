@@ -55,12 +55,8 @@ export default function BoolField({
   };
 
   return (
-    <InputContainer
-      inputType="checkbox"
-      leftIcon={leftIcon}
-      rightIcon={rightIcon}
-    >
-      <FormControl error={error}>
+    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
+      <FormControl className={classes.root} error={error}>
         <FormControlLabel
           className={error ? classes.error : ''}
           control={
@@ -91,6 +87,9 @@ const useStyles = makeStyles((theme) =>
     },
     helperText: {
       marginLeft: theme.spacing(4),
+    },
+    root: {
+      margin: theme.spacing(5, 0, 2, 0),
     },
   })
 );
