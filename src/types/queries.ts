@@ -4,26 +4,29 @@ export interface QueryVariables {
   [key: string]: unknown;
 }
 
-export interface ComposedQuery<V = QueryVariables> {
+export interface RawQuery {
   resolver: string;
   query: string;
+}
+
+export interface ComposedQuery<V = QueryVariables> extends RawQuery {
   variables?: V;
 }
 
 export interface QueryModelTableRecordsVariables extends QueryVariables {
-  search: {
+  search?: {
     field: string;
     value: string;
     valueType: AttributeScalarType;
   };
   pagination: {
-    first: number;
-    last: number;
-    after: string;
-    before: string;
-    includeCursor: boolean;
+    first?: number;
+    last?: number;
+    after?: string;
+    before?: string;
+    includeCursor?: boolean;
   };
-  order: {
+  order?: {
     field: string;
     order: 'ASC' | 'DESC';
   };
@@ -32,13 +35,12 @@ export type QueryModelTableRecords = (
   modelName: string,
   attributes: ParsedAttribute[],
   variables: QueryModelTableRecordsVariables
-) => ComposedQuery<QueryModelTableRecordsVariables>;
+) => RawQuery;
 
 export interface QueryRecordAttributesVariables extends QueryVariables {
   id: string | number;
 }
 export type QueryRecordAttributes = (
   modelName: string,
-  attributes: ParsedAttribute[],
-  variables: QueryRecordAttributesVariables
-) => ComposedQuery<QueryRecordAttributesVariables>;
+  attributes: ParsedAttribute[]
+) => RawQuery;
