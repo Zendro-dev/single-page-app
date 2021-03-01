@@ -33,8 +33,7 @@ export interface QueryModelTableRecordsVariables extends QueryVariables {
 }
 export type QueryModelTableRecords = (
   modelName: string,
-  attributes: ParsedAttribute[],
-  variables: QueryModelTableRecordsVariables
+  attributes: ParsedAttribute[]
 ) => RawQuery;
 
 export interface QueryRecordAttributesVariables extends QueryVariables {
