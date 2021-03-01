@@ -1,15 +1,31 @@
-import { React, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
 import KeyIcon from '@material-ui/icons/VpnKey';
 import EnhancedTableHeadCell from './EnhancedTableHeadCell';
+import { QueryVariableOrder } from '@/types/queries';
+import { ParsedAttribute } from '@/types/models';
 
-export default function EnhancedTableHead({ attributes, handleSetOrder }) {
-  const [activeOrderCol, setActiveOrderCol] = useState(
-    attributes[Object.keys(attributes)[0]]
-  );
-  const [activeOrder, setActiveOrder] = useState('asc');
+interface EnhancedTableHeadProps {
+  attributes: ParsedAttribute[];
+  handleSetOrder(value: QueryVariableOrder): void;
+}
 
-  const handleTableHeadCellClick = (event, field) => {
+declare global {
+  interface String {
+    toUpperCase(this: 'asc' | 'desc'): 'ASC' | 'DESC';
+  }
+}
+
+export type Order = 'asc' | 'desc';
+
+export default function EnhancedTableHead({
+  attributes,
+  handleSetOrder,
+}: EnhancedTableHeadProps): ReactElement {
+  const [activeOrderCol, setActiveOrderCol] = useState(attributes[0].name);
+  const [activeOrder, setActiveOrder] = useState<Order>('asc');
+
+  const handleTableHeadCellClick = (field: string): void => {
     const isAsc = activeOrderCol === field && activeOrder === 'asc';
     setActiveOrder(isAsc ? 'desc' : 'asc');
     setActiveOrderCol(field);
@@ -33,8 +49,8 @@ export default function EnhancedTableHead({ attributes, handleSetOrder }) {
         {attributes.map((attribute, index) => (
           <EnhancedTableHeadCell
             label={attribute.name}
-            icon={attribute.readOnly ? KeyIcon : null}
-            tooltip={attribute.readOnly ? 'Unique Identifier' : null}
+            icon={attribute.primaryKey ? KeyIcon : null}
+            tooltip={attribute.primaryKey ? 'Unique Identifier' : null}
             align={
               attribute.type.includes('Int') || attribute.type.includes('Float')
                 ? 'right'
@@ -48,7 +64,7 @@ export default function EnhancedTableHead({ attributes, handleSetOrder }) {
             sortDirection={
               activeOrderCol === attribute.name ? activeOrder : false
             }
-            onClick={handleTableHeadCellClick}
+            onTableCellClick={handleTableHeadCellClick}
             key={`EnhancedTableHeadCell-${attribute.name}-${index}`}
           />
         ))}

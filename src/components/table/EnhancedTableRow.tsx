@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 
 import {
   TableRow,
@@ -12,26 +12,24 @@ import {
   Edit as EditIcon,
   VisibilityTwoTone as DetailIcon,
 } from '@material-ui/icons';
+import { ParsedAttribute } from '@/types/models';
 
-const useStyles = makeStyles(() => ({
-  iconDetail: {
-    '&:hover': {
-      color: '#3f51b5',
-    },
-  },
-  iconEdit: {
-    '&:hover': {
-      color: '#3f51b5',
-    },
-  },
-  iconDelete: {
-    '&:hover': {
-      color: '#f50057',
-    },
-  },
-}));
+interface EnhancedTableRowIconProps {
+  label: string;
+  to: string;
+}
 
-function EnhancedTableRowIcon({ label, to, ...props }) {
+interface EnhancedTableRowProps {
+  // TODO correct typing for record
+  record: any;
+  attributes: ParsedAttribute[];
+}
+
+function EnhancedTableRowIcon({
+  label,
+  to,
+  children,
+}: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   // TODO replace this with a Link (next link?)
   return (
     <TableCell padding="checkbox" align="center">
@@ -42,14 +40,17 @@ function EnhancedTableRowIcon({ label, to, ...props }) {
             alert(to);
           }}
         >
-          {props.children}
+          {children}
         </IconButton>
       </Tooltip>
     </TableCell>
   );
 }
 
-export default function EnhancedTableRow({ record, attributes }) {
+export default function EnhancedTableRow({
+  record,
+  attributes,
+}: EnhancedTableRowProps): ReactElement {
   // TODO needs to be aware of the model to compose the correct Link to View/Update/Delete
 
   const classes = useStyles();
@@ -85,3 +86,21 @@ export default function EnhancedTableRow({ record, attributes }) {
     </TableRow>
   );
 }
+
+const useStyles = makeStyles(() => ({
+  iconDetail: {
+    '&:hover': {
+      color: '#3f51b5',
+    },
+  },
+  iconEdit: {
+    '&:hover': {
+      color: '#3f51b5',
+    },
+  },
+  iconDelete: {
+    '&:hover': {
+      color: '#f50057',
+    },
+  },
+}));

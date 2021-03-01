@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import {
   TableSortLabel,
   TableCell,
   Typography,
   Tooltip,
-  Grid,
   Box,
+  TableCellProps,
 } from '@material-ui/core';
+import { Order } from './EnhancedTableHead';
+import { OverridableComponent } from '@material-ui/core/OverridableComponent';
+
+interface EnhacedTableHeadCellProps extends TableCellProps {
+  label: string;
+  // TODO remove any
+  icon: OverridableComponent<any> | null;
+  tooltip: string | null;
+  disableSort: boolean;
+  activeOrder: boolean;
+  orderDirection: Order;
+  onTableCellClick(field: string): void;
+}
 
 export default function EnhancedTableHeadCell({
   label,
@@ -15,17 +28,17 @@ export default function EnhancedTableHeadCell({
   tooltip,
   activeOrder,
   orderDirection,
-  onClick,
+  onTableCellClick,
   ...props
-}) {
+}: EnhacedTableHeadCellProps): ReactElement {
   return (
     <TableCell {...props}>
       <TableSortLabel
         active={activeOrder}
         disabled={disableSort}
         direction={orderDirection}
-        onClick={(event) => {
-          onClick(event, label);
+        onClick={() => {
+          onTableCellClick(label);
         }}
       >
         <Box
