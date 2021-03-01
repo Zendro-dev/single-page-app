@@ -34,6 +34,8 @@ export type AttributeValue =
 export interface ParsedAttribute {
   name: string;
   type: AttributeScalarType | AttributeArrayType;
+  primaryKey?: boolean;
+  foreignKey?: boolean;
 }
 
 /* ASSOCIATIONS */
