@@ -3,7 +3,7 @@ import { TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
 import KeyIcon from '@material-ui/icons/VpnKey';
 import EnhancedTableHeadCell from './EnhancedTableHeadCell';
 
-export default function EnhancedTableHead({ attributes }) {
+export default function EnhancedTableHead({ attributes, handleSetOrder }) {
   const [activeOrderCol, setActiveOrderCol] = useState(
     attributes[Object.keys(attributes)[0]]
   );
@@ -13,6 +13,7 @@ export default function EnhancedTableHead({ attributes }) {
     const isAsc = activeOrderCol === field && activeOrder === 'asc';
     setActiveOrder(isAsc ? 'desc' : 'asc');
     setActiveOrderCol(field);
+    handleSetOrder({ field: field, order: activeOrder.toUpperCase() });
   };
 
   return (
