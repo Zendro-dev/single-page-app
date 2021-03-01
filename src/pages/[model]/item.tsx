@@ -8,18 +8,21 @@ import {
   getStaticRoutes,
   getStaticModel,
 } from '@/utils/static';
-import { getAttributeList, Attribute } from '@/utils/models';
-import { RecordPathParams } from '@/types/models';
+import { getAttributeList } from '@/utils/models';
+import { queryRecordAttributes } from '@/utils/queries';
+import { ParsedAttribute, RecordPathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 
 import ModelsLayout from '@/layouts/models-layout';
 import AttributesForm from '@/components/forms/attributes-form';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { RawQuery } from '@/types/queries';
 
 interface RecordProps {
-  attributes: Attribute[];
+  attributes: ParsedAttribute[];
   modelName: string;
   routes: AppRoutes;
+  rawQuery: RawQuery;
 }
 
 export const getStaticPaths: GetStaticPaths<RecordPathParams> = async () => {
@@ -41,17 +44,24 @@ export const getStaticProps: GetStaticProps<
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
+  const rawQuery = queryRecordAttributes(modelName, attributes);
 
   return {
     props: {
       attributes,
       modelName,
       routes,
+      rawQuery,
     },
   };
 };
 
-const Record: NextPage<RecordProps> = ({ attributes, modelName, routes }) => {
+const Record: NextPage<RecordProps> = ({
+  attributes,
+  modelName,
+  routes,
+  rawQuery,
+}) => {
   useAuth({ redirectTo: '/' });
   const router = useRouter();
   const classes = useStyles();
@@ -84,6 +94,7 @@ const Record: NextPage<RecordProps> = ({ attributes, modelName, routes }) => {
         className={classes.form}
         attributes={attributes}
         operation={operation}
+        rawQuery={rawQuery}
       />
     </ModelsLayout>
   );

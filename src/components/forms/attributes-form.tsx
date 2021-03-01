@@ -31,20 +31,25 @@ import {
 import { AttributeValue } from '@/types/models';
 import { BaseInputFieldProps } from '@/types/elements';
 
-import { Attribute } from '@/utils/models';
 import { readOne } from '@/utils/requests';
-import { queryRecordAttributes } from '@/utils/queries';
+import { ParsedAttribute } from '@/types/models';
 import useAuth from '@/hooks/useAuth';
 import useSWR from 'swr';
+import {
+  RawQuery,
+  QueryRecordAttributesVariables,
+  ComposedQuery,
+} from '@/types/queries';
 
 interface AttributesFormProps {
   className?: string;
-  attributes: Attribute[];
+  attributes: ParsedAttribute[];
   model: string;
   operation: {
     mode: 'create' | 'read' | 'update';
     id?: string;
   };
+  rawQuery: RawQuery;
 }
 
 const ClearButton = (props: { onClick: () => void }): ReactElement => (
@@ -70,6 +75,7 @@ export default function AttributesForm({
   attributes,
   className,
   operation,
+  rawQuery,
 }: AttributesFormProps): ReactElement {
   const classes = useStyles();
   const { auth } = useAuth();
@@ -83,13 +89,21 @@ export default function AttributesForm({
 
   // const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const request = useMemo(
-    () => queryRecordAttributes(model, attributes, { id: operation.id ?? '' }),
-    [attributes, model, operation.id]
-  );
+  const request = useMemo(() => {
+    console.log({ id: operation.id });
+    return {
+      query: rawQuery.query,
+      resolver: rawQuery.resolver,
+      variables: {
+        id: operation.id ?? '',
+      },
+    } as ComposedQuery<QueryRecordAttributesVariables>;
+  }, [operation.id, rawQuery]);
 
-  useSWR<Record<string, AttributeValue> | null>(
-    operation.id && auth?.user?.token ? [auth.user.token, request] : null,
+  const { isValidating } = useSWR<Record<string, AttributeValue> | null>(
+    request.variables?.id && auth?.user?.token
+      ? [auth.user.token, request]
+      : null,
     readOne,
     {
       revalidateOnFocus: false,
@@ -149,9 +163,9 @@ export default function AttributesForm({
         </Tooltip>
       </Box>
 
-      {attributes.map((attribute, index) => {
-        const { name, type } = attribute;
-        const readOnly = index === 0 && operation.mode !== 'create';
+      {attributes.map((attribute) => {
+        const { name, type, primaryKey } = attribute;
+        const readOnly = primaryKey && operation.mode !== 'create';
 
         // Set common props to all input fields
         const props: WithContainerProps<
