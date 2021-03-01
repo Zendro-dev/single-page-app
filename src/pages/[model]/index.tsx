@@ -7,18 +7,18 @@ import {
   getStaticModelPaths,
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
-import { getInflections } from '@/utils/inflection';
-import { getTableQuery } from '@/utils/queries';
+import { queryModelTableRecords } from '@/utils/queries';
 import { PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
 import EnhancedTable from '@/components/table/EnhancedTable';
+import { RawQuery } from '@/types/queries';
 
 interface ModelProps {
   modelName: string;
-  tableColumns: unknown;
-  tableQuery: string;
+  attributes: unknown;
+  rawQuery: RawQuery;
   routes: AppRoutes;
 }
 
@@ -34,20 +34,19 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   context
 ) => {
   const params = context.params as PathParams;
+
+  const modelName = params.model;
   const routes = await getStaticRoutes();
-  const dataModel = await getStaticModel(params.model);
+  const dataModel = await getStaticModel(modelName);
 
-  const tableColumns = getAttributeList(dataModel);
-  const attributeNames = tableColumns.map((attr) => attr.name).toString();
-
-  const inflections = getInflections(dataModel.model);
-  const tableQuery = getTableQuery(attributeNames, inflections);
+  const attributes = getAttributeList(dataModel);
+  const rawQuery = queryModelTableRecords(modelName, attributes);
 
   return {
     props: {
-      modelName: dataModel.model,
-      tableColumns,
-      tableQuery,
+      modelName,
+      attributes,
+      rawQuery,
       routes,
     },
   };
@@ -55,8 +54,8 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
 
 const Model: NextPage<ModelProps> = ({
   modelName,
-  tableColumns,
-  tableQuery,
+  attributes,
+  rawQuery,
   routes,
 }) => {
   useAuth({ redirectTo: '/' });
@@ -66,8 +65,8 @@ const Model: NextPage<ModelProps> = ({
     <ModelsLayout brand="Zendro" routes={routes}>
       <EnhancedTable
         modelName={modelName}
-        attributes={tableColumns}
-        query={tableQuery}
+        attributes={attributes}
+        rawQuery={rawQuery}
       />
     </ModelsLayout>
   );
