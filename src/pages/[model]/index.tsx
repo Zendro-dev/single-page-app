@@ -8,7 +8,7 @@ import {
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
 import { queryModelTableRecords } from '@/utils/queries';
-import { PathParams } from '@/types/models';
+import { ParsedAttribute, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
@@ -17,7 +17,7 @@ import { RawQuery } from '@/types/queries';
 
 interface ModelProps {
   modelName: string;
-  attributes: unknown;
+  attributes: ParsedAttribute[];
   rawQuery: RawQuery;
   routes: AppRoutes;
 }
