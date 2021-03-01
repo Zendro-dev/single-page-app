@@ -13,6 +13,7 @@ import {
 export function getForeignKeys(dataModel: DataModel): Set<string> {
   const { attributes, associations, model } = dataModel;
   const foreignKeys = new Set<string>();
+
   /**
    * Parser function that iterates over data model associations and returns foreign-key
    * attributes that are not contained in the data model.
@@ -24,12 +25,15 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
     { keyIn, targetKey }: Association
   ): Set<string> =>
     attributes[targetKey] && keyIn !== model ? keys.add(targetKey) : keys;
+
   if (associations) {
     Object.values(associations).reduce(parseAssociationsReducer, foreignKeys);
   }
+
   return foreignKeys;
 }
-interface Attribute {
+
+export interface Attribute {
   name: string;
   type: AttributeScalarType | AttributeArrayType;
   readOnly: boolean;
@@ -59,6 +63,8 @@ export function getAttributeList(
     const foreignKeys = getForeignKeys(model);
     attributes.filter(({ name }) => foreignKeys.has(name));
   }
+
+  // Sort or unshift the id attribute
   model.internalId
     ? attributes.splice(
         0,
@@ -71,5 +77,6 @@ export function getAttributeList(
         )[0]
       )
     : attributes.unshift({ name: 'id', type: 'Int', readOnly: true });
+
   return attributes;
 }
