@@ -57,7 +57,11 @@ export default function BoolField({
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
+    <InputContainer
+      inputType="checkbox"
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
+    >
       <FormControl error={error}>
         <FormControlLabel
           className={error ? classes.error : ''}
