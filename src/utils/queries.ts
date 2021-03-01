@@ -6,12 +6,10 @@ import { QueryModelTableRecords, QueryRecordAttributes } from '@/types/queries';
  * Compose a readMany graphql query to retrieve a list of model records.
  * @param modelName name of the data model to query data from
  * @param attributes a sorted list of attribute fields to query
- * @param variables graphql query variables
  */
 export const queryModelTableRecords: QueryModelTableRecords = (
   modelName,
-  attributes,
-  variables
+  attributes
 ) => {
   const { namePlLc, nameCp } = getInflections(modelName);
   const fields = getAttributeFields(attributes);
@@ -38,7 +36,6 @@ export const queryModelTableRecords: QueryModelTableRecords = (
   return {
     resolver,
     query,
-    variables,
   };
 };
 
@@ -46,19 +43,19 @@ export const queryModelTableRecords: QueryModelTableRecords = (
  * Compose a readOne graphql query to retrieve a single record attribute values.
  * @param modelName name of the data model to query data from
  * @param attributes a sorted list of attribute fields to query
- * @param variables graphql query variables
  */
 export const queryRecordAttributes: QueryRecordAttributes = (
   modelName,
-  attributes,
-  variables
+  attributes
 ) => {
   const { nameCp } = getInflections(modelName);
   const fields = getAttributeFields(attributes);
 
+  const primaryKey =
+    attributes.find((attribute) => attribute?.primaryKey)?.name ?? 'id';
   const resolver = `readOne${nameCp}`;
   const query = `query getRecordAttributes($id: ID!) {
-    ${resolver}(id: $id) {
+    ${resolver}(${primaryKey}: $id) {
       ${fields}
     }
   }`;
@@ -66,7 +63,6 @@ export const queryRecordAttributes: QueryRecordAttributes = (
   return {
     resolver,
     query,
-    variables,
   };
 };
 
