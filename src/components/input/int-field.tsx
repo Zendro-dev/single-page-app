@@ -11,6 +11,8 @@ export interface IntFieldProps {
 type Props = WithContainerProps<BaseInputFieldProps<IntFieldProps>>;
 
 export default function IntField({
+  error,
+  helperText,
   InputProps,
   label,
   leftIcon,
@@ -34,6 +36,8 @@ export default function IntField({
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
+        error={error}
+        helperText={helperText}
         fullWidth
         InputProps={InputProps}
         label={label}

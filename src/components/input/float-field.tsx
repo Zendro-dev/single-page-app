@@ -11,6 +11,8 @@ export interface FloatFieldProps {
 type Props = WithContainerProps<BaseInputFieldProps<FloatFieldProps>>;
 
 export default function FloatField({
+  error,
+  helperText,
   InputProps,
   label,
   leftIcon,
@@ -32,6 +34,8 @@ export default function FloatField({
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
+        error={error}
+        helperText={helperText}
         InputProps={InputProps}
         fullWidth
         label={label}

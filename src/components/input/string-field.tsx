@@ -11,6 +11,8 @@ export interface StringFieldProps {
 type Props = WithContainerProps<BaseInputFieldProps<StringFieldProps>>;
 
 export default function StringField({
+  error,
+  helperText,
   InputProps,
   label,
   leftIcon,
@@ -29,6 +31,8 @@ export default function StringField({
   return (
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <TextField
+        error={error}
+        helperText={helperText}
         InputProps={InputProps}
         fullWidth
         label={label}
