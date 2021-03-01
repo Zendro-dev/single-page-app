@@ -1,9 +1,4 @@
-import {
-  Association,
-  AttributeScalarType,
-  AttributeArrayType,
-  DataModel,
-} from '@/types/models';
+import { Association, DataModel, ParsedAttribute } from '@/types/models';
 
 /**
  * Get all foreign keys for a given model. A foreign-key is understood as any attribute that
@@ -33,12 +28,6 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
   return foreignKeys;
 }
 
-export interface Attribute {
-  name: string;
-  type: AttributeScalarType | AttributeArrayType;
-  readOnly: boolean;
-}
-
 interface GetAttributeListOptions {
   excludeForeignKeys: boolean;
 }
@@ -46,22 +35,23 @@ interface GetAttributeListOptions {
 export function getAttributeList(
   model: DataModel,
   options?: GetAttributeListOptions
-): Array<Attribute> {
+): Array<ParsedAttribute> {
   // Get an array of Attribute objects
-  const attributes: Array<Attribute> = Object.keys(model.attributes).map(
+  const foreignKeys = getForeignKeys(model);
+  const attributes: Array<ParsedAttribute> = Object.keys(model.attributes).map(
     (attribute) => {
       return {
         name: attribute,
         type: model.attributes[attribute],
-        readOnly: model.internalId === attribute ? true : false,
+        primaryKey: model.internalId === attribute,
+        foreignKey: foreignKeys.has(attribute),
       };
     }
   );
 
   // Parse all attributes contained in associated models
   if (options?.excludeForeignKeys) {
-    const foreignKeys = getForeignKeys(model);
-    attributes.filter(({ name }) => foreignKeys.has(name));
+    attributes.filter(({ foreignKey }) => !foreignKey);
   }
 
   // Sort or unshift the id attribute
@@ -76,7 +66,7 @@ export function getAttributeList(
           1
         )[0]
       )
-    : attributes.unshift({ name: 'id', type: 'Int', readOnly: true });
+    : attributes.unshift({ name: 'id', type: 'Int', primaryKey: true });
 
   return attributes;
 }
