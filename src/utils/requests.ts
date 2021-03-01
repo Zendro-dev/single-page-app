@@ -1,61 +1,26 @@
-import { GRAPHQL_URL } from '@/config/globals';
 import axios, { AxiosResponse } from 'axios';
-import { getInflections } from '@/utils/inflection';
-import { AttributeScalarType } from '@/types/models';
+import { GRAPHQL_URL } from '@/config/globals';
+import { ComposedQuery, QueryVariables } from '@/types/queries';
+import { ReadManyResponse, ReadOneResponse } from '@/types/requests';
 
-interface ServerResponse<D, E> {
-  data?: D | null;
-  errors?: Array<E>;
+interface ServerResponse<T = unknown> {
+  data?: T | null;
+  errors?: Error[];
   status: number;
   statusText: string;
 }
 
-interface QueryVariables {
-  search: {
-    field: string;
-    value: string;
-    valueType: AttributeScalarType;
-  };
-  pagination: {
-    first: number;
-    last: number;
-    after: string;
-    before: string;
-    includeCursor: boolean;
-  };
-  order: {
-    field: string;
-    order: 'ASC' | 'DESC';
-  };
-}
-
-interface Query {
-  [key: string]: {
-    edges: QueryEdge[];
-  };
-}
-
-interface QueryEdge {
-  node: QueryNode;
-}
-
-// TODO type this correctly
-interface QueryNode {
-  [key: string]: any;
-}
-
 /**
- * generic query interface to the backend graphql-server using axios
- *
- * @param query
- * @param variables
- * @param token
+ * Generic query interface to the backend graphql-server using axios
+ * @param query string to send to the graphql endpoint
+ * @param variables variables used in the query string
+ * @param token authentication token
  */
-export async function graphql<D, E = any>(
+export async function graphql<R = unknown>(
+  token: string,
   query: string,
-  variables: QueryVariables,
-  token: string
-): Promise<ServerResponse<D, E>> {
+  variables?: QueryVariables
+): Promise<ServerResponse<R>> {
   let response: AxiosResponse;
   try {
     response = await axios({
@@ -87,25 +52,34 @@ export async function graphql<D, E = any>(
   };
 }
 
-export const readMany = <Q extends Query>(modelName: string) => async (
-  query: string,
-  variables: QueryVariables,
-  token: string
-): Promise<any> => {
-  const response = await graphql<Q>(query, variables, token);
-  const resData = response.data;
-  // ? useSWR hook returns this as {error}
-  const resErrors = response.errors;
-  if (resErrors) {
-    throw resErrors;
-  }
+export async function readMany(
+  token: string,
+  request: ComposedQuery
+): Promise<unknown[]> {
+  const response = await graphql<ReadManyResponse>(
+    token,
+    request.query,
+    request.variables
+  );
 
-  const resolver = `${getInflections(modelName).namePlLc}Connection` as keyof Q;
+  if (response.errors) throw response.errors;
 
-  let data: QueryNode[] = [];
+  return response.data
+    ? response.data[request.resolver].edges.map((edge) => edge.node)
+    : [];
+}
 
-  if (resData) {
-    data = resData[resolver].edges.map((edge) => edge.node);
-  }
-  return data;
-};
+export async function readOne<T = unknown>(
+  token: string,
+  request: ComposedQuery
+): Promise<T | null> {
+  const response = await graphql<ReadOneResponse<T>>(
+    token,
+    request.query,
+    request.variables
+  );
+
+  if (response.errors) throw response.errors;
+
+  return response.data ? response.data[request.resolver] : null;
+}
