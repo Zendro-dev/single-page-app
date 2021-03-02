@@ -1,5 +1,7 @@
 import { ParsedUrlQuery } from 'querystring';
 
+/* ATTRIBUTES */
+
 export type AttributeScalarType =
   | 'Boolean'
   | 'DateTime'
@@ -29,18 +31,14 @@ export type AttributeValue =
   | string[]
   | null;
 
-export interface AttributeMap {
-  Boolean: boolean;
-  DateTime: Date;
-  Float: number;
-  Int: number;
-  String: number;
-  '[Boolean]': boolean[];
-  '[DateTime]': Date[];
-  '[Float]': number[];
-  '[Int]': number[];
-  '[String]': string[];
+export interface ParsedAttribute {
+  name: string;
+  type: AttributeScalarType | AttributeArrayType;
+  primaryKey?: boolean;
+  foreignKey?: boolean;
 }
+
+/* ASSOCIATIONS */
 
 export interface Association {
   type: 'to_one' | 'to_many';
@@ -55,6 +53,8 @@ export interface Associations {
   [key: string]: Association;
 }
 
+/* DATA MODELS */
+
 export interface DataModel {
   model: string;
   storageType: 'sql';
@@ -67,6 +67,14 @@ export interface DataModels {
   [key: string]: DataModel;
 }
 
+/* STATIC TYPES */
+
 export interface PathParams extends ParsedUrlQuery {
   model: string;
+}
+
+export interface RecordPathParams extends PathParams {
+  create?: string;
+  read?: string;
+  update?: string;
 }
