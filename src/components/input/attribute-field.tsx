@@ -62,8 +62,7 @@ export default function AttributeField({
   };
 
   const handleOnClear = (): void => {
-    if (props.onChange && typeof props.onChange === 'function')
-      props.onChange(null);
+    if (props.onChange && !props.InputProps?.readOnly) props.onChange(null);
   };
 
   return (
