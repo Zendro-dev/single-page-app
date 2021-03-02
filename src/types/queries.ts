@@ -54,3 +54,8 @@ export type QueryRecordAttributes = (
 export type QueryCsvTemplate = (
   modelName: string
 ) => RawQuery; 
+
+export type QueryBulkCreate = (
+  modelName: string,
+  file: File
+) => RawQuery
