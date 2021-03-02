@@ -19,6 +19,7 @@ import BoolField from '../input/BoolField';
 import DateTimeField from '../input/DateTimeField';
 import IntegerField from '../input/IntField';
 import FloatField from '../input/FloatField';
+import ArrayField from '../input/ArrayField';
 
 const field = {
   String: StringField,
@@ -26,6 +27,11 @@ const field = {
   DateTime: DateTimeField,
   Integer: IntegerField,
   Float: FloatField,
+  '[String]': ArrayField,
+  '[Int]': ArrayField,
+  '[Float]': ArrayField,
+  '[Boolean]': ArrayField,
+  '[DateTime]': ArrayField,
 };
 
 const ClearButton = ({ onClick, ...buttonProps }) => {
@@ -118,6 +124,8 @@ export default function AttributeForm({
               endAdornment: readOnly ? undefined : (
                 <ClearButton onClick={handleClearButton(attrName)} />
               ),
+              arraytype:
+                type[0] === '[' ? type.slice(1, type.length - 1) : undefined,
             }}
             leftIcon={readOnly ? KeyIcon : false}
           />
