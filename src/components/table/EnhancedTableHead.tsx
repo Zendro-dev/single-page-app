@@ -36,7 +36,12 @@ export default function EnhancedTableHead({
     // TODO colspan depending on permissions
     <TableHead>
       <TableRow>
-        <TableCell colSpan={3} align="center" padding="checkbox">
+        <TableCell
+          style={{ minWidth: '9rem', maxWidth: '9rem' }}
+          colSpan={3}
+          align="center"
+          padding="checkbox"
+        >
           <Typography
             color="inherit"
             variant="caption"
@@ -49,8 +54,8 @@ export default function EnhancedTableHead({
         {attributes.map((attribute, index) => (
           <EnhancedTableHeadCell
             label={attribute.name}
-            icon={attribute.primaryKey ? KeyIcon : null}
-            tooltip={attribute.primaryKey ? 'Unique Identifier' : null}
+            icon={attribute.primaryKey ? KeyIcon : undefined}
+            tooltip={attribute.primaryKey ? 'Unique Identifier' : undefined}
             align={
               attribute.type.includes('Int') || attribute.type.includes('Float')
                 ? 'right'

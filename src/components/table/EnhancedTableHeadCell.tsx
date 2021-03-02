@@ -8,13 +8,12 @@ import {
   TableCellProps,
 } from '@material-ui/core';
 import { Order } from './EnhancedTableHead';
-import { OverridableComponent } from '@material-ui/core/OverridableComponent';
+import { SvgIconType } from '@/types/elements';
 
 interface EnhacedTableHeadCellProps extends TableCellProps {
   label: string;
-  // TODO remove any
-  icon: OverridableComponent<any> | null;
-  tooltip: string | null;
+  icon?: SvgIconType;
+  tooltip?: string;
   disableSort: boolean;
   activeOrder: boolean;
   orderDirection: Order;

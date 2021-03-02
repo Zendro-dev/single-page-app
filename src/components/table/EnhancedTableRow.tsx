@@ -1,11 +1,10 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
-
+import React, { PropsWithChildren, ReactElement, useMemo } from 'react';
 import {
   TableRow,
   TableCell,
   Tooltip,
-  IconButton,
   makeStyles,
+  IconButton,
 } from '@material-ui/core';
 import {
   DeleteOutline as DeleteIcon,
@@ -16,30 +15,34 @@ import { ParsedAttribute } from '@/types/models';
 
 interface EnhancedTableRowIconProps {
   label: string;
-  to: string;
+  onClick: () => void;
 }
+
+export type ActionHandler = (
+  primaryKey: string,
+  action: 'create' | 'read' | 'update' | 'delete'
+) => void;
 
 interface EnhancedTableRowProps {
   // TODO correct typing for record
   record: any;
   attributes: ParsedAttribute[];
+  onAction: ActionHandler;
 }
 
 function EnhancedTableRowIcon({
   label,
-  to,
+  onClick,
   children,
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
-  // TODO replace this with a Link (next link?)
   return (
-    <TableCell padding="checkbox" align="center">
+    <TableCell
+      style={{ minWidth: '3rem', maxWidth: '3rem' }}
+      padding="checkbox"
+      align="center"
+    >
       <Tooltip title={label}>
-        <IconButton
-          color="default"
-          onClick={() => {
-            alert(to);
-          }}
-        >
+        <IconButton color="default" onClick={onClick}>
           {children}
         </IconButton>
       </Tooltip>
@@ -50,23 +53,48 @@ function EnhancedTableRowIcon({
 export default function EnhancedTableRow({
   record,
   attributes,
-}: EnhancedTableRowProps): ReactElement {
+  onAction,
+}: // actions,
+EnhancedTableRowProps): ReactElement {
   // TODO needs to be aware of the model to compose the correct Link to View/Update/Delete
 
   const classes = useStyles();
 
+  const primaryKey = useMemo(() => {
+    const primaryKeyAttribute =
+      attributes.find((attribute) => attribute?.primaryKey)?.name ?? 'id';
+    return record[primaryKeyAttribute];
+  }, [attributes, record]);
+
+  const handleReadAction = (): void => {
+    onAction(primaryKey, 'read');
+  };
+
+  const handleUpdateAction = (): void => {
+    onAction(primaryKey, 'update');
+  };
+
+  const handleDeleteAction = (): void => {
+    onAction(primaryKey, 'delete');
+  };
+
   return (
     // TODO permissions
-    // TODO handleOnRowClick
     // ? accomodate associations
-    <TableRow hover role="checkbox" tabIndex={-1}>
-      <EnhancedTableRowIcon label="detail" to="detail">
+
+    <TableRow
+      hover
+      role="checkbox"
+      tabIndex={-1}
+      onDoubleClick={handleReadAction}
+    >
+      <EnhancedTableRowIcon label="detail" onClick={handleReadAction}>
         <DetailIcon fontSize="small" className={classes.iconDetail} />
       </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="edit" to="edit">
+      <EnhancedTableRowIcon label="edit" onClick={handleUpdateAction}>
         <EditIcon fontSize="small" className={classes.iconEdit} />
       </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="delete" to="delete">
+      <EnhancedTableRowIcon label="delete" onClick={handleDeleteAction}>
         <DeleteIcon fontSize="small" className={classes.iconDelete} />
       </EnhancedTableRowIcon>
       {attributes.map((attribute, index) => (
