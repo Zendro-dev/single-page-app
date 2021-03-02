@@ -1,4 +1,4 @@
-import { TextField, Chip, Paper, withWidth } from '@material-ui/core';
+import { TextField, Chip, Paper } from '@material-ui/core';
 import InputContainer from './InputContainer';
 import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
