@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 
 import { VpnKey as KeyIcon } from '@material-ui/icons';
 
@@ -39,7 +39,6 @@ export default function AttributesForm({
   title,
   onChange,
   onSubmit,
-  // operation,
   recordId,
   ...props
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
@@ -84,13 +83,6 @@ export default function AttributesForm({
         {data &&
           attributes.map((attribute) => {
             const { name, type, value, error, readOnly } = attribute;
-            // const readOnly = false;
-            // const readOnly =
-            //   operation.mode === 'read' ||
-            //   (primaryKey && operation.mode !== 'create');
-
-            // const value = values.get(name);
-            // const value = data[name];
 
             return (
               <AttributeField
