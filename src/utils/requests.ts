@@ -83,3 +83,22 @@ export async function readOne<T = unknown>(
 
   return response.data ? response.data[request.resolver] : null;
 }
+
+interface templateResponse{
+  [key:string]: string
+}
+
+export async function csvTemplate<T = unknown >(
+  token: string,
+   request: ComposedQuery
+): Promise< string | null > {
+
+  const response = await graphql<templateResponse>(
+    token,
+    request.query
+  )
+
+  if(response.errors) throw response.errors;
+
+  return response.data ? response.data[request.resolver] : null;
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -8,7 +8,8 @@ import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from './clickableIcon.jsx';
 import useSWR from 'swr';
 import { authSelector } from '../../store/auth-slice';
-import { fetcherTemplate, downloadFile } from '../../utils/tableToolBar';
+import { csvTemplate } from '@/utils/requests';
+import { queryCsvTemplate } from '@/utils/queries';
 
 export default function DownloadMenu(props) {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
@@ -24,7 +25,11 @@ export default function DownloadMenu(props) {
     //send error to user
   };
 
-  useSWR(downloadTemplate ? ['User', auth.user.token] : null, fetcherTemplate, {
+  const request = useMemo(()=>{
+    return queryCsvTemplate("User");
+  })
+
+  useSWR(downloadTemplate ? [ auth.user.token, request] : null, csvTemplate, {
     onSuccess: onDownload,
     onError: onError,
   });

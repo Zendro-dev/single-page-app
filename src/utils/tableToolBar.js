@@ -21,26 +21,6 @@ export function fetcherUpload(model_name, token, file) {
     });
 }
 
-//to be update with general wrapper graphql request
-export function fetcherTemplate(model_name, token) {
-  let query_name = `csvTableTemplate${model_name}`; //to be updated with query from queries module
-
-  let headers = {
-    Authorization: 'Bearer ' + token,
-  };
-
-  return axios
-    .post(
-      GRAPHQL_URL,
-      { query: `query {${query_name}}` },
-      { headers: headers }
-    )
-    .then((response) => response.data.data[query_name])
-    .catch((error) => {
-      throw error;
-    });
-}
-
 export function downloadFile(data, name) {
   let file = data.join('\n');
   const url = window.URL.createObjectURL(new Blob([file]));
