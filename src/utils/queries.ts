@@ -1,6 +1,10 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import { QueryModelTableRecords, QueryRecordAttributes } from '@/types/queries';
+import {
+  MutateRecordAttributes,
+  QueryModelTableRecords,
+  QueryRecordAttributes,
+} from '@/types/queries';
 
 /**
  * Compose a readMany graphql query to retrieve a list of model records.
@@ -40,11 +44,11 @@ export const queryModelTableRecords: QueryModelTableRecords = (
 };
 
 /**
- * Compose a readOne graphql query to retrieve a single record attribute values.
+ * Compose a readOne graphql query to retrieve attribute values for a single record.
  * @param modelName name of the data model to query data from
  * @param attributes a sorted list of attribute fields to query
  */
-export const queryRecordAttributes: QueryRecordAttributes = (
+export const readRecordAttributes: QueryRecordAttributes = (
   modelName,
   attributes
 ) => {
@@ -66,6 +70,29 @@ export const queryRecordAttributes: QueryRecordAttributes = (
   };
 };
 
+export const updateRecordAttributes: MutateRecordAttributes = (
+  modelName,
+  attributes
+) => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `update${nameCp}`;
+  const variables = getQueryVars(attributes);
+  const args = getQueryArgs(attributes);
+  const fields = getAttributeFields(attributes);
+
+  const query = `mutation updateRecordAttributes(${variables}) {
+    ${resolver}(${args}) {
+      ${fields}
+    }
+  }`;
+
+  return {
+    resolver,
+    query,
+  };
+};
+
 /**
  * Convert an array of parsed attributes to a string of names. This function
  * can be used to generate the list of fields within a graphql query.
@@ -73,4 +100,16 @@ export const queryRecordAttributes: QueryRecordAttributes = (
  */
 function getAttributeFields(attributes: ParsedAttribute[]): string {
   return attributes.map(({ name }) => name).join(' ');
+}
+
+function getQueryArgs(attributes: ParsedAttribute[]): string {
+  return attributes.map(({ name }) => `${name}: $${name}`).join(' ');
+}
+
+function getQueryVars(attributes: ParsedAttribute[]): string {
+  return attributes
+    .map(({ name, type, primaryKey }) =>
+      primaryKey ? `$${name}: ID!` : `$${name}: ${type}`
+    )
+    .join(' ');
 }

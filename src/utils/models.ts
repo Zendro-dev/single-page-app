@@ -1,10 +1,4 @@
-import {
-  Association,
-  AttributeScalarType,
-  AttributeArrayType,
-  DataModel,
-  ParsedAttribute,
-} from '@/types/models';
+import { Association, DataModel, ParsedAttribute } from '@/types/models';
 
 /**
  * Get all foreign keys for a given model. A foreign-key is understood as any attribute that
