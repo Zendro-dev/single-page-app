@@ -1,25 +1,16 @@
-import { TextField } from '@material-ui/core';
 import { ReactElement } from 'react';
-import InputContainer, { WithContainerProps } from './input-container';
-import { BaseInputFieldProps } from '@/types/elements';
+import BaseField, { BaseFieldProps } from './base-field';
 
 export interface FloatFieldProps {
   onChange?: (value: number | null) => void;
   value: number | null;
 }
 
-type Props = WithContainerProps<BaseInputFieldProps<FloatFieldProps>>;
-
 export default function FloatField({
-  error,
-  helperText,
-  InputProps,
-  label,
-  leftIcon,
   onChange,
-  rightIcon,
   value,
-}: Props): ReactElement {
+  ...props
+}: BaseFieldProps<FloatFieldProps>): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -32,19 +23,11 @@ export default function FloatField({
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <TextField
-        error={error}
-        helperText={helperText}
-        InputProps={InputProps}
-        fullWidth
-        label={label}
-        margin="normal"
-        onChange={handleOnChange}
-        type="number"
-        variant="outlined"
-        value={value ?? ''}
-      />
-    </InputContainer>
+    <BaseField
+      {...props}
+      onChange={handleOnChange}
+      type="number"
+      value={value ?? ''}
+    />
   );
 }

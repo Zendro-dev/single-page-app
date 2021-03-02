@@ -1,15 +1,10 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { PropsWithChildren, ReactElement, useState } from 'react';
 
-import {
-  Clear as ClearIcon,
-  Save as SaveIcon,
-  VpnKey as KeyIcon,
-} from '@material-ui/icons';
+import { Clear as ClearIcon, VpnKey as KeyIcon } from '@material-ui/icons';
 
 import {
   Box,
   createStyles,
-  Fab,
   IconButton,
   InputAdornment,
   makeStyles,
@@ -19,37 +14,22 @@ import {
   SvgIconProps,
 } from '@material-ui/core';
 
-import {
-  BoolField,
-  DateTimeField,
-  FloatField,
-  IntField,
-  StringField,
-  WithContainerProps,
-} from '../input';
-
-import { AttributeValue } from '@/types/models';
-import { BaseInputFieldProps } from '@/types/elements';
-
-import { readOne } from '@/utils/requests';
-import { ParsedAttribute } from '@/types/models';
-import useAuth from '@/hooks/useAuth';
-import useSWR from 'swr';
-import {
-  RawQuery,
-  QueryRecordAttributesVariables,
-  ComposedQuery,
-} from '@/types/queries';
+import { AttributeValue, ParsedAttribute } from '@/types/models';
+import { isNullorEmpty } from '@/utils/validation';
+import AttributeField from '../input/attribute-field';
 
 interface AttributesFormProps {
-  className?: string;
   attributes: ParsedAttribute[];
+  className?: string;
+  data: Record<string, AttributeValue> | null | undefined;
   model: string;
+  recordId?: string;
+  onChange: (key: string) => (value: AttributeValue) => void;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
   operation: {
     mode: 'create' | 'read' | 'update';
     id?: string;
   };
-  rawQuery: RawQuery;
 }
 
 const ClearButton = (props: { onClick: () => void }): ReactElement => (
@@ -71,147 +51,98 @@ const ReadOnlyIcon = (props: SvgIconProps): ReactElement => (
 );
 
 export default function AttributesForm({
-  model,
   attributes,
   className,
+  data,
+  model,
+  onChange,
+  onSubmit,
   operation,
-  rawQuery,
-}: AttributesFormProps): ReactElement {
+  recordId,
+  ...props
+}: PropsWithChildren<AttributesFormProps>): ReactElement {
   const classes = useStyles();
-  const { auth } = useAuth();
 
-  const [values, setValues] = useState<Map<string, AttributeValue>>(
+  const [errors] = useState<Map<string, string | undefined>>(
     attributes.reduce(
-      (acc, { name }) => acc.set(name, null),
-      new Map<string, AttributeValue>()
+      (acc, { name }) => acc.set(name, undefined),
+      new Map<string, string | undefined>()
     )
   );
 
-  // const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const request = useMemo(() => {
-    console.log({ id: operation.id });
-    return {
-      query: rawQuery.query,
-      resolver: rawQuery.resolver,
-      variables: {
-        id: operation.id ?? '',
-      },
-    } as ComposedQuery<QueryRecordAttributesVariables>;
-  }, [operation.id, rawQuery]);
-
-  const { isValidating } = useSWR<Record<string, AttributeValue> | null>(
-    request.variables?.id && auth?.user?.token
-      ? [auth.user.token, request]
-      : null,
-    readOne,
-    {
-      revalidateOnFocus: false,
-      onSuccess: (data) => data && setValues(new Map(Object.entries(data))),
-    }
-  );
-
-  /**
-   * Computes the number of values that are currently set.
-   */
-  const nonNullValues = useMemo<number>(() => {
-    return Array.from(values.entries()).reduce(
-      (acc, [_, val]) => (val === null ? acc : acc + 1),
-      0
-    );
-  }, [values]);
-
-  /**
-   * Updates the attribute value in the internal state.
-   * @param key name of the attribute to change in the form state
-   */
-  const handleOnChange = (key: string) => (value: AttributeValue) => {
-    setValues(new Map<string, AttributeValue>(values.set(key, value)));
-  };
-
-  /**
-   * Sets the the attribute value to null.
-   * @param key name of the attribute to clear
-   */
-  const handleOnClear = (key: string) => () => {
-    setValues(new Map<string, AttributeValue>(values.set(key, null)));
-  };
-
-  /**
-   * Submits the form values to the Zendro GraphQL endpoint.
-   */
-  const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    console.log(values);
-  };
+  const nonNullValues = Object.entries(data ?? {}).reduce((acc, [_, val]) => {
+    return isNullorEmpty(val) ? acc : (acc += 1);
+  }, 0);
 
   return (
-    <form className={className} onSubmit={handleOnSubmit}>
-      <Box display="flex" justifyContent="space-between" marginX={9.5} mb={6}>
-        <legend className={classes.legend}>
+    <Box position="relative">
+      <Box
+        position="absolute"
+        top={-28}
+        right={0}
+        marginX={10}
+        className={classes.actions}
+      >
+        {props.children}
+      </Box>
+
+      <form
+        id={`AttributesForm-${recordId ?? 'create'}`}
+        className={className}
+        onSubmit={onSubmit}
+      >
+        <Box
+          component="legend"
+          display="flex"
+          justifyContent="space-between"
+          marginX={9.5}
+          mb={6}
+        >
           <Typography variant="h6" component="h1">
             {model}
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
             Completed: {nonNullValues} / {attributes.length}
           </Typography>
-        </legend>
-        <Tooltip title="Submit changes">
-          <Fab color="secondary" type="submit">
-            <SaveIcon />
-          </Fab>
-        </Tooltip>
-      </Box>
+        </Box>
 
-      {attributes.map((attribute) => {
-        const { name, type, primaryKey } = attribute;
-        const readOnly = primaryKey && operation.mode !== 'create';
+        {data &&
+          attributes.map((attribute) => {
+            const { name, type, primaryKey } = attribute;
+            const readOnly =
+              operation.mode === 'read' ||
+              (primaryKey && operation.mode !== 'create');
 
-        // Set common props to all input fields
-        const props: WithContainerProps<
-          BaseInputFieldProps<{
-            key: string;
-            onChange: (value: AttributeValue) => void;
-          }>
-        > = {
-          InputProps: {
-            endAdornment: !readOnly && (
-              <ClearButton onClick={handleOnClear(name)} />
-            ),
-            readOnly,
-          },
-          key: name,
-          label: name,
-          leftIcon: readOnly ? ReadOnlyIcon : undefined,
-          onChange: handleOnChange(name),
-        };
+            // const value = values.get(name);
+            const value = data[name];
 
-        const value = values.get(name);
-
-        // Cast the value and return the appropriate input field
-        switch (type) {
-          case 'Boolean':
-            return <BoolField {...props} value={value as boolean | null} />;
-          case 'DateTime':
-            return <DateTimeField {...props} value={value as Date | null} />;
-          case 'Float':
-            return <FloatField {...props} value={value as number | null} />;
-          case 'Int':
-            return <IntField {...props} value={value as number | null} />;
-          case 'String':
-            return <StringField {...props} value={value as string | null} />;
-          default:
-            return <StringField {...props} value={value as string | null} />;
-        }
-      })}
-    </form>
+            return (
+              <AttributeField
+                key={name}
+                type={type}
+                error={errors.get(name) ? true : false}
+                helperText={errors.get(name)}
+                InputProps={{
+                  readOnly,
+                }}
+                label={name}
+                leftIcon={readOnly ? ReadOnlyIcon : undefined}
+                onChange={onChange(name)}
+                value={value}
+              />
+            );
+          })}
+      </form>
+    </Box>
   );
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    legend: {
-      marginBottom: theme.spacing(6),
+    actions: {
+      '& > button:not(:first-child), a:not(:first-child)': {
+        marginLeft: theme.spacing(6),
+      },
     },
   })
 );

@@ -1,16 +1,12 @@
 import { enUS as en, es, de } from 'date-fns/locale';
 import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
-import { TextField } from '@material-ui/core';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
-import InputContainer, { WithContainerProps } from './input-container';
-import { BaseInputFieldProps } from '@/types/elements';
+import BaseField, { BaseFieldProps } from './base-field';
 
 export interface DateTimeFieldProps {
   onChange?: (value: Date | null) => void;
   value: Date | null;
 }
-
-type Props = WithContainerProps<BaseInputFieldProps<DateTimeFieldProps>>;
 
 const localeMap = { en, es, de };
 const mask = {
@@ -20,46 +16,35 @@ const mask = {
 };
 
 export default function DateTimePicker({
-  error,
-  helperText,
   InputProps,
-  label,
-  leftIcon,
-  rightIcon,
   onChange,
   value,
-}: Props): React.ReactElement {
+  ...baseProps
+}: BaseFieldProps<DateTimeFieldProps>): React.ReactElement {
   const handleOnChange = (date: Date | null): void => {
     if (onChange) onChange(date);
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <LocalizationProvider
-        dateAdapter={AdapterDateFns}
-        locale={localeMap['en']}
-      >
-        <MobileDateTimePicker
-          ampm={false}
-          clearable
-          mask={mask['en']}
-          onChange={handleOnChange}
-          readOnly={InputProps?.readOnly}
-          renderInput={(props) => (
-            <TextField
-              {...props}
-              error={error}
-              fullWidth
-              helperText={helperText}
-              margin="normal"
-              label={label}
-              variant="outlined"
-              InputProps={InputProps}
-            />
-          )}
-          value={value}
-        />
-      </LocalizationProvider>
-    </InputContainer>
+    <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['en']}>
+      <MobileDateTimePicker
+        ampm={false}
+        clearable
+        mask={mask['en']}
+        onChange={handleOnChange}
+        readOnly={InputProps?.readOnly}
+        renderInput={(props) => (
+          <BaseField
+            {...props}
+            {...baseProps}
+            fullWidth
+            InputProps={InputProps}
+            margin="normal"
+            variant="outlined"
+          />
+        )}
+        value={value}
+      />
+    </LocalizationProvider>
   );
 }

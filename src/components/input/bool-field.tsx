@@ -6,26 +6,21 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@material-ui/core';
-import InputContainer, { WithContainerProps } from './input-container';
-import { BaseInputFieldProps } from '@/types/elements';
+import { BaseFieldProps } from './base-field';
 
 export interface BoolFieldProps {
   onChange?: (value: boolean | null) => void;
   value: boolean | null;
 }
 
-type Props = WithContainerProps<BaseInputFieldProps<BoolFieldProps>>;
-
 export default function BoolField({
   error,
   helperText,
   InputProps,
   label,
-  leftIcon,
   onChange,
-  rightIcon,
   value,
-}: Props): ReactElement {
+}: BaseFieldProps<BoolFieldProps>): ReactElement {
   const classes = useStyles();
 
   const [checked, setChecked] = useState(value || false);
@@ -55,28 +50,26 @@ export default function BoolField({
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <FormControl className={classes.root} error={error}>
-        <FormControlLabel
-          className={error ? classes.error : ''}
-          control={
-            <Checkbox
-              className={error ? classes.error : ''}
-              color="default"
-              checked={checked}
-              indeterminate={indeterminate}
-              onChange={InputProps?.readOnly ? undefined : handleOnChange}
-            />
-          }
-          label={label}
-        />
-        {helperText && (
-          <FormHelperText className={classes.helperText}>
-            {helperText}
-          </FormHelperText>
-        )}
-      </FormControl>
-    </InputContainer>
+    <FormControl className={classes.root} error={error}>
+      <FormControlLabel
+        className={error ? classes.error : ''}
+        control={
+          <Checkbox
+            className={error ? classes.error : ''}
+            color="default"
+            checked={checked}
+            indeterminate={indeterminate}
+            onChange={InputProps?.readOnly ? undefined : handleOnChange}
+          />
+        }
+        label={label}
+      />
+      {helperText && (
+        <FormHelperText className={classes.helperText}>
+          {helperText}
+        </FormHelperText>
+      )}
+    </FormControl>
   );
 }
 

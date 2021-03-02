@@ -1,25 +1,16 @@
-import { BaseInputFieldProps } from '@/types/elements';
-import { TextField } from '@material-ui/core';
 import { ReactElement } from 'react';
-import InputContainer, { WithContainerProps } from './input-container';
+import BaseField, { BaseFieldProps } from './base-field';
 
 export interface IntFieldProps {
   onChange?: (value: number | null) => void;
   value: number | null;
 }
 
-type Props = WithContainerProps<BaseInputFieldProps<IntFieldProps>>;
-
 export default function IntField({
-  error,
-  helperText,
-  InputProps,
-  label,
-  leftIcon,
   onChange,
-  rightIcon,
   value,
-}: Props): ReactElement {
+  ...props
+}: BaseFieldProps<IntFieldProps>): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -34,19 +25,11 @@ export default function IntField({
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <TextField
-        error={error}
-        helperText={helperText}
-        fullWidth
-        InputProps={InputProps}
-        label={label}
-        margin="normal"
-        onChange={handleOnChange}
-        type="number"
-        variant="outlined"
-        value={value ?? ''}
-      />
-    </InputContainer>
+    <BaseField
+      {...props}
+      onChange={handleOnChange}
+      type="number"
+      value={value ?? ''}
+    />
   );
 }
