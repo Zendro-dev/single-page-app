@@ -1,18 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import {
+  Add as CreateIcon,
+  Cached as Reload,
   Create as EditIcon,
   Delete as DeleteIcon,
   Visibility as ReadIcon,
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import { FabLink } from '@/components/links';
-import FloatButton from '@/components/buttons/fab';
+import ActionButton from '@/components/buttons/fab';
 import AttributesForm, {
   FormAttribute,
 } from '@/components/forms/attributes-form';
@@ -21,26 +22,23 @@ import useAuth from '@/hooks/useAuth';
 
 import ModelsLayout from '@/layouts/models-layout';
 
-import { getAttributeList } from '@/utils/models';
-import { readRecordAttributes, updateRecordAttributes } from '@/utils/queries';
-import { readOne } from '@/utils/requests';
-import {
-  getStaticModelPaths,
-  getStaticRoutes,
-  getStaticModel,
-} from '@/utils/static';
-
 import {
   AttributeValue,
   ParsedAttribute,
   RecordPathParams,
 } from '@/types/models';
-import {
-  RawQuery,
-  QueryRecordAttributesVariables,
-  ComposedQuery,
-} from '@/types/queries';
+import { RawQuery, ComposedQuery } from '@/types/queries';
 import { AppRoutes } from '@/types/routes';
+
+import { getAttributeList } from '@/utils/models';
+import { queryRecord } from '@/utils/queries';
+import { requestOne } from '@/utils/requests';
+import {
+  getStaticModelPaths,
+  getStaticRoutes,
+  getStaticModel,
+} from '@/utils/static';
+import { isNullorUndefined } from '@/utils/validation';
 
 interface RecordProps {
   attributes: ParsedAttribute[];
@@ -50,6 +48,7 @@ interface RecordProps {
     create: RawQuery;
     read: RawQuery;
     update: RawQuery;
+    delete: RawQuery;
   };
 }
 
@@ -72,31 +71,25 @@ export const getStaticProps: GetStaticProps<
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const read = readRecordAttributes(modelName, attributes);
-  const update = updateRecordAttributes(modelName, attributes);
-  const create: RawQuery = {
-    resolver: '',
-    query: '',
-  };
+  const requests = queryRecord(modelName, attributes);
 
   return {
     props: {
-      attributes,
+      key: modelName,
       modelName,
+      attributes,
       routes,
-      requests: {
-        create,
-        read,
-        update,
-      },
+      requests,
     },
   };
 };
 
 interface ParsedQuery {
-  mode: 'create' | 'read' | 'update';
-  id?: string;
+  queryMode: 'create' | 'read' | 'update';
+  queryId?: string;
 }
+
+type QueryMode = 'create' | 'read' | 'update';
 
 /**
  * Compute the type of operation requested from the URL query.
@@ -105,22 +98,22 @@ interface ParsedQuery {
 function parseUrlQuery(query: RecordPathParams): ParsedQuery {
   const { read, update } = query;
 
-  let mode: 'create' | 'read' | 'update';
-  let id;
+  let queryMode: QueryMode;
+  let queryId;
 
   if (read) {
-    mode = 'read';
-    id = read;
+    queryMode = 'read';
+    queryId = read;
   } else if (update) {
-    mode = 'update';
-    id = update;
+    queryMode = 'update';
+    queryId = update;
   } else {
-    mode = 'create';
+    queryMode = 'create';
   }
 
   return {
-    mode,
-    id,
+    queryMode,
+    queryId,
   };
 }
 
@@ -133,7 +126,7 @@ function parseUrlQuery(query: RecordPathParams): ParsedQuery {
  * @param errors attribute error messages
  */
 function composeAttributes(
-  mode: 'create' | 'read' | 'update',
+  mode: QueryMode,
   attributes: ParsedAttribute[],
   data?: Record<string, AttributeValue> | null,
   errors?: Record<string, string | undefined>
@@ -151,17 +144,19 @@ function composeAttributes(
 /**
  * Compose the run-time read-one query using static and dynamic data.
  * @param rawQuery static raw query object
- * @param id requested attribute id
+ * @param idValue requested attribute id
  */
 function composeReadOneRequest(
+  attributes: ParsedAttribute[],
   rawQuery: RawQuery,
-  id?: string | number
-): ComposedQuery<QueryRecordAttributesVariables> | undefined {
-  if (id) {
+  idValue?: string | number
+): ComposedQuery | undefined {
+  const idField = attributes.find(({ primaryKey }) => primaryKey);
+  if (idValue && idField) {
     return {
       resolver: rawQuery.resolver,
       query: rawQuery.query,
-      variables: { id },
+      variables: { [idField.name]: idValue },
     };
   }
 }
@@ -175,36 +170,44 @@ const Record: NextPage<RecordProps> = ({
   const { auth } = useAuth({ redirectTo: '/' });
   const router = useRouter();
   const classes = useStyles();
-  const { id, mode } = parseUrlQuery(router.query as RecordPathParams);
+  const { queryId, queryMode } = parseUrlQuery(
+    router.query as RecordPathParams
+  );
+
+  const [formAttributes, setFormAttributes] = useState<FormAttribute[]>(
+    composeAttributes(queryMode, attributes)
+  );
 
   /**
    * Composed read request from the url.
    */
-  const readRequest = useMemo<
-    ComposedQuery<QueryRecordAttributesVariables> | undefined
-  >(() => composeReadOneRequest(requests.read, id), [id, requests.read]);
+  const readRequest = useMemo<ComposedQuery | undefined>(
+    () => composeReadOneRequest(attributes, requests.read, queryId),
+    [attributes, queryId, requests.read]
+  );
 
   /**
    * Query data from the GraphQL endpoint.
    */
-  const { data, mutate } = useSWR<Record<string, AttributeValue> | null>(
+  const { mutate } = useSWR<Record<string, AttributeValue> | null>(
     readRequest && auth?.user?.token ? [auth.user.token, readRequest] : null,
-    readOne,
+    requestOne,
     {
       revalidateOnFocus: false,
+      revalidateOnMount: true,
+      onSuccess: (data) => {
+        console.log({ data });
+        setFormAttributes(composeAttributes(queryMode, attributes, data));
+      },
       onError: (responseErrors) => {
         // TODO: parse the err array and set the internal errors state accordingly
-        console.log({ err: responseErrors });
+        console.log({ responseErrors });
       },
+      initialData: formAttributes.reduce<Record<string, AttributeValue>>(
+        (acc, { name, value }) => ({ ...acc, [name]: value }),
+        {}
+      ),
     }
-  );
-
-  /**
-   * Combine static and dynamic data to compose the form attributes array.
-   */
-  const formAttributes = useMemo<FormAttribute[]>(
-    () => composeAttributes(mode, attributes, data),
-    [attributes, data, mode]
   );
 
   /**
@@ -212,23 +215,89 @@ const Record: NextPage<RecordProps> = ({
    * @param key name of the attribute to change in the form state
    */
   const handleOnChange = (key: string) => (value: AttributeValue) => {
-    mutate({ ...data, [key]: value }, false);
+    const attr = formAttributes.find(({ name }) => key === name);
+    if (attr) {
+      attr.value = value;
+    }
+    setFormAttributes([...formAttributes]);
+  };
+
+  const handleOnDelete = async (): Promise<void> => {
+    const { query, resolver } = requests.delete;
+    const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+    const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
+      ?.value;
+
+    try {
+      if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
+        throw new Error('The record id was not set for a delete record action');
+
+      if (!auth.user?.token) return;
+
+      const variables = { [idKey]: idValue };
+      const request: ComposedQuery = {
+        resolver,
+        query,
+        variables,
+      };
+
+      await requestOne(auth.user.token, request);
+      router.push(`/${modelName}`);
+    } catch (errors) {
+      console.error(errors);
+    }
   };
 
   /**
-   * Submits the cached values to the Zendro GraphQL endpoint. Triggers a revalidation.
+   * Revalidate the data in the current request.
    */
-  const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = async (
-    event
+  const handleOnReload = (): void => {
+    mutate();
+  };
+
+  const handleOnSwitchMode = (mode: QueryMode) => (): void => {
+    const query = mode === 'create' ? '' : `?${mode}=${queryId}`;
+    router.push(`/${modelName}/item${query}`);
+    if (mode === 'create')
+      setFormAttributes(composeAttributes(mode, attributes));
+  };
+
+  /**
+   * Submit the form values to the Zendro GraphQL endpoint. Triggers a revalidation.
+   */
+  const handleOnSubmit = (mode: QueryMode) => async (
+    event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-    const { query, resolver } = requests.update;
+
+    if (mode === 'read') return;
+
+    const { query, resolver } =
+      mode === 'create' ? requests.create : requests.update;
+
+    const data = formAttributes.reduce<Record<string, AttributeValue>>(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {}
+    );
+
+    const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+    const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
+      ?.value;
+
     const request: ComposedQuery = {
       resolver,
       query,
       variables: data,
     };
-    if (auth.user?.token) mutate(await readOne(auth.user?.token, request));
+
+    try {
+      if (auth.user?.token) await requestOne(auth.user?.token, request);
+      if (mode === 'update') mutate(data);
+      else if (mode === 'create' && idValue)
+        router.push(`/${modelName}/item?update=${idValue}`);
+    } catch (errors) {
+      console.error(errors);
+    }
   };
 
   return (
@@ -236,44 +305,64 @@ const Record: NextPage<RecordProps> = ({
       <AttributesForm
         attributes={formAttributes}
         className={classes.form}
-        data={data}
         title={modelName}
         onChange={handleOnChange}
-        onSubmit={handleOnSubmit}
-        recordId={id}
+        onSubmit={handleOnSubmit(queryMode)}
+        recordId={queryId}
       >
-        {mode === 'read' && (
-          <FabLink
-            form={`AttributesForm-${id ?? 'create'}`}
-            href={`/${modelName}/item?update=${id}`}
-            color="primary"
-            icon={EditIcon}
-            tooltip="Edit record"
+        {queryMode === 'update' && (
+          <ActionButton
+            form={`AttributesForm-${queryId}`}
+            icon={DeleteIcon}
+            tooltip="Delete record"
+            color="secondary"
+            onClick={handleOnDelete}
           />
         )}
 
-        {mode === 'update' && (
-          <>
-            <FloatButton
-              form={`AttributesForm-${id ?? 'create'}`}
-              icon={DeleteIcon}
-              tooltip="Delete record"
-              color="secondary"
-            />
-
-            <FabLink
-              form={`AttributesForm-${id ?? 'create'}`}
-              href={`/${modelName}/item?read=${id}`}
-              color="primary"
-              icon={ReadIcon}
-              tooltip="View record details"
-            />
-          </>
+        {(queryMode === 'read' || queryMode === 'update') && (
+          <ActionButton
+            form={`AttributesForm-${queryId}`}
+            icon={Reload}
+            tooltip="Reload data"
+            color="primary"
+            onClick={handleOnReload}
+          />
         )}
 
-        {(mode === 'create' || mode === 'update') && (
-          <FloatButton
-            form={`AttributesForm-${id ?? 'create'}`}
+        {queryMode === 'update' && (
+          <ActionButton
+            form={`AttributesForm-${queryId}`}
+            color="primary"
+            icon={ReadIcon}
+            tooltip="View record details"
+            onClick={handleOnSwitchMode('read')}
+          />
+        )}
+
+        {queryMode === 'read' && (
+          <ActionButton
+            form={`AttributesForm-${queryId}`}
+            color="primary"
+            icon={EditIcon}
+            tooltip="Edit record"
+            onClick={handleOnSwitchMode('update')}
+          />
+        )}
+
+        {(queryMode === 'read' || queryMode === 'update') && (
+          <ActionButton
+            form={`AttributesForm-${queryId}`}
+            color="primary"
+            icon={CreateIcon}
+            tooltip="Create new record"
+            onClick={handleOnSwitchMode('create')}
+          />
+        )}
+
+        {(queryMode === 'create' || queryMode === 'update') && (
+          <ActionButton
+            form={`AttributesForm-${queryId ?? 'create'}`}
             color="primary"
             icon={SaveIcon}
             tooltip="Submit changes"
