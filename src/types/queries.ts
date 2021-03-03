@@ -41,16 +41,12 @@ export type QueryModelTableRecords = (
 /**
  * RECORD
  */
-
-export interface QueryRecordAttributesVariables extends QueryVariables {
-  id: string | number;
-}
-export type QueryRecordAttributes = (
+export type QueryRecord = (
   modelName: string,
   attributes: ParsedAttribute[]
-) => RawQuery;
-
-export type MutateRecordAttributes = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-) => RawQuery;
+) => {
+  create: RawQuery;
+  read: RawQuery;
+  update: RawQuery;
+  delete: RawQuery;
+};
