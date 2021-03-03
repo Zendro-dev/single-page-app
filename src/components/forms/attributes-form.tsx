@@ -19,7 +19,6 @@ import AttributeField from '../input/attribute-field';
 export interface AttributesFormProps {
   attributes: FormAttribute[];
   className?: string;
-  data: Record<string, AttributeValue> | null | undefined;
   title: string;
   recordId?: string;
   onChange: (key: string) => (value: AttributeValue) => void;
@@ -35,7 +34,6 @@ export interface FormAttribute extends Pick<ParsedAttribute, 'name' | 'type'> {
 export default function AttributesForm({
   attributes,
   className,
-  data,
   title,
   onChange,
   onSubmit,
@@ -44,17 +42,20 @@ export default function AttributesForm({
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
   const classes = useStyles();
 
-  const nonNullValues = Object.entries(data ?? {}).reduce((acc, [_, val]) => {
-    return isNullorEmpty(val) ? acc : (acc += 1);
+  const nonNullValues = attributes.reduce((acc, { value }) => {
+    return isNullorEmpty(value) ? acc : (acc += 1);
   }, 0);
 
   return (
-    <Box position="relative">
+    <Box position="relative" width="100%">
       <Box
         position="absolute"
+        display="flex"
+        justifyContent="flex-end"
         top={-28}
         right={0}
         marginX={10}
+        width="100%"
         className={classes.actions}
       >
         {props.children}
@@ -80,38 +81,33 @@ export default function AttributesForm({
           </Typography>
         </Box>
 
-        {data &&
-          attributes.map((attribute) => {
-            const { name, type, value, error, readOnly } = attribute;
+        {attributes.map((attribute) => {
+          const { name, type, value, error, readOnly } = attribute;
 
-            return (
-              <AttributeField
-                key={name}
-                type={type}
-                error={error ? true : false}
-                helperText={error}
-                InputProps={{
-                  readOnly,
-                }}
-                label={name}
-                leftIcon={
-                  readOnly
-                    ? (props: SvgIconProps): ReactElement => (
-                        <Tooltip title="This field cannot be modified">
-                          <KeyIcon
-                            {...props}
-                            fontSize="small"
-                            color="disabled"
-                          />
-                        </Tooltip>
-                      )
-                    : undefined
-                }
-                onChange={onChange(name)}
-                value={value}
-              />
-            );
-          })}
+          return (
+            <AttributeField
+              key={name}
+              type={type}
+              error={error ? true : false}
+              helperText={error}
+              InputProps={{
+                readOnly,
+              }}
+              label={name}
+              leftIcon={
+                readOnly
+                  ? (props: SvgIconProps): ReactElement => (
+                      <Tooltip title="This field cannot be modified">
+                        <KeyIcon {...props} fontSize="small" color="disabled" />
+                      </Tooltip>
+                    )
+                  : undefined
+              }
+              onChange={onChange(name)}
+              value={value}
+            />
+          );
+        })}
       </form>
     </Box>
   );
