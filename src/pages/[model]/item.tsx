@@ -376,7 +376,7 @@ const Record: NextPage<RecordProps> = ({
                   form={`AttributesForm-${queryId}`}
                   icon={Reload}
                   tooltip="Reload data"
-                  size="medium"
+                  size={queryMode === 'read' ? 'large' : 'medium'}
                   onClick={handleOnReload}
                 />
               )}
