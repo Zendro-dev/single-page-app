@@ -221,7 +221,7 @@ const Record: NextPage<RecordProps> = ({
   /**
    * Query data from the GraphQL endpoint.
    */
-  const { mutate } = useSWR<Record<string, AttributeValue> | null>(
+  const { data, mutate } = useSWR<Record<string, AttributeValue> | null>(
     readRequest && auth?.user?.token ? [auth.user.token, readRequest] : null,
     requestOne,
     {
@@ -290,8 +290,10 @@ const Record: NextPage<RecordProps> = ({
   const handleOnSwitchMode = (mode: QueryMode) => (): void => {
     const query = mode === 'create' ? '' : `?${mode}=${queryId}`;
     router.push(`/${modelName}/item${query}`);
-    if (mode === 'create')
-      dispatch({ type: 'reset', payload: { mode, attributes } });
+    dispatch({
+      type: 'reset',
+      payload: { mode, attributes, data: mode === 'create' ? undefined : data },
+    });
   };
 
   /**
