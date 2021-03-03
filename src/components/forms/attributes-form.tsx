@@ -1,16 +1,8 @@
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
-import { VpnKey as KeyIcon } from '@material-ui/icons';
+import { Lock as LockIcon, VpnKey as KeyIcon } from '@material-ui/icons';
 
-import {
-  Box,
-  createStyles,
-  makeStyles,
-  Theme,
-  Tooltip,
-  Typography,
-  SvgIconProps,
-} from '@material-ui/core';
+import { Box, Tooltip, Typography, SvgIconProps } from '@material-ui/core';
 
 import { AttributeValue, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
@@ -26,7 +18,7 @@ export interface AttributesFormProps {
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
-export interface FormAttribute extends Pick<ParsedAttribute, 'name' | 'type'> {
+export interface FormAttribute extends ParsedAttribute {
   error?: string | null;
   readOnly?: boolean;
   value: AttributeValue;
@@ -76,7 +68,7 @@ export default function AttributesForm({
         </Box>
 
         {attributes.map((attribute) => {
-          const { name, type, value, error, readOnly } = attribute;
+          const { name, type, value, error, readOnly, primaryKey } = attribute;
 
           return (
             <AttributeField
@@ -89,10 +81,23 @@ export default function AttributesForm({
               }}
               label={name}
               leftIcon={
+                primaryKey
+                  ? (props: SvgIconProps): ReactElement => (
+                      <Tooltip title={`${name} is the primary key`}>
+                        <KeyIcon {...props} fontSize="small" color="action" />
+                      </Tooltip>
+                    )
+                  : undefined
+              }
+              rightIcon={
                 readOnly
                   ? (props: SvgIconProps): ReactElement => (
                       <Tooltip title="This field cannot be modified">
-                        <KeyIcon {...props} fontSize="small" color="disabled" />
+                        <LockIcon
+                          {...props}
+                          fontSize="small"
+                          color="secondary"
+                        />
                       </Tooltip>
                     )
                   : undefined

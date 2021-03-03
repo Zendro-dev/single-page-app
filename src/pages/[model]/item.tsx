@@ -141,8 +141,8 @@ function initAttributes({
   return attributes.map(({ name, type, primaryKey }) => ({
     name,
     type,
-    readOnly:
-      mode === 'read' || (mode === 'update' && primaryKey) ? true : false,
+    primaryKey,
+    readOnly: mode === 'update' && primaryKey,
     value: data ? data[name] : null,
     error: errors ? errors[name] : null,
   }));
