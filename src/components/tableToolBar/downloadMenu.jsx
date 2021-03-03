@@ -8,6 +8,7 @@ import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from './clickableIcon.jsx';
 import useSWR from 'swr';
 import { authSelector } from '../../store/auth-slice';
+import { downloadFile } from '../../utils/tableToolBar';
 import { csvTemplate } from '@/utils/requests';
 import { queryCsvTemplate } from '@/utils/queries';
 
