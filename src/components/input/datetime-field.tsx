@@ -32,7 +32,8 @@ export default function DateTimePicker({
         clearable
         mask={mask['en']}
         onChange={handleOnChange}
-        readOnly={InputProps?.readOnly}
+        disabled={InputProps?.disabled}
+        readOnly={InputProps?.readOnly || !onChange}
         renderInput={(props) => (
           <BaseField
             {...props}

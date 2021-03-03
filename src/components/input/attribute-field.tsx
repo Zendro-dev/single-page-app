@@ -23,7 +23,7 @@ import {
 } from '@/types/models';
 
 interface InputFieldProps {
-  onChange: (value: AttributeValue) => void;
+  onChange?: (value: AttributeValue) => void;
   type: AttributeScalarType | AttributeArrayType;
   value: AttributeValue;
 }
@@ -57,8 +57,7 @@ export default function AttributeField({
   ...props
 }: WithContainerProps<BaseFieldProps<InputFieldProps>>): ReactElement {
   const handleOnChange = (value: AttributeValue): void => {
-    if (props.onChange && typeof props.onChange === 'function')
-      props.onChange(value);
+    if (props.onChange) props.onChange(value);
   };
 
   const handleOnClear = (): void => {
@@ -69,7 +68,7 @@ export default function AttributeField({
     <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
       <InputField
         {...props}
-        onChange={handleOnChange}
+        onChange={props.onChange ? handleOnChange : undefined}
         InputProps={{
           ...props.InputProps,
           endAdornment: (

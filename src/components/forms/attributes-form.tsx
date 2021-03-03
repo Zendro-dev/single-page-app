@@ -2,7 +2,14 @@ import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 import { Lock as LockIcon, VpnKey as KeyIcon } from '@material-ui/icons';
 
-import { Box, Tooltip, Typography, SvgIconProps } from '@material-ui/core';
+import {
+  Box,
+  Tooltip,
+  Typography,
+  SvgIconProps,
+  makeStyles,
+  createStyles,
+} from '@material-ui/core';
 
 import { AttributeValue, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
@@ -12,7 +19,11 @@ export interface AttributesFormProps {
   actions: ReactNode;
   attributes: FormAttribute[];
   className?: string;
-  title: string;
+  disabled?: boolean;
+  title: {
+    prefix?: string;
+    main: string;
+  };
   formId?: string;
   onChange: (key: string) => (value: AttributeValue) => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
@@ -27,12 +38,15 @@ export interface FormAttribute extends ParsedAttribute {
 export default function AttributesForm({
   attributes,
   className,
+  disabled,
   title,
   onChange,
   onSubmit,
   formId,
   ...props
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
+  const classes = useStyles();
+
   const nonNullValues = attributes.reduce((acc, { value }) => {
     return isNullorEmpty(value) ? acc : (acc += 1);
   }, 0);
@@ -59,9 +73,31 @@ export default function AttributesForm({
           marginX={9.5}
           mb={6}
         >
-          <Typography variant="h6" component="h1">
-            {title}
-          </Typography>
+          <Box display="flex" alignItems="center">
+            {disabled && (
+              <Tooltip title="The form is in read-only mode">
+                <LockIcon
+                  color="secondary"
+                  className={classes.lockedFormIcon}
+                />
+              </Tooltip>
+            )}
+
+            <Typography display="flex" variant="h6" component="h1">
+              {title.prefix && (
+                <Typography
+                  marginRight={2}
+                  variant="h6"
+                  fontWeight="bold"
+                  color="GrayText"
+                >
+                  {title.prefix}
+                </Typography>
+              )}
+              {title.main}
+            </Typography>
+          </Box>
+
           <Typography variant="subtitle1" color="textSecondary">
             Completed: {nonNullValues} / {attributes.length}
           </Typography>
@@ -102,7 +138,7 @@ export default function AttributesForm({
                     )
                   : undefined
               }
-              onChange={onChange(name)}
+              onChange={disabled ? undefined : onChange(name)}
               value={value}
             />
           );
@@ -111,3 +147,11 @@ export default function AttributesForm({
     </Box>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    lockedFormIcon: {
+      marginRight: theme.spacing(2),
+    },
+  })
+);

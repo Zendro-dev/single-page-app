@@ -1,6 +1,7 @@
 import React, { useMemo, useReducer } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { capitalize } from 'inflection';
 import useSWR from 'swr';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
@@ -339,10 +340,14 @@ const Record: NextPage<RecordProps> = ({
       <AttributesForm
         attributes={formAttributes}
         className={classes.form}
+        disabled={queryMode === 'read'}
         formId={formId}
         onChange={handleOnChange}
         onSubmit={handleOnSubmit(queryMode)}
-        title={modelName}
+        title={{
+          prefix: capitalize(queryMode),
+          main: modelName,
+        }}
         actions={
           <>
             <div className={classes.actions}>
