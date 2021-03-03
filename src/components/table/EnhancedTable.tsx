@@ -100,8 +100,12 @@ export default function EnhancedTable({
           variables: { id: primaryKey },
         };
         console.log(request);
-        // TODO send query
-        // if (auth.user?.token) mutate(await readOne(auth.user?.token, request));
+        // TODO handle Errors
+        // ? possibly mutate local data and run the refetch in background?
+        if (auth.user?.token) {
+          await readOne(auth.user?.token, request);
+          mutate();
+        }
         break;
       }
     }
