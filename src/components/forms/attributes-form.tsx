@@ -83,16 +83,9 @@ export default function AttributesForm({
               </Tooltip>
             )}
 
-            <Typography display="flex" variant="h6" component="h1">
+            <Typography variant="h6" component="h1">
               {title.prefix && (
-                <Typography
-                  marginRight={2}
-                  variant="h6"
-                  fontWeight="bold"
-                  color="GrayText"
-                >
-                  {title.prefix}
-                </Typography>
+                <span className={classes.titlePrefix}>{title.prefix}</span>
               )}
               {title.main}
             </Typography>
@@ -150,6 +143,12 @@ export default function AttributesForm({
 
 const useStyles = makeStyles((theme) =>
   createStyles({
+    titlePrefix: {
+      ...theme.typography.h6,
+      color: 'GrayText',
+      fontWeight: 'bold',
+      marginRight: theme.spacing(2),
+    },
     lockedFormIcon: {
       marginRight: theme.spacing(2),
     },
