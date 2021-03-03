@@ -69,7 +69,7 @@ export async function readMany(
     : [];
 }
 
-export async function readOne<T = unknown>(
+export async function requestOne<T = unknown>(
   token: string,
   request: ComposedQuery
 ): Promise<T | null> {

@@ -1,10 +1,6 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import {
-  MutateRecordAttributes,
-  QueryModelTableRecords,
-  QueryRecordAttributes,
-} from '@/types/queries';
+import { QueryRecord, QueryModelTableRecords } from '@/types/queries';
 
 /**
  * Compose a readMany graphql query to retrieve a list of model records.
@@ -16,7 +12,7 @@ export const queryModelTableRecords: QueryModelTableRecords = (
   attributes
 ) => {
   const { namePlLc, nameCp } = getInflections(modelName);
-  const fields = getAttributeFields(attributes);
+  const { fields } = parseQueryAttributes(attributes);
 
   const resolver = `${namePlLc}Connection`;
   const query = `query getModelTableRecords(
@@ -43,73 +39,101 @@ export const queryModelTableRecords: QueryModelTableRecords = (
   };
 };
 
-/**
- * Compose a readOne graphql query to retrieve attribute values for a single record.
- * @param modelName name of the data model to query data from
- * @param attributes a sorted list of attribute fields to query
- */
-export const readRecordAttributes: QueryRecordAttributes = (
-  modelName,
-  attributes
-) => {
-  const { nameCp } = getInflections(modelName);
-  const fields = getAttributeFields(attributes);
-
-  const primaryKey =
-    attributes.find((attribute) => attribute?.primaryKey)?.name ?? 'id';
-  const resolver = `readOne${nameCp}`;
-  const query = `query getRecordAttributes($id: ID!) {
-    ${resolver}(${primaryKey}: $id) {
-      ${fields}
-    }
-  }`;
-
-  return {
-    resolver,
-    query,
-  };
-};
-
-export const updateRecordAttributes: MutateRecordAttributes = (
-  modelName,
-  attributes
-) => {
+export const queryRecord: QueryRecord = (modelName, attributes) => {
   const { nameCp } = getInflections(modelName);
 
-  const resolver = `update${nameCp}`;
-  const variables = getQueryVars(attributes);
-  const args = getQueryArgs(attributes);
-  const fields = getAttributeFields(attributes);
+  const createResolver = `add${nameCp}`;
+  const readResolver = `readOne${nameCp}`;
+  const updateResolver = `update${nameCp}`;
+  const deleteResolver = `delete${nameCp}`;
 
-  const query = `mutation updateRecordAttributes(${variables}) {
-    ${resolver}(${args}) {
-      ${fields}
-    }
-  }`;
+  const { args, idArg, idVar, fields, vars } = parseQueryAttributes(attributes);
 
   return {
-    resolver,
-    query,
+    create: {
+      resolver: createResolver,
+      query: `mutation createRecord(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
+    },
+    read: {
+      resolver: readResolver,
+      query: `query readRecord(${idArg}) { ${readResolver}(${idVar}) { ${fields} } }`,
+    },
+    update: {
+      resolver: updateResolver,
+      query: `mutation updateRecord(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
+    },
+    delete: {
+      resolver: deleteResolver,
+      query: `mutation deleteRecord(${idArg}) { ${deleteResolver}(${idVar}) }`,
+    },
   };
 };
 
 /**
- * Convert an array of parsed attributes to a string of names. This function
- * can be used to generate the list of fields within a graphql query.
- * @param attributes an array of attributes parsed server-side
+ * Parse attributes to compose query and mutation strings:
+ * -  idArg: id argument as required in the read and delete functions.
+ * -  idVar: id variable as required in the read query and delete mutation.
+ * -   args: all arguments as required in the add and update functions.
+ * -   vars: all variables as required in the add and update mutations.
+ * - fields: all attribute fields.
+ * @param attributes raw attribute array
  */
-function getAttributeFields(attributes: ParsedAttribute[]): string {
-  return attributes.map(({ name }) => name).join(' ');
-}
+function parseQueryAttributes(
+  attributes: ParsedAttribute[]
+): {
+  args: string;
+  idArg: string;
+  idVar: string;
+  fields: string;
+  vars: string;
+} {
+  return {
+    /**
+     */
+    get args() {
+      return attributes
+        .map(({ name, type, primaryKey }) =>
+          primaryKey ? `$${name}: ID!` : `$${name}: ${type}`
+        )
+        .join(' ');
+    },
 
-function getQueryArgs(attributes: ParsedAttribute[]): string {
-  return attributes.map(({ name }) => `${name}: $${name}`).join(' ');
-}
+    /**
+     * Get the primary argument as required in the read and delete functions.
+     */
+    get idArg() {
+      const attr = attributes.find(({ primaryKey }) => primaryKey);
+      if (!attr)
+        throw new Error(
+          'A primary key is required to build read and delete queries'
+        );
+      return `$${attr.name}: ID!`;
+    },
 
-function getQueryVars(attributes: ParsedAttribute[]): string {
-  return attributes
-    .map(({ name, type, primaryKey }) =>
-      primaryKey ? `$${name}: ID!` : `$${name}: ${type}`
-    )
-    .join(' ');
+    /**
+     * Get the id variable as required in the read query and delete mutation.
+     */
+    get idVar() {
+      const attr = attributes.find(({ primaryKey }) => primaryKey);
+      if (!attr)
+        throw new Error(
+          'A primary key is required to build read and delete queries'
+        );
+      return `${attr.name}: $${attr.name}`;
+    },
+
+    /**
+     * Get all attribute fields.
+     */
+    get fields() {
+      return attributes.map(({ name }) => name).join(' ');
+    },
+
+    /**
+     * Get all variables as required in the add and update mutations.
+     */
+    get vars() {
+      return attributes.map(({ name }) => `${name}: $${name}`).join(' ');
+    },
+  };
 }
