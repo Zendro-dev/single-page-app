@@ -7,7 +7,7 @@ import {
   getStaticModelPaths,
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
-import { queryModelTableRecords } from '@/utils/queries';
+import { crudRecord, queryModelTableRecords } from '@/utils/queries';
 import { ParsedAttribute, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
@@ -18,7 +18,10 @@ import { RawQuery } from '@/types/queries';
 interface ModelProps {
   modelName: string;
   attributes: ParsedAttribute[];
-  rawQuery: RawQuery;
+  requests: {
+    read: RawQuery;
+    delete: RawQuery;
+  };
   routes: AppRoutes;
 }
 
@@ -40,14 +43,20 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel);
-  const rawQuery = queryModelTableRecords(modelName, attributes);
+  const read = queryModelTableRecords(modelName, attributes);
+  // TODO rename delete to something different to destructure
+  const _delete = crudRecord(modelName, attributes).delete;
 
   return {
     props: {
       modelName,
       attributes,
-      rawQuery,
+      requests: {
+        read,
+        delete: _delete,
+      },
       routes,
+      key: modelName,
     },
   };
 };
@@ -55,7 +64,7 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
 const Model: NextPage<ModelProps> = ({
   modelName,
   attributes,
-  rawQuery,
+  requests,
   routes,
 }) => {
   useAuth({ redirectTo: '/' });
@@ -66,7 +75,7 @@ const Model: NextPage<ModelProps> = ({
       <EnhancedTable
         modelName={modelName}
         attributes={attributes}
-        rawQuery={rawQuery}
+        requests={requests}
       />
     </ModelsLayout>
   );
