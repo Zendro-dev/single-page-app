@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useReducer } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -87,10 +87,9 @@ export const getStaticProps: GetStaticProps<
 };
 
 interface ParsedQuery {
-  queryMode: 'create' | 'read' | 'update';
+  queryMode: QueryMode;
   queryId?: string;
 }
-
 type QueryMode = 'create' | 'read' | 'update';
 
 /**
@@ -119,6 +118,13 @@ function parseUrlQuery(query: RecordPathParams): ParsedQuery {
   };
 }
 
+interface InitAttributesArgs {
+  mode: QueryMode;
+  attributes: ParsedAttribute[];
+  data?: Record<string, AttributeValue> | null;
+  errors?: Record<string, string | undefined>;
+}
+
 /**
  * Compose an array of form attributes from a combination of static types
  * and data returned from the server.
@@ -127,12 +133,12 @@ function parseUrlQuery(query: RecordPathParams): ParsedQuery {
  * @param data attribute values
  * @param errors attribute error messages
  */
-function composeAttributes(
-  mode: QueryMode,
-  attributes: ParsedAttribute[],
-  data?: Record<string, AttributeValue> | null,
-  errors?: Record<string, string | undefined>
-): FormAttribute[] {
+function initAttributes({
+  mode,
+  attributes,
+  data,
+  errors,
+}: InitAttributesArgs): FormAttribute[] {
   return attributes.map(({ name, type, primaryKey }) => ({
     name,
     type,
@@ -163,6 +169,27 @@ function composeReadOneRequest(
   }
 }
 
+type FormAttributesAction =
+  | { type: 'update'; payload: { key: string; value: AttributeValue } }
+  | { type: 'reset'; payload: InitAttributesArgs };
+
+function formAttributesReducer(
+  state: FormAttribute[],
+  action: FormAttributesAction
+): FormAttribute[] {
+  switch (action.type) {
+    case 'reset': {
+      return initAttributes(action.payload);
+    }
+    case 'update': {
+      const { key, value } = action.payload;
+      const attr = state.find(({ name }) => key === name);
+      if (attr) attr.value = value;
+      return [...state];
+    }
+  }
+}
+
 const Record: NextPage<RecordProps> = ({
   attributes,
   modelName,
@@ -177,8 +204,10 @@ const Record: NextPage<RecordProps> = ({
   );
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
-  const [formAttributes, setFormAttributes] = useState<FormAttribute[]>(
-    composeAttributes(queryMode, attributes)
+  const [formAttributes, dispatch] = useReducer(
+    formAttributesReducer,
+    { mode: queryMode, attributes },
+    initAttributes
   );
 
   /**
@@ -200,7 +229,11 @@ const Record: NextPage<RecordProps> = ({
       revalidateOnMount: true,
       onSuccess: (data) => {
         console.log({ data });
-        setFormAttributes(composeAttributes(queryMode, attributes, data));
+        if (data)
+          dispatch({
+            type: 'reset',
+            payload: { mode: queryMode, attributes, data },
+          });
       },
       onError: (responseErrors) => {
         // TODO: parse the err array and set the internal errors state accordingly
@@ -218,11 +251,7 @@ const Record: NextPage<RecordProps> = ({
    * @param key name of the attribute to change in the form state
    */
   const handleOnChange = (key: string) => (value: AttributeValue) => {
-    const attr = formAttributes.find(({ name }) => key === name);
-    if (attr) {
-      attr.value = value;
-    }
-    setFormAttributes([...formAttributes]);
+    dispatch({ type: 'update', payload: { key, value } });
   };
 
   const handleOnDelete = async (): Promise<void> => {
@@ -262,7 +291,7 @@ const Record: NextPage<RecordProps> = ({
     const query = mode === 'create' ? '' : `?${mode}=${queryId}`;
     router.push(`/${modelName}/item${query}`);
     if (mode === 'create')
-      setFormAttributes(composeAttributes(mode, attributes));
+      dispatch({ type: 'reset', payload: { mode, attributes } });
   };
 
   /**
@@ -308,10 +337,10 @@ const Record: NextPage<RecordProps> = ({
       <AttributesForm
         attributes={formAttributes}
         className={classes.form}
-        title={modelName}
+        formId={formId}
         onChange={handleOnChange}
         onSubmit={handleOnSubmit(queryMode)}
-        formId={queryId}
+        title={modelName}
         actions={
           <>
             <div className={classes.actions}>
@@ -327,7 +356,7 @@ const Record: NextPage<RecordProps> = ({
               {queryMode === 'update' && (
                 <ActionButton
                   color="primary"
-                  form={`AttributesForm-${queryId}`}
+                  form={formId}
                   icon={ReadIcon}
                   onClick={handleOnSwitchMode('read')}
                   size="medium"
@@ -338,7 +367,7 @@ const Record: NextPage<RecordProps> = ({
               {queryMode === 'read' && (
                 <ActionButton
                   color="primary"
-                  form={`AttributesForm-${queryId}`}
+                  form={formId}
                   icon={EditIcon}
                   onClick={handleOnSwitchMode('update')}
                   size="medium"
@@ -349,7 +378,7 @@ const Record: NextPage<RecordProps> = ({
               {(queryMode === 'read' || queryMode === 'update') && (
                 <ActionButton
                   color="primary"
-                  form={`AttributesForm-${queryId}`}
+                  form={formId}
                   icon={CreateIcon}
                   onClick={handleOnSwitchMode('create')}
                   size="medium"
@@ -362,7 +391,7 @@ const Record: NextPage<RecordProps> = ({
               {queryMode === 'update' && (
                 <ActionButton
                   color="secondary"
-                  form={`AttributesForm-${queryId}`}
+                  form={formId}
                   icon={DeleteIcon}
                   onClick={handleOnDelete}
                   tooltip="Delete record"
@@ -373,7 +402,7 @@ const Record: NextPage<RecordProps> = ({
               {(queryMode === 'read' || queryMode === 'update') && (
                 <ActionButton
                   color="primary"
-                  form={`AttributesForm-${queryId}`}
+                  form={formId}
                   icon={Reload}
                   tooltip="Reload data"
                   size={queryMode === 'read' ? 'large' : 'medium'}
@@ -384,7 +413,7 @@ const Record: NextPage<RecordProps> = ({
               {(queryMode === 'create' || queryMode === 'update') && (
                 <ActionButton
                   color="primary"
-                  form={`AttributesForm-${queryId ?? 'create'}`}
+                  form={formId}
                   icon={SaveIcon}
                   size="large"
                   tooltip="Submit changes"
