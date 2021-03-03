@@ -7,6 +7,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import {
   Add as CreateIcon,
   Cached as Reload,
+  ChevronLeft as CancelIcon,
   Create as EditIcon,
   Delete as DeleteIcon,
   Visibility as ReadIcon,
@@ -17,6 +18,7 @@ import ActionButton from '@/components/buttons/fab';
 import AttributesForm, {
   FormAttribute,
 } from '@/components/forms/attributes-form';
+import ActionLink from '@/components/links/fab-link';
 
 import useAuth from '@/hooks/useAuth';
 
@@ -173,6 +175,7 @@ const Record: NextPage<RecordProps> = ({
   const { queryId, queryMode } = parseUrlQuery(
     router.query as RecordPathParams
   );
+  const formId = `AttributesForm-${queryId ?? 'create'}`;
 
   const [formAttributes, setFormAttributes] = useState<FormAttribute[]>(
     composeAttributes(queryMode, attributes)
@@ -308,68 +311,90 @@ const Record: NextPage<RecordProps> = ({
         title={modelName}
         onChange={handleOnChange}
         onSubmit={handleOnSubmit(queryMode)}
-        recordId={queryId}
-      >
-        {queryMode === 'update' && (
-          <ActionButton
-            form={`AttributesForm-${queryId}`}
-            icon={DeleteIcon}
-            tooltip="Delete record"
-            color="secondary"
-            onClick={handleOnDelete}
-          />
-        )}
+        formId={queryId}
+        actions={
+          <>
+            <div className={classes.actions}>
+              <ActionLink
+                color="secondary"
+                form={formId}
+                href={`/${modelName}`}
+                icon={CancelIcon}
+                size="large"
+                tooltip="Exit form"
+              />
 
-        {(queryMode === 'read' || queryMode === 'update') && (
-          <ActionButton
-            form={`AttributesForm-${queryId}`}
-            icon={Reload}
-            tooltip="Reload data"
-            color="primary"
-            onClick={handleOnReload}
-          />
-        )}
+              {queryMode === 'update' && (
+                <ActionButton
+                  color="primary"
+                  form={`AttributesForm-${queryId}`}
+                  icon={ReadIcon}
+                  onClick={handleOnSwitchMode('read')}
+                  size="medium"
+                  tooltip="View record details"
+                />
+              )}
 
-        {queryMode === 'update' && (
-          <ActionButton
-            form={`AttributesForm-${queryId}`}
-            color="primary"
-            icon={ReadIcon}
-            tooltip="View record details"
-            onClick={handleOnSwitchMode('read')}
-          />
-        )}
+              {queryMode === 'read' && (
+                <ActionButton
+                  color="primary"
+                  form={`AttributesForm-${queryId}`}
+                  icon={EditIcon}
+                  onClick={handleOnSwitchMode('update')}
+                  size="medium"
+                  tooltip="Edit record"
+                />
+              )}
 
-        {queryMode === 'read' && (
-          <ActionButton
-            form={`AttributesForm-${queryId}`}
-            color="primary"
-            icon={EditIcon}
-            tooltip="Edit record"
-            onClick={handleOnSwitchMode('update')}
-          />
-        )}
+              {(queryMode === 'read' || queryMode === 'update') && (
+                <ActionButton
+                  color="primary"
+                  form={`AttributesForm-${queryId}`}
+                  icon={CreateIcon}
+                  onClick={handleOnSwitchMode('create')}
+                  size="medium"
+                  tooltip="Create new record"
+                />
+              )}
+            </div>
 
-        {(queryMode === 'read' || queryMode === 'update') && (
-          <ActionButton
-            form={`AttributesForm-${queryId}`}
-            color="primary"
-            icon={CreateIcon}
-            tooltip="Create new record"
-            onClick={handleOnSwitchMode('create')}
-          />
-        )}
+            <div className={classes.actions}>
+              {queryMode === 'update' && (
+                <ActionButton
+                  color="secondary"
+                  form={`AttributesForm-${queryId}`}
+                  icon={DeleteIcon}
+                  onClick={handleOnDelete}
+                  tooltip="Delete record"
+                  size="medium"
+                />
+              )}
 
-        {(queryMode === 'create' || queryMode === 'update') && (
-          <ActionButton
-            form={`AttributesForm-${queryId ?? 'create'}`}
-            color="primary"
-            icon={SaveIcon}
-            tooltip="Submit changes"
-            type="submit"
-          />
-        )}
-      </AttributesForm>
+              {(queryMode === 'read' || queryMode === 'update') && (
+                <ActionButton
+                  color="primary"
+                  form={`AttributesForm-${queryId}`}
+                  icon={Reload}
+                  tooltip="Reload data"
+                  size="medium"
+                  onClick={handleOnReload}
+                />
+              )}
+
+              {(queryMode === 'create' || queryMode === 'update') && (
+                <ActionButton
+                  color="primary"
+                  form={`AttributesForm-${queryId ?? 'create'}`}
+                  icon={SaveIcon}
+                  size="large"
+                  tooltip="Submit changes"
+                  type="submit"
+                />
+              )}
+            </div>
+          </>
+        }
+      />
     </ModelsLayout>
   );
 };
@@ -377,6 +402,11 @@ export default Record;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    actions: {
+      '& > button:not(:first-child), a:not(:first-child)': {
+        marginLeft: theme.spacing(6),
+      },
+    },
     form: {
       border: '2px solid',
       borderRadius: 10,

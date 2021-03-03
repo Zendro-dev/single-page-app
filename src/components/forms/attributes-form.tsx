@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 import { VpnKey as KeyIcon } from '@material-ui/icons';
 
@@ -17,10 +17,11 @@ import { isNullorEmpty } from '@/utils/validation';
 import AttributeField from '../input/attribute-field';
 
 export interface AttributesFormProps {
+  actions: ReactNode;
   attributes: FormAttribute[];
   className?: string;
   title: string;
-  recordId?: string;
+  formId?: string;
   onChange: (key: string) => (value: AttributeValue) => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
@@ -37,11 +38,9 @@ export default function AttributesForm({
   title,
   onChange,
   onSubmit,
-  recordId,
+  formId,
   ...props
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
-  const classes = useStyles();
-
   const nonNullValues = attributes.reduce((acc, { value }) => {
     return isNullorEmpty(value) ? acc : (acc += 1);
   }, 0);
@@ -51,21 +50,16 @@ export default function AttributesForm({
       <Box
         position="absolute"
         display="flex"
-        justifyContent="flex-end"
+        justifyContent="space-between"
         top={-28}
         right={0}
-        marginX={10}
+        paddingX={10}
         width="100%"
-        className={classes.actions}
       >
-        {props.children}
+        {props.actions}
       </Box>
 
-      <form
-        id={`AttributesForm-${recordId ?? 'create'}`}
-        className={className}
-        onSubmit={onSubmit}
-      >
+      <form id={formId} className={className} onSubmit={onSubmit}>
         <Box
           component="legend"
           display="flex"
@@ -112,13 +106,3 @@ export default function AttributesForm({
     </Box>
   );
 }
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    actions: {
-      '& > button:not(:first-child), a:not(:first-child)': {
-        marginLeft: theme.spacing(6),
-      },
-    },
-  })
-);
