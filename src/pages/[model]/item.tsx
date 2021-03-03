@@ -5,7 +5,6 @@ import useSWR from 'swr';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import {
-  Add as CreateIcon,
   Cached as Reload,
   ChevronLeft as CancelIcon,
   Create as EditIcon,
@@ -287,12 +286,13 @@ const Record: NextPage<RecordProps> = ({
     mutate();
   };
 
-  const handleOnSwitchMode = (mode: QueryMode) => (): void => {
-    const query = mode === 'create' ? '' : `?${mode}=${queryId}`;
-    router.push(`/${modelName}/item${query}`);
+  const handleOnSwitchMode = (
+    mode: Exclude<QueryMode, 'create'>
+  ) => (): void => {
+    router.push(`/${modelName}/item?${mode}=${queryId}`);
     dispatch({
       type: 'reset',
-      payload: { mode, attributes, data: mode === 'create' ? undefined : data },
+      payload: { mode, attributes, data },
     });
   };
 
@@ -376,21 +376,10 @@ const Record: NextPage<RecordProps> = ({
                   tooltip="Edit record"
                 />
               )}
-
-              {(queryMode === 'read' || queryMode === 'update') && (
-                <ActionButton
-                  color="primary"
-                  form={formId}
-                  icon={CreateIcon}
-                  onClick={handleOnSwitchMode('create')}
-                  size="medium"
-                  tooltip="Create new record"
-                />
-              )}
             </div>
 
             <div className={classes.actions}>
-              {queryMode === 'update' && (
+              {(queryMode === 'read' || queryMode === 'update') && (
                 <ActionButton
                   color="secondary"
                   form={formId}
