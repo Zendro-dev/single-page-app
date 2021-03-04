@@ -28,7 +28,11 @@ interface Props {
   onAction: (action: FormAction) => () => void;
 }
 
-export function FormActions({ formId, view, onAction }: Props): ReactElement {
+export default function FormActions({
+  formId,
+  view,
+  onAction,
+}: Props): ReactElement {
   const classes = useStyles();
   return (
     <>
