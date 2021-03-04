@@ -7,7 +7,7 @@ import {
   Box,
   TableCellProps,
 } from '@material-ui/core';
-import { Order } from './EnhancedTableHead';
+import { Order } from './enhanced-tablehead';
 import { SvgIconType } from '@/types/elements';
 
 interface EnhacedTableHeadCellProps extends TableCellProps {

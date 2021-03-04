@@ -11,8 +11,8 @@ import {
   CircularProgress,
   Fade,
 } from '@material-ui/core';
-import EnhancedTableHead from './EnhancedTableHead';
-import EnhancedTableRow, { ActionHandler } from './EnhancedTableRow';
+import EnhancedTableHead from './enhanced-tablehead';
+import EnhancedTableRow, { ActionHandler } from './enhanced-tablerow';
 import useSWR from 'swr';
 import { readMany, readOne } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';

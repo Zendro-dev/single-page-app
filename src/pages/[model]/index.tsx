@@ -12,7 +12,7 @@ import { ParsedAttribute, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
-import EnhancedTable from '@/components/table/EnhancedTable';
+import EnhancedTable from '@/components/table/enhanced-table';
 import { RawQuery } from '@/types/queries';
 
 interface ModelProps {
