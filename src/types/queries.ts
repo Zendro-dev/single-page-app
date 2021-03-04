@@ -43,10 +43,28 @@ export type QueryModelTableRecords = (
   attributes: ParsedAttribute[]
 ) => RawQuery;
 
+/**
+ * RECORD
+ */
+export type CrudRecord = (
+  modelName: string,
+  attributes: ParsedAttribute[]
+) => {
+  create: RawQuery;
+  read: RawQuery;
+  update: RawQuery;
+  delete: RawQuery;
+};
+
 export interface QueryRecordAttributesVariables extends QueryVariables {
   id: string | number;
 }
 export type QueryRecordAttributes = (
+  modelName: string,
+  attributes: ParsedAttribute[]
+) => RawQuery;
+
+export type MutateRecordAttributes = (
   modelName: string,
   attributes: ParsedAttribute[]
 ) => RawQuery;
