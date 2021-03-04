@@ -26,30 +26,6 @@ export default function AssociationsList({
           />
         );
       })}
-      <AssociationLink
-        key={`'random'-assoc-list`}
-        href={`/user?filter=${modelName}`}
-        association={{
-          label: 'label',
-          name: 'name',
-          target: 'target',
-          targetKey: 'foreignKey',
-          targetStorageType: 'sql',
-          type: 'to_many',
-        }}
-      />
-      <AssociationLink
-        key={`another-assoc-list`}
-        href={`/user?filter=${modelName}`}
-        association={{
-          label: 'label',
-          name: 'name',
-          target: 'target',
-          targetKey: 'foreignKey',
-          targetStorageType: 'sql',
-          type: 'to_many',
-        }}
-      />
     </List>
   );
 }
