@@ -7,21 +7,20 @@ import {
   getStaticModelPaths,
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
-import { crudRecord, queryModelTableRecords } from '@/utils/queries';
-import { ParsedAttribute, PathParams } from '@/types/models';
+import {
+  crudRecord,
+  queryModelTableRecords,
+  queryModelTableRecordsCount,
+} from '@/utils/queries';
+import { PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
-import EnhancedTable from '@/components/table/enhanced-table';
-import { RawQuery } from '@/types/queries';
+import EnhancedTable, {
+  EnhancedTableProps,
+} from '@/components/table/enhanced-table';
 
-interface ModelProps {
-  modelName: string;
-  attributes: ParsedAttribute[];
-  requests: {
-    read: RawQuery;
-    delete: RawQuery;
-  };
+interface ModelProps extends EnhancedTableProps {
   routes: AppRoutes;
 }
 
@@ -46,6 +45,7 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const read = queryModelTableRecords(modelName, attributes);
   // TODO rename delete to something different to destructure
   const _delete = crudRecord(modelName, attributes).delete;
+  const count = queryModelTableRecordsCount(modelName);
 
   return {
     props: {
@@ -54,6 +54,7 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
       requests: {
         read,
         delete: _delete,
+        count,
       },
       routes,
       key: modelName,

@@ -19,6 +19,7 @@ import useAuth from '@/hooks/useAuth';
 import { ParsedAttribute } from '@/types/models';
 import {
   ComposedQuery,
+  QueryModelTableRecordsCountVariables,
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
   QueryVariablePagination,
@@ -26,24 +27,26 @@ import {
   RawQuery,
 } from '@/types/queries';
 
-interface EnhancedTableProps {
+export interface EnhancedTableProps {
   modelName: string;
   attributes: ParsedAttribute[];
   requests: {
     read: RawQuery;
     delete: RawQuery;
+    count: RawQuery;
   };
 }
 
 type VariableAction =
   | { type: 'SET_SEARCH'; value: QueryVariableSearch }
   | { type: 'SET_ORDER'; value: QueryVariableOrder }
-  | { type: 'SET_PAGINATION'; value: QueryVariablePagination };
+  | { type: 'SET_PAGINATION'; value: QueryVariablePagination }
+  | { type: 'RESET'; value: QueryVariablePagination };
 
 const initialVariables: QueryModelTableRecordsVariables = {
   search: undefined,
   order: undefined,
-  pagination: { first: 10 },
+  pagination: { first: 25 },
 };
 
 const variablesReducer = (
@@ -66,6 +69,12 @@ const variablesReducer = (
         ...variables,
         pagination: action.value,
       };
+    case 'RESET':
+      return {
+        search: undefined,
+        order: undefined,
+        pagination: { first: 25 },
+      };
   }
 };
 
@@ -83,7 +92,6 @@ export default function EnhancedTable({
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', value });
   };
-
   const handleActionClick: ActionHandler = async (primaryKey, action) => {
     const route = `/${modelName}/item?${action}=${primaryKey}`;
     switch (action) {
@@ -104,7 +112,8 @@ export default function EnhancedTable({
         // ? possibly mutate local data and run the refetch in background?
         if (auth.user?.token) {
           await readOne(auth.user?.token, request);
-          mutate();
+          mutateRecords();
+          mutateCount();
         }
         break;
       }
@@ -113,7 +122,8 @@ export default function EnhancedTable({
 
   const { auth } = useAuth();
 
-  const request = useMemo(() => {
+  // Data Fetching: Records
+  const readRequest = useMemo(() => {
     return {
       query: requests.read.query,
       resolver: requests.read.resolver,
@@ -121,9 +131,33 @@ export default function EnhancedTable({
     } as ComposedQuery<QueryModelTableRecordsVariables>;
   }, [variables, requests.read]);
 
-  const { data, mutate, isValidating } = useSWR(
-    auth?.user?.token ? [auth.user.token, request] : null,
+  const {
+    data: records,
+    mutate: mutateRecords,
+    isValidating: isValidatingRecords,
+  } = useSWR(
+    auth?.user?.token ? [auth.user.token, readRequest] : null,
     readMany,
+    {
+      // TODO error handling
+      onError: (error) => {
+        console.error(error);
+      },
+    }
+  );
+
+  // Data Fetching: Count
+  const countRequest = useMemo(() => {
+    return {
+      query: requests.count.query,
+      resolver: requests.count.resolver,
+      variables: variables.search,
+    } as ComposedQuery<QueryModelTableRecordsCountVariables>;
+  }, [variables.search, requests.count]);
+
+  const { data: count, mutate: mutateCount } = useSWR(
+    auth?.user?.token ? [auth.user.token, countRequest] : null,
+    readOne,
     {
       // TODO error handling
       onError: (error) => {
@@ -141,10 +175,10 @@ export default function EnhancedTable({
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
-          {data && !isValidating && (
-            <Fade in={!isValidating}>
+          {records && !isValidatingRecords && (
+            <Fade in={!isValidatingRecords}>
               <TableBody>
-                {data.map((record, index) => (
+                {records.map((record, index) => (
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
@@ -165,14 +199,16 @@ export default function EnhancedTable({
           justifyContent="center"
           alignItems="center"
         >
-          {isValidating && (
-            <Fade in={isValidating}>
+          {isValidatingRecords && (
+            <Fade in={isValidatingRecords}>
               <CircularProgress color="primary" disableShrink={true} />
             </Fade>
           )}
-          {!isValidating && Array.isArray(data) && data.length === 0 && (
-            <Typography variant="body1">No data to display</Typography>
-          )}
+          {!isValidatingRecords &&
+            Array.isArray(records) &&
+            records.length === 0 && (
+              <Typography variant="body1">No data to display</Typography>
+            )}
         </Box>
       </div>
       <div style={{ textAlign: 'right' }}>PAGINATION</div>

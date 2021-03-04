@@ -1,6 +1,10 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import { QueryModelTableRecords, CrudRecord } from '@/types/queries';
+import {
+  QueryModelTableRecords,
+  CrudRecord,
+  QueryModelTableRecordsCount,
+} from '@/types/queries';
 
 /**
  * Compose a readMany graphql query to retrieve a list of model records.
@@ -32,6 +36,20 @@ export const queryModelTableRecords: QueryModelTableRecords = (
         }
       }
     }`;
+
+  return {
+    resolver,
+    query,
+  };
+};
+
+export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
+  modelName
+) => {
+  const { nameCp, namePlCp } = getInflections(modelName);
+  const resolver = `count${namePlCp}`;
+  const query = `query countRecords($search: search${nameCp}Input) { 
+    ${resolver}( search: $search ) }`;
 
   return {
     resolver,
