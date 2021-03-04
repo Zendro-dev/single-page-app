@@ -141,7 +141,6 @@ export default function EnhancedTable({
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
-
           {data && !isValidating && (
             <Fade in={!isValidating}>
               <TableBody>
@@ -158,24 +157,23 @@ export default function EnhancedTable({
             </Fade>
           )}
         </Table>
-        {!data && (
-          <Fade in={isValidating}>
-            <Box
-              display="flex"
-              width="100%"
-              height="100%"
-              position="absolute"
-              justifyContent="center"
-              alignItems="center"
-            >
-              {isValidating ? (
-                <CircularProgress color="primary" disableShrink={true} />
-              ) : (
-                <Typography variant="body1">No data to display</Typography>
-              )}
-            </Box>
-          </Fade>
-        )}
+        <Box
+          display="flex"
+          width="100%"
+          height="100%"
+          position="absolute"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {isValidating && (
+            <Fade in={isValidating}>
+              <CircularProgress color="primary" disableShrink={true} />
+            </Fade>
+          )}
+          {!isValidating && Array.isArray(data) && data.length === 0 && (
+            <Typography variant="body1">No data to display</Typography>
+          )}
+        </Box>
       </div>
       <div style={{ textAlign: 'right' }}>PAGINATION</div>
     </TableContainer>
