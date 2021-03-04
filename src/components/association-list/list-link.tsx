@@ -36,7 +36,6 @@ export default function AssociationLink({
       display="flex"
       flexDirection="column"
       justifyContent="center"
-      paddingY={4}
     >
       <Box display="flex" alignItems="center">
         <IconButton className={classes.iconButton} onClick={handleOnToggle}>
@@ -44,9 +43,9 @@ export default function AssociationLink({
         </IconButton>
 
         <Link href={href} passHref>
-          <Box width="100%" component="a">
-            <Typography component="p" variant="button" fontWeight="bold">
-              {association.name}
+          <Box className={classes.link} padding={4} width="100%" component="a">
+            <Typography component="p" fontSize={15} fontWeight="bold">
+              {association.name.toUpperCase()}
             </Typography>
             <Typography component="p" variant="subtitle1" color="GrayText">
               {association.type}
@@ -76,9 +75,6 @@ export default function AssociationLink({
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      // '&:hover': {
-      //   backgroundColor: theme.palette.grey[200],
-      // },
       '&:not(:first-child)::before': {
         content: '""',
         // display: 'block',
@@ -91,7 +87,16 @@ const useStyles = makeStyles((theme) =>
       },
     },
     iconButton: {
-      marginRight: theme.spacing(4),
+      backgroundColor: theme.palette.grey[200],
+      '&:hover': {
+        backgroundColor: theme.palette.grey[400],
+      },
+      marginRight: theme.spacing(2),
+    },
+    link: {
+      '&:hover': {
+        backgroundColor: theme.palette.grey[200],
+      },
     },
     nested: {
       marginLeft: theme.spacing(11),

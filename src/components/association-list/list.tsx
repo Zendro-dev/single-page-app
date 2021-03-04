@@ -1,5 +1,5 @@
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Divider, List } from '@material-ui/core';
+import { List } from '@material-ui/core';
 
 import AssociationLink from './list-link';
 import { ParsedAssociation } from '@/types/models';
