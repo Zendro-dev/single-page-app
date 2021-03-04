@@ -1,4 +1,9 @@
-import { Association, DataModel, ParsedAttribute } from '@/types/models';
+import {
+  Association,
+  DataModel,
+  ParsedAssociation,
+  ParsedAttribute,
+} from '@/types/models';
 
 /**
  * Get all foreign keys for a given model. A foreign-key is understood as any attribute that
@@ -69,4 +74,23 @@ export function getAttributeList(
     : attributes.unshift({ name: 'id', type: 'Int', primaryKey: true });
 
   return attributes;
+}
+
+/**
+ * Read raw associations into a parsed array.
+ * @param model parsed data model object
+ */
+export function parseAssociations(model: DataModel): ParsedAssociation[] {
+  let parsedAssociations: ParsedAssociation[] = [];
+
+  if (model.associations) {
+    parsedAssociations = Object.entries(model.associations).map(
+      ([name, values]) => ({
+        name,
+        ...values,
+      })
+    );
+  }
+
+  return parsedAssociations;
 }
