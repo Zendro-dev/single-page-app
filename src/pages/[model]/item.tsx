@@ -1,27 +1,19 @@
 import React, { useMemo, useReducer } from 'react';
+import { capitalize } from 'inflection';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { capitalize } from 'inflection';
 import useSWR from 'swr';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
-import {
-  Cached as Reload,
-  ChevronLeft as CancelIcon,
-  Create as EditIcon,
-  Delete as DeleteIcon,
-  Visibility as ReadIcon,
-  Save as SaveIcon,
-} from '@material-ui/icons';
 
-import ActionButton from '@/components/buttons/fab';
 import AttributesForm, {
+  FormAction,
+  FormActions,
   FormAttribute,
-} from '@/components/forms/attributes-form';
-import ActionLink from '@/components/links/fab-link';
+  FormView,
+} from '@/components/attributes-form';
 
 import useAuth from '@/hooks/useAuth';
-
 import ModelsLayout from '@/layouts/models-layout';
 
 import {
@@ -87,11 +79,9 @@ export const getStaticProps: GetStaticProps<
 };
 
 interface ParsedQuery {
-  queryMode: QueryMode;
+  formView: FormView;
   queryId?: string;
 }
-type QueryMode = 'create' | 'read' | 'update';
-
 /**
  * Compute the type of operation requested from the URL query.
  * @param query url query
@@ -99,27 +89,27 @@ type QueryMode = 'create' | 'read' | 'update';
 function parseUrlQuery(query: RecordPathParams): ParsedQuery {
   const { read, update } = query;
 
-  let queryMode: QueryMode;
+  let formView: FormView;
   let queryId;
 
   if (read) {
-    queryMode = 'read';
+    formView = 'read';
     queryId = read;
   } else if (update) {
-    queryMode = 'update';
+    formView = 'update';
     queryId = update;
   } else {
-    queryMode = 'create';
+    formView = 'create';
   }
 
   return {
-    queryMode,
+    formView,
     queryId,
   };
 }
 
 interface InitAttributesArgs {
-  mode: QueryMode;
+  formView: FormView;
   attributes: ParsedAttribute[];
   data?: Record<string, AttributeValue> | null;
   errors?: Record<string, string | undefined>;
@@ -134,7 +124,7 @@ interface InitAttributesArgs {
  * @param errors attribute error messages
  */
 function initAttributes({
-  mode,
+  formView,
   attributes,
   data,
   errors,
@@ -143,7 +133,7 @@ function initAttributes({
     name,
     type,
     primaryKey,
-    readOnly: mode === 'update' && primaryKey,
+    readOnly: formView === 'update' && primaryKey,
     value: data ? data[name] : null,
     error: errors ? errors[name] : null,
   }));
@@ -199,14 +189,12 @@ const Record: NextPage<RecordProps> = ({
   const { auth } = useAuth({ redirectTo: '/' });
   const router = useRouter();
   const classes = useStyles();
-  const { queryId, queryMode } = parseUrlQuery(
-    router.query as RecordPathParams
-  );
+  const { queryId, formView } = parseUrlQuery(router.query as RecordPathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
   const [formAttributes, dispatch] = useReducer(
     formAttributesReducer,
-    { mode: queryMode, attributes },
+    { formView, attributes },
     initAttributes
   );
 
@@ -226,23 +214,18 @@ const Record: NextPage<RecordProps> = ({
     requestOne,
     {
       revalidateOnFocus: false,
-      revalidateOnMount: true,
       onSuccess: (data) => {
         console.log({ data });
         if (data)
           dispatch({
             type: 'reset',
-            payload: { mode: queryMode, attributes, data },
+            payload: { formView, attributes, data },
           });
       },
       onError: (responseErrors) => {
         // TODO: parse the err array and set the internal errors state accordingly
         console.log({ responseErrors });
       },
-      initialData: formAttributes.reduce<Record<string, AttributeValue>>(
-        (acc, { name, value }) => ({ ...acc, [name]: value }),
-        {}
-      ),
     }
   );
 
@@ -254,61 +237,89 @@ const Record: NextPage<RecordProps> = ({
     dispatch({ type: 'update', payload: { key, value } });
   };
 
-  const handleOnDelete = async (): Promise<void> => {
-    const { query, resolver } = requests.delete;
-    const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-    const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
-      ?.value;
+  const handleOnFormAction = (action: FormAction) => async () => {
+    switch (action) {
+      /**
+       * Navigate to the model table.
+       */
+      case 'cancel': {
+        router.push(`/${modelName}`);
+        break;
+      }
 
-    try {
-      if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
-        throw new Error('The record id was not set for a delete record action');
+      /**
+       * Re-init form attributes to correctly set their read-only status. This would not
+       * be required if the form sets readOnly (e.g. for primaryKey), but then the ability
+       * to set other attributes to readOnly based on page logic is lost.
+       */
+      case 'read':
+      case 'update': {
+        router.push(`/${modelName}/item?${action}=${queryId}`);
+        dispatch({
+          type: 'reset',
+          payload: { formView: action, attributes, data },
+        });
+        break;
+      }
 
-      if (!auth.user?.token) return;
+      /**
+       * Send a delete request and, if sucessful, navigate to the model table.
+       */
+      case 'delete': {
+        const { query, resolver } = requests.delete;
+        const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+        const idValue = formAttributes.find(
+          ({ name }) => idKey && name === idKey
+        )?.value;
 
-      const variables = { [idKey]: idValue };
-      const request: ComposedQuery = {
-        resolver,
-        query,
-        variables,
-      };
+        try {
+          if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
+            throw new Error(
+              'The record id was not set for a delete record action'
+            );
 
-      await requestOne(auth.user.token, request);
-      router.push(`/${modelName}`);
-    } catch (errors) {
-      console.error(errors);
+          if (!auth.user?.token) return;
+
+          const variables = { [idKey]: idValue };
+          const request: ComposedQuery = {
+            resolver,
+            query,
+            variables,
+          };
+
+          await requestOne(auth.user.token, request);
+          router.push(`/${modelName}`);
+        } catch (errors) {
+          console.error(errors);
+        }
+        break;
+      }
+
+      /**
+       * Revalidate the data in the current request.
+       */
+      case 'reload': {
+        mutate();
+        break;
+      }
+
+      default:
+        break;
     }
-  };
-
-  /**
-   * Revalidate the data in the current request.
-   */
-  const handleOnReload = (): void => {
-    mutate();
-  };
-
-  const handleOnSwitchMode = (
-    mode: Exclude<QueryMode, 'create'>
-  ) => (): void => {
-    router.push(`/${modelName}/item?${mode}=${queryId}`);
-    dispatch({
-      type: 'reset',
-      payload: { mode, attributes, data },
-    });
   };
 
   /**
    * Submit the form values to the Zendro GraphQL endpoint. Triggers a revalidation.
    */
-  const handleOnSubmit = (mode: QueryMode) => async (
+  const handleOnSubmit = (formView: FormView) => async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
-    if (mode === 'read') return;
+    if (formView === 'read') return;
 
     const { query, resolver } =
-      mode === 'create' ? requests.create : requests.update;
+      formView === 'create' ? requests.create : requests.update;
 
     const data = formAttributes.reduce<Record<string, AttributeValue>>(
       (acc, { name, value }) => ({ ...acc, [name]: value }),
@@ -327,8 +338,8 @@ const Record: NextPage<RecordProps> = ({
 
     try {
       if (auth.user?.token) await requestOne(auth.user?.token, request);
-      if (mode === 'update') mutate(data);
-      else if (mode === 'create' && idValue)
+      if (formView === 'update') mutate(data);
+      else if (formView === 'create' && idValue)
         router.push(`/${modelName}/item?update=${idValue}`);
     } catch (errors) {
       console.error(errors);
@@ -340,84 +351,20 @@ const Record: NextPage<RecordProps> = ({
       <AttributesForm
         attributes={formAttributes}
         className={classes.form}
-        disabled={queryMode === 'read'}
+        disabled={formView === 'read'}
         formId={formId}
         onChange={handleOnChange}
-        onSubmit={handleOnSubmit(queryMode)}
+        onSubmit={handleOnSubmit(formView)}
         title={{
-          prefix: capitalize(queryMode),
+          prefix: capitalize(formView),
           main: modelName,
         }}
         actions={
-          <>
-            <div className={classes.actions}>
-              <ActionLink
-                color="secondary"
-                form={formId}
-                href={`/${modelName}`}
-                icon={CancelIcon}
-                size="large"
-                tooltip="Exit form"
-              />
-
-              {queryMode === 'update' && (
-                <ActionButton
-                  color="primary"
-                  form={formId}
-                  icon={ReadIcon}
-                  onClick={handleOnSwitchMode('read')}
-                  size="medium"
-                  tooltip="View record details"
-                />
-              )}
-
-              {queryMode === 'read' && (
-                <ActionButton
-                  color="primary"
-                  form={formId}
-                  icon={EditIcon}
-                  onClick={handleOnSwitchMode('update')}
-                  size="medium"
-                  tooltip="Edit record"
-                />
-              )}
-            </div>
-
-            <div className={classes.actions}>
-              {(queryMode === 'read' || queryMode === 'update') && (
-                <ActionButton
-                  color="secondary"
-                  form={formId}
-                  icon={DeleteIcon}
-                  onClick={handleOnDelete}
-                  tooltip="Delete record"
-                  size="medium"
-                />
-              )}
-
-              {(queryMode === 'read' || queryMode === 'update') && (
-                <ActionButton
-                  color="primary"
-                  form={formId}
-                  icon={Reload}
-                  tooltip="Reload data"
-                  size={queryMode === 'read' ? 'large' : 'medium'}
-                  onClick={handleOnReload}
-                />
-              )}
-
-              {(queryMode === 'create' || queryMode === 'update') && (
-                <ActionButton
-                  color="primary"
-                  form={formId}
-                  icon={SaveIcon}
-                  size="large"
-                  tooltip="Submit changes"
-                  type="submit"
-                />
-              )}
-            </div>
-          </>
+          <FormActions
+            view={formView}
+            formId={formId}
+            onAction={handleOnFormAction}
+          />
         }
       />
     </ModelsLayout>
@@ -427,11 +374,6 @@ export default Record;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    actions: {
-      '& > button:not(:first-child), a:not(:first-child)': {
-        marginLeft: theme.spacing(6),
-      },
-    },
     form: {
       border: '2px solid',
       borderRadius: 10,
