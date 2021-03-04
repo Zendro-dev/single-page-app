@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useRef, useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
@@ -23,26 +23,32 @@ export default function BoolField({
 }: BaseFieldProps<BoolFieldProps>): ReactElement {
   const classes = useStyles();
 
-  const [checked, setChecked] = useState(value || false);
-  const [indeterminate, setIndeterminate] = useState(value === null);
-
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    if (event.target.checked && !indeterminate) {
-      setChecked(true);
+    const { checked } = event.target;
+
+    /**
+     * If the indeterminate prop is set to true, the component appears indeterminate.
+     * This does not set the native input element to indeterminate due to inconsistent
+     * behavior across browsers. However, a data-indeterminate attribute is set on the
+     * input.
+     *
+     * Source: https://next.material-ui.com/api/checkbox/
+     */
+    const indeterminate = event.target.getAttribute('data-indeterminate') as
+      | 'true'
+      | 'false';
+
+    if (checked && indeterminate === 'false') {
       if (onChange) {
         onChange(true);
       }
-    } else if (!event.target.checked && !indeterminate) {
-      setChecked(false);
-      setIndeterminate(true);
+    } else if (!checked && indeterminate === 'false') {
       if (onChange) {
         onChange(null);
       }
-    } else if (event.target.checked && indeterminate) {
-      setChecked(false);
-      setIndeterminate(false);
+    } else if (checked && indeterminate === 'true') {
       if (onChange) {
         onChange(false);
       }
@@ -57,8 +63,8 @@ export default function BoolField({
           <Checkbox
             className={error ? classes.error : ''}
             color="default"
-            checked={checked}
-            indeterminate={indeterminate}
+            checked={value ?? false}
+            indeterminate={value === null}
             onChange={InputProps?.readOnly ? undefined : handleOnChange}
           />
         }
