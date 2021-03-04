@@ -220,7 +220,6 @@ const Record: NextPage<RecordProps> = ({
     {
       revalidateOnFocus: false,
       onSuccess: (data) => {
-        console.log({ data });
         if (data)
           dispatch({
             type: 'reset',
