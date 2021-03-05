@@ -1,4 +1,4 @@
-import { useMemo,useState, useRef } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Dialog,
@@ -10,12 +10,11 @@ import {
   LinearProgress,
   Typography,
 } from '@material-ui/core';
-import { MAX_UPLOAD_SIZE } from '../../config/globals';
-import { authSelector } from '../../store/auth-slice';
+import { MAX_UPLOAD_SIZE } from '@/config/globals';
+import { authSelector } from '@/store/auth-slice';
 import useSWR from 'swr';
-import { bulkCreate } from '@/utils/requests';
+import { requestOne } from '@/utils/requests';
 import { queryBulkCreate } from '@/utils/queries';
-
 
 export default function UploadDialog(props) {
   const file = useRef(null);
@@ -25,9 +24,9 @@ export default function UploadDialog(props) {
   const [loading, setLoading] = useState(false);
   const [limitExceeded, setLimitExceeded] = useState(false);
 
-  const request = useMemo(()=>{
+  const request = useMemo(() => {
     return queryBulkCreate(props.modelName);
-  })
+  }, [props.modelName]);
 
   const handleOnClose = () => {
     file.current = null;
@@ -60,13 +59,22 @@ export default function UploadDialog(props) {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = () => {
     setLoading(true);
   };
 
   useSWR(
-    loading ? [auth.user.token, request,file.current] : null,
-    bulkCreate,
+    loading
+      ? [
+          auth.user.token,
+          request,
+          undefined,
+          {
+            csv_file: file.current,
+          },
+        ]
+      : null,
+    requestOne,
     { onSuccess: onUploadSucces, onError: onUploadError }
   );
 

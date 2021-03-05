@@ -4,7 +4,7 @@ import Search from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Backspace';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
-import ClickableIcon from './clickableIcon.jsx';
+import ClickableIcon from '../buttons/icon-button';
 
 export default function SearchField(props) {
   const [clearDisabled, setClearDisabled] = useState(true);

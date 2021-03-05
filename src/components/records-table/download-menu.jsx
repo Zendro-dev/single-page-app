@@ -5,11 +5,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import { EXPORT_URL } from '../../config/globals';
-import ClickableIcon from './clickableIcon.jsx';
+import ClickableIcon from '@/components/buttons/icon-button';
 import useSWR from 'swr';
 import { authSelector } from '../../store/auth-slice';
 import { downloadFile } from '../../utils/tableToolBar';
-import { csvTemplate } from '@/utils/requests';
+import { requestOne } from '@/utils/requests';
 import { queryCsvTemplate } from '@/utils/queries';
 
 export default function DownloadMenu(props) {
@@ -20,18 +20,17 @@ export default function DownloadMenu(props) {
   const onDownload = (data) => {
     setDownloadTemplate(false);
     downloadFile(data, `${props.modelName}-template.csv`);
-    
   };
 
-  const onError = (error) => {
+  const onError = () => {
     //send error to user
   };
 
-  const request = useMemo(()=>{
+  const request = useMemo(() => {
     return queryCsvTemplate(props.modelName);
-  })
+  }, [props.modelName]);
 
-  useSWR(downloadTemplate ? [ auth.user.token, request] : null, csvTemplate, {
+  useSWR(downloadTemplate ? [auth.user.token, request] : null, requestOne, {
     onSuccess: onDownload,
     onError: onError,
   });

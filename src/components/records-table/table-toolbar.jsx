@@ -2,11 +2,12 @@ import { useState } from 'react';
 import Reload from '@material-ui/icons/Replay';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
-import ClickableIcon from './clickableIcon.jsx';
-import SearchField from './searchField.jsx';
-import DownloadMenu from './downloadMenu.jsx';
-import UploadDialog from './uploadDialog.jsx';
+import ClickableIcon from '../buttons/icon-button';
+import SearchField from './search-field';
+import DownloadMenu from './download-menu';
+import UploadDialog from './upload-dialog';
 import { Box } from '@material-ui/core';
+
 export default function TableToolBar(props) {
   const { onReload, modelName, onSearch, onAdd } = props;
 

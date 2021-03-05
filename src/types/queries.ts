@@ -13,6 +13,7 @@ export interface ComposedQuery<V = QueryVariables | null | undefined>
   extends RawQuery {
   variables: V;
 }
+
 /**
  * MODEL
  */
@@ -49,6 +50,10 @@ export type QueryModelTableRecords = (
   attributes: ParsedAttribute[]
 ) => RawQuery;
 
+export type QueryCsvTemplate = (modelName: string) => RawQuery;
+
+export type QueryBulkCreate = (modelName: string, file: File) => RawQuery;
+
 /**
  * RECORD
  */
@@ -61,7 +66,3 @@ export type QueryRecord = (
   update: RawQuery;
   delete: RawQuery;
 };
-
-export type QueryCsvTemplate = (modelName: string) => RawQuery;
-
-export type QueryBulkCreate = (modelName: string, file: File) => RawQuery;
