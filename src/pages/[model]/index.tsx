@@ -16,9 +16,7 @@ import { PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
-import EnhancedTable, {
-  EnhancedTableProps,
-} from '@/components/table/enhanced-table';
+import EnhancedTable, { EnhancedTableProps } from '@/components/records-table';
 
 interface ModelProps extends EnhancedTableProps {
   routes: AppRoutes;

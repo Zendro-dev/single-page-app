@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
 import KeyIcon from '@material-ui/icons/VpnKey';
-import EnhancedTableHeadCell from './enhanced-tablehead-cell';
+import EnhancedTableHeadCell from './table-head-cell';
 import { QueryVariableOrder } from '@/types/queries';
 import { ParsedAttribute } from '@/types/models';
 

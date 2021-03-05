@@ -11,8 +11,10 @@ import {
   CircularProgress,
   Fade,
 } from '@material-ui/core';
-import EnhancedTableHead from './enhanced-tablehead';
-import EnhancedTableRow, { ActionHandler } from './enhanced-tablerow';
+import EnhancedTableHead from './table-head';
+import EnhancedTableRow from './table-row';
+import TableToolbar from './table-toolbar';
+import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
 import { readMany, requestOne } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';
@@ -26,6 +28,7 @@ import {
   QueryVariableSearch,
   RawQuery,
 } from '@/types/queries';
+import { createSearch } from '@/utils/tableToolBar';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -92,15 +95,19 @@ export default function EnhancedTable({
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', value });
   };
-  const handleActionClick: ActionHandler = async (primaryKey, action) => {
+  const handleActionClick = (
+    action: 'create' | 'read' | 'update' | 'delete'
+  ) => async (primaryKey: string | number) => {
     const route = `/${modelName}/item?${action}=${primaryKey}`;
     switch (action) {
       case 'read':
       case 'update':
         router.push(route);
         break;
+      case 'create':
+        router.push(`/${modelName}/item`);
+        break;
       case 'delete': {
-        console.log(action + ' - ' + primaryKey);
         const { query, resolver } = requests.delete;
         const idField = attributes[0].name;
         const request: ComposedQuery = {
@@ -108,7 +115,6 @@ export default function EnhancedTable({
           query,
           variables: { [idField]: primaryKey },
         };
-        console.log(request);
         // TODO handle Errors
         // ? possibly mutate local data and run the refetch in background?
         if (auth.user?.token) {
@@ -119,6 +125,23 @@ export default function EnhancedTable({
         break;
       }
     }
+  };
+
+  const handleSetSearch = (value: string): void => {
+    const se = createSearch(value, attributes);
+    let search = {
+      operator: 'or',
+      search: se,
+    } as QueryVariableSearch;
+
+    if (value === '') {
+      search = {
+        field: undefined,
+        value: undefined,
+        operator: undefined,
+      };
+    }
+    dispatch({ type: 'SET_SEARCH', value: search });
   };
 
   const { auth } = useAuth();
@@ -136,7 +159,7 @@ export default function EnhancedTable({
     data: records,
     mutate: mutateRecords,
     isValidating: isValidatingRecords,
-  } = useSWR<unknown[]>(
+  } = useSWR(
     auth?.user?.token ? [auth.user.token, readRequest] : null,
     readMany,
     {
@@ -167,9 +190,69 @@ export default function EnhancedTable({
     }
   );
 
+  const handlePagination = (action: string): void => {
+    const limit = variables.pagination.first ?? variables.pagination.last;
+    switch (action) {
+      case 'first':
+        dispatch({
+          type: 'SET_PAGINATION',
+          value: {
+            first: limit,
+          },
+        });
+        break;
+      case 'last':
+        dispatch({
+          type: 'SET_PAGINATION',
+          value: {
+            last: limit,
+          },
+        });
+        break;
+      case 'forward':
+        dispatch({
+          type: 'SET_PAGINATION',
+          value: {
+            first: limit,
+            after: records ? records.pageInfo.endCursor : undefined,
+          },
+        });
+        break;
+      case 'backward':
+        dispatch({
+          type: 'SET_PAGINATION',
+          value: {
+            last: limit,
+            before: records ? records.pageInfo.startCursor : undefined,
+          },
+        });
+        break;
+    }
+  };
+
+  const handlePaginationLimitChange = (
+    event: React.ChangeEvent<{ value: number }>
+  ): void => {
+    const limit = variables.pagination.first ?? variables.pagination.last;
+    if (event.target.value !== limit) {
+      dispatch({
+        type: 'SET_PAGINATION',
+        value: {
+          first: event.target.value,
+          includeCursor: false,
+        },
+      });
+    }
+  };
+
   return (
     <TableContainer component={Paper} className={classes.paper}>
-      <div>{`TOOLBAR - ${modelName}`}</div>
+      <TableToolbar
+        modelName={modelName}
+        onAdd={handleActionClick('create')}
+        onReload={() => mutateRecords()}
+        onSearch={handleSetSearch}
+      />
       <div className={classes.tableWrapper}>
         <Table stickyHeader size="small">
           <EnhancedTableHead
@@ -179,13 +262,15 @@ export default function EnhancedTable({
           {records && !isValidatingRecords && (
             <Fade in={!isValidatingRecords}>
               <TableBody>
-                {records.map((record, index) => (
+                {records.data.map((record, index) => (
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
                     record={record}
                     key={`${record}-${index}`}
-                    onAction={handleActionClick}
+                    onRead={handleActionClick('read')}
+                    onUpdate={handleActionClick('update')}
+                    onDelete={handleActionClick('delete')}
                   />
                 ))}
               </TableBody>
@@ -221,7 +306,19 @@ export default function EnhancedTable({
             </Box>
           )}
       </div>
-      <div style={{ textAlign: 'right' }}>PAGINATION</div>
+      <RecordsTablePagination
+        onPagination={handlePagination}
+        count={count}
+        options={[5, 10, 15, 20, 25, 50]}
+        paginationLimit={
+          variables.pagination.first ?? variables.pagination.last
+        }
+        onPaginationLimitChange={handlePaginationLimitChange}
+        hasFirstPage={records?.pageInfo.hasPreviousPage}
+        hasLastPage={records?.pageInfo.hasNextPage}
+        hasPreviousPage={records?.pageInfo.hasPreviousPage}
+        hasNextPage={records?.pageInfo.hasNextPage}
+      />
     </TableContainer>
   );
 }

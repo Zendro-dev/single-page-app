@@ -18,16 +18,13 @@ interface EnhancedTableRowIconProps {
   onClick: () => void;
 }
 
-export type ActionHandler = (
-  primaryKey: string,
-  action: 'create' | 'read' | 'update' | 'delete'
-) => void;
-
 interface EnhancedTableRowProps {
   // TODO correct typing for record
   record: any;
   attributes: ParsedAttribute[];
-  onAction: ActionHandler;
+  onRead: (primaryKey: string | number) => void;
+  onUpdate: (primaryKey: string | number) => void;
+  onDelete: (primaryKey: string | number) => void;
 }
 
 function EnhancedTableRowIcon({
@@ -53,7 +50,9 @@ function EnhancedTableRowIcon({
 export default function EnhancedTableRow({
   record,
   attributes,
-  onAction,
+  onRead,
+  onUpdate,
+  onDelete,
 }: // actions,
 EnhancedTableRowProps): ReactElement {
   // TODO needs to be aware of the model to compose the correct Link to View/Update/Delete
@@ -66,18 +65,6 @@ EnhancedTableRowProps): ReactElement {
     return record[primaryKeyAttribute];
   }, [attributes, record]);
 
-  const handleReadAction = (): void => {
-    onAction(primaryKey, 'read');
-  };
-
-  const handleUpdateAction = (): void => {
-    onAction(primaryKey, 'update');
-  };
-
-  const handleDeleteAction = (): void => {
-    onAction(primaryKey, 'delete');
-  };
-
   return (
     // TODO permissions
     // ? accomodate associations
@@ -86,15 +73,15 @@ EnhancedTableRowProps): ReactElement {
       hover
       role="checkbox"
       tabIndex={-1}
-      onDoubleClick={handleReadAction}
+      onDoubleClick={() => onRead(primaryKey)}
     >
-      <EnhancedTableRowIcon label="detail" onClick={handleReadAction}>
+      <EnhancedTableRowIcon label="detail" onClick={() => onRead(primaryKey)}>
         <DetailIcon fontSize="small" className={classes.iconDetail} />
       </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="edit" onClick={handleUpdateAction}>
+      <EnhancedTableRowIcon label="edit" onClick={() => onUpdate(primaryKey)}>
         <EditIcon fontSize="small" className={classes.iconEdit} />
       </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="delete" onClick={handleDeleteAction}>
+      <EnhancedTableRowIcon label="delete" onClick={() => onDelete(primaryKey)}>
         <DeleteIcon fontSize="small" className={classes.iconDelete} />
       </EnhancedTableRowIcon>
       {attributes.map((attribute, index) => (

@@ -3,9 +3,9 @@ import Reload from '@material-ui/icons/Replay';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
 import ClickableIcon from '../buttons/icon-button';
-import SearchField from './search-field';
-import DownloadMenu from './download-menu';
-import UploadDialog from './upload-dialog';
+import SearchField from './table-toolbar-search-field';
+import DownloadMenu from './table-toolbar-download-menu';
+import UploadDialog from './table-toolbar-upload-dialog';
 import { Box } from '@material-ui/core';
 
 export default function TableToolBar(props) {
@@ -21,10 +21,6 @@ export default function TableToolBar(props) {
     setDialogOpen(false);
   };
 
-  const handleAddNewClick = () => {
-    onAdd('create');
-  };
-
   return (
     <Box
       display="flex"
@@ -38,10 +34,7 @@ export default function TableToolBar(props) {
 
       <SearchField onSearchClick={onSearch} />
 
-      <ClickableIcon
-        tooltip="Add new no_assoc"
-        handleOnClick={handleAddNewClick}
-      >
+      <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
         <Add color="primary" />
       </ClickableIcon>
 

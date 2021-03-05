@@ -5,7 +5,7 @@ import {
   ListItemText,
   Typography,
 } from '@material-ui/core';
-import { SvgIconType } from '../buttons/tooltip-icon';
+import { SvgIconType } from '@/types/elements';
 
 export interface ListLinkItemProps {
   Icon: SvgIconType;
