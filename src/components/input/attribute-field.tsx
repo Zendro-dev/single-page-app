@@ -75,7 +75,7 @@ export default function AttributeField({
             <InputAdornment position="end">
               <Tooltip title="Unset value">
                 <span>
-                  <IconButton onClick={handleOnClear}>
+                  <IconButton tabIndex="-1" onClick={handleOnClear}>
                     <ClearIcon />
                   </IconButton>
                 </span>
