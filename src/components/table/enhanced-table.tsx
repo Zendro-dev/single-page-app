@@ -102,10 +102,11 @@ export default function EnhancedTable({
       case 'delete': {
         console.log(action + ' - ' + primaryKey);
         const { query, resolver } = requests.delete;
+        const idField = attributes[0].name;
         const request: ComposedQuery = {
           resolver,
           query,
-          variables: { id: primaryKey },
+          variables: { [idField]: primaryKey },
         };
         console.log(request);
         // TODO handle Errors
