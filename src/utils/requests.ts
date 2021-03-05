@@ -19,7 +19,8 @@ interface ServerResponse<T = unknown> {
 export async function graphql<R = unknown>(
   token: string,
   query: string,
-  variables: QueryVariables | null | undefined
+  variables?: QueryVariables | null,
+  additionalData?: { [key: string]: unknown }
 ): Promise<ServerResponse<R>> {
   let response: AxiosResponse;
   try {
@@ -34,6 +35,7 @@ export async function graphql<R = unknown>(
       data: {
         query,
         variables,
+        ...additionalData,
       },
     });
   } catch (error) {
@@ -71,13 +73,15 @@ export async function readMany(
 
 export async function requestOne<T = unknown>(
   token: string,
-  request: ComposedQuery
+  request: ComposedQuery,
+  additionalData?: { [key: string]: unknown }
 ): Promise<T | null> {
   const { query, resolver, variables } = request;
   const response = await graphql<RequestOneResponse<T>>(
     token,
     query,
-    variables
+    variables,
+    additionalData
   );
 
   if (response.errors) throw response.errors;
