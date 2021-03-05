@@ -10,7 +10,6 @@ import { DataModel, PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models-layout';
-import TableToolbar from '@/components/records-table';
 
 interface ModelProps {
   dataModel: DataModel;
@@ -40,24 +39,14 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   };
 };
 
-const Model: NextPage<ModelProps> = ({ dataModel, routes }) => {
+const Model: NextPage<ModelProps> = ({ routes }) => {
   useAuth({ redirectTo: '/' });
   const router = useRouter();
 
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
-      <TableToolbar
-        modelName={dataModel.model}
-        onReload={() => {
-          console.log('reload');
-        }}
-        onAdd={() => {
-          console.log('add');
-        }}
-        onSearch={() => {
-          console.log('search');
-        }}
-      />
+      <div>{JSON.stringify(router.asPath)}</div>
+      <div>{JSON.stringify(router.query)}</div>
     </ModelsLayout>
   );
 };
