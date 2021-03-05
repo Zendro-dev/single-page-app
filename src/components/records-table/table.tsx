@@ -44,7 +44,7 @@ type VariableAction =
   | { type: 'SET_SEARCH'; value: QueryVariableSearch }
   | { type: 'SET_ORDER'; value: QueryVariableOrder }
   | { type: 'SET_PAGINATION'; value: QueryVariablePagination }
-  | { type: 'RESET'; value: QueryVariablePagination };
+  | { type: 'RESET'; };
 
 const initialVariables: QueryModelTableRecordsVariables = {
   search: undefined,
@@ -128,20 +128,18 @@ export default function EnhancedTable({
   };
 
   const handleSetSearch = (value: string): void => {
-    const se = createSearch(value, attributes);
+
     let search = {
       operator: 'or',
-      search: se,
+      search: createSearch(value, attributes),
     } as QueryVariableSearch;
 
     if (value === '') {
-      search = {
-        field: undefined,
-        value: undefined,
-        operator: undefined,
-      };
+      dispatch({ type: 'RESET'});
+    }else{
+      dispatch({ type: 'SET_SEARCH', value: search});
     }
-    dispatch({ type: 'SET_SEARCH', value: search });
+    
   };
 
   const { auth } = useAuth();
@@ -175,7 +173,7 @@ export default function EnhancedTable({
     return {
       query: requests.count.query,
       resolver: requests.count.resolver,
-      variables: variables.search,
+      variables: variables,
     } as ComposedQuery<QueryModelTableRecordsCountVariables>;
   }, [variables.search, requests.count]);
 

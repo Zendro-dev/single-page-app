@@ -18,7 +18,7 @@ export function createSearch(value, attributes) {
 
     switch (a.type) {
       case 'Int':
-        if (!isNaN(value)) {
+        if (!isNaN(value) && Number.isInteger(parseFloat(value))) {
           return search_attribute;
         }
         break;
