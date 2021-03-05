@@ -52,6 +52,43 @@ export async function graphql<R = unknown>(
   };
 }
 
+export async function graphqlUploadFile<R = unknown>(
+  token: string,
+  query: string,
+  file: File
+): Promise<ServerResponse<R>> {
+  let response: AxiosResponse;
+  const formData = new FormData();
+  formData.append('csv_file', file);
+  formData.append('query', query);
+
+  try {
+    response = await axios({
+      url: GRAPHQL_URL,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: token ? `Bearer ${token}` : null,
+      },
+      data: formData,
+    });
+  } catch (error) {
+    return {
+      errors: [error],
+      status: error.response.status,
+      statusText: error.response.statusText,
+    };
+  }
+
+  return {
+    data: response.data.data,
+    errors: response.data.errors,
+    status: response.status,
+    statusText: response.statusText,
+  };
+}
+
 export async function readMany(
   token: string,
   request: ComposedQuery
@@ -83,4 +120,40 @@ export async function requestOne<T = unknown>(
   if (response.errors) throw response.errors;
 
   return response.data ? response.data[resolver] : null;
+}
+
+//to be moved to types
+interface templateResponse {
+  [key: string]: string;
+}
+
+interface bulkCreateResponse {
+  [key: string]: string;
+}
+
+export async function csvTemplate<T = unknown>(
+  token: string,
+  request: ComposedQuery
+): Promise<string | null> {
+  const response = await graphql<templateResponse>(token, request.query);
+
+  if (response.errors) throw response.errors;
+
+  return response.data ? response.data[request.resolver] : null;
+}
+
+export async function bulkCreate<T = unknown>(
+  token: string,
+  request: ComposedQuery,
+  file: File
+): Promise<string | null> {
+  const response = await graphqlUploadFile<bulkCreateResponse>(
+    token,
+    request.query,
+    file
+  );
+
+  if (response.errors) throw response.errors;
+
+  return response.data ? response.data[request.resolver] : null;
 }

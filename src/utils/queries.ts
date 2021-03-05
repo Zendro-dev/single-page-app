@@ -1,6 +1,11 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import { QueryRecord, QueryModelTableRecords } from '@/types/queries';
+import {
+  QueryModelTableRecords,
+  QueryCsvTemplate,
+  QueryBulkCreate,
+  QueryRecord,
+} from '@/types/queries';
 
 /**
  * Compose a readMany graphql query to retrieve a list of model records.
@@ -66,6 +71,29 @@ export const queryRecord: QueryRecord = (modelName, attributes) => {
       resolver: deleteResolver,
       query: `mutation deleteRecord(${idArg}) { ${deleteResolver}(${idVar}) }`,
     },
+  };
+};
+
+export const queryCsvTemplate: QueryCsvTemplate = (modelName) => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `csvTableTemplate${nameCp}`;
+  const query = `query {${resolver}}`;
+
+  return {
+    resolver,
+    query,
+  };
+};
+
+export const queryBulkCreate: QueryBulkCreate = (modelName) => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `bulkAdd${nameCp}Csv`;
+  const query = `mutation {${resolver}}`;
+  return {
+    resolver,
+    query,
   };
 };
 

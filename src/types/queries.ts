@@ -13,14 +13,16 @@ export interface ComposedQuery<V = QueryVariables | null | undefined>
   extends RawQuery {
   variables: V;
 }
-
 /**
  * MODEL
  */
 export interface QueryVariableSearch {
-  field: string;
-  value: string;
-  valueType: AttributeScalarType;
+  field?: string;
+  value?: string;
+  valueType?: AttributeScalarType;
+  // TODO operator types
+  operator?: string;
+  // TODO recursive search
 }
 
 export interface QueryVariableOrder {
@@ -59,3 +61,7 @@ export type QueryRecord = (
   update: RawQuery;
   delete: RawQuery;
 };
+
+export type QueryCsvTemplate = (modelName: string) => RawQuery;
+
+export type QueryBulkCreate = (modelName: string, file: File) => RawQuery;
