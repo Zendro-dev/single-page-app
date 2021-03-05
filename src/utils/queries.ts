@@ -5,6 +5,7 @@ import {
   QueryCsvTemplate,
   QueryBulkCreate,
   QueryRecord,
+  QueryModelTableRecordsCount,
 } from '@/types/queries';
 
 /**
@@ -37,6 +38,20 @@ export const queryModelTableRecords: QueryModelTableRecords = (
         }
       }
     }`;
+
+  return {
+    resolver,
+    query,
+  };
+};
+
+export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
+  modelName
+) => {
+  const { nameCp, namePlCp } = getInflections(modelName);
+  const resolver = `count${namePlCp}`;
+  const query = `query countRecords($search: search${nameCp}Input) { 
+    ${resolver}( search: $search ) }`;
 
   return {
     resolver,

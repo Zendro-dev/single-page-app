@@ -1,7 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
 import { ComposedQuery, QueryVariables } from '@/types/queries';
-import { ReadManyResponse, RequestOneResponse } from '@/types/requests';
+import {
+  EdgePageInfo,
+  ReadManyResponse,
+  RequestOneResponse,
+} from '@/types/requests';
 
 interface ServerResponse<T = unknown> {
   data?: T | null;
@@ -57,7 +61,7 @@ export async function graphql<R = unknown>(
 export async function readMany(
   token: string,
   request: ComposedQuery
-): Promise<unknown[]> {
+): Promise<EdgePageInfo> {
   const response = await graphql<ReadManyResponse>(
     token,
     request.query,
@@ -67,8 +71,19 @@ export async function readMany(
   if (response.errors) throw response.errors;
 
   return response.data
-    ? response.data[request.resolver].edges.map((edge) => edge.node)
-    : [];
+    ? {
+        data: response.data[request.resolver].edges.map((edge) => edge.node),
+        pageInfo: response.data[request.resolver].pageInfo,
+      }
+    : {
+        data: [],
+        pageInfo: {
+          startCursor: undefined,
+          endCursor: undefined,
+          hasPreviousPage: undefined,
+          hasNextPage: undefined,
+        },
+      };
 }
 
 export async function requestOne<T = unknown>(

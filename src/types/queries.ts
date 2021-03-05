@@ -45,10 +45,16 @@ export interface QueryModelTableRecordsVariables extends QueryVariables {
   order?: QueryVariableOrder;
 }
 
+export interface QueryModelTableRecordsCountVariables {
+  search?: QueryVariableSearch;
+}
+
 export type QueryModelTableRecords = (
   modelName: string,
   attributes: ParsedAttribute[]
 ) => RawQuery;
+
+export type QueryModelTableRecordsCount = (modelName: string) => RawQuery;
 
 export type QueryCsvTemplate = (modelName: string) => RawQuery;
 

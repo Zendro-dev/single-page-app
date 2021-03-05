@@ -330,10 +330,6 @@ const Record: NextPage<RecordProps> = ({
       {}
     );
 
-    const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-    const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
-      ?.value;
-
     const request: ComposedQuery = {
       resolver,
       query,
@@ -343,8 +339,7 @@ const Record: NextPage<RecordProps> = ({
     try {
       if (auth.user?.token) await requestOne(auth.user?.token, request);
       if (formView === 'update') mutate(data);
-      else if (formView === 'create' && idValue)
-        router.push(`/${modelName}/item?update=${idValue}`);
+      router.push(`/${modelName}`);
     } catch (errors) {
       console.error(errors);
     }
