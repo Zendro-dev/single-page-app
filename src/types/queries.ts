@@ -9,10 +9,14 @@ export interface RawQuery {
   query: string;
 }
 
-export interface ComposedQuery<V = QueryVariables> extends RawQuery {
-  variables?: V;
+export interface ComposedQuery<V = QueryVariables | null | undefined>
+  extends RawQuery {
+  variables: V;
 }
 
+/**
+ * MODEL
+ */
 export interface QueryVariableSearch {
   field: string;
   value: string;
@@ -43,10 +47,15 @@ export type QueryModelTableRecords = (
   attributes: ParsedAttribute[]
 ) => RawQuery;
 
-export interface QueryRecordAttributesVariables extends QueryVariables {
-  id: string | number;
-}
-export type QueryRecordAttributes = (
+/**
+ * RECORD
+ */
+export type QueryRecord = (
   modelName: string,
   attributes: ParsedAttribute[]
-) => RawQuery;
+) => {
+  create: RawQuery;
+  read: RawQuery;
+  update: RawQuery;
+  delete: RawQuery;
+};

@@ -19,7 +19,7 @@ interface ServerResponse<T = unknown> {
 export async function graphql<R = unknown>(
   token: string,
   query: string,
-  variables?: QueryVariables
+  variables: QueryVariables | null | undefined
 ): Promise<ServerResponse<R>> {
   let response: AxiosResponse;
   try {
@@ -69,17 +69,14 @@ export async function readMany(
     : [];
 }
 
-export async function readOne<T = unknown>(
+export async function requestOne<T = unknown>(
   token: string,
   request: ComposedQuery
 ): Promise<T | null> {
-  const response = await graphql<ReadOneResponse<T>>(
-    token,
-    request.query,
-    request.variables
-  );
+  const { query, resolver, variables } = request;
+  const response = await graphql<ReadOneResponse<T>>(token, query, variables);
 
   if (response.errors) throw response.errors;
 
-  return response.data ? response.data[request.resolver] : null;
+  return response.data ? response.data[resolver] : null;
 }
