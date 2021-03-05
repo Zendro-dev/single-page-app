@@ -1,4 +1,4 @@
-import { pluralize } from 'inflection';
+import { pluralize, capitalize } from 'inflection';
 
 export interface Inflection {
   name: string;
@@ -15,10 +15,10 @@ export interface Inflection {
 export function getInflections(name: string): Inflection {
   const inflection: Inflection = {
     name,
-    nameCp: capitalizeString(name),
+    nameCp: capitalize(name),
     nameLc: uncapitalizeString(name),
     namePlLc: pluralize(uncapitalizeString(name)),
-    namePlCp: pluralize(capitalizeString(name)),
+    namePlCp: pluralize(capitalize(name)),
   };
 
   return inflection;
@@ -34,18 +34,5 @@ function uncapitalizeString(word: string): string {
     return word.toLowerCase();
   } else {
     return word.slice(0, 1).toLowerCase() + word.slice(1, length);
-  }
-}
-
-/**
- * Set the initial character of a word to uppercase.
- * @param word word to capitalize
- */
-function capitalizeString(word: string): string {
-  const length = word.length;
-  if (length == 1) {
-    return word.toUpperCase();
-  } else {
-    return word.slice(0, 1).toUpperCase() + word.slice(1, length);
   }
 }
