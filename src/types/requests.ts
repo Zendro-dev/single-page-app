@@ -4,6 +4,6 @@ export interface ReadManyResponse {
   };
 }
 
-export interface ReadOneResponse<T> {
+export interface RequestOneResponse<T> {
   [key: string]: T;
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
 import { ComposedQuery, QueryVariables } from '@/types/queries';
-import { ReadManyResponse, ReadOneResponse } from '@/types/requests';
+import { ReadManyResponse, RequestOneResponse } from '@/types/requests';
 
 interface ServerResponse<T = unknown> {
   data?: T | null;
@@ -19,7 +19,8 @@ interface ServerResponse<T = unknown> {
 export async function graphql<R = unknown>(
   token: string,
   query: string,
-  variables?: QueryVariables
+  variables?: QueryVariables | null,
+  additionalData?: { [key: string]: unknown }
 ): Promise<ServerResponse<R>> {
   let response: AxiosResponse;
   try {
@@ -34,6 +35,7 @@ export async function graphql<R = unknown>(
       data: {
         query,
         variables,
+        ...additionalData,
       },
     });
   } catch (error) {
@@ -69,17 +71,20 @@ export async function readMany(
     : [];
 }
 
-export async function readOne<T = unknown>(
+export async function requestOne<T = unknown>(
   token: string,
-  request: ComposedQuery
+  request: ComposedQuery,
+  additionalData?: { [key: string]: unknown }
 ): Promise<T | null> {
-  const response = await graphql<ReadOneResponse<T>>(
+  const { query, resolver, variables } = request;
+  const response = await graphql<RequestOneResponse<T>>(
     token,
-    request.query,
-    request.variables
+    query,
+    variables,
+    additionalData
   );
 
   if (response.errors) throw response.errors;
 
-  return response.data ? response.data[request.resolver] : null;
+  return response.data ? response.data[resolver] : null;
 }

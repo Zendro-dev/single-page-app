@@ -41,16 +41,23 @@ export interface ParsedAttribute {
 /* ASSOCIATIONS */
 
 export interface Association {
-  type: 'to_one' | 'to_many';
+  type: 'to_one' | 'to_many' | 'to_many_through_sql_cross_table';
   target: string;
   targetKey: string;
-  keyIn: string;
+  sourceKey?: string;
+  keyIn?: string;
+  keysIn?: string;
   targetStorageType: 'sql';
   label: string;
+  sublabel?: string;
 }
 
 export interface Associations {
   [key: string]: Association;
+}
+
+export interface ParsedAssociation extends Association {
+  name: string;
 }
 
 /* DATA MODELS */

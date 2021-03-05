@@ -2,7 +2,9 @@ import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
 import {
   QueryModelTableRecords,
-  CrudRecord,
+  QueryCsvTemplate,
+  QueryBulkCreate,
+  QueryRecord,
   QueryModelTableRecordsCount,
 } from '@/types/queries';
 
@@ -57,17 +59,20 @@ export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
   };
 };
 
-export const crudRecord: CrudRecord = (modelName, attributes) => {
+export const queryRecord: QueryRecord = (modelName, attributes) => {
   const { nameCp } = getInflections(modelName);
+
   const createResolver = `add${nameCp}`;
   const readResolver = `readOne${nameCp}`;
   const updateResolver = `update${nameCp}`;
   const deleteResolver = `delete${nameCp}`;
+
   const { args, idArg, idVar, fields, vars } = parseQueryAttributes(attributes);
+
   return {
     create: {
       resolver: createResolver,
-      query: `mutation createRecord(${idArg}) { ${createResolver}(${idVar}) { ${fields} } }`,
+      query: `mutation createRecord(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
     },
     read: {
       resolver: readResolver,
@@ -83,6 +88,30 @@ export const crudRecord: CrudRecord = (modelName, attributes) => {
     },
   };
 };
+
+export const queryCsvTemplate: QueryCsvTemplate = (modelName) => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `csvTableTemplate${nameCp}`;
+  const query = `query {${resolver}}`;
+
+  return {
+    resolver,
+    query,
+  };
+};
+
+export const queryBulkCreate: QueryBulkCreate = (modelName) => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `bulkAdd${nameCp}Csv`;
+  const query = `mutation {${resolver}}`;
+  return {
+    resolver,
+    query,
+  };
+};
+
 /**
  * Parse attributes to compose query and mutation strings:
  * -  idArg: id argument as required in the read and delete functions.
@@ -111,6 +140,7 @@ function parseQueryAttributes(
         )
         .join(' ');
     },
+
     /**
      * Get the primary argument as required in the read and delete functions.
      */
@@ -120,8 +150,9 @@ function parseQueryAttributes(
         throw new Error(
           'A primary key is required to build read and delete queries'
         );
-      return `$id: ID!`;
+      return `$${attr.name}: ID!`;
     },
+
     /**
      * Get the id variable as required in the read query and delete mutation.
      */
@@ -131,14 +162,16 @@ function parseQueryAttributes(
         throw new Error(
           'A primary key is required to build read and delete queries'
         );
-      return `${attr.name}: $id`;
+      return `${attr.name}: $${attr.name}`;
     },
+
     /**
      * Get all attribute fields.
      */
     get fields() {
       return attributes.map(({ name }) => name).join(' ');
     },
+
     /**
      * Get all variables as required in the add and update mutations.
      */

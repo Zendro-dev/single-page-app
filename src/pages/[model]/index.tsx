@@ -8,7 +8,7 @@ import {
 } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
 import {
-  crudRecord,
+  queryRecord,
   queryModelTableRecords,
   queryModelTableRecordsCount,
 } from '@/utils/queries';
@@ -44,7 +44,7 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
   const attributes = getAttributeList(dataModel);
   const read = queryModelTableRecords(modelName, attributes);
   // TODO rename delete to something different to destructure
-  const _delete = crudRecord(modelName, attributes).delete;
+  const _delete = queryRecord(modelName, attributes).delete;
   const count = queryModelTableRecordsCount(modelName);
 
   return {

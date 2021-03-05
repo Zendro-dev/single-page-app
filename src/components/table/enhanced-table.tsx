@@ -14,7 +14,7 @@ import {
 import EnhancedTableHead from './enhanced-tablehead';
 import EnhancedTableRow, { ActionHandler } from './enhanced-tablerow';
 import useSWR from 'swr';
-import { readMany, readOne } from '@/utils/requests';
+import { readMany, requestOne } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';
 import { ParsedAttribute } from '@/types/models';
 import {
@@ -111,7 +111,7 @@ export default function EnhancedTable({
         // TODO handle Errors
         // ? possibly mutate local data and run the refetch in background?
         if (auth.user?.token) {
-          await readOne(auth.user?.token, request);
+          await requestOne(auth.user?.token, request);
           mutateRecords();
           mutateCount();
         }
@@ -135,7 +135,7 @@ export default function EnhancedTable({
     data: records,
     mutate: mutateRecords,
     isValidating: isValidatingRecords,
-  } = useSWR(
+  } = useSWR<unknown[]>(
     auth?.user?.token ? [auth.user.token, readRequest] : null,
     readMany,
     {
@@ -157,7 +157,7 @@ export default function EnhancedTable({
 
   const { data: count, mutate: mutateCount } = useSWR(
     auth?.user?.token ? [auth.user.token, countRequest] : null,
-    readOne,
+    requestOne,
     {
       // TODO error handling
       onError: (error) => {
@@ -191,25 +191,34 @@ export default function EnhancedTable({
             </Fade>
           )}
         </Table>
-        <Box
-          display="flex"
-          width="100%"
-          height="100%"
-          position="absolute"
-          justifyContent="center"
-          alignItems="center"
-        >
-          {isValidatingRecords && (
+        {isValidatingRecords && (
+          <Box
+            display="flex"
+            width="100%"
+            height="100%"
+            position="absolute"
+            justifyContent="center"
+            alignItems="center"
+          >
             <Fade in={isValidatingRecords}>
               <CircularProgress color="primary" disableShrink={true} />
             </Fade>
-          )}
-          {!isValidatingRecords &&
-            Array.isArray(records) &&
-            records.length === 0 && (
+          </Box>
+        )}
+        {!isValidatingRecords &&
+          Array.isArray(records) &&
+          records.length === 0 && (
+            <Box
+              display="flex"
+              width="100%"
+              height="100%"
+              position="absolute"
+              justifyContent="center"
+              alignItems="center"
+            >
               <Typography variant="body1">No data to display</Typography>
-            )}
-        </Box>
+            </Box>
+          )}
       </div>
       <div style={{ textAlign: 'right' }}>PAGINATION</div>
     </TableContainer>

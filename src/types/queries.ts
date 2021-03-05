@@ -9,14 +9,21 @@ export interface RawQuery {
   query: string;
 }
 
-export interface ComposedQuery<V = QueryVariables> extends RawQuery {
-  variables?: V;
+export interface ComposedQuery<V = QueryVariables | null | undefined>
+  extends RawQuery {
+  variables: V;
 }
 
+/**
+ * MODEL
+ */
 export interface QueryVariableSearch {
-  field: string;
-  value: string;
-  valueType: AttributeScalarType;
+  field?: string;
+  value?: string;
+  valueType?: AttributeScalarType;
+  // TODO operator types
+  operator?: string;
+  // TODO recursive search
 }
 
 export interface QueryVariableOrder {
@@ -49,10 +56,14 @@ export type QueryModelTableRecords = (
 
 export type QueryModelTableRecordsCount = (modelName: string) => RawQuery;
 
+export type QueryCsvTemplate = (modelName: string) => RawQuery;
+
+export type QueryBulkCreate = (modelName: string, file: File) => RawQuery;
+
 /**
  * RECORD
  */
-export type CrudRecord = (
+export type QueryRecord = (
   modelName: string,
   attributes: ParsedAttribute[]
 ) => {
@@ -61,16 +72,3 @@ export type CrudRecord = (
   update: RawQuery;
   delete: RawQuery;
 };
-
-export interface QueryRecordAttributesVariables extends QueryVariables {
-  id: string | number;
-}
-export type QueryRecordAttributes = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-) => RawQuery;
-
-export type MutateRecordAttributes = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-) => RawQuery;
