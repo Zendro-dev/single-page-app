@@ -1,89 +1,81 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useRef, useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
-  CheckboxProps,
   FormControl,
   FormControlLabel,
   FormHelperText,
-  InputProps,
 } from '@material-ui/core';
-import InputContainer, { InputContainerProps } from './input-container';
+import { BaseFieldProps } from './base-field';
 
-interface BoolFieldProps {
-  error?: boolean;
-  helperText?: string;
-  InputProps?: InputProps;
-  label: string;
-  onChange: (value: boolean | null) => void;
+export interface BoolFieldProps {
+  onChange?: (value: boolean | null) => void;
   value: boolean | null;
 }
 
 export default function BoolField({
-  label,
-  leftIcon,
-  rightIcon,
-  value,
   error,
   helperText,
   InputProps,
-  ...props
-}: BoolFieldProps & InputContainerProps & CheckboxProps): ReactElement {
+  label,
+  onChange,
+  value,
+}: BaseFieldProps<BoolFieldProps>): ReactElement {
   const classes = useStyles();
-
-  const [checked, setChecked] = useState(value || false);
-  const [indeterminate, setIndeterminate] = useState(
-    value !== undefined && value !== null ? false : true
-  );
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    if (event.target.checked && !indeterminate) {
-      setChecked(true);
-      if (props.onChange) {
-        props.onChange(true);
+    const { checked } = event.target;
+
+    /**
+     * If the indeterminate prop is set to true, the component appears indeterminate.
+     * This does not set the native input element to indeterminate due to inconsistent
+     * behavior across browsers. However, a data-indeterminate attribute is set on the
+     * input.
+     *
+     * Source: https://next.material-ui.com/api/checkbox/
+     */
+    const indeterminate = event.target.getAttribute('data-indeterminate') as
+      | 'true'
+      | 'false';
+
+    if (checked && indeterminate === 'false') {
+      if (onChange) {
+        onChange(true);
       }
-    } else if (!event.target.checked && !indeterminate) {
-      setChecked(false);
-      setIndeterminate(true);
-      if (props.onChange) {
-        props.onChange(null);
+    } else if (!checked && indeterminate === 'false') {
+      if (onChange) {
+        onChange(null);
       }
-    } else if (event.target.checked && indeterminate) {
-      setChecked(false);
-      setIndeterminate(false);
-      if (props.onChange) {
-        props.onChange(false);
+    } else if (checked && indeterminate === 'true') {
+      if (onChange) {
+        onChange(false);
       }
     }
   };
 
   return (
-    <InputContainer leftIcon={leftIcon} rightIcon={rightIcon}>
-      <FormControl error={error}>
-        <FormControlLabel
-          className={error ? classes.error : ''}
-          control={
-            <Checkbox
-              {...props}
-              className={error ? classes.error : ''}
-              color="default"
-              checked={checked}
-              indeterminate={indeterminate}
-              onChange={handleOnChange}
-              disabled={InputProps?.readOnly ? true : false}
-            />
-          }
-          label={label}
-        />
-        {helperText && (
-          <FormHelperText className={classes.helperText}>
-            {helperText}
-          </FormHelperText>
-        )}
-      </FormControl>
-    </InputContainer>
+    <FormControl className={classes.root} error={error}>
+      <FormControlLabel
+        className={error ? classes.error : ''}
+        control={
+          <Checkbox
+            className={error ? classes.error : ''}
+            color="default"
+            checked={value ?? false}
+            indeterminate={value === null}
+            onChange={InputProps?.readOnly ? undefined : handleOnChange}
+          />
+        }
+        label={label}
+      />
+      {helperText && (
+        <FormHelperText className={classes.helperText}>
+          {helperText}
+        </FormHelperText>
+      )}
+    </FormControl>
   );
 }
 
@@ -94,6 +86,9 @@ const useStyles = makeStyles((theme) =>
     },
     helperText: {
       marginLeft: theme.spacing(4),
+    },
+    root: {
+      margin: theme.spacing(5, 0, 2, 0),
     },
   })
 );

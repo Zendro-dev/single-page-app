@@ -1,8 +1,20 @@
 {
-  "model": "role_to_user",
-  "storageType": "sql",
+  "model": "role",
+  "storageType": "SQL",
   "attributes": {
-    "userId": "Int",
-    "roleId": "Int"
+    "name": "String",
+    "description": "String"
+  },
+  "associations": {
+    "users": {
+      "type": "to_many_through_sql_cross_table",
+      "target": "user",
+      "targetKey": "userId",
+      "sourceKey": "roleId",
+      "keysIn": "role_to_user",
+      "targetStorageType": "sql",
+      "label": "email",
+      "sublabel": "id"
+    }
   }
 }
