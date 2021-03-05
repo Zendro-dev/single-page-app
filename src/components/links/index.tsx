@@ -1,5 +1,5 @@
-import FabLink, { FabLinkProps as _FabLinkProps } from './fab-link';
+import FabLink from './fab-link';
 
-export type FabLinkProps = _FabLinkProps;
+export * from './fab-link';
 
 export { FabLink };
