@@ -27,6 +27,20 @@ export async function graphql<R = unknown>(
   additionalData?: { [key: string]: unknown }
 ): Promise<ServerResponse<R>> {
   let response: AxiosResponse;
+  const formData = new FormData();
+
+  formData.append('query', query);
+
+  if(variables){
+    formData.append('variables', JSON.stringify(variables));
+  }
+
+  if(additionalData){
+    for (const [key, value] of Object.entries(additionalData)) {
+      formData.append(key, value as Blob); //check we might want to add the value as string in some cases
+    }
+  }
+
   try {
     response = await axios({
       url: GRAPHQL_URL,
@@ -36,11 +50,7 @@ export async function graphql<R = unknown>(
         'Content-Type': 'application/json;charset=UTF-8',
         Authorization: token ? `Bearer ${token}` : null,
       },
-      data: {
-        query,
-        variables,
-        ...additionalData,
-      },
+      data: formData
     });
   } catch (error) {
     return {

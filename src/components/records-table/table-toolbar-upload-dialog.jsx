@@ -68,7 +68,6 @@ export default function UploadDialog(props) {
       ? [
           auth.user.token,
           request,
-          undefined,
           {
             csv_file: file.current,
           },
