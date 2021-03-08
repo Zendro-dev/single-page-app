@@ -8,8 +8,7 @@
     "export": "next export",
     "start": "next start -p ${PORT:-8080}",
     "serve": "serve ./out",
-    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
-    "lint": "eslint --ext js,jsx,ts,tsx --fix",
+    "lint": "eslint --ext js,jsx,ts,tsx --fix .",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
     "test": "jest",
     "test:watch": "jest --watch"
