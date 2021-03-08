@@ -24,6 +24,7 @@ export interface QueryVariableSearch {
   // TODO operator types
   operator?: string;
   // TODO recursive search
+  search?: QueryVariableSearch[];
 }
 
 export interface QueryVariableOrder {

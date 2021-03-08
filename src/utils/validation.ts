@@ -37,3 +37,8 @@ export function isEmptyObject(x: unknown): boolean {
   const _x = x as { length: number };
   return _x.length !== undefined && _x.length === 0;
 }
+
+export function isIntValue(value: string): boolean {
+  const int = parseInt(value);
+  return !value.includes('.') && !isNaN(int) && typeof int === 'number';
+}

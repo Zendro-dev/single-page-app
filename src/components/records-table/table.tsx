@@ -28,7 +28,7 @@ import {
   QueryVariableSearch,
   RawQuery,
 } from '@/types/queries';
-import { createSearch } from '@/utils/tableToolBar';
+import { createSearch } from '@/utils/search';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -41,10 +41,10 @@ export interface EnhancedTableProps {
 }
 
 type VariableAction =
-  | { type: 'SET_SEARCH'; value: QueryVariableSearch }
-  | { type: 'SET_ORDER'; value: QueryVariableOrder }
-  | { type: 'SET_PAGINATION'; value: QueryVariablePagination }
-  | { type: 'RESET'; };
+  | { type: 'SET_SEARCH'; payload: QueryVariableSearch }
+  | { type: 'SET_ORDER'; payload: QueryVariableOrder }
+  | { type: 'SET_PAGINATION'; payload: QueryVariablePagination }
+  | { type: 'RESET' };
 
 const initialVariables: QueryModelTableRecordsVariables = {
   search: undefined,
@@ -60,17 +60,17 @@ const variablesReducer = (
     case 'SET_SEARCH':
       return {
         ...variables,
-        search: action.value,
+        search: action.payload,
       };
     case 'SET_ORDER':
       return {
         ...variables,
-        order: action.value,
+        order: action.payload,
       };
     case 'SET_PAGINATION':
       return {
         ...variables,
-        pagination: action.value,
+        pagination: action.payload,
       };
     case 'RESET':
       return {
@@ -93,7 +93,7 @@ export default function EnhancedTable({
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
   const handleSetOrder = (value: QueryVariableOrder): void => {
-    dispatch({ type: 'SET_ORDER', value });
+    dispatch({ type: 'SET_ORDER', payload: value });
   };
   const handleActionClick = (
     action: 'create' | 'read' | 'update' | 'delete'
@@ -128,18 +128,13 @@ export default function EnhancedTable({
   };
 
   const handleSetSearch = (value: string): void => {
-
-    let search = {
-      operator: 'or',
-      search: createSearch(value, attributes),
-    } as QueryVariableSearch;
+    const search = createSearch(value, attributes);
 
     if (value === '') {
-      dispatch({ type: 'RESET'});
-    }else{
-      dispatch({ type: 'SET_SEARCH', value: search});
+      dispatch({ type: 'RESET' });
+    } else {
+      dispatch({ type: 'SET_SEARCH', payload: search });
     }
-    
   };
 
   const { auth } = useAuth();
@@ -175,7 +170,7 @@ export default function EnhancedTable({
       resolver: requests.count.resolver,
       variables: variables,
     } as ComposedQuery<QueryModelTableRecordsCountVariables>;
-  }, [variables.search, requests.count]);
+  }, [variables, requests.count]);
 
   const { data: count, mutate: mutateCount } = useSWR(
     auth?.user?.token ? [auth.user.token, countRequest] : null,
@@ -194,7 +189,7 @@ export default function EnhancedTable({
       case 'first':
         dispatch({
           type: 'SET_PAGINATION',
-          value: {
+          payload: {
             first: limit,
           },
         });
@@ -202,7 +197,7 @@ export default function EnhancedTable({
       case 'last':
         dispatch({
           type: 'SET_PAGINATION',
-          value: {
+          payload: {
             last: limit,
           },
         });
@@ -210,7 +205,7 @@ export default function EnhancedTable({
       case 'forward':
         dispatch({
           type: 'SET_PAGINATION',
-          value: {
+          payload: {
             first: limit,
             after: records ? records.pageInfo.endCursor : undefined,
           },
@@ -219,7 +214,7 @@ export default function EnhancedTable({
       case 'backward':
         dispatch({
           type: 'SET_PAGINATION',
-          value: {
+          payload: {
             last: limit,
             before: records ? records.pageInfo.startCursor : undefined,
           },
@@ -235,7 +230,7 @@ export default function EnhancedTable({
     if (event.target.value !== limit) {
       dispatch({
         type: 'SET_PAGINATION',
-        value: {
+        payload: {
           first: event.target.value,
           includeCursor: false,
         },
