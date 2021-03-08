@@ -8,9 +8,18 @@ import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from '@/components/buttons/icon-button';
 import useSWR from 'swr';
 import { authSelector } from '../../store/auth-slice';
-import { downloadFile } from '../../utils/tableToolBar';
 import { requestOne } from '@/utils/requests';
 import { queryCsvTemplate } from '@/utils/queries';
+
+function downloadFile(data, name) {
+  const file = data.join('\n');
+  const url = window.URL.createObjectURL(new Blob([file]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', name);
+  document.body.appendChild(link);
+  link.click();
+}
 
 export default function DownloadMenu(props) {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
