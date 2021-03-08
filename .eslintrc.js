@@ -33,7 +33,17 @@ module.exports = {
         'no-unused-vars': 'warn',
 
         // Display .prettierrc.js rules as errors
-        'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
+        'prettier/prettier': [
+          'warn',
+          {
+            semi: true,
+            trailingComma: 'es5',
+            singleQuote: true,
+            printWidth: 80,
+            tabWidth: 2,
+            useTabs: false,
+          },
+        ],
 
         // We will use TypeScript's types for component props instead
         'react/prop-types': 'off',
@@ -67,7 +77,17 @@ module.exports = {
         'jsx-a11y/anchor-is-valid': 'off',
 
         // Display .prettierrc.js rules as errors
-        'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
+        'prettier/prettier': [
+          'warn',
+          {
+            semi: true,
+            trailingComma: 'es5',
+            singleQuote: true,
+            printWidth: 80,
+            tabWidth: 2,
+            useTabs: false,
+          },
+        ],
 
         // We will use TypeScript's types for component props instead
         'react/prop-types': 'off',
