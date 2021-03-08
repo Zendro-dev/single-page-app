@@ -31,11 +31,11 @@ export async function graphql<R = unknown>(
 
   formData.append('query', query);
 
-  if(variables){
+  if (variables) {
     formData.append('variables', JSON.stringify(variables));
   }
 
-  if(additionalData){
+  if (additionalData) {
     for (const [key, value] of Object.entries(additionalData)) {
       formData.append(key, value as Blob); //check we might want to add the value as string in some cases
     }
@@ -50,7 +50,7 @@ export async function graphql<R = unknown>(
         'Content-Type': 'application/json;charset=UTF-8',
         Authorization: token ? `Bearer ${token}` : null,
       },
-      data: formData
+      data: formData,
     });
   } catch (error) {
     return {
