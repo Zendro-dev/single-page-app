@@ -71,7 +71,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('first')}
-            // disabled={!props.hasFirstPage}
+            disabled={!props.hasFirstPage}
           >
             <FirstPage />
           </IconButton>
@@ -81,7 +81,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('backward')}
-            // disabled={!props.hasPreviousPage}
+            disabled={!props.hasPreviousPage}
           >
             <KeyboardArrowLeft />
           </IconButton>
@@ -91,7 +91,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('forward')}
-            // disabled={!props.hasNextPage}
+            disabled={!props.hasNextPage}
           >
             <KeyboardArrowRight />
           </IconButton>
@@ -101,7 +101,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('last')}
-            // disabled={!props.hasLastPage}
+            disabled={!props.hasLastPage}
           >
             <LastPage />
           </IconButton>
