@@ -71,7 +71,12 @@ export function getAttributeList(
           1
         )[0]
       )
-    : attributes.unshift({ name: 'id', type: 'Int', primaryKey: true });
+    : attributes.unshift({
+        name: 'id',
+        type: 'Int',
+        primaryKey: true,
+        automaticId: true,
+      });
 
   return attributes;
 }

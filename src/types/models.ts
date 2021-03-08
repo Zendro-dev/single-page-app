@@ -36,6 +36,7 @@ export interface ParsedAttribute {
   type: AttributeScalarType | AttributeArrayType;
   primaryKey?: boolean;
   foreignKey?: boolean;
+  automaticId?: boolean;
 }
 
 /* ASSOCIATIONS */

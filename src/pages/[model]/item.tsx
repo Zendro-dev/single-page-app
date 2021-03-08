@@ -130,14 +130,21 @@ function initAttributes({
   data,
   errors,
 }: InitAttributesArgs): FormAttribute[] {
-  return attributes.map(({ name, type, primaryKey }) => ({
-    name,
-    type,
-    primaryKey,
-    readOnly: formView === 'update' && primaryKey,
-    value: data ? data[name] : null,
-    error: errors ? errors[name] : null,
-  }));
+  return attributes.reduce(
+    (attrArr, { name, type, primaryKey, automaticId }) => {
+      if (formView === 'create' && automaticId) return attrArr;
+      attrArr.push({
+        name,
+        type,
+        primaryKey,
+        readOnly: formView === 'update' && primaryKey,
+        value: data ? data[name] : null,
+        error: errors ? errors[name] : null,
+      });
+      return attrArr;
+    },
+    [] as FormAttribute[]
+  );
 }
 
 type FormAttributesAction =
