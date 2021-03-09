@@ -36,6 +36,8 @@ import {
 import LanguageSwitcher from '@/components/toolbar/lang-switcher';
 import LogoutButton from '@/components/toolbar/logout-button';
 
+import useAuth from '@/hooks/useAuth';
+
 import { SvgIconType } from '@/types/elements';
 import { AppRoutes } from '@/types/routes';
 
@@ -116,6 +118,23 @@ export default function ModelsDashboard({
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
   const classes = useStyles();
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const { auth } = useAuth({
+    redirectTo: '/',
+  });
+
+  console.log(auth.user?.permissions);
+
+  const canAccessAdminRoutes = routes.admin?.some(
+    (route) =>
+      auth.user?.permissions &&
+      auth.user.permissions[route.name]?.find((x) => x === 'read' || x === '*')
+  );
+
+  const canAccessRoute = (name: string): boolean | undefined => {
+    return auth.user?.permissions[name].some(
+      (permission) => permission === 'read' || permission === '*'
+    );
+  };
 
   const handleDrawerOpen = (open: boolean) => (): void => setDrawerOpen(open);
 
@@ -197,27 +216,35 @@ export default function ModelsDashboard({
 
         {routes && (
           <NavGroup icon={ModelsIcon} label="Models">
-            {routes.models.map(({ name, href }) => (
-              <NavLink
-                key={name}
-                href={href}
-                className={classes.linkText}
-                text={name}
-              />
-            ))}
+            {routes.models.map(
+              ({ name, href }) =>
+                canAccessRoute(name) && (
+                  <NavLink
+                    key={name}
+                    href={href}
+                    className={classes.linkText}
+                    text={name}
+                  />
+                )
+            )}
           </NavGroup>
         )}
 
-        <NavGroup icon={AdminIcon} label="Admin">
-          {routes?.admin.map(({ name, href }) => (
-            <NavLink
-              key={name}
-              className={classes.linkText}
-              href={href}
-              text={name}
-            />
-          ))}
-        </NavGroup>
+        {canAccessAdminRoutes && (
+          <NavGroup icon={AdminIcon} label="Admin">
+            {routes?.admin.map(
+              ({ name, href }) =>
+                canAccessRoute(name) && (
+                  <NavLink
+                    key={name}
+                    className={classes.linkText}
+                    href={href}
+                    text={name}
+                  />
+                )
+            )}
+          </NavGroup>
+        )}
       </Drawer>
 
       <main
