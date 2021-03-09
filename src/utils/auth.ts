@@ -1,3 +1,4 @@
+import AclStatic from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
 import { LOGIN_URL } from '../config/globals';
@@ -7,8 +8,13 @@ import {
   AuthToken,
   User,
   AUTH_TOKEN_NOT_FOUND,
+  AuthPermissions,
+  AUTH_PERMISSIONS_NOT_FOUND,
 } from '../types/auth';
 import { localStorage } from '../utils/storage';
+
+import aclRules from '@/build/acl-rules';
+import routes from '@/build/routes';
 
 /**
  * Authenticate as user using the GraphQL server API.
@@ -25,18 +31,29 @@ export async function authenticateFromRemote(
     method: 'POST',
   });
 
-  let user;
-  let error;
+  let user: User | undefined;
+  let error: AuthError | undefined;
+
   try {
     const token = response.data.token as string | undefined;
+
     if (!token) {
       throw new AuthError(
         AUTH_TOKEN_NOT_FOUND,
         'Token not returned from the server'
       );
     }
-    user = createUser(token);
+
+    const decodedToken = decode(token) as AuthToken;
+    const permissions = await getUserPermissions(
+      decodedToken.email,
+      decodedToken.roles
+    );
+
+    user = createUser(token, decodedToken, permissions);
+
     localStorage.setItem('token', token);
+    localStorage.setItem('permissions', JSON.stringify(permissions));
   } catch (tokenError) {
     error = tokenError;
   }
@@ -56,15 +73,18 @@ export function authenticateFromToken(): AuthResponse {
 
   const token = localStorage.getItem('token');
   try {
-    if (!token) {
-      throw new AuthError(AUTH_TOKEN_NOT_FOUND, 'Token not found');
-    }
-    user = createUser(token);
+    if (!token) throw new AuthError(AUTH_TOKEN_NOT_FOUND, 'Token not found');
+    const decodedToken = decode(token) as AuthToken;
+
+    const permissions = localStorage.getItem('permissions');
+    if (!permissions)
+      throw new AuthError(AUTH_PERMISSIONS_NOT_FOUND, 'Permissions not found');
+
+    user = createUser(token, decodedToken, JSON.parse(permissions));
   } catch (err) {
-    if (err.code !== AUTH_TOKEN_NOT_FOUND) {
-      localStorage.removeItem('token');
-      error = err;
-    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('permissions');
+    error = err;
   }
 
   return {
@@ -77,8 +97,11 @@ export function authenticateFromToken(): AuthResponse {
  * Creates a User object from a decoded token.
  * @param decodedToken decoded auth JWT from the remote or local storage
  */
-export function createUser(token: string): User {
-  const decodedToken = decode(token) as AuthToken;
+export function createUser(
+  token: string,
+  decodedToken: AuthToken,
+  permissions: AuthPermissions
+): User {
   const { email, exp, id, roles } = decodedToken;
   const expDate = new Date(exp * 1000);
 
@@ -86,6 +109,7 @@ export function createUser(token: string): User {
     email,
     exp,
     id,
+    permissions,
     roles,
     token,
     get isValid() {
@@ -94,4 +118,44 @@ export function createUser(token: string): User {
       return isValid;
     },
   };
+}
+
+export async function getUserPermissions(
+  user: string,
+  roles: string[]
+): Promise<{ [key: string]: string[] }> {
+  const acl = new AclStatic(new AclStatic.memoryBackend());
+
+  // Default or custom acl rules
+  // @ts-ignore: customize aclRules in src/config/acl-rules.json
+  await acl.allow(aclRules);
+
+  // The current user and its associated roles
+  await acl.addUserRoles(user, roles);
+
+  // Controlled resources for which permissions should be retrieved
+  // @ts-ignore: customize routes in src/config/routes.json
+  const resources = routes.map(({ name }) => name) as string[];
+
+  // Parse the current user permissions
+  return new Promise<{ [key: string]: string[] }>((resolve, reject) => {
+    acl.allowedPermissions(user, resources, (err, permissions) => {
+      if (err) reject(err.message);
+      resolve(permissions);
+    });
+  });
+
+  // acl
+  // // @ts-ignore: customize aclRules in src/config/acl-rules.json
+  //   .allow(aclRules)
+  //   .then(() => acl.addUserRoles(user, roles))
+  //   .then(() => {
+  //     // @ts-ignore: customize routes in src/config/routes.json
+  //     const resources = routes.map(({ name }) => name) as string[];
+
+  //     acl.allowedPermissions(user, resources, (err, permissions) => {
+  //       if (err) throw err;
+  //       console.log({ permissions });
+  //     });
+  //   });
 }
