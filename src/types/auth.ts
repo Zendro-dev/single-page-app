@@ -28,7 +28,6 @@ export interface AuthToken {
 }
 
 export interface User extends AuthToken {
-  email: string;
   isValid: boolean;
   token: string | null;
 }
