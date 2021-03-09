@@ -1,5 +1,7 @@
 import React, { useMemo, useReducer, ReactElement } from 'react';
 import { useRouter } from 'next/router';
+import Snackbar from '@/components/alert/snackbar';
+import { SnackbarKey, SnackbarMessage, useSnackbar } from 'notistack';
 import {
   Table,
   TableBody,
@@ -91,10 +93,12 @@ export default function EnhancedTable({
   const router = useRouter();
 
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', payload: value });
   };
+
   const handleActionClick = (
     action: 'create' | 'read' | 'update' | 'delete'
   ) => async (primaryKey: string | number) => {
@@ -157,9 +161,16 @@ export default function EnhancedTable({
     readMany,
     {
       // TODO error handling
-      onError: (error) => {
-        console.error(error);
+      onError: (errors) => {
+        console.log(errors);
+        enqueueSnackbar('yap', {
+          // eslint-disable-next-line react/display-name
+          content: (key) => (
+            <Snackbar id={key} message="yap" errors={errors} variant="error" />
+          ),
+        });
       },
+      shouldRetryOnError: false,
     }
   );
 
