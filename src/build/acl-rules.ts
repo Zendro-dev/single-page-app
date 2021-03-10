@@ -1,5 +1,6 @@
-const { readdir, stat, writeFile } = require('fs/promises');
-const { parse } = require('path');
+import { mkdir, readdir, stat, writeFile } from 'fs/promises';
+import { parse } from 'path';
+import { RawModule } from '@/types/build';
 
 const defaultRoles = [
   {
@@ -16,7 +17,7 @@ const defaultRoles = [
   },
 ];
 
-module.exports = async () => {
+export default async (): Promise<RawModule> => {
   const admin = await readdir('./admin');
   const models = await readdir('./models');
 
@@ -24,7 +25,7 @@ module.exports = async () => {
   const modelResources = models.map((file) => parse(file).name);
 
   // Generate the default set of acl rules
-  const aclRules = defaultRoles.map(({ roles, permissions }) => ({
+  const rules = defaultRoles.map(({ roles, permissions }) => ({
     roles,
     allows: [
       {
@@ -35,15 +36,17 @@ module.exports = async () => {
   }));
 
   // Create a default acl-rules file if it does not exist
-  const aclRulesFile = './src/config/acl-rules.json';
+  const customDir = './src/custom';
+  const aclRulesFile = `${customDir}/acl-rules.json`;
   try {
     await stat(aclRulesFile);
   } catch (error) {
-    await writeFile(aclRulesFile, JSON.stringify(aclRules, null, 2));
+    await mkdir(customDir, { recursive: true });
+    await writeFile(aclRulesFile, JSON.stringify(rules, null, 2));
   }
 
   return {
-    cacheable: false,
-    code: `module.exports = ${JSON.stringify(aclRules)}`,
+    cacheable: true,
+    code: `module.exports = ${JSON.stringify(rules)}`,
   };
 };

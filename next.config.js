@@ -13,12 +13,34 @@ const config = {
   webpack: (config) => {
     config.module.rules.push(
       {
-        test: require.resolve('./src/build/acl-rules.js'),
-        use: [{ loader: 'val-loader' }],
+        test: require.resolve('./src/build/acl-rules.ts'),
+        use: [
+          { loader: 'val-loader' },
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              compilerOptions: {
+                module: 'CommonJS',
+              },
+            },
+          },
+        ],
       },
       {
-        test: require.resolve('./src/build/routes.js'),
-        use: [{ loader: 'val-loader' }],
+        test: require.resolve('./src/build/routes.ts'),
+        use: [
+          { loader: 'val-loader' },
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              compilerOptions: {
+                module: 'CommonJS',
+              },
+            },
+          },
+        ],
       }
     );
     return config;

@@ -1,7 +1,11 @@
-import AclStatic from 'acl';
+import AclStatic, { AclSet } from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
-import { LOGIN_URL } from '../config/globals';
+
+import { localStorage } from './storage';
+import aclRules from '@/build/acl-rules';
+import routes from '@/build/routes';
+import { LOGIN_URL } from '@/config/globals';
 import {
   AuthError,
   AuthResponse,
@@ -10,11 +14,8 @@ import {
   AUTH_TOKEN_NOT_FOUND,
   AuthPermissions,
   AUTH_PERMISSIONS_NOT_FOUND,
-} from '../types/auth';
-import { localStorage } from '../utils/storage';
-
-import aclRules from '@/build/acl-rules';
-import routes from '@/build/routes';
+} from '@/types/auth';
+import { ModelRoute } from '@/types/routes';
 
 /**
  * Authenticate as user using the GraphQL server API.
@@ -123,22 +124,22 @@ export function createUser(
 export async function getUserPermissions(
   user: string,
   roles: string[]
-): Promise<{ [key: string]: string[] }> {
+): Promise<AuthPermissions> {
   const acl = new AclStatic(new AclStatic.memoryBackend());
 
   // Default or custom acl rules
-  // @ts-ignore: customize aclRules in src/config/acl-rules.json
-  await acl.allow(aclRules);
+  await acl.allow((aclRules as unknown) as AclSet);
 
   // The current user and its associated roles
   await acl.addUserRoles(user, roles);
 
   // Controlled resources for which permissions should be retrieved
-  // @ts-ignore: customize routes in src/config/routes.json
-  const resources = routes.map(({ name }) => name) as string[];
+  const resources = ((routes as unknown) as ModelRoute[]).map(
+    ({ name }) => name
+  ) as string[];
 
   // Parse the current user permissions
-  return new Promise<{ [key: string]: string[] }>((resolve, reject) => {
+  return new Promise<AuthPermissions>((resolve, reject) => {
     acl.allowedPermissions(user, resources, (err, permissions) => {
       if (err) reject(err.message);
       resolve(permissions);
@@ -146,13 +147,10 @@ export async function getUserPermissions(
   });
 
   // acl
-  // // @ts-ignore: customize aclRules in src/config/acl-rules.json
   //   .allow(aclRules)
   //   .then(() => acl.addUserRoles(user, roles))
   //   .then(() => {
-  //     // @ts-ignore: customize routes in src/config/routes.json
   //     const resources = routes.map(({ name }) => name) as string[];
-
   //     acl.allowedPermissions(user, resources, (err, permissions) => {
   //       if (err) throw err;
   //       console.log({ permissions });
