@@ -122,8 +122,6 @@ export default function ModelsDashboard({
     redirectTo: '/',
   });
 
-  console.log(auth.user?.permissions);
-
   const canAccessAdminRoutes = routes.admin?.some(
     (route) =>
       auth.user?.permissions &&
