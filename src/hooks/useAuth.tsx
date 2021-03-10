@@ -30,6 +30,10 @@ export default function useAuth(options?: AuthOptions): UseAuth {
 
   const [redirectTimer, setRedirectTimer] = useState(redirectTimeout ?? 0);
 
+  /**
+   * Compute whether the user has permissions to access the
+   * current resource
+   */
   const isAllowed = useCallback(() => {
     const model = router.query.model as string;
 
@@ -42,6 +46,9 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     );
   }, [auth.user, router.query]);
 
+  /**
+   * Update the redirect countdown timer
+   */
   useEffect(function updateTimer() {
     const id = setInterval(
       () => setRedirectTimer((count) => (count === 0 ? count : count - 1)),
@@ -50,6 +57,9 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     return () => clearInterval(id);
   }, []);
 
+  /**
+   * Redirect a user depending on the hook options
+   */
   useEffect(
     function redirectUser() {
       /**
@@ -93,10 +103,20 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     ]
   );
 
+  /**
+   * Dispatch a login action to the store. The action will attempt to
+   * retrieve the user credentials and update the store accordingly.
+   * @param email user email
+   * @param password user password
+   */
   const login: AuthLogin = (email, password) => {
     if (email && password) dispatch(logUserIn({ email, password }));
   };
 
+  /**
+   * Dispatch a logout action to the store. The action will reset the
+   * local user credentials and update the store accordingly.
+   */
   const logout: AuthLogout = () => {
     dispatch(logUserOut());
   };
