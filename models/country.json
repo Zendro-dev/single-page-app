@@ -1,0 +1,37 @@
+{
+  "model" : "country",
+  "storageType" : "SQL",
+  "attributes" : {
+    "name" : "String",
+    "country_id" : "String",
+
+    "continent_id": "String",
+    "river_ids": "[String]"
+  },
+  "associations": {
+    "unique_capital": {
+      "type" : "to_one",
+      "target" : "capital",
+      "targetKey" : "country_id",
+      "keyIn": "capital",
+      "targetStorageType" : "sql"
+    },
+    "rivers": {
+      "type": "to_many",
+      "reverseAssociationType": "to_many",
+      "target": "river",
+      "targetKey": "country_ids",
+      "sourceKey": "river_ids",
+      "keyIn": "country",
+      "targetStorageType": "sql"
+    },
+    "continent": {
+      "type" : "to_one",
+      "target": "continent",
+      "targetKey": "continent_id",
+      "keyIn": "country",
+      "targetStorageType" : "sql"
+    }
+  },
+  "internalId": "country_id"
+}
