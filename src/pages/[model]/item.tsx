@@ -37,6 +37,7 @@ import {
   getStaticModel,
 } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
+import { parseValidationErrors } from '@/utils/error';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -148,7 +149,7 @@ function initAttributes({
 }
 
 type FormAttributesAction =
-  | { type: 'update'; payload: { key: string; value: AttributeValue } }
+  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: string } }
   | { type: 'reset'; payload: InitAttributesArgs };
 function formAttributesReducer(
   state: FormAttribute[],
@@ -159,9 +160,12 @@ function formAttributesReducer(
       return initAttributes(action.payload);
     }
     case 'update': {
-      const { key, value } = action.payload;
+      const { key, value, error } = action.payload;
       const attr = state.find(({ name }) => key === name);
       if (attr) attr.value = value;
+      if (attr && error ){
+        attr.error = error;
+      }
       return [...state];
     }
   }
@@ -348,6 +352,12 @@ const Record: NextPage<RecordProps> = ({
       if (formView === 'update') mutate(data);
       router.push(`/${modelName}`);
     } catch (errors) {
+
+      const validation_errors = parseValidationErrors( errors );
+      for(const [key, error] of Object.entries(validation_errors)){
+        dispatch({ type: 'update', payload: { key, value: data[key], error } });
+      }
+
       console.error(errors);
     }
   };
