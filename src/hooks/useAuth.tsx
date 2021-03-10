@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { authSelector, logUserIn, logUserOut } from '../store/auth-slice';
-import { AuthState } from '../types/auth';
+import { AuthState } from '@/types/auth';
 
 interface AuthOptions {
   redirectTo: string;
   redirectIfFound?: boolean;
+  redirectIfNotAllowed?: boolean;
 }
 type AuthLogin = (email: string, password: string) => void;
 type AuthLogout = () => void;
@@ -18,25 +19,58 @@ interface UseAuth {
 }
 
 export default function useAuth(options?: AuthOptions): UseAuth {
-  const { redirectTo, redirectIfFound } = options ?? {};
+  const { redirectTo, redirectIfFound, redirectIfNotAllowed } = options ?? {};
   const auth = useSelector(authSelector);
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const isAllowed = useCallback(() => {
+    const model = router.query.model as string;
+
+    const action = Object.keys(router.query).find((key) =>
+      ['create', 'read', 'update'].includes(key)
+    );
+
+    return auth.user?.permissions[model]?.some(
+      (x) => !action || x === action || x === '*'
+    );
+  }, [auth.user, router.query]);
+
   useEffect(() => {
-    // if no redirect needed, just return
-    // if user data not yet there (fetch in progress, logged in or not) then don't do anything yet
+    /**
+     * Do not do anything if:
+     * - No redirect needed
+     * - User data not set because there is a fetch in progress
+     */
     if (!redirectTo || auth.status === 'loading') return;
 
     if (
-      // If redirectTo is set, redirect if the user was not found.
+      /**
+       * TOP PRECEDENCE: Redirect if only redirectTo is set and
+       * a valid user was not found
+       */
       (redirectTo && !redirectIfFound && !auth.user) ||
-      // If redirectIfFound is also set, redirect if the user was found
-      (redirectIfFound && auth.user)
+      /**
+       * MID PRECEDENCE: Redirect if redirectIfFound is also set,
+       * and a valid user was found
+       */
+      (redirectIfFound && auth.user) ||
+      /**
+       * BOTTOM PRECEDENCE: Redirect if redirectIfNotAllowed is also
+       * set and the user does not have sufficient permissions
+       */
+      (redirectIfNotAllowed && auth.user && !isAllowed())
     ) {
       router.push(redirectTo);
     }
-  }, [auth, redirectTo, redirectIfFound, router]);
+  }, [
+    auth,
+    isAllowed,
+    redirectTo,
+    redirectIfFound,
+    redirectIfNotAllowed,
+    router,
+  ]);
 
   const login: AuthLogin = (email, password) => {
     if (email && password) dispatch(logUserIn({ email, password }));

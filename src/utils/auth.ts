@@ -1,4 +1,4 @@
-import AclStatic, { AclSet } from 'acl';
+import Acl, { AclSet } from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
 
@@ -125,7 +125,7 @@ export async function getUserPermissions(
   user: string,
   roles: string[]
 ): Promise<AuthPermissions> {
-  const acl = new AclStatic(new AclStatic.memoryBackend());
+  const acl = new Acl(new Acl.memoryBackend());
 
   // Default or custom acl rules
   await acl.allow((aclRules as unknown) as AclSet);
@@ -145,15 +145,4 @@ export async function getUserPermissions(
       resolve(permissions);
     });
   });
-
-  // acl
-  //   .allow(aclRules)
-  //   .then(() => acl.addUserRoles(user, roles))
-  //   .then(() => {
-  //     const resources = routes.map(({ name }) => name) as string[];
-  //     acl.allowedPermissions(user, resources, (err, permissions) => {
-  //       if (err) throw err;
-  //       console.log({ permissions });
-  //     });
-  //   });
 }
