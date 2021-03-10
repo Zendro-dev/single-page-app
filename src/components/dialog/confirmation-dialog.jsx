@@ -6,10 +6,8 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-export default function ConfirmationDialog(props) {
-  const classes = useStyles();
+export default function ConfirmationDialog({ content, ...props }) {
   let handleOnAccept = () => {
     props.onAccept();
   };
@@ -31,36 +29,30 @@ export default function ConfirmationDialog(props) {
         maxWidth="sm"
         onClose={handleOnClose}
       >
-        <DialogTitle className={props.warning ? classes.warning : undefined}>
-          {props.title}
-        </DialogTitle>
+        <DialogTitle>{content.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText
-            className={props.warning ? classes.warning : undefined}
-          >
-            {props.text}
-          </DialogContentText>
+          <DialogContentText>{content.text}</DialogContentText>
         </DialogContent>
         <DialogActions>
           {/* Action: Accept */}
-          {props.acceptText !== null && props.acceptText !== undefined && (
+          {content.acceptText !== null && content.acceptText !== undefined && (
             <Button
               color="primary"
               variant="contained"
               onClick={handleOnAccept}
             >
-              {props.acceptText}
+              {content.acceptText}
             </Button>
           )}
 
           {/* Action: Reject */}
-          {props.rejectText !== null && props.rejectText !== undefined && (
+          {content.rejectText !== null && content.rejectText !== undefined && (
             <Button
               color="secondary"
               variant="contained"
               onClick={handleOnReject}
             >
-              {props.rejectText}
+              {content.rejectText}
             </Button>
           )}
         </DialogActions>
@@ -68,11 +60,3 @@ export default function ConfirmationDialog(props) {
     </div>
   );
 }
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    warning: {
-      color: 'red',
-    },
-  })
-);

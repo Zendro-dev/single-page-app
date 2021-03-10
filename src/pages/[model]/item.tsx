@@ -37,6 +37,8 @@ import {
   getStaticModel,
 } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
+import ConfirmationDialog from '@/components/dialog/confirmation-dialog';
+import { isNullorEmpty } from '@/utils/validation';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -186,7 +188,12 @@ function composeReadOneRequest(
     };
   }
 }
-
+interface Content {
+  title: string | null;
+  text: string | null;
+  acceptText: string | null;
+  rejectText: string | null;
+}
 const Record: NextPage<RecordProps> = ({
   associations,
   attributes,
@@ -197,6 +204,14 @@ const Record: NextPage<RecordProps> = ({
   const { auth } = useAuth({ redirectTo: '/' });
   const router = useRouter();
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState<Content>({
+    title: null,
+    text: null,
+    acceptText: null,
+    rejectText: null,
+  });
+  const [condition, setCondition] = useState<null | string>(null);
   const { queryId, formView } = parseUrlQuery(router.query as RecordPathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
@@ -254,7 +269,35 @@ const Record: NextPage<RecordProps> = ({
        * Navigate to the model table.
        */
       case 'cancel': {
-        router.push(`/${modelName}`);
+        const modifiedContent = {
+          title: 'Some fields are modified.',
+          text: 'Do you want to leave anyway?',
+          acceptText: 'YES',
+          rejectText: 'NO',
+        };
+        if (data) {
+          const diffData = formAttributes.filter(
+            ({ name, value }) => value !== data[name]
+          );
+          if (diffData.length > 0) {
+            setContent(modifiedContent);
+            setCondition('cancel');
+            setOpen(true);
+          } else {
+            router.push(`/${modelName}`);
+          }
+        } else {
+          const nonNullValues = formAttributes.reduce((acc, { value }) => {
+            return isNullorEmpty(value) ? acc : (acc += 1);
+          }, 0);
+          if (nonNullValues > 0) {
+            setContent(modifiedContent);
+            setCondition('cancel');
+            setOpen(true);
+          } else {
+            router.push(`/${modelName}`);
+          }
+        }
         break;
       }
 
@@ -277,32 +320,14 @@ const Record: NextPage<RecordProps> = ({
        * Send a delete request and, if sucessful, navigate to the model table.
        */
       case 'delete': {
-        const { query, resolver } = requests.delete;
-        const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-        const idValue = formAttributes.find(
-          ({ name }) => idKey && name === idKey
-        )?.value;
-
-        try {
-          if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
-            throw new Error(
-              'The record id was not set for a delete record action'
-            );
-
-          if (!auth.user?.token) return;
-
-          const variables = { [idKey]: idValue };
-          const request: ComposedQuery = {
-            resolver,
-            query,
-            variables,
-          };
-
-          await requestOne(auth.user.token, request);
-          router.push(`/${modelName}`);
-        } catch (errors) {
-          console.error(errors);
-        }
+        setContent({
+          title: 'Are you sure you want to delete this item?',
+          text: `Item with id ${queryId} in model ${modelName}.`,
+          acceptText: 'YES',
+          rejectText: 'NO',
+        });
+        setCondition('delete');
+        setOpen(true);
         break;
       }
 
@@ -329,27 +354,26 @@ const Record: NextPage<RecordProps> = ({
 
     if (formView === 'read') return;
 
-    const { query, resolver } =
-      formView === 'create' ? requests.create : requests.update;
-
-    const data = formAttributes.reduce<Record<string, AttributeValue>>(
-      (acc, { name, value }) => ({ ...acc, [name]: value }),
-      {}
-    );
-
-    const request: ComposedQuery = {
-      resolver,
-      query,
-      variables: data,
-    };
-
-    try {
-      if (auth.user?.token) await requestOne(auth.user?.token, request);
-      if (formView === 'update') mutate(data);
-      router.push(`/${modelName}`);
-    } catch (errors) {
-      console.error(errors);
+    const nonNullValues = formAttributes.reduce((acc, { value }) => {
+      return isNullorEmpty(value) ? acc : (acc += 1);
+    }, 0);
+    if (nonNullValues !== formAttributes.length) {
+      setContent({
+        title: `Some fields are empty.  (id: ${queryId})`,
+        text: 'Do you want to continue anyway?',
+        acceptText: 'YES',
+        rejectText: 'NO',
+      });
+    } else {
+      setContent({
+        title: `Save the item.  (id: ${queryId})`,
+        text: null,
+        acceptText: 'YES',
+        rejectText: 'NO',
+      });
     }
+    setCondition('submit');
+    setOpen(true);
   };
 
   /**
@@ -364,6 +388,68 @@ const Record: NextPage<RecordProps> = ({
     setTabIndex(value);
   };
 
+  const handleOnClose = (): void => {
+    setOpen(false);
+  };
+
+  const handleOnAccept = async (): Promise<void> => {
+    setOpen(false);
+    if (condition === 'cancel') {
+      router.push(`/${modelName}`);
+    } else if (condition === 'delete') {
+      const { query, resolver } = requests.delete;
+      const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+      const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
+        ?.value;
+
+      try {
+        if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
+          throw new Error(
+            'The record id was not set for a delete record action'
+          );
+
+        if (!auth.user?.token) return;
+
+        const variables = { [idKey]: idValue };
+        const request: ComposedQuery = {
+          resolver,
+          query,
+          variables,
+        };
+
+        await requestOne(auth.user.token, request);
+        router.push(`/${modelName}`);
+      } catch (errors) {
+        console.error(errors);
+      }
+    } else if (condition === 'submit') {
+      const { query, resolver } =
+        formView === 'create' ? requests.create : requests.update;
+
+      const data = formAttributes.reduce<Record<string, AttributeValue>>(
+        (acc, { name, value }) => ({ ...acc, [name]: value }),
+        {}
+      );
+
+      const request: ComposedQuery = {
+        resolver,
+        query,
+        variables: data,
+      };
+
+      try {
+        if (auth.user?.token) await requestOne(auth.user?.token, request);
+        if (formView === 'update') mutate(data);
+        router.push(`/${modelName}`);
+      } catch (errors) {
+        console.error(errors);
+      }
+    }
+  };
+
+  const handleOnReject = (): void => {
+    setOpen(false);
+  };
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
       <TabContext value={tabIndex}>
@@ -399,6 +485,13 @@ const Record: NextPage<RecordProps> = ({
                 onAction={handleOnFormAction}
               />
             }
+          />
+          <ConfirmationDialog
+            open={open}
+            content={content}
+            onClose={handleOnClose}
+            onAccept={handleOnAccept}
+            onReject={handleOnReject}
           />
         </TabPanel>
         <TabPanel value="associations">

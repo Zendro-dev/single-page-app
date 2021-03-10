@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer, ReactElement } from 'react';
+import React, { useMemo, useReducer, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Table,
@@ -29,6 +29,7 @@ import {
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
+import ConfirmationDialog from '../dialog/confirmation-dialog';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -86,9 +87,11 @@ export default function EnhancedTable({
   attributes,
   requests,
 }: EnhancedTableProps): ReactElement {
-  // ? To accomodate associations will need to recive the operation as well
+  // ? To accomodate associations will need to receive the operation as well
   const classes = useStyles();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [primaryKey, setPrimaryKey] = useState<null | string | number>(null);
 
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
@@ -108,20 +111,8 @@ export default function EnhancedTable({
         router.push(`/${modelName}/item`);
         break;
       case 'delete': {
-        const { query, resolver } = requests.delete;
-        const idField = attributes[0].name;
-        const request: ComposedQuery = {
-          resolver,
-          query,
-          variables: { [idField]: primaryKey },
-        };
-        // TODO handle Errors
-        // ? possibly mutate local data and run the refetch in background?
-        if (auth.user?.token) {
-          await requestOne(auth.user?.token, request);
-          mutateRecords();
-          mutateCount();
-        }
+        setPrimaryKey(primaryKey);
+        setOpen(true);
         break;
       }
     }
@@ -237,7 +228,36 @@ export default function EnhancedTable({
       });
     }
   };
+  const handleOnAccept = async (): Promise<void> => {
+    setOpen(false);
+    const { query, resolver } = requests.delete;
+    const idField = attributes[0].name;
+    const request: ComposedQuery = {
+      resolver,
+      query,
+      variables: { [idField]: primaryKey },
+    };
+    // TODO handle Errors
+    // ? possibly mutate local data and run the refetch in background?
+    if (auth.user?.token) {
+      await requestOne(auth.user?.token, request);
+      mutateRecords();
+      mutateCount();
+    }
+  };
 
+  const handleOnReject = (): void => {
+    setOpen(false);
+  };
+  const handleOnClose = (): void => {
+    setOpen(false);
+  };
+  const content = {
+    title: 'Are you sure you want to delete this item?',
+    text: `Item with id ${primaryKey} in model ${modelName}.`,
+    acceptText: 'YES',
+    rejectText: 'NO',
+  };
   return (
     <TableContainer component={Paper} className={classes.paper}>
       <TableToolbar
@@ -311,6 +331,13 @@ export default function EnhancedTable({
         hasLastPage={records?.pageInfo.hasNextPage}
         hasPreviousPage={records?.pageInfo.hasPreviousPage}
         hasNextPage={records?.pageInfo.hasNextPage}
+      />
+      <ConfirmationDialog
+        open={open}
+        content={content}
+        onClose={handleOnClose}
+        onAccept={handleOnAccept}
+        onReject={handleOnReject}
       />
     </TableContainer>
   );
