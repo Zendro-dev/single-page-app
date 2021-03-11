@@ -1,7 +1,5 @@
-import React, { useMemo, useReducer, ReactElement } from 'react';
+import React, { useReducer, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
-import Snackbar from '@/components/alert/snackbar';
-import { SnackbarKey, SnackbarMessage, useSnackbar } from 'notistack';
 import {
   Table,
   TableBody,
@@ -18,12 +16,10 @@ import EnhancedTableRow from './table-row';
 import TableToolbar from './table-toolbar';
 import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
-import { readMany, requestOne } from '@/utils/requests';
+import { graphqlRequest } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';
 import { ParsedAttribute } from '@/types/models';
 import {
-  ComposedQuery,
-  QueryModelTableRecordsCountVariables,
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
   QueryVariablePagination,
@@ -31,6 +27,14 @@ import {
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
+import useToastNotification from '@/hooks/useToastNotification';
+import {
+  EdgePageInfo,
+  PageInfo,
+  ReadManyResponse,
+  RequestOneResponse,
+} from '@/types/requests';
+import { isEmptyArray, isNullorEmpty } from '@/utils/validation';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -47,6 +51,16 @@ type VariableAction =
   | { type: 'SET_ORDER'; payload: QueryVariableOrder }
   | { type: 'SET_PAGINATION'; payload: QueryVariablePagination }
   | { type: 'RESET' };
+
+function unwrapConnection(
+  data: ReadManyResponse,
+  resolver: string
+): EdgePageInfo {
+  return {
+    data: data[resolver].edges.map((edge) => edge.node),
+    pageInfo: data[resolver].pageInfo,
+  };
+}
 
 const initialVariables: QueryModelTableRecordsVariables = {
   search: undefined,
@@ -89,12 +103,23 @@ export default function EnhancedTable({
   requests,
 }: EnhancedTableProps): ReactElement {
   // ? To accomodate associations will need to recive the operation as well
+  /* HOOKS */
   const classes = useStyles();
   const router = useRouter();
+  const { showSnackbar } = useToastNotification();
+  const { auth } = useAuth();
 
+  const [count, setCount] = useState<number>(0);
+  const [rows, setRows] = useState<unknown[]>([]);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    startCursor: null,
+    endCursor: null,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  });
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
-  const { enqueueSnackbar } = useSnackbar();
 
+  /* Handlers */
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', payload: value });
   };
@@ -112,19 +137,26 @@ export default function EnhancedTable({
         router.push(`/${modelName}/item`);
         break;
       case 'delete': {
-        const { query, resolver } = requests.delete;
         const idField = attributes[0].name;
-        const request: ComposedQuery = {
-          resolver,
-          query,
-          variables: { [idField]: primaryKey },
-        };
         // TODO handle Errors
-        // ? possibly mutate local data and run the refetch in background?
         if (auth.user?.token) {
-          await requestOne(auth.user?.token, request);
-          mutateRecords();
-          mutateCount();
+          try {
+            const { errors } = await graphqlRequest(
+              auth.user?.token,
+              requests.delete.query,
+              {
+                [idField]: primaryKey,
+              }
+            );
+            if (!isNullorEmpty(errors))
+              showSnackbar('Error in Graphql response', 'error', errors);
+
+            mutateRecords();
+            mutateCount();
+          } catch (error) {
+            console.log(error);
+            showSnackbar('Error in request to server', 'error', error.response);
+          }
         }
         break;
       }
@@ -140,59 +172,6 @@ export default function EnhancedTable({
       dispatch({ type: 'SET_SEARCH', payload: search });
     }
   };
-
-  const { auth } = useAuth();
-
-  // Data Fetching: Records
-  const readRequest = useMemo(() => {
-    return {
-      query: requests.read.query,
-      resolver: requests.read.resolver,
-      variables: variables,
-    } as ComposedQuery<QueryModelTableRecordsVariables>;
-  }, [variables, requests.read]);
-
-  const {
-    data: records,
-    mutate: mutateRecords,
-    isValidating: isValidatingRecords,
-  } = useSWR(
-    auth?.user?.token ? [auth.user.token, readRequest] : null,
-    readMany,
-    {
-      // TODO error handling
-      onError: (errors) => {
-        console.log(errors);
-        enqueueSnackbar('yap', {
-          // eslint-disable-next-line react/display-name
-          content: (key) => (
-            <Snackbar id={key} message="yap" errors={errors} variant="error" />
-          ),
-        });
-      },
-      shouldRetryOnError: false,
-    }
-  );
-
-  // Data Fetching: Count
-  const countRequest = useMemo(() => {
-    return {
-      query: requests.count.query,
-      resolver: requests.count.resolver,
-      variables: variables,
-    } as ComposedQuery<QueryModelTableRecordsCountVariables>;
-  }, [variables, requests.count]);
-
-  const { data: count, mutate: mutateCount } = useSWR(
-    auth?.user?.token ? [auth.user.token, countRequest] : null,
-    requestOne,
-    {
-      // TODO error handling
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
 
   const handlePagination = (action: string): void => {
     const limit = variables.pagination.first ?? variables.pagination.last;
@@ -218,7 +197,7 @@ export default function EnhancedTable({
           type: 'SET_PAGINATION',
           payload: {
             first: limit,
-            after: records ? records.pageInfo.endCursor : undefined,
+            after: !isEmptyArray(rows) ? pageInfo.endCursor : undefined,
           },
         });
         break;
@@ -227,7 +206,7 @@ export default function EnhancedTable({
           type: 'SET_PAGINATION',
           payload: {
             last: limit,
-            before: records ? records.pageInfo.startCursor : undefined,
+            before: !isEmptyArray(rows) ? pageInfo.startCursor : undefined,
           },
         });
         break;
@@ -249,6 +228,57 @@ export default function EnhancedTable({
     }
   };
 
+  /* DATA FETCHING */
+  // Records
+  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
+    auth?.user?.token
+      ? [auth.user.token, requests.read.query, variables]
+      : null,
+    graphqlRequest,
+    {
+      onSuccess: ({ data, errors }) => {
+        if (!isNullorEmpty(data)) {
+          const connection = unwrapConnection(
+            data as ReadManyResponse,
+            requests.read.resolver
+          );
+          setRows(connection.data);
+          setPageInfo(connection.pageInfo);
+        }
+
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+      },
+      onError: (error) => {
+        console.error(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      },
+      shouldRetryOnError: false,
+    }
+  );
+
+  // Count
+  const { mutate: mutateCount } = useSWR(
+    auth?.user?.token
+      ? [auth.user.token, requests.count.query, variables]
+      : null,
+    graphqlRequest,
+    {
+      onSuccess: ({ data, errors }) => {
+        const countData = data as RequestOneResponse<number>;
+        if (!isNullorEmpty(data)) setCount(countData[requests.count.resolver]);
+
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+      },
+      onError: (error) => {
+        console.error(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      },
+      shouldRetryOnError: false,
+    }
+  );
+
   return (
     <TableContainer component={Paper} className={classes.paper}>
       <TableToolbar
@@ -263,10 +293,10 @@ export default function EnhancedTable({
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
-          {records && !isValidatingRecords && (
+          {!isEmptyArray(rows) && !isValidatingRecords && (
             <Fade in={!isValidatingRecords}>
               <TableBody>
-                {records.data.map((record, index) => (
+                {rows.map((record, index) => (
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
@@ -295,20 +325,18 @@ export default function EnhancedTable({
             </Fade>
           </Box>
         )}
-        {!isValidatingRecords &&
-          Array.isArray(records) &&
-          records.length === 0 && (
-            <Box
-              display="flex"
-              width="100%"
-              height="100%"
-              position="absolute"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Typography variant="body1">No data to display</Typography>
-            </Box>
-          )}
+        {!isValidatingRecords && isEmptyArray(rows) && (
+          <Box
+            display="flex"
+            width="100%"
+            height="100%"
+            position="absolute"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="body1">No data to display</Typography>
+          </Box>
+        )}
       </div>
       <RecordsTablePagination
         onPagination={handlePagination}
@@ -318,10 +346,10 @@ export default function EnhancedTable({
           variables.pagination.first ?? variables.pagination.last
         }
         onPaginationLimitChange={handlePaginationLimitChange}
-        hasFirstPage={records?.pageInfo.hasPreviousPage}
-        hasLastPage={records?.pageInfo.hasNextPage}
-        hasPreviousPage={records?.pageInfo.hasPreviousPage}
-        hasNextPage={records?.pageInfo.hasNextPage}
+        hasFirstPage={pageInfo.hasPreviousPage}
+        hasLastPage={pageInfo.hasNextPage}
+        hasPreviousPage={pageInfo.hasPreviousPage}
+        hasNextPage={pageInfo.hasNextPage}
       />
     </TableContainer>
   );
