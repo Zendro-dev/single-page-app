@@ -115,7 +115,7 @@ interface InitAttributesArgs {
   formView: FormView;
   attributes: ParsedAttribute[];
   data?: Record<string, AttributeValue> | null;
-  errors?: Record<string, string | undefined>;
+  errors?: Record<string, string[] | undefined>;
 }
 /**
  * Compose an array of form attributes from a combination of static types
@@ -149,7 +149,7 @@ function initAttributes({
 }
 
 type FormAttributesAction =
-  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: string } }
+  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: string[] } }
   | { type: 'reset'; payload: InitAttributesArgs };
 function formAttributesReducer(
   state: FormAttribute[],
@@ -164,7 +164,7 @@ function formAttributesReducer(
       const attr = state.find(({ name }) => key === name);
       if (attr) attr.value = value;
       if (attr && error ){
-        attr.error = error;
+       attr.error = attr.error ? [...attr.error, ...error ]: error ;
       }
       return [...state];
     }

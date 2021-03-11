@@ -30,7 +30,7 @@ export interface AttributesFormProps {
 }
 
 export interface FormAttribute extends ParsedAttribute {
-  error?: string | null;
+  error?: string [] | null;
   readOnly?: boolean;
   value: AttributeValue;
 }

@@ -30,6 +30,9 @@ export default function IntField({
       onChange={handleOnChange}
       type="number"
       value={value ?? ''}
+      // inputProps = {{
+      //   pattern: "[0-9]"
+      // }}
     />
   );
 }
