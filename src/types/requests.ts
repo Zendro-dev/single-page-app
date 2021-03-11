@@ -15,8 +15,8 @@ export interface EdgePageInfo {
 }
 
 export interface PageInfo {
-  startCursor: undefined | string;
-  endCursor: undefined | string;
-  hasPreviousPage: undefined | boolean;
-  hasNextPage: undefined | boolean;
+  startCursor: null | string;
+  endCursor: null | string;
+  hasPreviousPage: null | boolean;
+  hasNextPage: null | boolean;
 }
