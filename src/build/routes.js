@@ -43,7 +43,6 @@ async function buildRoutes() {
       admin,
       models,
     };
-    // routes = [...adminModels, ...dataModels].map(parseRoutes);
 
     await mkdir(routesPath.customDir, { recursive: true });
     await writeFile(routesPath.absolute, JSON.stringify(routes, null, 2));
