@@ -1,6 +1,7 @@
 import React from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 // import { useRouter } from 'next/router';
+import useAuth from '@/hooks/useAuth';
 import {
   getStaticModel,
   getStaticRoutes,
@@ -14,8 +15,7 @@ import {
 } from '@/utils/queries';
 import { PathParams } from '@/types/models';
 import { AppRoutes } from '@/types/routes';
-import useAuth from '@/hooks/useAuth';
-import ModelsLayout from '@/layouts/models-layout';
+import ModelsLayout from '@/layouts/models';
 import EnhancedTable, { EnhancedTableProps } from '@/components/records-table';
 
 interface ModelProps extends EnhancedTableProps {

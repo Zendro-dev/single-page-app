@@ -17,7 +17,7 @@ import AttributesForm, {
 import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
-import ModelsLayout from '@/layouts/models-layout';
+import ModelsLayout from '@/layouts/models';
 
 import {
   AttributeValue,

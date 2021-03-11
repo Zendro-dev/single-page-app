@@ -4,7 +4,6 @@ import {
   Table,
   TableBody,
   makeStyles,
-  Paper,
   TableContainer,
   Typography,
   Box,
@@ -239,7 +238,7 @@ export default function EnhancedTable({
   };
 
   return (
-    <TableContainer component={Paper} className={classes.paper}>
+    <TableContainer className={classes.paper}>
       <TableToolbar
         modelName={modelName}
         onAdd={handleActionClick('create')}
@@ -247,7 +246,7 @@ export default function EnhancedTable({
         onSearch={handleSetSearch}
       />
       <div className={classes.tableWrapper}>
-        <Table stickyHeader size="small">
+        <Table stickyHeader size="medium">
           <EnhancedTableHead
             attributes={attributes}
             handleSetOrder={handleSetOrder}
@@ -318,19 +317,13 @@ export default function EnhancedTable({
 
 const useStyles = makeStyles(() => ({
   tableWrapper: {
-    height: `calc(100vh - 72px - 48px - 128px - 80px)`,
-    minWidth: 570,
     overflow: 'auto',
     position: 'relative',
   },
   paper: {
     overflow: 'auto',
-    height: `calc(100vh - 72px  - 48px)`,
-    minWidth: 570,
   },
   tableBackdrop: {
     WebkitTapHighlightColor: 'transparent',
-    minWidth: '100%',
-    minHeight: '100%',
   },
 }));

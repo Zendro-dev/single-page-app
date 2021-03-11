@@ -1,7 +1,7 @@
 import React from 'react';
 import { NextPage, GetStaticProps } from 'next';
 import useAuth from '@/hooks/useAuth';
-import MainPanel from '@/layouts/models-layout';
+import MainPanel from '@/layouts/models';
 import { getStaticRoutes } from '@/utils/static';
 import { AppRoutes } from '@/types/routes';
 

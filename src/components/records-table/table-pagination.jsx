@@ -28,7 +28,6 @@ const useStyles = makeStyles(() => ({
     marginRight: '55rem',
   },
   paginationLimit: {
-    minWidth: '5rem',
     marginLeft: '1rem',
     marginRight: '1rem',
   },
