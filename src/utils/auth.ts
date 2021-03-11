@@ -2,9 +2,9 @@ import Acl, { AclSet } from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
 
-import { localStorage } from './storage';
 import aclRules from '@/build/acl-rules';
-import routes from '@/build/routes';
+import routes, { AppRoutes } from '@/build/routes';
+
 import { LOGIN_URL } from '@/config/globals';
 import {
   AuthError,
@@ -15,7 +15,8 @@ import {
   AuthPermissions,
   AUTH_PERMISSIONS_NOT_FOUND,
 } from '@/types/auth';
-import { ModelRoute } from '@/types/routes';
+
+import { localStorage } from '@/utils/storage';
 
 /**
  * Authenticate as user using the GraphQL server API.
@@ -125,20 +126,24 @@ export async function getUserPermissions(
   user: string,
   roles: string[]
 ): Promise<AuthPermissions> {
+  console.log(aclRules);
   const acl = new Acl(new Acl.memoryBackend());
 
   // Default or custom acl rules
   await acl.allow((aclRules as unknown) as AclSet);
 
-  // The current user and its associated roles
+  // Current user and its associated roles
   await acl.addUserRoles(user, roles);
 
   // Controlled resources for which permissions should be retrieved
-  const resources = ((routes as unknown) as ModelRoute[]).map(
+  const appRoutes = (routes as unknown) as AppRoutes;
+  const adminRoutes = appRoutes.admin;
+  const modelRoutes = appRoutes.models;
+  const resources = [...adminRoutes, ...modelRoutes].map(
     ({ name }) => name
   ) as string[];
 
-  // Parse the current user permissions
+  // Parse and return the current user permissions
   return new Promise<AuthPermissions>((resolve, reject) => {
     acl.allowedPermissions(user, resources, (err, permissions) => {
       if (err) reject(err.message);
