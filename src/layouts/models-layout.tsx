@@ -129,7 +129,7 @@ export default function ModelsDashboard({
   );
 
   const canAccessRoute = (name: string): boolean | undefined => {
-    return auth.user?.permissions[name].some(
+    return auth.user?.permissions[name]?.some(
       (permission) => permission === 'read' || permission === '*'
     );
   };
