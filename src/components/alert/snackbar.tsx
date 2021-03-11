@@ -23,14 +23,14 @@ import {
 } from '@material-ui/icons';
 import { green, red, blue, orange } from '@material-ui/core/colors';
 
-interface SnackbarProps {
+export interface ZendroSnackbarProps {
   id: SnackbarKey;
   variant: VariantType;
   message: SnackbarMessage;
   errors?: unknown[];
 }
 
-const snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
+const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
   ({ id, variant, message, errors }, ref) => {
     const classes = useStyles();
     const { closeSnackbar } = useSnackbar();
@@ -64,7 +64,7 @@ const snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
         <Card className={backgroundColor}>
           <CardActions classes={{ root: classes.actionRoot }}>
             <Box display="flex" alignItems="center">
-              {errors && errors.length > 0 && (
+              {errors && (
                 <IconButton
                   aria-label="Show more"
                   className={clsx(classes.expand, {
@@ -87,7 +87,7 @@ const snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
               <CloseIcon className={textColor} />
             </IconButton>
           </CardActions>
-          {errors && errors.length > 0 && (
+          {errors && (
             <Collapse in={expanded} timeout="auto" unmountOnExit>
               <Paper className={classes.collapse}>
                 <Typography variant="subtitle1" gutterBottom>
