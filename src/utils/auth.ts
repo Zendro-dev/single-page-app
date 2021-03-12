@@ -126,7 +126,6 @@ export async function getUserPermissions(
   user: string,
   roles: string[]
 ): Promise<AuthPermissions> {
-  console.log(aclRules);
   const acl = new Acl(new Acl.memoryBackend());
 
   // Default or custom acl rules

@@ -84,7 +84,6 @@ export default function useAuth(options?: AuthOptions): UseAuth {
       const onUserNotAllowed = auth.user && redirectIfNotAllowed && !isAllowed;
 
       if (onUserNotFound || onUserFound || onUserNotAllowed) {
-        console.log(`authenticated: redirect to ${redirectTo}`);
         redirect(redirectTo);
       }
     },
