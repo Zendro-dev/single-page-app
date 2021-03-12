@@ -38,6 +38,7 @@ import {
 } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
 import { parseValidationErrors } from '@/utils/error';
+import { ErrorsAttribute } from '@/components/alert/attributes-error';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -140,7 +141,7 @@ function initAttributes({
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
         value: data ? data[name] : null,
-        error: errors ? errors[name] : null,
+        error: errors ? {ajvValidation: errors[name]} : null,
       });
       return attrArr;
     },
@@ -149,8 +150,8 @@ function initAttributes({
 }
 
 type FormAttributesAction =
-  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: string[] } }
-  | { type: 'reset'; payload: InitAttributesArgs };
+  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: ErrorsAttribute } }
+  | { type: 'reset'; payload: InitAttributesArgs }; 
 function formAttributesReducer(
   state: FormAttribute[],
   action: FormAttributesAction
@@ -164,7 +165,7 @@ function formAttributesReducer(
       const attr = state.find(({ name }) => key === name);
       if (attr) attr.value = value;
       if (attr && error ){
-       attr.error = attr.error ? [...attr.error, ...error ]: error ;
+       attr.error = attr.error ? {...attr.error, ...error }: error ;
       }
       return [...state];
     }
@@ -355,7 +356,7 @@ const Record: NextPage<RecordProps> = ({
 
       const validation_errors = parseValidationErrors( errors );
       for(const [key, error] of Object.entries(validation_errors)){
-        dispatch({ type: 'update', payload: { key, value: data[key], error } });
+        dispatch({ type: 'update', payload: { key, value: data[key], error:{ajvValidation: error} } });
       }
 
       console.error(errors);
