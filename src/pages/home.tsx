@@ -14,14 +14,15 @@ const About: NextPage<HomeProps> = ({ routes }) => {
 
   return (
     <MainPanel brand="Zendro" routes={routes}>
-      {auth.error?.message ? (
-        <div>Error: {auth?.error?.message}</div>
-      ) : (
-        <div>
-          <div>Status: {auth?.status}</div>
-          <div>User: {JSON.stringify(auth?.user)}</div>
-        </div>
-      )}
+      {auth?.user
+        ? Object.entries(auth.user).map(([key, value]) => (
+            <div key={key}>
+              <span>{key}: </span>
+              <span>{JSON.stringify(value)}</span>
+            </div>
+          ))
+        : null}
+      {auth.error?.message && <div>Error: {auth?.error?.message}</div>}
     </MainPanel>
   );
 };

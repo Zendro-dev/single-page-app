@@ -1,7 +1,5 @@
 import React from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-// import { useRouter } from 'next/router';
-import useAuth from '@/hooks/useAuth';
 import {
   getStaticModel,
   getStaticRoutes,
@@ -66,9 +64,6 @@ const Model: NextPage<ModelProps> = ({
   requests,
   routes,
 }) => {
-  useAuth({ redirectTo: '/' });
-  // const router = useRouter();
-
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
       <EnhancedTable

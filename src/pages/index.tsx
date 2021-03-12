@@ -20,8 +20,7 @@ const Home: NextPage = () => {
   const [loginRoute, setLoginRoute] = useState('/login');
 
   useEffect(() => {
-    if (!auth.user?.isValid) return;
-    setLoginRoute('/home');
+    if (auth.user?.isValid) setLoginRoute('/home');
   }, [auth]);
 
   return (

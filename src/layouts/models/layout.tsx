@@ -1,4 +1,10 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
+import React, {
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
+import clsx from 'clsx';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Box, Fab, Zoom } from '@material-ui/core';
@@ -10,9 +16,9 @@ import {
 import useAuth from '@/hooks/useAuth';
 import { AppRoutes } from '@/types/routes';
 
+import RestrictedResource from '@/components/placeholders/restricted-resource';
 import Toolbar from './toolbar';
 import Navigation from './navigation';
-import clsx from 'clsx';
 
 interface ModelsDesktopLayoutProps {
   brand: string;
@@ -26,9 +32,8 @@ export default function ModelsDashboard({
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
   const classes = useStyles();
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const { auth } = useAuth({ redirectTo: '/' });
-
   const toggleDrawer = (): void => setDrawerOpen((state) => !state);
+  const { auth } = useAuth();
 
   return (
     <div className={classes.root}>
@@ -45,8 +50,8 @@ export default function ModelsDashboard({
       <div className={classes.mainContainer}>
         <Navigation
           className={drawerOpen ? classes.drawerOpen : classes.drawerClosed}
-          component="nav"
           permissions={auth.user?.permissions}
+          component="nav"
           routes={routes}
         />
         <main
@@ -54,7 +59,7 @@ export default function ModelsDashboard({
             [classes.mainContentShift]: drawerOpen,
           })}
         >
-          {children}
+          <RestrictedResource>{children}</RestrictedResource>
         </main>
       </div>
     </div>

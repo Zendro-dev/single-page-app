@@ -15,6 +15,7 @@ import AttributesForm, {
 } from '@/components/attributes-form';
 
 import AssociationList from '@/components/association-list';
+import RestrictedResource from '@/components/placeholders/restricted-resource';
 
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models';
@@ -193,7 +194,12 @@ const Record: NextPage<RecordProps> = ({
   routes,
   requests,
 }) => {
-  const { auth } = useAuth({ redirectTo: '/home', redirectIfNotAllowed: true });
+  const { auth, isAllowed, redirectTimer } = useAuth();
+  //   {
+  //   redirectTo: `/${modelName}`,
+  //   redirectIfNotAllowed: true,
+  //   redirectTimeout: 5,
+  // }
   const router = useRouter();
   const classes = useStyles();
   const { queryId, formView } = parseUrlQuery(router.query as PathParams);
