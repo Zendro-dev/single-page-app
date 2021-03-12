@@ -138,7 +138,6 @@ export default function EnhancedTable({
         break;
       case 'delete': {
         const idField = attributes[0].name;
-        // TODO handle Errors
         if (auth.user?.token) {
           try {
             const { errors } = await graphqlRequest(

@@ -100,7 +100,6 @@ export async function graphqlRequest(
   });
 
   // ? check for response.data ?
-
   return { data: response.data.data, errors: response.data.errors };
 }
 
