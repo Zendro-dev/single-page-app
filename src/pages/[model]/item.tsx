@@ -141,7 +141,7 @@ function initAttributes({
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
         value: data ? data[name] : null,
-        error: errors ? {ajvValidation: errors[name]} : null,
+        error: errors ? { ajvValidation: errors[name] } : null,
       });
       return attrArr;
     },
@@ -150,8 +150,11 @@ function initAttributes({
 }
 
 type FormAttributesAction =
-  | { type: 'update'; payload: { key: string; value: AttributeValue, error?: ErrorsAttribute } }
-  | { type: 'reset'; payload: InitAttributesArgs }; 
+  | {
+      type: 'update';
+      payload: { key: string; value?: AttributeValue; error?: ErrorsAttribute };
+    }
+  | { type: 'reset'; payload: InitAttributesArgs };
 function formAttributesReducer(
   state: FormAttribute[],
   action: FormAttributesAction
@@ -163,9 +166,9 @@ function formAttributesReducer(
     case 'update': {
       const { key, value, error } = action.payload;
       const attr = state.find(({ name }) => key === name);
-      if (attr) attr.value = value;
-      if (attr && error ){
-       attr.error = attr.error ? {...attr.error, ...error }: error ;
+      if (attr && value!== undefined) attr.value = value;
+      if (attr && error) {
+        attr.error = attr.error ? { ...attr.error, ...error } : error;
       }
       return [...state];
     }
@@ -252,6 +255,11 @@ const Record: NextPage<RecordProps> = ({
   const handleOnChange = (key: string) => (value: AttributeValue) => {
     dispatch({ type: 'update', payload: { key, value } });
   };
+
+  const handleOnError = (key: string) => (value: string | null ) => {
+    const error_message = value;
+    dispatch({ type: 'update', payload: { key, error: {clientValidation: error_message} } });
+  }
 
   const handleOnFormAction = (action: FormAction) => async () => {
     switch (action) {
@@ -353,10 +361,12 @@ const Record: NextPage<RecordProps> = ({
       if (formView === 'update') mutate(data);
       router.push(`/${modelName}`);
     } catch (errors) {
-
-      const validation_errors = parseValidationErrors( errors );
-      for(const [key, error] of Object.entries(validation_errors)){
-        dispatch({ type: 'update', payload: { key, value: data[key], error:{ajvValidation: error} } });
+      const validation_errors = parseValidationErrors(errors);
+      for (const [key, error] of Object.entries(validation_errors)) {
+        dispatch({
+          type: 'update',
+          payload: { key, error: { ajvValidation: error } },
+        });
       }
 
       console.error(errors);
@@ -398,6 +408,7 @@ const Record: NextPage<RecordProps> = ({
             disabled={formView === 'read'}
             formId={formId}
             onChange={handleOnChange}
+            onError={handleOnError}
             onSubmit={handleOnSubmit(formView)}
             title={{
               prefix: capitalize(formView),
