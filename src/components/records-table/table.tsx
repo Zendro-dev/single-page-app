@@ -6,9 +6,9 @@ import {
   makeStyles,
   TableContainer,
   Typography,
-  Box,
   CircularProgress,
   Fade,
+  createStyles,
 } from '@material-ui/core';
 import EnhancedTableHead from './table-head';
 import EnhancedTableRow from './table-row';
@@ -238,13 +238,14 @@ export default function EnhancedTable({
   };
 
   return (
-    <TableContainer className={classes.paper}>
+    <TableContainer className={classes.root}>
       <TableToolbar
         modelName={modelName}
         onAdd={handleActionClick('create')}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
       />
+
       <div className={classes.tableWrapper}>
         <Table stickyHeader size="medium">
           <EnhancedTableHead
@@ -270,35 +271,21 @@ export default function EnhancedTable({
           )}
         </Table>
         {isValidatingRecords && (
-          <Box
-            display="flex"
-            width="100%"
-            height="100%"
-            position="absolute"
-            justifyContent="center"
-            alignItems="center"
-          >
+          <div className={classes.tablePlaceholder}>
             <Fade in={isValidatingRecords}>
               <CircularProgress color="primary" disableShrink={true} />
             </Fade>
-          </Box>
+          </div>
         )}
-        {!isValidatingRecords &&
-          Array.isArray(records) &&
-          records.length === 0 && (
-            <Box
-              display="flex"
-              width="100%"
-              height="100%"
-              position="absolute"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Typography variant="body1">No data to display</Typography>
-            </Box>
-          )}
+        {!isValidatingRecords && (!records || records?.data.length === 0) && (
+          <div className={classes.tablePlaceholder}>
+            <Typography variant="body1">No data to display</Typography>
+          </div>
+        )}
       </div>
+
       <RecordsTablePagination
+        className={classes.pagination}
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
@@ -315,15 +302,30 @@ export default function EnhancedTable({
   );
 }
 
-const useStyles = makeStyles(() => ({
-  tableWrapper: {
-    overflow: 'auto',
-    position: 'relative',
-  },
-  paper: {
-    overflow: 'auto',
-  },
-  tableBackdrop: {
-    WebkitTapHighlightColor: 'transparent',
-  },
-}));
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      height: '100%',
+      overflow: 'auto',
+    },
+    tableWrapper: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      overflow: 'auto',
+    },
+    tablePlaceholder: {
+      display: 'flex',
+      flexGrow: 0.5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    pagination: {
+      padding: theme.spacing(6, 2),
+    },
+  })
+);

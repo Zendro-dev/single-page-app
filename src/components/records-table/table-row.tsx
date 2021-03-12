@@ -33,11 +33,7 @@ function EnhancedTableRowIcon({
   children,
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   return (
-    <TableCell
-      style={{ minWidth: '3rem', maxWidth: '3rem' }}
-      padding="checkbox"
-      align="center"
-    >
+    <TableCell style={{ width: '3rem' }} padding="checkbox" align="center">
       <Tooltip title={label}>
         <IconButton color="default" onClick={onClick}>
           {children}
