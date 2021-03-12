@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function useCountdown(
   count = 0
@@ -31,17 +31,17 @@ export default function useCountdown(
     if (timer === 0) clearTimer();
   });
 
-  const startTimer = (): void => setToggle(true);
+  const startTimer = useCallback((): void => setToggle(true), []);
 
-  const stopTimer = (): void => {
+  const stopTimer = useCallback((): void => {
     setToggle(false);
     clearInterval(timerId.current);
-  };
+  }, []);
 
-  const resetTimer = (): void => {
+  const resetTimer = useCallback((): void => {
     stopTimer();
     setTimer(count);
-  };
+  }, [count, stopTimer]);
 
   const clearTimer = (): void => clearInterval(timerId.current);
 

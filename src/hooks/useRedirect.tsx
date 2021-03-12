@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import useCountdown from './useCountdown';
 
@@ -20,17 +20,19 @@ export default function useRedirect(options: RedirectOptions): RedirectReturn {
   useEffect(
     function redirectUser() {
       if (timer === 0 && redirectTo) {
-        console.log(`redirecting to ${redirectTo}`);
         router.push(redirectTo);
       }
     },
     [redirectTo, router, timer]
   );
 
-  const redirect = (to: string): void => {
-    setRedirectTo(to);
-    startTimer();
-  };
+  const redirect = useCallback(
+    (to: string): void => {
+      setRedirectTo(to);
+      startTimer();
+    },
+    [setRedirectTo, startTimer]
+  );
 
   return {
     redirect,
