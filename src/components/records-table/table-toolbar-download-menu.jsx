@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
@@ -7,9 +6,11 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from '@/components/buttons/icon-button';
 import useSWR from 'swr';
-import { authSelector } from '../../store/auth-slice';
-import { requestOne } from '@/utils/requests';
+import { graphqlRequest } from '@/utils/requests';
 import { queryCsvTemplate } from '@/utils/queries';
+import useToastNotification from '@/hooks/useToastNotification';
+import useAuth from '@/hooks/useAuth';
+import { isNullorEmpty } from '@/utils/validation';
 
 function downloadFile(data, name) {
   const file = data.join('\n');
@@ -24,25 +25,36 @@ function downloadFile(data, name) {
 export default function DownloadMenu(props) {
   const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
   const [downloadTemplate, setDownloadTemplate] = useState(false);
-  const auth = useSelector(authSelector);
-
-  const onDownload = (data) => {
-    setDownloadTemplate(false);
-    downloadFile(data, `${props.modelName}-template.csv`);
-  };
-
-  const onError = () => {
-    //send error to user
-  };
+  const { auth } = useAuth();
+  const { showSnackbar } = useToastNotification();
 
   const request = useMemo(() => {
     return queryCsvTemplate(props.modelName);
   }, [props.modelName]);
 
-  useSWR(downloadTemplate ? [auth.user.token, request] : null, requestOne, {
-    onSuccess: onDownload,
-    onError: onError,
-  });
+  useSWR(
+    downloadTemplate ? [auth.user.token, request.query] : null,
+    graphqlRequest,
+    {
+      onSuccess: ({ data, errors }) => {
+        setDownloadTemplate(false);
+        if (!isNullorEmpty(data)) {
+          downloadFile(
+            data[request.resolver],
+            `${props.modelName}-template.csv`
+          );
+        }
+
+        if (!isNullorEmpty(errors)) {
+          showSnackbar('Error in Graphql response', 'error', errors);
+        }
+      },
+      onError: (error) => {
+        console.error(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      },
+    }
+  );
 
   const handleClick = (event) => {
     setDownloadAnchorEl(event.currentTarget);

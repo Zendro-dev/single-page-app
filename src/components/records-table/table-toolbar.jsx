@@ -19,7 +19,7 @@ export default function TableToolBar(props) {
 
   const handleDone = () => {
     setDialogOpen(false);
-    onReload()
+    onReload();
   };
 
   return (
