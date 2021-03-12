@@ -1,19 +1,27 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Box, Fade, Typography } from '@material-ui/core';
 import LoginForm from '../components/forms/login-form';
 import useAuth from '../hooks/useAuth';
+import useToastNotification from '@/hooks/useToastNotification';
 
 export default function LoginPage(): ReactElement {
   const classes = useStyles();
-  const { login } = useAuth({
+  const { login, auth } = useAuth({
     redirectTo: '/home',
     redirectIfFound: true,
   });
-
+  const { showSnackbar } = useToastNotification();
   const onLoginFormSubmit = (email: string, password: string): void => {
     if (email && password) login(email, password);
   };
+
+  // display snackbar if Login failed
+  useEffect(() => {
+    if (auth.status === 'failed') {
+      showSnackbar('Login failed', 'error');
+    }
+  }, [auth.status, showSnackbar]);
 
   return (
     <div className={classes.root}>
