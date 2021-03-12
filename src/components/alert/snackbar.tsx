@@ -27,11 +27,11 @@ export interface ZendroSnackbarProps {
   id: SnackbarKey;
   variant: VariantType;
   message: SnackbarMessage;
-  errors?: unknown[];
+  details?: unknown;
 }
 
 const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
-  ({ id, variant, message, errors }, ref) => {
+  ({ id, variant, message, details }, ref) => {
     const classes = useStyles();
     const { closeSnackbar } = useSnackbar();
     const [expanded, setExpanded] = useState(false);
@@ -64,7 +64,7 @@ const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
         <Card className={backgroundColor}>
           <CardActions classes={{ root: classes.actionRoot }}>
             <Box display="flex" alignItems="center">
-              {errors && (
+              {details && (
                 <IconButton
                   aria-label="Show more"
                   className={clsx(classes.expand, {
@@ -87,14 +87,14 @@ const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
               <CloseIcon className={textColor} />
             </IconButton>
           </CardActions>
-          {errors && (
+          {details && (
             <Collapse in={expanded} timeout="auto" unmountOnExit>
               <Paper className={classes.collapse}>
                 <Typography variant="subtitle1" gutterBottom>
                   Error details:
                 </Typography>
                 <Typography component="pre" variant="subtitle2" gutterBottom>
-                  {JSON.stringify(errors, null, 5)}
+                  {JSON.stringify(details, null, 5)}
                 </Typography>
               </Paper>
             </Collapse>

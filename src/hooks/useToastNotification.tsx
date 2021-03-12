@@ -4,7 +4,7 @@ import { SnackbarMessage, useSnackbar, VariantType } from 'notistack';
 type showSnackbar = (
   message: SnackbarMessage,
   variant: VariantType,
-  errors?: unknown[]
+  details?: unknown
 ) => void;
 
 interface UseToastNotification {
@@ -14,16 +14,15 @@ interface UseToastNotification {
 export default function useToastNotification(): UseToastNotification {
   const { enqueueSnackbar } = useSnackbar();
 
-  const showSnackbar: showSnackbar = (message, variant, errors): void => {
+  const showSnackbar: showSnackbar = (message, variant, details): void => {
     enqueueSnackbar(message, {
-      preventDuplicate: false,
-      persist: true,
+      preventDuplicate: true,
       // eslint-disable-next-line react/display-name
       content: (key) => (
         <Snackbar
           id={key}
           message={message}
-          errors={errors}
+          details={details}
           variant={variant}
         />
       ),
