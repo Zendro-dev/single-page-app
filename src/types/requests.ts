@@ -1,6 +1,8 @@
+import { DataRecord } from './models';
+
 export interface ReadManyResponse {
   [key: string]: {
-    edges: Array<{ node: unknown }>;
+    edges: Array<{ node: DataRecord }>;
     pageInfo: PageInfo;
   };
 }
@@ -10,15 +12,15 @@ export interface RequestOneResponse<T> {
 }
 
 export interface EdgePageInfo {
-  data: unknown[];
+  data: DataRecord[];
   pageInfo: PageInfo;
 }
 
 export interface PageInfo {
-  startCursor: undefined | string;
-  endCursor: undefined | string;
-  hasPreviousPage: undefined | boolean;
-  hasNextPage: undefined | boolean;
+  startCursor: null | string;
+  endCursor: null | string;
+  hasPreviousPage: null | boolean;
+  hasNextPage: null | boolean;
 }
 
 export type CrudRequest = 'create' | 'read' | 'update' | 'delete';

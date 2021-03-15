@@ -1,5 +1,6 @@
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
+import { SnackbarProvider } from 'notistack';
 import { AppProps } from 'next/app';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
@@ -13,7 +14,14 @@ function App({ Component, pageProps }: AppProps): ReactElement {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Component {...pageProps} />
+        <SnackbarProvider
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <Component {...pageProps} />
+        </SnackbarProvider>
       </ThemeProvider>
     </Provider>
   );

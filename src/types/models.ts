@@ -39,6 +39,10 @@ export interface ParsedAttribute {
   automaticId?: boolean;
 }
 
+export interface DataRecord {
+  [key: string]: AttributeValue;
+}
+
 /* ASSOCIATIONS */
 
 export interface Association {

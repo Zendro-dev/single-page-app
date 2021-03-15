@@ -21,6 +21,7 @@ import ModelsLayout from '@/layouts/models';
 
 import {
   AttributeValue,
+  DataRecord,
   ParsedAssociation,
   ParsedAttribute,
   PathParams,
@@ -112,7 +113,7 @@ function parseUrlQuery(query: PathParams): ParsedQuery {
 interface InitAttributesArgs {
   formView: FormView;
   attributes: ParsedAttribute[];
-  data?: Record<string, AttributeValue> | null;
+  data?: DataRecord | null;
   errors?: Record<string, string | undefined>;
 }
 /**

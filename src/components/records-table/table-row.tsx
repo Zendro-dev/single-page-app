@@ -11,7 +11,7 @@ import {
   Edit as EditIcon,
   VisibilityTwoTone as DetailIcon,
 } from '@material-ui/icons';
-import { ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
 import { AclPermission } from '@/types/acl';
 
 interface EnhancedTableRowIconProps {
@@ -21,7 +21,7 @@ interface EnhancedTableRowIconProps {
 
 interface EnhancedTableRowProps {
   // TODO correct typing for record
-  record: any;
+  record: DataRecord;
   attributes: ParsedAttribute[];
   permissions: AclPermission[];
   onRead: (primaryKey: string | number) => void;
@@ -61,7 +61,7 @@ EnhancedTableRowProps): ReactElement {
   const primaryKey = useMemo(() => {
     const primaryKeyAttribute =
       attributes.find((attribute) => attribute?.primaryKey)?.name ?? 'id';
-    return record[primaryKeyAttribute];
+    return record[primaryKeyAttribute] as string | number;
   }, [attributes, record]);
 
   return (

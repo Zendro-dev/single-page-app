@@ -35,8 +35,8 @@ export interface QueryVariableOrder {
 export interface QueryVariablePagination {
   first?: number;
   last?: number;
-  after?: string;
-  before?: string;
+  after?: string | null;
+  before?: string | null;
   includeCursor?: boolean;
 }
 
