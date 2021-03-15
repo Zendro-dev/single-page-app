@@ -9,6 +9,7 @@ import {
 } from '@material-ui/icons';
 
 import { SvgIconType } from '@/types/elements';
+import { isNullorUndefined } from '@/utils/validation';
 
 import Item from './item';
 
@@ -68,12 +69,16 @@ export default function Accordion({
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List className={classes.nested}>
           {Array.isArray(items)
-            ? items.map(({ key, value, icon }) => (
-                <Item key={key} label={key} text={value} Icon={icon} />
-              ))
-            : Object.entries(items).map(([key, { value, icon }]) => (
-                <Item key={key} label={key} text={value} Icon={icon} />
-              ))}
+            ? items.map(({ key, value, icon }) =>
+                !isNullorUndefined(value) ? (
+                  <Item key={key} label={key} text={value} Icon={icon} />
+                ) : undefined
+              )
+            : Object.entries(items).map(([key, { value, icon }]) =>
+                !isNullorUndefined(value) ? (
+                  <Item key={key} label={key} text={value} Icon={icon} />
+                ) : undefined
+              )}
         </List>
       </Collapse>
     </Box>

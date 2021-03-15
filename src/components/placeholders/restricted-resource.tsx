@@ -44,9 +44,10 @@ export default function RestrictedResource(
 
   const resourceInfo = useMemo<KeyValueMap>(() => {
     const info = parseUrlQuery(router.asPath, router.query as PathParams);
-    return Object.entries(info).reduce((acc, [key, value]) => {
-      return Object.assign(acc, { [key]: { value } });
-    }, {} as KeyValueMap);
+    return Object.entries(info).reduce(
+      (acc, [key, value]) => Object.assign(acc, { [key]: { value } }),
+      {} as KeyValueMap
+    );
   }, [router.asPath, router.query]);
 
   return (
