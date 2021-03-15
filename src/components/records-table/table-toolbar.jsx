@@ -54,7 +54,7 @@ export default function TableToolBar({
         </>
       )}
 
-      {(permissions.includes('read') || permissions.include('*')) && (
+      {(permissions.includes('read') || permissions.includes('*')) && (
         <DownloadMenu modelName={modelName}></DownloadMenu>
       )}
 
