@@ -18,15 +18,6 @@ import {
 } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
-  root: {
-    padding: '2rem',
-  },
-  count: {
-    height: '2rem',
-    paddingBottom: '1.2rem',
-    marginLeft: '1rem',
-    marginRight: '55rem',
-  },
   paginationLimit: {
     minWidth: '5rem',
     marginLeft: '1rem',
@@ -47,7 +38,7 @@ export default function RecordsTablePagination(props) {
     }
   };
   return (
-    <Box display="flex" alignItems="center" marginTop="2rem">
+    <Box display="flex" alignItems="center" className={props.className}>
       <FormControl className={classes.paginationLimit}>
         <InputLabel shrink>Rows</InputLabel>
         <Select

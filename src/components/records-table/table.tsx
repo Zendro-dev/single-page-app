@@ -4,12 +4,11 @@ import {
   Table,
   TableBody,
   makeStyles,
-  Paper,
   TableContainer,
   Typography,
-  Box,
   CircularProgress,
   Fade,
+  createStyles,
 } from '@material-ui/core';
 import EnhancedTableHead from './table-head';
 import EnhancedTableRow from './table-row';
@@ -279,16 +278,19 @@ export default function EnhancedTable({
   );
 
   return (
-    <TableContainer component={Paper} className={classes.paper}>
+    <TableContainer className={classes.root}>
       <TableToolbar
         modelName={modelName}
+        permissions={auth.user?.permissions[modelName] ?? []}
         onAdd={handleActionClick('create')}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
       />
+
       <div className={classes.tableWrapper}>
-        <Table stickyHeader size="small">
+        <Table stickyHeader size="medium">
           <EnhancedTableHead
+            permissions={auth.user?.permissions[modelName] ?? []}
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
@@ -299,6 +301,7 @@ export default function EnhancedTable({
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
+                    permissions={auth.user?.permissions[modelName] ?? []}
                     record={record}
                     key={`${record}-${index}`}
                     onRead={handleActionClick('read')}
@@ -311,33 +314,21 @@ export default function EnhancedTable({
           )}
         </Table>
         {isValidatingRecords && (
-          <Box
-            display="flex"
-            width="100%"
-            height="100%"
-            position="absolute"
-            justifyContent="center"
-            alignItems="center"
-          >
+          <div className={classes.tablePlaceholder}>
             <Fade in={isValidatingRecords}>
               <CircularProgress color="primary" disableShrink={true} />
             </Fade>
-          </Box>
+          </div>
         )}
         {!isValidatingRecords && isEmptyArray(rows) && (
-          <Box
-            display="flex"
-            width="100%"
-            height="100%"
-            position="absolute"
-            justifyContent="center"
-            alignItems="center"
-          >
+          <div className={classes.tablePlaceholder}>
             <Typography variant="body1">No data to display</Typography>
-          </Box>
+          </div>
         )}
       </div>
+
       <RecordsTablePagination
+        className={classes.pagination}
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
@@ -354,21 +345,30 @@ export default function EnhancedTable({
   );
 }
 
-const useStyles = makeStyles(() => ({
-  tableWrapper: {
-    height: `calc(100vh - 72px - 48px - 128px - 80px)`,
-    minWidth: 570,
-    overflow: 'auto',
-    position: 'relative',
-  },
-  paper: {
-    overflow: 'auto',
-    height: `calc(100vh - 72px  - 48px)`,
-    minWidth: 570,
-  },
-  tableBackdrop: {
-    WebkitTapHighlightColor: 'transparent',
-    minWidth: '100%',
-    minHeight: '100%',
-  },
-}));
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      height: '100%',
+      overflow: 'auto',
+    },
+    tableWrapper: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      overflow: 'auto',
+    },
+    tablePlaceholder: {
+      display: 'flex',
+      flexGrow: 0.5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    pagination: {
+      padding: theme.spacing(6, 2),
+    },
+  })
+);

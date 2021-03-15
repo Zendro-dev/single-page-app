@@ -12,6 +12,8 @@ import {
 
 import ActionButton from '@/components/buttons/fab';
 
+import { AclPermission } from '@/types/acl';
+
 export type FormAction =
   | 'cancel'
   | 'create'
@@ -23,12 +25,14 @@ export type FormAction =
 export type FormView = 'create' | 'read' | 'update';
 
 interface Props {
+  permissions: AclPermission[];
   formId: string;
   view: FormView;
   onAction: (action: FormAction) => () => void;
 }
 
 export default function FormActions({
+  permissions,
   formId,
   view,
   onAction,
@@ -46,62 +50,69 @@ export default function FormActions({
           tooltip="Exit form"
         />
 
-        {view === 'update' && (
-          <ActionButton
-            color="primary"
-            form={formId}
-            icon={ReadIcon}
-            onClick={onAction('read')}
-            size="medium"
-            tooltip="View record details"
-          />
-        )}
+        {(permissions.includes('read') || permissions.includes('*')) &&
+          view === 'update' && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={ReadIcon}
+              onClick={onAction('read')}
+              size="medium"
+              tooltip="View record details"
+            />
+          )}
 
-        {view === 'read' && (
-          <ActionButton
-            color="primary"
-            form={formId}
-            icon={EditIcon}
-            onClick={onAction('update')}
-            size="medium"
-            tooltip="Edit record"
-          />
-        )}
+        {(permissions.includes('update') || permissions.includes('*')) &&
+          view === 'read' && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={EditIcon}
+              onClick={onAction('update')}
+              size="medium"
+              tooltip="Edit record"
+            />
+          )}
       </div>
 
       <div className={classes.actions}>
-        {(view === 'read' || view === 'update') && (
-          <ActionButton
-            color="secondary"
-            form={formId}
-            icon={DeleteIcon}
-            onClick={onAction('delete')}
-            tooltip="Delete record"
-            size="medium"
-          />
-        )}
+        {(permissions.includes('delete') || permissions.includes('*')) &&
+          (view === 'read' || view === 'update') && (
+            <ActionButton
+              color="secondary"
+              form={formId}
+              icon={DeleteIcon}
+              onClick={onAction('delete')}
+              tooltip="Delete record"
+              size="medium"
+            />
+          )}
 
-        {(view === 'read' || view === 'update') && (
-          <ActionButton
-            color="primary"
-            form={formId}
-            icon={Reload}
-            tooltip="Reload data"
-            size={view === 'read' ? 'large' : 'medium'}
-            onClick={onAction('reload')}
-          />
-        )}
+        {(permissions.includes('read') || permissions.includes('*')) &&
+          (view === 'read' || view === 'update') && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={Reload}
+              tooltip="Reload data"
+              size={view === 'read' ? 'large' : 'medium'}
+              onClick={onAction('reload')}
+            />
+          )}
 
-        {(view === 'create' || view === 'update') && (
-          <ActionButton
-            color="primary"
-            form={formId}
-            icon={SaveIcon}
-            size="large"
-            tooltip="Submit changes"
-            type="submit"
-          />
-        )}
+        {(permissions.includes('create') ||
+          permissions.includes('update') ||
+          permissions.includes('*')) &&
+          (view === 'create' || view === 'update') && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={SaveIcon}
+              size="large"
+              tooltip="Submit changes"
+              type="submit"
+            />
+          )}
       </div>
     </>
   );

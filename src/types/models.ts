@@ -79,9 +79,6 @@ export interface DataModels {
 
 export interface PathParams extends ParsedUrlQuery {
   model: string;
-}
-
-export interface RecordPathParams extends PathParams {
   create?: string;
   read?: string;
   update?: string;

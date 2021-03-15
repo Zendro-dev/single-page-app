@@ -20,3 +20,5 @@ export interface PageInfo {
   hasPreviousPage: null | boolean;
   hasNextPage: null | boolean;
 }
+
+export type CrudRequest = 'create' | 'read' | 'update' | 'delete';
