@@ -24,7 +24,7 @@ export default function LanguageSwitcher(): ReactElement {
     EventTarget & HTMLButtonElement
   >();
 
-  const handleTranslationMenuItemClick = (index: number) => {
+  const handleTranslationMenuItemClick = (index: number): void => {
     setTranslationAnchorEl(undefined);
     i18n.changeLanguage(translations.current[index].lcode);
   };

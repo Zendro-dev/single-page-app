@@ -17,13 +17,13 @@ import AttributesForm, {
 import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
-import ModelsLayout from '@/layouts/models-layout';
+import ModelsLayout from '@/layouts/models';
 
 import {
   AttributeValue,
   ParsedAssociation,
   ParsedAttribute,
-  RecordPathParams,
+  PathParams,
 } from '@/types/models';
 import { RawQuery, ComposedQuery } from '@/types/queries';
 import { AppRoutes } from '@/types/routes';
@@ -46,7 +46,7 @@ interface RecordProps {
   requests: ReturnType<typeof queryRecord>;
 }
 
-export const getStaticPaths: GetStaticPaths<RecordPathParams> = async () => {
+export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   const paths = await getStaticModelPaths();
   return {
     paths,
@@ -54,11 +54,10 @@ export const getStaticPaths: GetStaticPaths<RecordPathParams> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<
-  RecordProps,
-  RecordPathParams
-> = async (context) => {
-  const params = context.params as RecordPathParams;
+export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
+  context
+) => {
+  const params = context.params as PathParams;
 
   const modelName = params.model;
   const routes = await getStaticRoutes();
@@ -88,7 +87,7 @@ interface ParsedQuery {
  * Compute the type of operation requested from the URL query.
  * @param query url query
  */
-function parseUrlQuery(query: RecordPathParams): ParsedQuery {
+function parseUrlQuery(query: PathParams): ParsedQuery {
   const { read, update } = query;
 
   let formView: FormView;
@@ -194,10 +193,10 @@ const Record: NextPage<RecordProps> = ({
   routes,
   requests,
 }) => {
-  const { auth } = useAuth({ redirectTo: '/' });
+  const { auth } = useAuth();
   const router = useRouter();
   const classes = useStyles();
-  const { queryId, formView } = parseUrlQuery(router.query as RecordPathParams);
+  const { queryId, formView } = parseUrlQuery(router.query as PathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
   const [formAttributes, dispatch] = useReducer(
@@ -394,6 +393,7 @@ const Record: NextPage<RecordProps> = ({
             }}
             actions={
               <FormActions
+                permissions={auth.user?.permissions[modelName] ?? []}
                 view={formView}
                 formId={formId}
                 onAction={handleOnFormAction}

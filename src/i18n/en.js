@@ -1,5 +1,5 @@
 export const TRANSLATIONS_EN = {
-    toolBar: {
-      logout: 'Logout',
-    },
-  };
+  toolBar: {
+    logout: 'Logout',
+  },
+};

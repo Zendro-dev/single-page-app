@@ -1,6 +1,8 @@
 import { SerializedError } from '@reduxjs/toolkit';
+import { AclPermission } from './acl';
 
 export const AUTH_TOKEN_NOT_FOUND = 'AUTH_TOKEN_NOT_FOUND';
+export const AUTH_PERMISSIONS_NOT_FOUND = 'AUTH_PERMISSIONS_NOT_FOUND';
 export const AUTH_REQUEST_CANCELLED = 'AUTH_REQUEST_CANCELLED';
 export class AuthError extends Error implements SerializedError {
   public code: string;
@@ -27,10 +29,14 @@ export interface AuthToken {
   roles: string[];
 }
 
+export interface AuthPermissions {
+  [key: string]: AclPermission[];
+}
+
 export interface User extends AuthToken {
-  email: string;
   isValid: boolean;
-  token: string | null;
+  token: string;
+  permissions: AuthPermissions;
 }
 
 export interface UserRequest {
