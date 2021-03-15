@@ -6,25 +6,47 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@material-ui/core';
+import { ReactElement } from 'react';
 
-export default function ConfirmationDialog({ content, ...props }) {
-  let handleOnAccept = () => {
-    props.onAccept();
+export interface Content {
+  title: string | null;
+  text?: string | null;
+  acceptText: string | null;
+  rejectText: string | null;
+}
+
+interface ConfirmationDialogProps {
+  content: Content;
+  onAccept: () => void;
+  onReject: () => void;
+  onClose: () => void;
+  open: boolean;
+}
+
+export default function ConfirmationDialog({
+  content,
+  onAccept,
+  onReject,
+  onClose,
+  open,
+}: ConfirmationDialogProps): ReactElement {
+  const handleOnAccept = (): void => {
+    onAccept();
   };
 
-  let handleOnReject = () => {
-    props.onReject();
+  const handleOnReject = (): void => {
+    onReject();
   };
 
-  const handleOnClose = () => {
-    props.onClose();
+  const handleOnClose = (): void => {
+    onClose();
   };
 
   return (
     <div>
       <Dialog
         id="ConfirmationDialog"
-        open={props.open}
+        open={open}
         fullWidth={true}
         maxWidth="sm"
         onClose={handleOnClose}
