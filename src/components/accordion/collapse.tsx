@@ -53,7 +53,7 @@ export default function Accordion({
           {open ? <CollapseIcon /> : <ExpandIcon />}
         </IconButton>
 
-        <Box className={classes.link} padding={4} width="100%">
+        <Box padding={4} width="100%">
           <Typography component="p" fontSize={15} fontWeight="bold">
             {label.toUpperCase()}
           </Typography>
@@ -100,11 +100,6 @@ const useStyles = makeStyles((theme) =>
         backgroundColor: theme.palette.grey[400],
       },
       marginRight: theme.spacing(2),
-    },
-    link: {
-      '&:hover': {
-        backgroundColor: theme.palette.grey[200],
-      },
     },
     nested: {
       marginLeft: theme.spacing(11),
