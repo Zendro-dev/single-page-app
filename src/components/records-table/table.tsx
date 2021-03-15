@@ -154,7 +154,7 @@ export default function EnhancedTable({
           ...content,
           text: `Item with id ${primaryKey} in model ${modelName}.`,
         });
-        setOpen(false);
+        setOpen(true);
         break;
       }
     }
