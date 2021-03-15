@@ -40,8 +40,12 @@ export default function EnhancedTableHead({
     <TableHead>
       <TableRow>
         <TableCell
-          style={{ minWidth: '9rem', maxWidth: '9rem' }}
-          colSpan={permissions.includes('*') ? 3 : permissions.length}
+          style={{ width: '9rem' }}
+          colSpan={
+            permissions.includes('*')
+              ? 3
+              : permissions.filter((action) => action !== 'create').length
+          }
           align="center"
           padding="checkbox"
         >
