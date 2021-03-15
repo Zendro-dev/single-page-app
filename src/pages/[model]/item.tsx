@@ -15,7 +15,6 @@ import AttributesForm, {
 } from '@/components/attributes-form';
 
 import AssociationList from '@/components/association-list';
-import RestrictedResource from '@/components/placeholders/restricted-resource';
 
 import useAuth from '@/hooks/useAuth';
 import ModelsLayout from '@/layouts/models';

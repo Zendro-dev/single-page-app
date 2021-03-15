@@ -1,9 +1,4 @@
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  useEffect,
-  useState,
-} from 'react';
+import React, { PropsWithChildren, ReactElement, useState } from 'react';
 import clsx from 'clsx';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';

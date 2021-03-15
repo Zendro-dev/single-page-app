@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react';
+import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { AppProps } from 'next/app';
 import { ThemeProvider } from '@material-ui/core/styles';

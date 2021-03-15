@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { authSelector, logUserIn, logUserOut } from '../store/auth-slice';
 import { AuthState } from '@/types/auth';
-import useCountdown from './useCountdown';
 import useRedirect from './useRedirect';
 import { parseUrlQuery } from '@/utils/router';
 import { PathParams } from '@/types/models';
