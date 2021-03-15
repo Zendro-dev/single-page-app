@@ -2,13 +2,9 @@ import { ReactElement } from 'react';
 import BaseField, { BaseFieldProps } from './base-field';
 
 export interface IntFieldProps {
-  onChange?: (value: number | string | null) => void;
+  onChange?: (value: number | null) => void;
   onError?: (value: string | null) => void;
   value: number | null;
-}
-
-function containsLetter(value: string) {
-  return value.match('[^0-9]');
 }
 
 export default function IntField({
@@ -20,21 +16,27 @@ export default function IntField({
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    let error: string | null = 'Please enter a valid integer';
-
     const intValue =
-      event.target.value === '' ? null : parseInt(event.target.value);
+      event.target.value === ''
+        ? null
+        : Math.round(parseFloat(event.target.value));
 
-    if (
-      (intValue === null || !containsLetter(event.target.value)) &&
-      onChange
-    ) {
-      error = null;
+    if ((intValue === null || !isNaN(intValue)) && onChange && onError) {
+      onError(null);
       onChange(intValue);
     }
+  };
 
-    if (onError) {
-      onError(error);
+  const handleOnKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (/^[+\-.e]{1}$/.test(event.key)) {
+      return;
+    }
+    if (/^\D{1}$/.test(event.key)) {
+      if (onError) onError('Please enter a valid integer');
+      event.preventDefault();
+      return;
     }
   };
 
@@ -42,7 +44,8 @@ export default function IntField({
     <BaseField
       {...props}
       onChange={handleOnChange}
-      type="text"
+      onKeyDown={handleOnKeyDown}
+      type="number"
       value={value ?? ''}
     />
   );
