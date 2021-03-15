@@ -1,6 +1,8 @@
+import { DataRecord } from './models';
+
 export interface ReadManyResponse {
   [key: string]: {
-    edges: Array<{ node: unknown }>;
+    edges: Array<{ node: DataRecord }>;
     pageInfo: PageInfo;
   };
 }
@@ -10,7 +12,7 @@ export interface RequestOneResponse<T> {
 }
 
 export interface EdgePageInfo {
-  data: unknown[];
+  data: DataRecord[];
   pageInfo: PageInfo;
 }
 

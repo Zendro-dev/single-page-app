@@ -11,13 +11,13 @@ import {
   createStyles,
 } from '@material-ui/core';
 import EnhancedTableHead from './table-head';
-import EnhancedTableRow from './table-row';
 import TableToolbar from './table-toolbar';
+import EnhancedTableRow from './table-row';
 import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
 import { graphqlRequest } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';
-import { ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
 import {
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
@@ -109,7 +109,7 @@ export default function EnhancedTable({
   const { auth } = useAuth();
 
   const [count, setCount] = useState<number>(0);
-  const [rows, setRows] = useState<unknown[]>([]);
+  const [rows, setRows] = useState<DataRecord[]>([]);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
     startCursor: null,
     endCursor: null,
@@ -298,12 +298,12 @@ export default function EnhancedTable({
             <Fade in={!isValidatingRecords}>
               <TableBody>
                 {rows.map((record, index) => (
-                  // TODO key should use primaryKey
+                  // TODO key should use primaryKey value
                   <EnhancedTableRow
                     attributes={attributes}
                     permissions={auth.user?.permissions[modelName] ?? []}
                     record={record}
-                    key={`${record}-${index}`}
+                    key={`${index}`}
                     onRead={handleActionClick('read')}
                     onUpdate={handleActionClick('update')}
                     onDelete={handleActionClick('delete')}
