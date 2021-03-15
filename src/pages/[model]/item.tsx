@@ -194,12 +194,7 @@ const Record: NextPage<RecordProps> = ({
   routes,
   requests,
 }) => {
-  const { auth, isAllowed, redirectTimer } = useAuth();
-  //   {
-  //   redirectTo: `/${modelName}`,
-  //   redirectIfNotAllowed: true,
-  //   redirectTimeout: 5,
-  // }
+  const { auth } = useAuth();
   const router = useRouter();
   const classes = useStyles();
   const { queryId, formView } = parseUrlQuery(router.query as PathParams);
