@@ -8,9 +8,13 @@ import DownloadMenu from './table-toolbar-download-menu';
 import UploadDialog from './table-toolbar-upload-dialog';
 import { Box } from '@material-ui/core';
 
-export default function TableToolBar(props) {
-  const { onReload, modelName, onSearch, onAdd } = props;
-
+export default function TableToolBar({
+  modelName,
+  permissions,
+  onReload,
+  onSearch,
+  onAdd,
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleImportClicked = () => {
@@ -19,7 +23,7 @@ export default function TableToolBar(props) {
 
   const handleDone = () => {
     setDialogOpen(false);
-    onReload()
+    onReload();
   };
 
   return (
@@ -35,22 +39,28 @@ export default function TableToolBar(props) {
 
       <SearchField onSearchClick={onSearch} />
 
-      <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
-        <Add color="primary" />
-      </ClickableIcon>
+      {(permissions.includes('create') || permissions.includes('*')) && (
+        <>
+          <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
+            <Add color="primary" />
+          </ClickableIcon>
 
-      <ClickableIcon
-        tooltip="Import from csv"
-        handleOnClick={handleImportClicked}
-      >
-        <Import color="primary" />
-      </ClickableIcon>
+          <ClickableIcon
+            tooltip="Import from csv"
+            handleOnClick={handleImportClicked}
+          >
+            <Import color="primary" />
+          </ClickableIcon>
+        </>
+      )}
+
+      {(permissions.includes('read') || permissions.include('*')) && (
+        <DownloadMenu modelName={modelName}></DownloadMenu>
+      )}
 
       {dialogOpen && (
         <UploadDialog modelName={modelName} handleDone={handleDone} />
       )}
-
-      <DownloadMenu modelName={modelName}></DownloadMenu>
     </Box>
   );
 }

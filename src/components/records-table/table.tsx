@@ -241,6 +241,7 @@ export default function EnhancedTable({
     <TableContainer className={classes.root}>
       <TableToolbar
         modelName={modelName}
+        permissions={auth.user?.permissions[modelName] ?? []}
         onAdd={handleActionClick('create')}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
@@ -249,6 +250,7 @@ export default function EnhancedTable({
       <div className={classes.tableWrapper}>
         <Table stickyHeader size="medium">
           <EnhancedTableHead
+            permissions={auth.user?.permissions[modelName] ?? []}
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
@@ -259,6 +261,7 @@ export default function EnhancedTable({
                   // TODO key should use primaryKey
                   <EnhancedTableRow
                     attributes={attributes}
+                    permissions={auth.user?.permissions[modelName] ?? []}
                     record={record}
                     key={`${record}-${index}`}
                     onRead={handleActionClick('read')}
