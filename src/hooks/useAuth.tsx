@@ -5,6 +5,8 @@ import { authSelector, logUserIn, logUserOut } from '../store/auth-slice';
 import { AuthState } from '@/types/auth';
 import useCountdown from './useCountdown';
 import useRedirect from './useRedirect';
+import { parseUrlQuery } from '@/utils/router';
+import { PathParams } from '@/types/models';
 
 interface AuthOptions {
   redirectTo: string;
@@ -40,20 +42,19 @@ export default function useAuth(options?: AuthOptions): UseAuth {
    * current resource
    */
   const isAllowed = useMemo(() => {
-    const model = router.query.model as string;
+    const { model, request } = parseUrlQuery(
+      router.asPath,
+      router.query as PathParams
+    );
 
     if (!model) return true;
 
-    const action = Object.keys(router.query).find((key) =>
-      ['create', 'read', 'update'].includes(key)
-    );
-
     const allowed = auth.user?.permissions[model]?.some(
-      (x) => !action || x === action || x === '*'
+      (x) => !request || x === request || x === '*'
     );
 
     return allowed ?? false;
-  }, [auth.user, router.query]);
+  }, [auth.user, router.asPath, router.query]);
 
   /**
    * Redirect a user depending on the hook options

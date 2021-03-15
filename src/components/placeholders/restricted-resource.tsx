@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { Box, Typography } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 
 import Accordion, { KeyValueMap } from '@/components/accordion';
 
@@ -36,18 +36,18 @@ export default function RestrictedResource(
   const { isAllowed, redirectTimer } = useAuth({
     redirectTo: `/home`,
     redirectIfNotAllowed: true,
-    redirectTimeout: 5,
+    redirectTimeout: 10,
   });
 
   const [allow, setAllow] = useState(false);
   useEffect(() => setAllow(isAllowed), [isAllowed, setAllow]);
 
   const resourceInfo = useMemo<KeyValueMap>(() => {
-    const info = parseUrlQuery(router.query as PathParams);
+    const info = parseUrlQuery(router.asPath, router.query as PathParams);
     return Object.entries(info).reduce((acc, [key, value]) => {
       return Object.assign(acc, { [key]: { value } });
     }, {} as KeyValueMap);
-  }, [router.query]);
+  }, [router.asPath, router.query]);
 
   return (
     <>
