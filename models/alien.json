@@ -1,5 +1,5 @@
 {
-  "model": "no_assoc",
+  "model": "alien",
   "storageType": "sql",
   "attributes": {
     "idField": "String",

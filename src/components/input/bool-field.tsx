@@ -1,4 +1,4 @@
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,

@@ -1,14 +1,22 @@
+import Acl, { AclSet } from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
-import { LOGIN_URL } from '../config/globals';
+
+import aclRules from '@/build/acl-rules';
+import routes, { AppRoutes } from '@/build/routes';
+
+import { LOGIN_URL } from '@/config/globals';
 import {
   AuthError,
   AuthResponse,
   AuthToken,
   User,
   AUTH_TOKEN_NOT_FOUND,
-} from '../types/auth';
-import { localStorage } from '../utils/storage';
+  AuthPermissions,
+  AUTH_PERMISSIONS_NOT_FOUND,
+} from '@/types/auth';
+
+import { localStorage } from '@/utils/storage';
 
 /**
  * Authenticate as user using the GraphQL server API.
@@ -25,18 +33,29 @@ export async function authenticateFromRemote(
     method: 'POST',
   });
 
-  let user;
-  let error;
+  let user: User | undefined;
+  let error: AuthError | undefined;
+
   try {
     const token = response.data.token as string | undefined;
+
     if (!token) {
       throw new AuthError(
         AUTH_TOKEN_NOT_FOUND,
         'Token not returned from the server'
       );
     }
-    user = createUser(token);
+
+    const decodedToken = decode(token) as AuthToken;
+    const permissions = await getUserPermissions(
+      decodedToken.email,
+      decodedToken.roles
+    );
+
+    user = createUser(token, decodedToken, permissions);
+
     localStorage.setItem('token', token);
+    localStorage.setItem('permissions', JSON.stringify(permissions));
   } catch (tokenError) {
     error = tokenError;
   }
@@ -56,15 +75,18 @@ export function authenticateFromToken(): AuthResponse {
 
   const token = localStorage.getItem('token');
   try {
-    if (!token) {
-      throw new AuthError(AUTH_TOKEN_NOT_FOUND, 'Token not found');
-    }
-    user = createUser(token);
+    if (!token) throw new AuthError(AUTH_TOKEN_NOT_FOUND, 'Token not found');
+    const decodedToken = decode(token) as AuthToken;
+
+    const permissions = localStorage.getItem('permissions');
+    if (!permissions)
+      throw new AuthError(AUTH_PERMISSIONS_NOT_FOUND, 'Permissions not found');
+
+    user = createUser(token, decodedToken, JSON.parse(permissions));
   } catch (err) {
-    if (err.code !== AUTH_TOKEN_NOT_FOUND) {
-      localStorage.removeItem('token');
-      error = err;
-    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('permissions');
+    error = err;
   }
 
   return {
@@ -77,8 +99,11 @@ export function authenticateFromToken(): AuthResponse {
  * Creates a User object from a decoded token.
  * @param decodedToken decoded auth JWT from the remote or local storage
  */
-export function createUser(token: string): User {
-  const decodedToken = decode(token) as AuthToken;
+export function createUser(
+  token: string,
+  decodedToken: AuthToken,
+  permissions: AuthPermissions
+): User {
   const { email, exp, id, roles } = decodedToken;
   const expDate = new Date(exp * 1000);
 
@@ -86,6 +111,7 @@ export function createUser(token: string): User {
     email,
     exp,
     id,
+    permissions,
     roles,
     token,
     get isValid() {
@@ -94,4 +120,33 @@ export function createUser(token: string): User {
       return isValid;
     },
   };
+}
+
+export async function getUserPermissions(
+  user: string,
+  roles: string[]
+): Promise<AuthPermissions> {
+  const acl = new Acl(new Acl.memoryBackend());
+
+  // Default or custom acl rules
+  await acl.allow((aclRules as unknown) as AclSet);
+
+  // Current user and its associated roles
+  await acl.addUserRoles(user, roles);
+
+  // Controlled resources for which permissions should be retrieved
+  const appRoutes = (routes as unknown) as AppRoutes;
+  const adminRoutes = appRoutes.admin;
+  const modelRoutes = appRoutes.models;
+  const resources = [...adminRoutes, ...modelRoutes].map(
+    ({ name }) => name
+  ) as string[];
+
+  // Parse and return the current user permissions
+  return new Promise<AuthPermissions>((resolve, reject) => {
+    acl.allowedPermissions(user, resources, (err, permissions) => {
+      if (err) reject(err.message);
+      resolve(permissions);
+    });
+  });
 }

@@ -1,27 +1,24 @@
-import React, { useMemo, useReducer, ReactElement, useState } from 'react';
+import React, { useReducer, ReactElement, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Table,
   TableBody,
   makeStyles,
-  Paper,
   TableContainer,
   Typography,
-  Box,
   CircularProgress,
   Fade,
+  createStyles,
 } from '@material-ui/core';
 import EnhancedTableHead from './table-head';
-import EnhancedTableRow from './table-row';
 import TableToolbar from './table-toolbar';
+import EnhancedTableRow from './table-row';
 import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
-import { readMany, requestOne } from '@/utils/requests';
+import { graphqlRequest } from '@/utils/requests';
 import useAuth from '@/hooks/useAuth';
-import { ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
 import {
-  ComposedQuery,
-  QueryModelTableRecordsCountVariables,
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
   QueryVariablePagination,
@@ -29,7 +26,15 @@ import {
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
-import ConfirmationDialog from '../dialog/confirmation-dialog';
+import ConfirmationDialog, { Content } from '../dialog/confirmation-dialog';
+import useToastNotification from '@/hooks/useToastNotification';
+import {
+  EdgePageInfo,
+  PageInfo,
+  ReadManyResponse,
+  RequestOneResponse,
+} from '@/types/requests';
+import { isEmptyArray, isNullorEmpty } from '@/utils/validation';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -46,6 +51,16 @@ type VariableAction =
   | { type: 'SET_ORDER'; payload: QueryVariableOrder }
   | { type: 'SET_PAGINATION'; payload: QueryVariablePagination }
   | { type: 'RESET' };
+
+function unwrapConnection(
+  data: ReadManyResponse,
+  resolver: string
+): EdgePageInfo {
+  return {
+    data: data[resolver].edges.map((edge) => edge.node),
+    pageInfo: data[resolver].pageInfo,
+  };
+}
 
 const initialVariables: QueryModelTableRecordsVariables = {
   search: undefined,
@@ -88,16 +103,39 @@ export default function EnhancedTable({
   requests,
 }: EnhancedTableProps): ReactElement {
   // ? To accomodate associations will need to receive the operation as well
-  const classes = useStyles();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [primaryKey, setPrimaryKey] = useState<null | string | number>(null);
 
+  /* STATE */
+  const [open, setOpen] = useState(false);
+  // TODO refactor primaryKey handling in table/table-row
+  const [primaryKey, setPrimaryKey] = useState<null | string | number>(null);
+  const [count, setCount] = useState<number>(0);
+  const [rows, setRows] = useState<DataRecord[]>([]);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    startCursor: null,
+    endCursor: null,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  });
+  const [content, setContent] = useState<Content>({
+    title: 'Are you sure you want to delete this item?',
+    // text: `Item with id ${primaryKey} in model ${modelName}.`,
+    text: null,
+    acceptText: 'YES',
+    rejectText: 'NO',
+  });
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
+  /* HOOKS */
+  const classes = useStyles();
+  const router = useRouter();
+  const { showSnackbar } = useToastNotification();
+  const { auth } = useAuth();
+
+  /* HANDLERS */
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', payload: value });
   };
+
   const handleActionClick = (
     action: 'create' | 'read' | 'update' | 'delete'
   ) => async (primaryKey: string | number) => {
@@ -112,7 +150,11 @@ export default function EnhancedTable({
         break;
       case 'delete': {
         setPrimaryKey(primaryKey);
-        setOpen(true);
+        setContent({
+          ...content,
+          text: `Item with id ${primaryKey} in model ${modelName}.`,
+        });
+        setOpen(false);
         break;
       }
     }
@@ -127,52 +169,6 @@ export default function EnhancedTable({
       dispatch({ type: 'SET_SEARCH', payload: search });
     }
   };
-
-  const { auth } = useAuth();
-
-  // Data Fetching: Records
-  const readRequest = useMemo(() => {
-    return {
-      query: requests.read.query,
-      resolver: requests.read.resolver,
-      variables: variables,
-    } as ComposedQuery<QueryModelTableRecordsVariables>;
-  }, [variables, requests.read]);
-
-  const {
-    data: records,
-    mutate: mutateRecords,
-    isValidating: isValidatingRecords,
-  } = useSWR(
-    auth?.user?.token ? [auth.user.token, readRequest] : null,
-    readMany,
-    {
-      // TODO error handling
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
-
-  // Data Fetching: Count
-  const countRequest = useMemo(() => {
-    return {
-      query: requests.count.query,
-      resolver: requests.count.resolver,
-      variables: variables,
-    } as ComposedQuery<QueryModelTableRecordsCountVariables>;
-  }, [variables, requests.count]);
-
-  const { data: count, mutate: mutateCount } = useSWR(
-    auth?.user?.token ? [auth.user.token, countRequest] : null,
-    requestOne,
-    {
-      // TODO error handling
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
 
   const handlePagination = (action: string): void => {
     const limit = variables.pagination.first ?? variables.pagination.last;
@@ -198,7 +194,7 @@ export default function EnhancedTable({
           type: 'SET_PAGINATION',
           payload: {
             first: limit,
-            after: records ? records.pageInfo.endCursor : undefined,
+            after: !isEmptyArray(rows) ? pageInfo.endCursor : undefined,
           },
         });
         break;
@@ -207,7 +203,7 @@ export default function EnhancedTable({
           type: 'SET_PAGINATION',
           payload: {
             last: limit,
-            before: records ? records.pageInfo.startCursor : undefined,
+            before: !isEmptyArray(rows) ? pageInfo.startCursor : undefined,
           },
         });
         break;
@@ -228,59 +224,109 @@ export default function EnhancedTable({
       });
     }
   };
+
   const handleOnAccept = async (): Promise<void> => {
     setOpen(false);
-    const { query, resolver } = requests.delete;
     const idField = attributes[0].name;
-    const request: ComposedQuery = {
-      resolver,
-      query,
-      variables: { [idField]: primaryKey },
-    };
-    // TODO handle Errors
-    // ? possibly mutate local data and run the refetch in background?
     if (auth.user?.token) {
-      await requestOne(auth.user?.token, request);
-      mutateRecords();
-      mutateCount();
+      try {
+        const { errors } = await graphqlRequest(
+          auth.user?.token,
+          requests.delete.query,
+          {
+            [idField]: primaryKey,
+          }
+        );
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+
+        mutateRecords();
+        mutateCount();
+      } catch (error) {
+        console.log(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      }
     }
   };
 
-  const handleOnReject = (): void => {
-    setOpen(false);
-  };
-  const handleOnClose = (): void => {
-    setOpen(false);
-  };
-  const content = {
-    title: 'Are you sure you want to delete this item?',
-    text: `Item with id ${primaryKey} in model ${modelName}.`,
-    acceptText: 'YES',
-    rejectText: 'NO',
-  };
+  /* DATA FETCHING */
+  // Records
+  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
+    auth?.user?.token
+      ? [auth.user.token, requests.read.query, variables]
+      : null,
+    graphqlRequest,
+    {
+      onSuccess: ({ data, errors }) => {
+        if (!isNullorEmpty(data)) {
+          const connection = unwrapConnection(
+            data as ReadManyResponse,
+            requests.read.resolver
+          );
+          setRows(connection.data);
+          setPageInfo(connection.pageInfo);
+        }
+
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+      },
+      onError: (error) => {
+        console.error(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      },
+      shouldRetryOnError: false,
+    }
+  );
+
+  // Count
+  const { mutate: mutateCount } = useSWR(
+    auth?.user?.token
+      ? [auth.user.token, requests.count.query, variables]
+      : null,
+    graphqlRequest,
+    {
+      onSuccess: ({ data, errors }) => {
+        const countData = data as RequestOneResponse<number>;
+        if (!isNullorEmpty(data)) setCount(countData[requests.count.resolver]);
+
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+      },
+      onError: (error) => {
+        console.error(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      },
+      shouldRetryOnError: false,
+    }
+  );
+
   return (
-    <TableContainer component={Paper} className={classes.paper}>
+    <TableContainer className={classes.root}>
       <TableToolbar
         modelName={modelName}
+        permissions={auth.user?.permissions[modelName] ?? []}
         onAdd={handleActionClick('create')}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
       />
+
       <div className={classes.tableWrapper}>
-        <Table stickyHeader size="small">
+        <Table stickyHeader size="medium">
           <EnhancedTableHead
+            permissions={auth.user?.permissions[modelName] ?? []}
             attributes={attributes}
             handleSetOrder={handleSetOrder}
           />
-          {records && !isValidatingRecords && (
+          {!isEmptyArray(rows) && !isValidatingRecords && (
             <Fade in={!isValidatingRecords}>
               <TableBody>
-                {records.data.map((record, index) => (
-                  // TODO key should use primaryKey
+                {rows.map((record, index) => (
+                  // TODO key should use primaryKey value
                   <EnhancedTableRow
                     attributes={attributes}
+                    permissions={auth.user?.permissions[modelName] ?? []}
                     record={record}
-                    key={`${record}-${index}`}
+                    key={`${index}`}
                     onRead={handleActionClick('read')}
                     onUpdate={handleActionClick('update')}
                     onDelete={handleActionClick('delete')}
@@ -291,35 +337,21 @@ export default function EnhancedTable({
           )}
         </Table>
         {isValidatingRecords && (
-          <Box
-            display="flex"
-            width="100%"
-            height="100%"
-            position="absolute"
-            justifyContent="center"
-            alignItems="center"
-          >
+          <div className={classes.tablePlaceholder}>
             <Fade in={isValidatingRecords}>
               <CircularProgress color="primary" disableShrink={true} />
             </Fade>
-          </Box>
+          </div>
         )}
-        {!isValidatingRecords &&
-          Array.isArray(records) &&
-          records.length === 0 && (
-            <Box
-              display="flex"
-              width="100%"
-              height="100%"
-              position="absolute"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Typography variant="body1">No data to display</Typography>
-            </Box>
-          )}
+        {!isValidatingRecords && isEmptyArray(rows) && (
+          <div className={classes.tablePlaceholder}>
+            <Typography variant="body1">No data to display</Typography>
+          </div>
+        )}
       </div>
+
       <RecordsTablePagination
+        className={classes.pagination}
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
@@ -327,37 +359,46 @@ export default function EnhancedTable({
           variables.pagination.first ?? variables.pagination.last
         }
         onPaginationLimitChange={handlePaginationLimitChange}
-        hasFirstPage={records?.pageInfo.hasPreviousPage}
-        hasLastPage={records?.pageInfo.hasNextPage}
-        hasPreviousPage={records?.pageInfo.hasPreviousPage}
-        hasNextPage={records?.pageInfo.hasNextPage}
+        hasFirstPage={pageInfo.hasPreviousPage}
+        hasLastPage={pageInfo.hasNextPage}
+        hasPreviousPage={pageInfo.hasPreviousPage}
+        hasNextPage={pageInfo.hasNextPage}
       />
       <ConfirmationDialog
         open={open}
         content={content}
-        onClose={handleOnClose}
+        onClose={() => setOpen(false)}
         onAccept={handleOnAccept}
-        onReject={handleOnReject}
+        onReject={() => setOpen(false)}
       />
     </TableContainer>
   );
 }
 
-const useStyles = makeStyles(() => ({
-  tableWrapper: {
-    height: `calc(100vh - 72px - 48px - 128px - 80px)`,
-    minWidth: 570,
-    overflow: 'auto',
-    position: 'relative',
-  },
-  paper: {
-    overflow: 'auto',
-    height: `calc(100vh - 72px  - 48px)`,
-    minWidth: 570,
-  },
-  tableBackdrop: {
-    WebkitTapHighlightColor: 'transparent',
-    minWidth: '100%',
-    minHeight: '100%',
-  },
-}));
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      height: '100%',
+      overflow: 'auto',
+    },
+    tableWrapper: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      overflow: 'auto',
+    },
+    tablePlaceholder: {
+      display: 'flex',
+      flexGrow: 0.5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    pagination: {
+      padding: theme.spacing(6, 2),
+    },
+  })
+);
