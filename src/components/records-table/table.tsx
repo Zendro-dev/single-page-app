@@ -26,6 +26,7 @@ import {
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
+import ConfirmationDialog, { Content } from '../dialog/confirmation-dialog';
 import useToastNotification from '@/hooks/useToastNotification';
 import {
   EdgePageInfo,
@@ -101,13 +102,12 @@ export default function EnhancedTable({
   attributes,
   requests,
 }: EnhancedTableProps): ReactElement {
-  // ? To accomodate associations will need to recive the operation as well
-  /* HOOKS */
-  const classes = useStyles();
-  const router = useRouter();
-  const { showSnackbar } = useToastNotification();
-  const { auth } = useAuth();
+  // ? To accomodate associations will need to receive the operation as well
 
+  /* STATE */
+  const [open, setOpen] = useState(false);
+  // TODO refactor primaryKey handling in table/table-row
+  const [primaryKey, setPrimaryKey] = useState<null | string | number>(null);
   const [count, setCount] = useState<number>(0);
   const [rows, setRows] = useState<DataRecord[]>([]);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
@@ -116,9 +116,22 @@ export default function EnhancedTable({
     hasPreviousPage: false,
     hasNextPage: false,
   });
+  const [content, setContent] = useState<Content>({
+    title: 'Are you sure you want to delete this item?',
+    // text: `Item with id ${primaryKey} in model ${modelName}.`,
+    text: null,
+    acceptText: 'YES',
+    rejectText: 'NO',
+  });
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
-  /* Handlers */
+  /* HOOKS */
+  const classes = useStyles();
+  const router = useRouter();
+  const { showSnackbar } = useToastNotification();
+  const { auth } = useAuth();
+
+  /* HANDLERS */
   const handleSetOrder = (value: QueryVariableOrder): void => {
     dispatch({ type: 'SET_ORDER', payload: value });
   };
@@ -136,26 +149,12 @@ export default function EnhancedTable({
         router.push(`/${modelName}/item`);
         break;
       case 'delete': {
-        const idField = attributes[0].name;
-        if (auth.user?.token) {
-          try {
-            const { errors } = await graphqlRequest(
-              auth.user?.token,
-              requests.delete.query,
-              {
-                [idField]: primaryKey,
-              }
-            );
-            if (!isNullorEmpty(errors))
-              showSnackbar('Error in Graphql response', 'error', errors);
-
-            mutateRecords();
-            mutateCount();
-          } catch (error) {
-            console.log(error);
-            showSnackbar('Error in request to server', 'error', error.response);
-          }
-        }
+        setPrimaryKey(primaryKey);
+        setContent({
+          ...content,
+          text: `Item with id ${primaryKey} in model ${modelName}.`,
+        });
+        setOpen(true);
         break;
       }
     }
@@ -223,6 +222,30 @@ export default function EnhancedTable({
           includeCursor: false,
         },
       });
+    }
+  };
+
+  const handleOnAccept = async (): Promise<void> => {
+    setOpen(false);
+    const idField = attributes[0].name;
+    if (auth.user?.token) {
+      try {
+        const { errors } = await graphqlRequest(
+          auth.user?.token,
+          requests.delete.query,
+          {
+            [idField]: primaryKey,
+          }
+        );
+        if (!isNullorEmpty(errors))
+          showSnackbar('Error in Graphql response', 'error', errors);
+
+        mutateRecords();
+        mutateCount();
+      } catch (error) {
+        console.log(error);
+        showSnackbar('Error in request to server', 'error', error.response);
+      }
     }
   };
 
@@ -340,6 +363,13 @@ export default function EnhancedTable({
         hasLastPage={pageInfo.hasNextPage}
         hasPreviousPage={pageInfo.hasPreviousPage}
         hasNextPage={pageInfo.hasNextPage}
+      />
+      <ConfirmationDialog
+        open={open}
+        content={content}
+        onClose={() => setOpen(false)}
+        onAccept={handleOnAccept}
+        onReject={() => setOpen(false)}
       />
     </TableContainer>
   );
