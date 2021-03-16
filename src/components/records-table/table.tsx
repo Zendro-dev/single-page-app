@@ -26,7 +26,6 @@ import {
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
-import ConfirmationDialog, { Content } from '../dialog/confirmation-dialog';
 import useToastNotification from '@/hooks/useToastNotification';
 import {
   EdgePageInfo,
@@ -35,6 +34,8 @@ import {
   RequestOneResponse,
 } from '@/types/requests';
 import { isEmptyArray, isNullorEmpty } from '@/utils/validation';
+
+import { useDialog } from '@/hooks/useDialog';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -105,9 +106,6 @@ export default function EnhancedTable({
   // ? To accomodate associations will need to receive the operation as well
 
   /* STATE */
-  const [open, setOpen] = useState(false);
-  // TODO refactor primaryKey handling in table/table-row
-  const [primaryKey, setPrimaryKey] = useState<null | string | number>(null);
   const [count, setCount] = useState<number>(0);
   const [rows, setRows] = useState<DataRecord[]>([]);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
@@ -116,13 +114,7 @@ export default function EnhancedTable({
     hasPreviousPage: false,
     hasNextPage: false,
   });
-  const [content, setContent] = useState<Content>({
-    title: 'Are you sure you want to delete this item?',
-    // text: `Item with id ${primaryKey} in model ${modelName}.`,
-    text: null,
-    acceptText: 'YES',
-    rejectText: 'NO',
-  });
+
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
   /* HOOKS */
@@ -130,6 +122,7 @@ export default function EnhancedTable({
   const router = useRouter();
   const { showSnackbar } = useToastNotification();
   const { auth } = useAuth();
+  const dialog = useDialog();
 
   /* HANDLERS */
   const handleSetOrder = (value: QueryVariableOrder): void => {
@@ -149,12 +142,39 @@ export default function EnhancedTable({
         router.push(`/${modelName}/item`);
         break;
       case 'delete': {
-        setPrimaryKey(primaryKey);
-        setContent({
-          ...content,
-          text: `Item with id ${primaryKey} in model ${modelName}.`,
+        dialog.openConfirm({
+          onOk: async () => {
+            const idField = attributes[0].name;
+            if (auth.user?.token) {
+              try {
+                const { errors } = await graphqlRequest(
+                  auth.user?.token,
+                  requests.delete.query,
+                  {
+                    [idField]: primaryKey,
+                  }
+                );
+                if (!isNullorEmpty(errors))
+                  showSnackbar('Error in Graphql response', 'error', errors);
+
+                mutateRecords();
+                mutateCount();
+              } catch (error) {
+                console.error(error);
+                showSnackbar(
+                  'Error in request to server',
+                  'error',
+                  error.response
+                );
+              }
+            }
+          },
+          title: `Are you sure you want to delete ${primaryKey}?`,
+          okText: 'Yes, delete',
+          okColor: 'secondary',
+          cancelColor: 'primary',
+          cancelText: 'cancel',
         });
-        setOpen(true);
         break;
       }
     }
@@ -222,30 +242,6 @@ export default function EnhancedTable({
           includeCursor: false,
         },
       });
-    }
-  };
-
-  const handleOnAccept = async (): Promise<void> => {
-    setOpen(false);
-    const idField = attributes[0].name;
-    if (auth.user?.token) {
-      try {
-        const { errors } = await graphqlRequest(
-          auth.user?.token,
-          requests.delete.query,
-          {
-            [idField]: primaryKey,
-          }
-        );
-        if (!isNullorEmpty(errors))
-          showSnackbar('Error in Graphql response', 'error', errors);
-
-        mutateRecords();
-        mutateCount();
-      } catch (error) {
-        console.log(error);
-        showSnackbar('Error in request to server', 'error', error.response);
-      }
     }
   };
 
@@ -363,13 +359,6 @@ export default function EnhancedTable({
         hasLastPage={pageInfo.hasNextPage}
         hasPreviousPage={pageInfo.hasPreviousPage}
         hasNextPage={pageInfo.hasNextPage}
-      />
-      <ConfirmationDialog
-        open={open}
-        content={content}
-        onClose={() => setOpen(false)}
-        onAccept={handleOnAccept}
-        onReject={() => setOpen(false)}
       />
     </TableContainer>
   );

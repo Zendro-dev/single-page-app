@@ -6,6 +6,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { theme } from '../styles/theme';
 import store from '../store';
+import { DialogProvider } from '@/components/dialog/dialog-provider';
 
 import '../styles/globals.css';
 
@@ -20,7 +21,9 @@ function App({ Component, pageProps }: AppProps): ReactElement {
             horizontal: 'center',
           }}
         >
-          <Component {...pageProps} />
+          <DialogProvider>
+            <Component {...pageProps} />
+          </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>
     </Provider>
