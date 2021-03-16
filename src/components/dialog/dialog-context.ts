@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { createContext } from 'react';
 import { DialogOptions, AlertOptions, MessageOptions } from '@/types/dialog';
 
 export interface DialogContext {
@@ -15,4 +15,4 @@ const DEFAULT_CONTEXT: DialogContext = {
   close: () => null,
 };
 
-export const DialogContext = React.createContext(DEFAULT_CONTEXT);
+export const DialogContext = createContext(DEFAULT_CONTEXT);

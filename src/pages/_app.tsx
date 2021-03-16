@@ -8,7 +8,7 @@ import { theme } from '../styles/theme';
 import store from '../store';
 import { DialogProvider } from '@/components/dialog/dialog-provider';
 
-import '../styles/globals.css';
+import '@/styles/globals.css';
 
 function App({ Component, pageProps }: AppProps): ReactElement {
   return (

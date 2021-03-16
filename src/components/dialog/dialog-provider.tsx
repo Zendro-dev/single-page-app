@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState } from 'react';
 import {
   Box,
@@ -18,6 +17,7 @@ import {
 } from '@/types/dialog';
 import { DialogContext } from '@/components/dialog/dialog-context';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 
 const DEFAULT_OK_COLOR = 'primary';
 const DEFAULT_CANCEL_COLOR = 'secondary';
@@ -54,10 +54,6 @@ export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({
     fullWidth,
     maxWidth,
   } = options;
-
-  const html = {
-    __html: message || '',
-  };
 
   const classes = useStyles(options);
   const showActions = !(hideOk && hideCancel);
@@ -112,76 +108,80 @@ export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({
   }
 
   return (
-    <Box>
-      <DialogContext.Provider value={provider}>
-        {children}
+    <DialogContext.Provider value={provider}>
+      {children}
 
-        <Dialog
-          fullWidth={fullWidth || DEFAULT_FULL_WIDTH}
-          fullScreen={fullScreen || DEFAULT_FULL_SCREEN}
-          maxWidth={maxWidth || DEFAULT_MAX_WIDTH}
-          open={open}
-          aria-labelledby="dialog-title"
-          aria-describedby="dialog-description"
-        >
-          {title && (
-            <DialogTitle id="dialog-title" className={classes.title}>
-              {title}
-            </DialogTitle>
-          )}
-          {message && (
-            <DialogContent className={`${classes.content} ${className}`}>
-              <DialogContentText id="confirm-dialog-description">
-                <span dangerouslySetInnerHTML={html} />
-              </DialogContentText>
-            </DialogContent>
-          )}
-          {element && (
-            <Box className={`${classes.content} ${className}`}>{element}</Box>
-          )}
-          <Divider />
-          {showActions && (
-            <DialogActions>
-              {!hideCancel && (
-                <Button
-                  color={cancelColor || DEFAULT_CANCEL_COLOR}
-                  onClick={closeHandler}
-                >
-                  {cancelText || DEFAULT_CANCEL_TEXT}
-                </Button>
-              )}
-              {!hideOk && (
-                <Button
-                  color={okColor || DEFAULT_OK_COLOR}
-                  onClick={okHandler}
-                  variant="contained"
-                >
-                  {okText || DEFAULT_OK_TEXT}
-                </Button>
-              )}
-            </DialogActions>
-          )}
-        </Dialog>
-      </DialogContext.Provider>
-    </Box>
+      <Dialog
+        fullWidth={fullWidth || DEFAULT_FULL_WIDTH}
+        fullScreen={fullScreen || DEFAULT_FULL_SCREEN}
+        maxWidth={maxWidth || DEFAULT_MAX_WIDTH}
+        open={open}
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+      >
+        {title && (
+          <DialogTitle
+            id="dialog-title"
+            className={
+              okColor === 'primary'
+                ? classes.titleBackgroundPrimary
+                : okColor === 'secondary'
+                ? classes.titleBackgroundSecondary
+                : classes.titleBackgroundPrimary
+            }
+          >
+            {title}
+          </DialogTitle>
+        )}
+        {message && (
+          <DialogContent className={clsx(classes.content, className)}>
+            <DialogContentText id="confirm-dialog-description">
+              {message}
+            </DialogContentText>
+          </DialogContent>
+        )}
+        {element && (
+          <Box className={clsx(classes.content, className)}>{element}</Box>
+        )}
+        <Divider />
+        {showActions && (
+          <DialogActions>
+            {!hideCancel && (
+              <Button
+                color={cancelColor || DEFAULT_CANCEL_COLOR}
+                onClick={closeHandler}
+              >
+                {cancelText || DEFAULT_CANCEL_TEXT}
+              </Button>
+            )}
+            {!hideOk && (
+              <Button
+                color={okColor || DEFAULT_OK_COLOR}
+                onClick={okHandler}
+                variant="contained"
+              >
+                {okText || DEFAULT_OK_TEXT}
+              </Button>
+            )}
+          </DialogActions>
+        )}
+      </Dialog>
+    </DialogContext.Provider>
   );
 };
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
+const useStyles = makeStyles((theme) => {
+  return createStyles({
     content: {
       minHeight: theme.spacing(30),
     },
-    title: ({ okColor }: DialogOptions) => {
-      const backgroundColor = !okColor
-        ? theme.palette.primary.main
-        : okColor === 'inherit'
-        ? 'inherit'
-        : theme.palette[okColor].main;
-      return {
-        backgroundColor,
-        color: theme.palette.getContrastText(backgroundColor),
-      };
+    titleBackgroundPrimary: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.getContrastText(theme.palette.primary.main),
     },
-  })
-);
+    titleBackgroundSecondary: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.getContrastText(theme.palette.secondary.main),
+    },
+  });
+});
