@@ -17,6 +17,7 @@ import AttributesForm, {
 import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
+import { useDialog } from '@/hooks/useDialog';
 import ModelsLayout from '@/layouts/models';
 
 import {
@@ -38,9 +39,6 @@ import {
   getStaticModel,
 } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
-import ConfirmationDialog, {
-  Content,
-} from '@/components/dialog/confirmation-dialog';
 import { isNullorEmpty } from '@/utils/validation';
 
 interface RecordProps {
@@ -201,14 +199,7 @@ const Record: NextPage<RecordProps> = ({
   const { auth } = useAuth();
   const router = useRouter();
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
-  const [content, setContent] = useState<Content>({
-    title: null,
-    text: null,
-    acceptText: null,
-    rejectText: null,
-  });
-  const [condition, setCondition] = useState<null | string>(null);
+  const dialog = useDialog();
   const { queryId, formView } = parseUrlQuery(router.query as PathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
@@ -260,41 +251,39 @@ const Record: NextPage<RecordProps> = ({
     dispatch({ type: 'update', payload: { key, value } });
   };
 
-  const handleOnFormAction = (action: FormAction) => async () => {
+  /**
+   * Execute a form action effect.
+   * @param action form action to execute
+   */
+  const handleOnFormAction = (action: FormAction) => () => {
     switch (action) {
       /**
        * Navigate to the model table.
        */
       case 'cancel': {
-        const modifiedContent = {
-          title: 'Some fields are modified.',
-          text: 'Do you want to leave anyway?',
-          acceptText: 'YES',
-          rejectText: 'NO',
-        };
-        if (data) {
-          const diffData = formAttributes.filter(
+        let diffData = 0;
+
+        if (formView === 'create') {
+          diffData = formAttributes.filter(({ value }) => value !== null)
+            .length;
+        } else if (formView === 'update' && data) {
+          diffData = formAttributes.filter(
             ({ name, value }) => value !== data[name]
-          );
-          if (diffData.length > 0) {
-            setContent(modifiedContent);
-            setCondition('cancel');
-            setOpen(true);
-          } else {
-            router.push(`/${modelName}`);
-          }
-        } else {
-          const nonNullValues = formAttributes.reduce((acc, { value }) => {
-            return isNullorEmpty(value) ? acc : (acc += 1);
-          }, 0);
-          if (nonNullValues > 0) {
-            setContent(modifiedContent);
-            setCondition('cancel');
-            setOpen(true);
-          } else {
-            router.push(`/${modelName}`);
-          }
+          ).length;
         }
+
+        if (diffData > 0) {
+          dialog.openConfirm({
+            title: 'Some fields are modified.',
+            message: 'Do you want to leave anyway?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: () => router.push(`/${modelName}`),
+          });
+        } else {
+          router.push(`/${modelName}`);
+        }
+
         break;
       }
 
@@ -317,14 +306,40 @@ const Record: NextPage<RecordProps> = ({
        * Send a delete request and, if sucessful, navigate to the model table.
        */
       case 'delete': {
-        setContent({
+        dialog.openConfirm({
           title: 'Are you sure you want to delete this item?',
-          text: `Item with id ${queryId} in model ${modelName}.`,
-          acceptText: 'YES',
-          rejectText: 'NO',
+          message: `Item with id ${queryId} in model ${modelName}.`,
+          okText: 'YES',
+          cancelText: 'NO',
+          onOk: async () => {
+            const { query, resolver } = requests.delete;
+            const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+            const idValue = formAttributes.find(
+              ({ name }) => idKey && name === idKey
+            )?.value;
+
+            try {
+              if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
+                throw new Error(
+                  'The record id was not set for a delete record action'
+                );
+
+              if (!auth.user?.token) return;
+
+              const variables = { [idKey]: idValue };
+              const request: ComposedQuery = {
+                resolver,
+                query,
+                variables,
+              };
+
+              await requestOne(auth.user.token, request);
+              router.push(`/${modelName}`);
+            } catch (errors) {
+              console.error(errors);
+            }
+          },
         });
-        setCondition('delete');
-        setOpen(true);
         break;
       }
 
@@ -354,72 +369,8 @@ const Record: NextPage<RecordProps> = ({
     const nonNullValues = formAttributes.reduce((acc, { value }) => {
       return isNullorEmpty(value) ? acc : (acc += 1);
     }, 0);
-    if (nonNullValues !== formAttributes.length) {
-      setContent({
-        title: `Some fields are empty.  (id: ${queryId})`,
-        text: 'Do you want to continue anyway?',
-        acceptText: 'YES',
-        rejectText: 'NO',
-      });
-    } else {
-      setContent({
-        title: `Save the item.  (id: ${queryId})`,
-        text: null,
-        acceptText: 'YES',
-        rejectText: 'NO',
-      });
-    }
-    setCondition('submit');
-    setOpen(true);
-  };
 
-  /**
-   * Set the tab index to a new value.
-   * @param event change tab event
-   * @param value new tab value
-   */
-  const handleOnTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: typeof tabIndex
-  ): void => {
-    setTabIndex(value);
-  };
-
-  const handleOnClose = (): void => {
-    setOpen(false);
-  };
-
-  const handleOnAccept = async (): Promise<void> => {
-    setOpen(false);
-    if (condition === 'cancel') {
-      router.push(`/${modelName}`);
-    } else if (condition === 'delete') {
-      const { query, resolver } = requests.delete;
-      const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-      const idValue = formAttributes.find(({ name }) => idKey && name === idKey)
-        ?.value;
-
-      try {
-        if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
-          throw new Error(
-            'The record id was not set for a delete record action'
-          );
-
-        if (!auth.user?.token) return;
-
-        const variables = { [idKey]: idValue };
-        const request: ComposedQuery = {
-          resolver,
-          query,
-          variables,
-        };
-
-        await requestOne(auth.user.token, request);
-        router.push(`/${modelName}`);
-      } catch (errors) {
-        console.error(errors);
-      }
-    } else if (condition === 'submit') {
+    const submit = async (): Promise<void> => {
       const { query, resolver } =
         formView === 'create' ? requests.create : requests.update;
 
@@ -441,12 +392,34 @@ const Record: NextPage<RecordProps> = ({
       } catch (errors) {
         console.error(errors);
       }
+    };
+
+    if (nonNullValues < formAttributes.length) {
+      dialog.openConfirm({
+        title: `Some fields are empty.${queryId ? ` id: ${queryId}` : ''}`,
+        message: 'Do you want to continue anyway?',
+        okText: 'YES',
+        cancelText: 'NO',
+        onOk: submit,
+      });
+      return;
     }
+
+    submit();
   };
 
-  const handleOnReject = (): void => {
-    setOpen(false);
+  /**
+   * Set the tab index to a new value.
+   * @param event change tab event
+   * @param value new tab value
+   */
+  const handleOnTabChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    value: typeof tabIndex
+  ): void => {
+    setTabIndex(value);
   };
+
   return (
     <ModelsLayout brand="Zendro" routes={routes}>
       <TabContext value={tabIndex}>
@@ -483,13 +456,6 @@ const Record: NextPage<RecordProps> = ({
                 onAction={handleOnFormAction}
               />
             }
-          />
-          <ConfirmationDialog
-            open={open}
-            content={content}
-            onClose={handleOnClose}
-            onAccept={handleOnAccept}
-            onReject={handleOnReject}
           />
         </TabPanel>
         <TabPanel value="associations">
