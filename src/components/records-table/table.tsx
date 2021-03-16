@@ -169,11 +169,10 @@ export default function EnhancedTable({
               }
             }
           },
-          title: `Are you sure you want to delete ${primaryKey}?`,
-          okText: 'Yes, delete',
-          okColor: 'secondary',
-          cancelColor: 'primary',
-          cancelText: 'cancel',
+          title: 'Are you sure you want to delete this item?',
+          message: `Item with id ${primaryKey} in model ${modelName}.`,
+          okText: 'YES',
+          cancelText: 'NO',
         });
         break;
       }
