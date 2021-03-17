@@ -25,18 +25,17 @@ export default function FloatField({
     }
   };
 
-  const handleOnKeyDown: React.KeyboardEventHandler <HTMLInputElement> = (
+  const handleOnKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
     event
   ) => {
-    if(/^[+\-.e]{1}$/.test(event.key)) {
+    if (/^[+\-.e]{1}$/.test(event.key)) {
       return;
     }
-    if(/^\D{1}$/.test(event.key)) {
-      if(onError)onError('Please enter a valid integer');
+    if (/^\D{1}$/.test(event.key)) {
+      if (onError) onError('Please enter a valid number');
       event.preventDefault();
       return;
     }
-
   };
 
   return (

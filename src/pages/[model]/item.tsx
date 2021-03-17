@@ -168,7 +168,7 @@ function formAttributesReducer(
     case 'update': {
       const { key, value, error } = action.payload;
       const attr = state.find(({ name }) => key === name);
-      if (attr && value!== undefined) attr.value = value;
+      if (attr && value !== undefined) attr.value = value;
       if (attr && error) {
         attr.error = attr.error ? { ...attr.error, ...error } : error;
       }
@@ -259,9 +259,12 @@ const Record: NextPage<RecordProps> = ({
     dispatch({ type: 'update', payload: { key, value } });
   };
 
-  const handleOnError = (key: string) => (value: string | null ) => {
-    dispatch({ type: 'update', payload: { key, error: {clientValidation: value} } });
-  }
+  const handleOnError = (key: string) => (value: string | null) => {
+    dispatch({
+      type: 'update',
+      payload: { key, error: { clientValidation: value } },
+    });
+  };
 
   /**
    * Execute a form action effect.
@@ -382,6 +385,10 @@ const Record: NextPage<RecordProps> = ({
       return isNullorEmpty(value) ? acc : (acc += 1);
     }, 0);
 
+    const clientValidationErrors = formAttributes.reduce((acc, { error }) => {
+      return error && error.clientValidation ? (acc += 1) : acc;
+    }, 0);
+
     const submit = async (): Promise<void> => {
       const { query, resolver } =
         formView === 'create' ? requests.create : requests.update;
@@ -409,10 +416,20 @@ const Record: NextPage<RecordProps> = ({
             payload: { key, error: { ajvValidation: error } },
           });
         }
-  
+
         console.error(errors);
       }
     };
+
+    if (clientValidationErrors > 0) {
+      dialog.openConfirm({
+        title: 'Validation errors',
+        message: 'Please fix client side validation errors',
+        hideOk: true,
+        cancelText: 'OK',
+      });
+      return;
+    }
 
     if (nonNullValues < formAttributes.length) {
       dialog.openConfirm({

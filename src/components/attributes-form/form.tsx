@@ -28,7 +28,7 @@ export interface AttributesFormProps {
   };
   formId?: string;
   onChange: (key: string) => (value: AttributeValue) => void;
-  onError: (key: string) => (value: string | null ) => void;
+  onError: (key: string) => (value: string | null) => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
@@ -107,9 +107,15 @@ export default function AttributesForm({
             <AttributeField
               key={name}
               type={type}
-              error={error && (error.ajvValidation || error.clientValidation) ? true : false}
+              error={
+                error && (error.ajvValidation || error.clientValidation)
+                  ? true
+                  : false
+              }
               helperText={
-                error && (error.ajvValidation || error.clientValidation) ? <AttributeErrors errors={error} /> : undefined
+                error && (error.ajvValidation || error.clientValidation) ? (
+                  <AttributeErrors errors={error} />
+                ) : undefined
               }
               InputProps={{
                 readOnly,

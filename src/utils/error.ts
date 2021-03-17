@@ -25,5 +25,10 @@ export function parseValidationErrors(errors: any): Record<string, string[]> {
     }
   });
 
+  //unique error
+  for (const [key, errors] of Object.entries(result)) {
+    result[key] = Array.from(new Set(errors));
+  }
+
   return result;
 }

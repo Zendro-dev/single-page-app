@@ -1,4 +1,4 @@
-import { Alert, AlertTitle } from '@material-ui/core';
+import { Alert, AlertTitle, ListItemText } from '@material-ui/core';
 import { ReactElement } from 'react';
 
 export interface ErrorsAttribute {
@@ -12,21 +12,21 @@ interface ErrorProps {
 
 export default function AttributeErrors({ errors }: ErrorProps): ReactElement {
   return (
-    <>
+    <div>
       {errors.ajvValidation && (
         <Alert severity="error">
           <AlertTitle> Server side validation </AlertTitle>
           {errors.ajvValidation.map((error) => {
-            return <div> {error}</div>;
+            return <ListItemText key={error} primary={error} />;
           })}
         </Alert>
       )}
       {errors.clientValidation && (
         <Alert severity="warning">
           <AlertTitle> Client side validation </AlertTitle>
-          <div>{errors.clientValidation}</div>
+          <ListItemText primary={errors.clientValidation} />
         </Alert>
       )}
-    </>
+    </div>
   );
 }
