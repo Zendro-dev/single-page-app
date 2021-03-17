@@ -1,79 +1,26 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
-import { ComposedQuery, QueryVariables } from '@/types/queries';
+import { QueryVariables } from '@/types/queries';
 import { RequestOneResponse } from '@/types/requests';
 
-interface ServerResponse<T = unknown> {
-  data?: T | null;
-  errors?: Error[];
-  status: number;
-  statusText: string;
-}
-
-interface GraphqlResponse<T = unknown> {
+export interface GraphqlResponse<T = unknown> {
   data?: T | null;
   errors?: unknown[];
 }
 
 /**
  * Generic query interface to the backend graphql-server using axios
+ * @param token authentication token
  * @param query string to send to the graphql endpoint
  * @param variables variables used in the query string
- * @param token authentication token
+ * @param additionalData additional file data
  */
-export async function graphql<R = unknown>(
+export async function graphqlRequest<T = unknown>(
   token: string,
   query: string,
   variables?: QueryVariables | null,
   additionalData?: { [key: string]: unknown }
-): Promise<ServerResponse<R>> {
-  let response: AxiosResponse;
-  const formData = new FormData();
-
-  formData.append('query', query);
-
-  if (variables) {
-    formData.append('variables', JSON.stringify(variables));
-  }
-
-  if (additionalData) {
-    for (const [key, value] of Object.entries(additionalData)) {
-      formData.append(key, value as Blob); //check we might want to add the value as string in some cases
-    }
-  }
-
-  try {
-    response = await axios({
-      url: GRAPHQL_URL,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: token ? `Bearer ${token}` : null,
-      },
-      data: formData,
-    });
-  } catch (error) {
-    return {
-      errors: [error],
-      status: error.response.status,
-      statusText: error.response.statusText,
-    };
-  }
-  return {
-    data: response.data.data,
-    errors: response.data.errors,
-    status: response.status,
-    statusText: response.statusText,
-  };
-}
-
-export async function graphqlRequest(
-  token: string,
-  query: string,
-  variables?: QueryVariables | null,
-  additionalData?: { [key: string]: unknown }
-): Promise<GraphqlResponse> {
+): Promise<GraphqlResponse<T>> {
   const formData = new FormData();
 
   formData.append('query', query);
@@ -103,20 +50,21 @@ export async function graphqlRequest(
   return { data: response.data.data, errors: response.data.errors };
 }
 
-export async function requestOne<T = unknown>(
+export async function requestOne<T>(
   token: string,
-  request: ComposedQuery,
+  query: string,
+  resolver: string,
+  variables: QueryVariables,
   additionalData?: { [key: string]: unknown }
-): Promise<T | null> {
-  const { query, resolver, variables } = request;
-  const response = await graphql<RequestOneResponse<T>>(
+): Promise<GraphqlResponse<T>> {
+  const { data, errors } = await graphqlRequest<RequestOneResponse<T>>(
     token,
     query,
     variables,
     additionalData
-  );
+  ).catch((err) => {
+    throw err;
+  });
 
-  if (response.errors) throw response.errors;
-
-  return response.data ? response.data[resolver] : null;
+  return { data: data ? data[resolver] : data, errors };
 }

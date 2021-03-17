@@ -27,12 +27,12 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
-import { RawQuery, ComposedQuery } from '@/types/queries';
+import { QueryVariables } from '@/types/queries';
 import { AppRoutes } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { requestOne } from '@/utils/requests';
+import { requestOne, GraphqlResponse } from '@/utils/requests';
 import {
   getStaticModelPaths,
   getStaticRoutes,
@@ -177,26 +177,6 @@ function formAttributesReducer(
   }
 }
 
-/**
- * Compose the run-time read-one query using static and dynamic data.
- * @param rawQuery static raw query object
- * @param idValue requested attribute id
- */
-function composeReadOneRequest(
-  attributes: ParsedAttribute[],
-  rawQuery: RawQuery,
-  idValue?: string | number
-): ComposedQuery | undefined {
-  const idField = attributes.find(({ primaryKey }) => primaryKey);
-  if (idValue && idField) {
-    return {
-      resolver: rawQuery.resolver,
-      query: rawQuery.query,
-      variables: { [idField.name]: idValue },
-    };
-  }
-}
-
 const Record: NextPage<RecordProps> = ({
   associations,
   attributes,
@@ -224,29 +204,42 @@ const Record: NextPage<RecordProps> = ({
   /**
    * Composed read request from the url.
    */
-  const readRequest = useMemo<ComposedQuery | undefined>(
-    () => composeReadOneRequest(attributes, requests.read, queryId),
-    [attributes, queryId, requests.read]
-  );
+  const variables = useMemo<QueryVariables | undefined>(() => {
+    const idField = attributes.find(({ primaryKey }) => primaryKey);
+    if (queryId && idField) return { [idField.name]: queryId };
+  }, [attributes, queryId]);
 
   /**
    * Query data from the GraphQL endpoint.
    */
-  const { data, mutate } = useSWR<Record<string, AttributeValue> | null>(
-    readRequest && auth?.user?.token ? [auth.user.token, readRequest] : null,
+  const { data: graphqlResponse, mutate } = useSWR<GraphqlResponse<DataRecord>>(
+    variables && auth?.user?.token
+      ? [
+          auth.user.token,
+          requests.read.query,
+          requests.read.resolver,
+          variables,
+        ]
+      : null,
     requestOne,
     {
       revalidateOnFocus: false,
-      onSuccess: (data) => {
-        if (data)
-          dispatch({
-            type: 'reset',
-            payload: { formView, attributes, data },
-          });
+      onSuccess: ({ data, errors }) => {
+        // TODO: check/parse what kind of data and errors we want to set
+        dispatch({
+          type: 'reset',
+          payload: {
+            formView,
+            attributes,
+            data,
+          },
+        });
       },
       onError: (responseErrors) => {
         // TODO: parse the err array and set the internal errors state accordingly
-        console.log({ responseErrors });
+        // const { ajvValidation } = responseErrors;
+        // Check if ajvValidation is not null (or empty?) and dispatch errors to
+        // the formAttributes reducer as needed.
       },
     }
   );
@@ -277,13 +270,13 @@ const Record: NextPage<RecordProps> = ({
        */
       case 'cancel': {
         let diffData = 0;
-
         if (formView === 'create') {
           diffData = formAttributes.filter(({ value }) => value !== null)
             .length;
-        } else if (formView === 'update' && data) {
+        } else if (formView === 'update' && graphqlResponse?.data) {
+          const dataRecord = graphqlResponse.data;
           diffData = formAttributes.filter(
-            ({ name, value }) => value !== data[name]
+            ({ name, value }) => value !== dataRecord[name]
           ).length;
         }
 
@@ -312,7 +305,11 @@ const Record: NextPage<RecordProps> = ({
         router.push(`/${modelName}/item?${action}=${queryId}`);
         dispatch({
           type: 'reset',
-          payload: { formView: action, attributes, data },
+          payload: {
+            formView: action,
+            attributes,
+            data: graphqlResponse?.data,
+          },
         });
         break;
       }
@@ -327,7 +324,6 @@ const Record: NextPage<RecordProps> = ({
           okText: 'YES',
           cancelText: 'NO',
           onOk: async () => {
-            const { query, resolver } = requests.delete;
             const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
             const idValue = formAttributes.find(
               ({ name }) => idKey && name === idKey
@@ -342,13 +338,8 @@ const Record: NextPage<RecordProps> = ({
               if (!auth.user?.token) return;
 
               const variables = { [idKey]: idValue };
-              const request: ComposedQuery = {
-                resolver,
-                query,
-                variables,
-              };
-
-              await requestOne(auth.user.token, request);
+              const { query, resolver } = requests.delete;
+              await requestOne(auth.user.token, query, resolver, variables);
               router.push(`/${modelName}`);
             } catch (errors) {
               console.error(errors);
@@ -390,24 +381,26 @@ const Record: NextPage<RecordProps> = ({
     }, 0);
 
     const submit = async (): Promise<void> => {
-      const { query, resolver } =
-        formView === 'create' ? requests.create : requests.update;
-
-      const data = formAttributes.reduce<Record<string, AttributeValue>>(
+      const variables = formAttributes.reduce<Record<string, AttributeValue>>(
         (acc, { name, value }) => ({ ...acc, [name]: value }),
         {}
       );
 
-      const request: ComposedQuery = {
-        resolver,
-        query,
-        variables: data,
-      };
+      const { query, resolver } =
+        formView === 'create' ? requests.create : requests.update;
 
       try {
-        if (auth.user?.token) await requestOne(auth.user?.token, request);
-        if (formView === 'update') mutate(data);
-        router.push(`/${modelName}`);
+        if (auth.user?.token) {
+          const { data, errors } = await requestOne<DataRecord>(
+            auth.user?.token,
+            query,
+            resolver,
+            variables
+          );
+          // TODO: if errors, update errors but not data
+          if (formView === 'update' && !errors) mutate(variables);
+          router.push(`/${modelName}`);
+        }
       } catch (errors) {
         const validation_errors = parseValidationErrors(errors);
         for (const [key, error] of Object.entries(validation_errors)) {
