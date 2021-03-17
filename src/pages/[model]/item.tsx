@@ -17,13 +17,15 @@ import AttributesForm, {
 import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
-import ModelsLayout from '@/layouts/models-layout';
+import { useDialog } from '@/hooks/useDialog';
+import ModelsLayout from '@/layouts/models';
 
 import {
   AttributeValue,
+  DataRecord,
   ParsedAssociation,
   ParsedAttribute,
-  RecordPathParams,
+  PathParams,
 } from '@/types/models';
 import { RawQuery, ComposedQuery } from '@/types/queries';
 import { AppRoutes } from '@/types/routes';
@@ -39,6 +41,7 @@ import {
 import { isNullorUndefined } from '@/utils/validation';
 import { parseValidationErrors } from '@/utils/error';
 import { ErrorsAttribute } from '@/components/alert/attributes-error';
+import { isNullorEmpty } from '@/utils/validation';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -48,7 +51,7 @@ interface RecordProps {
   requests: ReturnType<typeof queryRecord>;
 }
 
-export const getStaticPaths: GetStaticPaths<RecordPathParams> = async () => {
+export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   const paths = await getStaticModelPaths();
   return {
     paths,
@@ -56,11 +59,10 @@ export const getStaticPaths: GetStaticPaths<RecordPathParams> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<
-  RecordProps,
-  RecordPathParams
-> = async (context) => {
-  const params = context.params as RecordPathParams;
+export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
+  context
+) => {
+  const params = context.params as PathParams;
 
   const modelName = params.model;
   const routes = await getStaticRoutes();
@@ -90,7 +92,7 @@ interface ParsedQuery {
  * Compute the type of operation requested from the URL query.
  * @param query url query
  */
-function parseUrlQuery(query: RecordPathParams): ParsedQuery {
+function parseUrlQuery(query: PathParams): ParsedQuery {
   const { read, update } = query;
 
   let formView: FormView;
@@ -115,7 +117,7 @@ function parseUrlQuery(query: RecordPathParams): ParsedQuery {
 interface InitAttributesArgs {
   formView: FormView;
   attributes: ParsedAttribute[];
-  data?: Record<string, AttributeValue> | null;
+  data?: DataRecord | null;
   errors?: Record<string, string[] | undefined>;
 }
 /**
@@ -202,10 +204,11 @@ const Record: NextPage<RecordProps> = ({
   routes,
   requests,
 }) => {
-  const { auth } = useAuth({ redirectTo: '/' });
+  const { auth } = useAuth();
   const router = useRouter();
   const classes = useStyles();
-  const { queryId, formView } = parseUrlQuery(router.query as RecordPathParams);
+  const dialog = useDialog();
+  const { queryId, formView } = parseUrlQuery(router.query as PathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
   const [formAttributes, dispatch] = useReducer(
@@ -257,17 +260,42 @@ const Record: NextPage<RecordProps> = ({
   };
 
   const handleOnError = (key: string) => (value: string | null ) => {
-    const error_message = value;
-    dispatch({ type: 'update', payload: { key, error: {clientValidation: error_message} } });
+    dispatch({ type: 'update', payload: { key, error: {clientValidation: value} } });
   }
 
-  const handleOnFormAction = (action: FormAction) => async () => {
+  /**
+   * Execute a form action effect.
+   * @param action form action to execute
+   */
+  const handleOnFormAction = (action: FormAction) => () => {
     switch (action) {
       /**
        * Navigate to the model table.
        */
       case 'cancel': {
-        router.push(`/${modelName}`);
+        let diffData = 0;
+
+        if (formView === 'create') {
+          diffData = formAttributes.filter(({ value }) => value !== null)
+            .length;
+        } else if (formView === 'update' && data) {
+          diffData = formAttributes.filter(
+            ({ name, value }) => value !== data[name]
+          ).length;
+        }
+
+        if (diffData > 0) {
+          dialog.openConfirm({
+            title: 'Some fields are modified.',
+            message: 'Do you want to leave anyway?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: () => router.push(`/${modelName}`),
+          });
+        } else {
+          router.push(`/${modelName}`);
+        }
+
         break;
       }
 
@@ -290,32 +318,40 @@ const Record: NextPage<RecordProps> = ({
        * Send a delete request and, if sucessful, navigate to the model table.
        */
       case 'delete': {
-        const { query, resolver } = requests.delete;
-        const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-        const idValue = formAttributes.find(
-          ({ name }) => idKey && name === idKey
-        )?.value;
+        dialog.openConfirm({
+          title: 'Are you sure you want to delete this item?',
+          message: `Item with id ${queryId} in model ${modelName}.`,
+          okText: 'YES',
+          cancelText: 'NO',
+          onOk: async () => {
+            const { query, resolver } = requests.delete;
+            const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+            const idValue = formAttributes.find(
+              ({ name }) => idKey && name === idKey
+            )?.value;
 
-        try {
-          if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
-            throw new Error(
-              'The record id was not set for a delete record action'
-            );
+            try {
+              if (isNullorUndefined(idKey) || isNullorUndefined(idValue))
+                throw new Error(
+                  'The record id was not set for a delete record action'
+                );
 
-          if (!auth.user?.token) return;
+              if (!auth.user?.token) return;
 
-          const variables = { [idKey]: idValue };
-          const request: ComposedQuery = {
-            resolver,
-            query,
-            variables,
-          };
+              const variables = { [idKey]: idValue };
+              const request: ComposedQuery = {
+                resolver,
+                query,
+                variables,
+              };
 
-          await requestOne(auth.user.token, request);
-          router.push(`/${modelName}`);
-        } catch (errors) {
-          console.error(errors);
-        }
+              await requestOne(auth.user.token, request);
+              router.push(`/${modelName}`);
+            } catch (errors) {
+              console.error(errors);
+            }
+          },
+        });
         break;
       }
 
@@ -342,35 +378,54 @@ const Record: NextPage<RecordProps> = ({
 
     if (formView === 'read') return;
 
-    const { query, resolver } =
-      formView === 'create' ? requests.create : requests.update;
+    const nonNullValues = formAttributes.reduce((acc, { value }) => {
+      return isNullorEmpty(value) ? acc : (acc += 1);
+    }, 0);
 
-    const data = formAttributes.reduce<Record<string, AttributeValue>>(
-      (acc, { name, value }) => ({ ...acc, [name]: value }),
-      {}
-    );
+    const submit = async (): Promise<void> => {
+      const { query, resolver } =
+        formView === 'create' ? requests.create : requests.update;
 
-    const request: ComposedQuery = {
-      resolver,
-      query,
-      variables: data,
+      const data = formAttributes.reduce<Record<string, AttributeValue>>(
+        (acc, { name, value }) => ({ ...acc, [name]: value }),
+        {}
+      );
+
+      const request: ComposedQuery = {
+        resolver,
+        query,
+        variables: data,
+      };
+
+      try {
+        if (auth.user?.token) await requestOne(auth.user?.token, request);
+        if (formView === 'update') mutate(data);
+        router.push(`/${modelName}`);
+      } catch (errors) {
+        const validation_errors = parseValidationErrors(errors);
+        for (const [key, error] of Object.entries(validation_errors)) {
+          dispatch({
+            type: 'update',
+            payload: { key, error: { ajvValidation: error } },
+          });
+        }
+  
+        console.error(errors);
+      }
     };
 
-    try {
-      if (auth.user?.token) await requestOne(auth.user?.token, request);
-      if (formView === 'update') mutate(data);
-      router.push(`/${modelName}`);
-    } catch (errors) {
-      const validation_errors = parseValidationErrors(errors);
-      for (const [key, error] of Object.entries(validation_errors)) {
-        dispatch({
-          type: 'update',
-          payload: { key, error: { ajvValidation: error } },
-        });
-      }
-
-      console.error(errors);
+    if (nonNullValues < formAttributes.length) {
+      dialog.openConfirm({
+        title: `Some fields are empty.${queryId ? ` id: ${queryId}` : ''}`,
+        message: 'Do you want to continue anyway?',
+        okText: 'YES',
+        cancelText: 'NO',
+        onOk: submit,
+      });
+      return;
     }
+
+    submit();
   };
 
   /**
@@ -416,6 +471,7 @@ const Record: NextPage<RecordProps> = ({
             }}
             actions={
               <FormActions
+                permissions={auth.user?.permissions[modelName] ?? []}
                 view={formView}
                 formId={formId}
                 onAction={handleOnFormAction}

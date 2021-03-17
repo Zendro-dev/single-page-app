@@ -1,17 +1,18 @@
 import axios, { AxiosResponse } from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
 import { ComposedQuery, QueryVariables } from '@/types/queries';
-import {
-  EdgePageInfo,
-  ReadManyResponse,
-  RequestOneResponse,
-} from '@/types/requests';
+import { RequestOneResponse } from '@/types/requests';
 
 interface ServerResponse<T = unknown> {
   data?: T | null;
   errors?: Error[];
   status: number;
   statusText: string;
+}
+
+interface GraphqlResponse<T = unknown> {
+  data?: T | null;
+  errors?: unknown[];
 }
 
 /**
@@ -59,7 +60,6 @@ export async function graphql<R = unknown>(
       statusText: error.response.statusText,
     };
   }
-
   return {
     data: response.data.data,
     errors: response.data.errors,
@@ -68,32 +68,39 @@ export async function graphql<R = unknown>(
   };
 }
 
-export async function readMany(
+export async function graphqlRequest(
   token: string,
-  request: ComposedQuery
-): Promise<EdgePageInfo> {
-  const response = await graphql<ReadManyResponse>(
-    token,
-    request.query,
-    request.variables
-  );
+  query: string,
+  variables?: QueryVariables | null,
+  additionalData?: { [key: string]: unknown }
+): Promise<GraphqlResponse> {
+  const formData = new FormData();
 
-  if (response.errors) throw response.errors;
+  formData.append('query', query);
 
-  return response.data
-    ? {
-        data: response.data[request.resolver].edges.map((edge) => edge.node),
-        pageInfo: response.data[request.resolver].pageInfo,
-      }
-    : {
-        data: [],
-        pageInfo: {
-          startCursor: undefined,
-          endCursor: undefined,
-          hasPreviousPage: undefined,
-          hasNextPage: undefined,
-        },
-      };
+  if (variables) {
+    formData.append('variables', JSON.stringify(variables));
+  }
+
+  if (additionalData) {
+    for (const [key, value] of Object.entries(additionalData)) {
+      formData.append(key, value as Blob); //check we might want to add the value as string in some cases
+    }
+  }
+
+  const response = await axios({
+    url: GRAPHQL_URL,
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json;charset=UTF-8',
+      Authorization: token ? `Bearer ${token}` : null,
+    },
+    data: formData,
+  });
+
+  // ? check for response.data ?
+  return { data: response.data.data, errors: response.data.errors };
 }
 
 export async function requestOne<T = unknown>(

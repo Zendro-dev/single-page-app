@@ -11,7 +11,8 @@ import {
   Edit as EditIcon,
   VisibilityTwoTone as DetailIcon,
 } from '@material-ui/icons';
-import { ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
+import { AclPermission } from '@/types/acl';
 
 interface EnhancedTableRowIconProps {
   label: string;
@@ -20,8 +21,9 @@ interface EnhancedTableRowIconProps {
 
 interface EnhancedTableRowProps {
   // TODO correct typing for record
-  record: any;
+  record: DataRecord;
   attributes: ParsedAttribute[];
+  permissions: AclPermission[];
   onRead: (primaryKey: string | number) => void;
   onUpdate: (primaryKey: string | number) => void;
   onDelete: (primaryKey: string | number) => void;
@@ -33,11 +35,7 @@ function EnhancedTableRowIcon({
   children,
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   return (
-    <TableCell
-      style={{ minWidth: '3rem', maxWidth: '3rem' }}
-      padding="checkbox"
-      align="center"
-    >
+    <TableCell style={{ width: '3rem' }} padding="checkbox" align="center">
       <Tooltip title={label}>
         <IconButton color="default" onClick={onClick}>
           {children}
@@ -50,6 +48,7 @@ function EnhancedTableRowIcon({
 export default function EnhancedTableRow({
   record,
   attributes,
+  permissions,
   onRead,
   onUpdate,
   onDelete,
@@ -62,7 +61,7 @@ EnhancedTableRowProps): ReactElement {
   const primaryKey = useMemo(() => {
     const primaryKeyAttribute =
       attributes.find((attribute) => attribute?.primaryKey)?.name ?? 'id';
-    return record[primaryKeyAttribute];
+    return record[primaryKeyAttribute] as string | number;
   }, [attributes, record]);
 
   return (
@@ -75,15 +74,24 @@ EnhancedTableRowProps): ReactElement {
       tabIndex={-1}
       onDoubleClick={() => onRead(primaryKey)}
     >
-      <EnhancedTableRowIcon label="detail" onClick={() => onRead(primaryKey)}>
-        <DetailIcon fontSize="small" className={classes.iconDetail} />
-      </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="edit" onClick={() => onUpdate(primaryKey)}>
-        <EditIcon fontSize="small" className={classes.iconEdit} />
-      </EnhancedTableRowIcon>
-      <EnhancedTableRowIcon label="delete" onClick={() => onDelete(primaryKey)}>
-        <DeleteIcon fontSize="small" className={classes.iconDelete} />
-      </EnhancedTableRowIcon>
+      {(permissions.includes('read') || permissions.includes('*')) && (
+        <EnhancedTableRowIcon label="detail" onClick={() => onRead(primaryKey)}>
+          <DetailIcon fontSize="small" className={classes.iconDetail} />
+        </EnhancedTableRowIcon>
+      )}
+      {(permissions.includes('update') || permissions.includes('*')) && (
+        <EnhancedTableRowIcon label="edit" onClick={() => onUpdate(primaryKey)}>
+          <EditIcon fontSize="small" className={classes.iconEdit} />
+        </EnhancedTableRowIcon>
+      )}
+      {(permissions.includes('delete') || permissions.includes('*')) && (
+        <EnhancedTableRowIcon
+          label="delete"
+          onClick={() => onDelete(primaryKey)}
+        >
+          <DeleteIcon fontSize="small" className={classes.iconDelete} />
+        </EnhancedTableRowIcon>
+      )}
       {attributes.map((attribute, index) => (
         <TableCell
           key={`${attribute.name}-${index}`}

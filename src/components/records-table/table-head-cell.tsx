@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import { Order } from './table-head';
 import { SvgIconType } from '@/types/elements';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 interface EnhacedTableHeadCellProps extends TableCellProps {
   label: string;
@@ -30,6 +31,7 @@ export default function EnhancedTableHeadCell({
   onTableCellClick,
   ...props
 }: EnhacedTableHeadCellProps): ReactElement {
+  const classes = useStyles();
   return (
     <TableCell {...props}>
       <TableSortLabel
@@ -40,17 +42,12 @@ export default function EnhancedTableHeadCell({
           onTableCellClick(label);
         }}
       >
-        <Box
-          display="flex"
-          alignItems="center"
-          flexWrap="nowrap"
-          alignContent="center"
-        >
-          {Icon && tooltip && (
-            <Tooltip title={tooltip}>
-              <Icon fontSize="small" color="disabled" />
-            </Tooltip>
-          )}
+        {Icon && tooltip && (
+          <Tooltip title={tooltip}>
+            <Icon fontSize="small" color="disabled" className={classes.icon} />
+          </Tooltip>
+        )}
+        <Box display="inline">
           <Typography
             color="inherit"
             variant="caption"
@@ -64,3 +61,11 @@ export default function EnhancedTableHeadCell({
     </TableCell>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    icon: {
+      marginRight: theme.spacing(1),
+    },
+  })
+);

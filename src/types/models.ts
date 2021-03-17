@@ -39,6 +39,10 @@ export interface ParsedAttribute {
   automaticId?: boolean;
 }
 
+export interface DataRecord {
+  [key: string]: AttributeValue;
+}
+
 /* ASSOCIATIONS */
 
 export interface Association {
@@ -79,9 +83,6 @@ export interface DataModels {
 
 export interface PathParams extends ParsedUrlQuery {
   model: string;
-}
-
-export interface RecordPathParams extends PathParams {
   create?: string;
   read?: string;
   update?: string;

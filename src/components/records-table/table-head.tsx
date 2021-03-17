@@ -4,9 +4,11 @@ import KeyIcon from '@material-ui/icons/VpnKey';
 import EnhancedTableHeadCell from './table-head-cell';
 import { QueryVariableOrder } from '@/types/queries';
 import { ParsedAttribute } from '@/types/models';
+import { AclPermission } from '@/types/acl';
 
 interface EnhancedTableHeadProps {
   attributes: ParsedAttribute[];
+  permissions: AclPermission[];
   handleSetOrder(value: QueryVariableOrder): void;
 }
 
@@ -20,6 +22,7 @@ export type Order = 'asc' | 'desc';
 
 export default function EnhancedTableHead({
   attributes,
+  permissions,
   handleSetOrder,
 }: EnhancedTableHeadProps): ReactElement {
   const [activeOrderCol, setActiveOrderCol] = useState(attributes[0].name);
@@ -37,8 +40,12 @@ export default function EnhancedTableHead({
     <TableHead>
       <TableRow>
         <TableCell
-          style={{ minWidth: '9rem', maxWidth: '9rem' }}
-          colSpan={3}
+          style={{ width: '9rem' }}
+          colSpan={
+            permissions.includes('*')
+              ? 3
+              : permissions.filter((action) => action !== 'create').length
+          }
           align="center"
           padding="checkbox"
         >

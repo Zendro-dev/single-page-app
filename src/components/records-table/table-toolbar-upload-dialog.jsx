@@ -1,5 +1,4 @@
 import { useMemo, useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
 import {
   Dialog,
   DialogActions,
@@ -11,14 +10,17 @@ import {
   Typography,
 } from '@material-ui/core';
 import { MAX_UPLOAD_SIZE } from '@/config/globals';
-import { authSelector } from '@/store/auth-slice';
 import useSWR from 'swr';
-import { requestOne } from '@/utils/requests';
+import { graphqlRequest } from '@/utils/requests';
 import { queryBulkCreate } from '@/utils/queries';
+import useAuth from '@/hooks/useAuth';
+import useToastNotification from '@/hooks/useToastNotification';
+import { isNullorEmpty } from '@/utils/validation';
 
 export default function UploadDialog(props) {
   const file = useRef(null);
-  const auth = useSelector(authSelector);
+  const { auth } = useAuth();
+  const { showSnackbar } = useToastNotification();
   const [open, setOpen] = useState(true);
   const [fileChosen, setFileChosen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,13 +39,29 @@ export default function UploadDialog(props) {
 
   const onUploadSucces = (data) => {
     //send message to user
-    console.log('DATA: ', data);
+
+    if (!isNullorEmpty(data)) {
+      showSnackbar(
+        'The data has been sent. A report with the status of the import process will be sent to your email.',
+        'success'
+      );
+    } else {
+      showSnackbar(
+        'Null data received: GraphQL query returns no data.',
+        'warning'
+      );
+    }
+
     handleOnClose();
   };
 
   const onUploadError = (error) => {
     //send error message to user
-    console.log('ERROR: ', error);
+    console.error(error);
+    showSnackbar(
+      'An error occurred while trying to execute the GraphQL query. Please contact your administrator.',
+      'error'
+    );
     handleOnClose();
   };
 
@@ -67,13 +85,14 @@ export default function UploadDialog(props) {
     loading
       ? [
           auth.user.token,
-          request,
+          request.query,
+          null,
           {
             csv_file: file.current,
           },
         ]
       : null,
-    requestOne,
+    graphqlRequest,
     { onSuccess: onUploadSucces, onError: onUploadError }
   );
 
