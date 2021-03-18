@@ -1,5 +1,6 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
+import React, { PropsWithChildren, ReactElement, useReducer } from 'react';
 import clsx from 'clsx';
+import dynamic from 'next/dynamic';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Box, Fab, Zoom } from '@material-ui/core';
@@ -7,35 +8,36 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-
-import useAuth from '@/hooks/useAuth';
-import { AppRoutes } from '@/types/routes';
-
 import RestrictedResource from '@/components/placeholders/restricted-resource';
-import Toolbar from './toolbar';
-import Navigation from './navigation';
 
-interface ModelsDesktopLayoutProps {
-  brand: string;
-  routes: AppRoutes;
+import appRoutes, { AppRoutes } from '@/build/routes';
+import useAuth from '@/hooks/useAuth';
+import Toolbar from './toolbar';
+const Navigation = dynamic(() => import('./navigation'), { ssr: false });
+
+export interface ModelsDesktopLayoutProps {
+  brand?: string;
+  routes?: AppRoutes;
 }
 
-export default function ModelsDashboard({
+export default function ModelsLayout({
   brand,
   routes,
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
   const classes = useStyles();
-  const [drawerOpen, setDrawerOpen] = useState(true);
-  const toggleDrawer = (): void => setDrawerOpen((state) => !state);
+  const [drawerOpen, toggleDrawer] = useReducer<(state: boolean) => boolean>(
+    (state) => !state,
+    true
+  );
   const { auth } = useAuth();
 
   return (
     <div className={classes.root}>
-      <Toolbar brand={brand}>
+      <Toolbar brand={brand ?? 'Zendro'}>
         <Zoom in={true} timeout={500}>
           <Box>
-            <Fab size="medium" color="primary" onClick={toggleDrawer}>
+            <Fab size="medium" onClick={toggleDrawer}>
               {drawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </Fab>
           </Box>
@@ -46,8 +48,7 @@ export default function ModelsDashboard({
         <Navigation
           className={drawerOpen ? classes.drawerOpen : classes.drawerClosed}
           permissions={auth.user?.permissions}
-          component="nav"
-          routes={routes}
+          routes={routes ?? ((appRoutes as unknown) as AppRoutes)}
         />
         <main
           className={clsx(classes.mainContent, {
