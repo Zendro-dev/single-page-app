@@ -1,84 +1,139 @@
+import { ReactElement } from 'react';
+import clsx from 'clsx';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
+  Box,
   Button,
+  ButtonProps,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
+  DialogProps,
   DialogTitle,
+  Divider,
 } from '@material-ui/core';
-import { ReactElement } from 'react';
 
-export interface Content {
-  title: string | null;
-  text?: string | null;
-  acceptText: string | null;
-  rejectText: string | null;
-}
+const DEFAULT_OK_COLOR = 'primary';
+const DEFAULT_CANCEL_COLOR = 'secondary';
+const DEFAULT_OK_TEXT = 'OK';
+const DEFAULT_CANCEL_TEXT = 'CANCEL';
+const DEFAULT_FULL_SCREEN = false;
+const DEFAULT_FULL_WIDTH = true;
+const DEFAULT_MAX_WIDTH = 'xs';
 
-interface ConfirmationDialogProps {
-  content: Content;
-  onAccept: () => void;
-  onReject: () => void;
-  onClose: () => void;
-  open: boolean;
+export type Color = ButtonProps['color'];
+
+export interface ConfirmationDialogProps {
+  className?: string;
+  cancelColor?: Color;
+  cancelText?: string;
+  element?: ReactElement;
+  hideOk?: boolean;
+  hideCancel?: boolean;
+  fullWidth?: boolean;
+  fullScreen?: boolean;
+  maxWidth?: DialogProps['maxWidth'];
+  message?: string;
+  okColor?: Color;
+  okText?: string;
+  onClose?: () => void;
+  onOk?: () => void;
+  open?: boolean;
+  title?: string;
 }
 
 export default function ConfirmationDialog({
-  content,
-  onAccept,
-  onReject,
+  cancelColor,
+  cancelText,
+  className,
+  element,
+  fullScreen,
+  fullWidth,
+  hideOk,
+  hideCancel,
+  maxWidth,
+  message,
+  okText,
+  okColor,
   onClose,
+  onOk,
   open,
+  title,
 }: ConfirmationDialogProps): ReactElement {
-  const handleOnAccept = (): void => {
-    onAccept();
-  };
-
-  const handleOnReject = (): void => {
-    onReject();
-  };
-
-  const handleOnClose = (): void => {
-    onClose();
-  };
+  const classes = useStyles();
 
   return (
-    <div>
-      <Dialog
-        id="ConfirmationDialog"
-        open={open}
-        fullWidth={true}
-        maxWidth="sm"
-        onClose={handleOnClose}
-      >
-        <DialogTitle>{content.title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{content.text}</DialogContentText>
+    <Dialog
+      fullWidth={fullWidth || DEFAULT_FULL_WIDTH}
+      fullScreen={fullScreen || DEFAULT_FULL_SCREEN}
+      maxWidth={maxWidth || DEFAULT_MAX_WIDTH}
+      open={open ?? false}
+      aria-labelledby="dialog-title"
+      aria-describedby="dialog-description"
+    >
+      {title && (
+        <DialogTitle
+          id="dialog-title"
+          className={
+            okColor === 'primary'
+              ? classes.titleBackgroundPrimary
+              : okColor === 'secondary'
+              ? classes.titleBackgroundSecondary
+              : classes.titleBackgroundPrimary
+          }
+        >
+          {title}
+        </DialogTitle>
+      )}
+      {message && (
+        <DialogContent className={clsx(classes.content, className)}>
+          <DialogContentText id="confirm-dialog-description">
+            {message}
+          </DialogContentText>
         </DialogContent>
+      )}
+      {element && (
+        <Box className={clsx(classes.content, className)}>{element}</Box>
+      )}
+      <Divider />
+      {!(hideOk && hideCancel) && (
         <DialogActions>
-          {/* Action: Accept */}
-          {content.acceptText !== null && content.acceptText !== undefined && (
+          {!hideCancel && (
             <Button
-              color="primary"
-              variant="contained"
-              onClick={handleOnAccept}
+              color={cancelColor || DEFAULT_CANCEL_COLOR}
+              onClick={onClose}
             >
-              {content.acceptText}
+              {cancelText || DEFAULT_CANCEL_TEXT}
             </Button>
           )}
-
-          {/* Action: Reject */}
-          {content.rejectText !== null && content.rejectText !== undefined && (
+          {!hideOk && (
             <Button
-              color="secondary"
+              color={okColor || DEFAULT_OK_COLOR}
+              onClick={onOk}
               variant="contained"
-              onClick={handleOnReject}
             >
-              {content.rejectText}
+              {okText || DEFAULT_OK_TEXT}
             </Button>
           )}
         </DialogActions>
-      </Dialog>
-    </div>
+      )}
+    </Dialog>
   );
 }
+
+const useStyles = makeStyles((theme) => {
+  return createStyles({
+    content: {
+      minHeight: theme.spacing(30),
+    },
+    titleBackgroundPrimary: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.getContrastText(theme.palette.primary.main),
+    },
+    titleBackgroundSecondary: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.getContrastText(theme.palette.secondary.main),
+    },
+  });
+});
