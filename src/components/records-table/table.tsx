@@ -124,9 +124,12 @@ export default function EnhancedTable({
   const { auth } = useAuth();
   const dialog = useDialog();
 
-  /* HANDLERS */
-  const handleSetOrder = (value: QueryVariableOrder): void => {
-    dispatch({ type: 'SET_ORDER', payload: value });
+  const handleSetOrder = (field: string): void => {
+    const isAsc =
+      field === variables.order?.field && variables.order.order === 'ASC';
+    const order = isAsc ? 'DESC' : 'ASC';
+
+    dispatch({ type: 'SET_ORDER', payload: { field, order } });
   };
 
   const handleActionClick = (
@@ -310,10 +313,12 @@ export default function EnhancedTable({
           <EnhancedTableHead
             permissions={auth.user?.permissions[modelName] ?? []}
             attributes={attributes}
-            handleSetOrder={handleSetOrder}
+            onSortLabelClick={handleSetOrder}
+            activeOrder={variables.order?.field ?? attributes[0].name}
+            orderDirection={variables.order?.order ?? 'ASC'}
           />
-          {!isEmptyArray(rows) && !isValidatingRecords && (
-            <Fade in={!isValidatingRecords}>
+          {!isEmptyArray(rows) && (
+            <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
               <TableBody>
                 {rows.map((record, index) => (
                   // TODO key should use primaryKey value
@@ -380,10 +385,12 @@ const useStyles = makeStyles((theme) =>
       overflow: 'auto',
     },
     tablePlaceholder: {
+      position: 'absolute',
       display: 'flex',
-      flexGrow: 0.5,
       justifyContent: 'center',
       alignItems: 'center',
+      width: '100%',
+      height: '100%',
     },
     pagination: {
       padding: theme.spacing(6, 2),
