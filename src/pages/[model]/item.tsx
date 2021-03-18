@@ -1,6 +1,6 @@
 import React, { useMemo, useReducer, useState } from 'react';
 import { capitalize } from 'inflection';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
@@ -28,24 +28,19 @@ import {
   PathParams,
 } from '@/types/models';
 import { RawQuery, ComposedQuery } from '@/types/queries';
-import { AppRoutes } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { requestOne } from '@/utils/requests';
-import {
-  getStaticModelPaths,
-  getStaticRoutes,
-  getStaticModel,
-} from '@/utils/static';
+import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
 import { isNullorEmpty } from '@/utils/validation';
+import { PageWithLayout } from '@/layouts';
 
 interface RecordProps {
   associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
   modelName: string;
-  routes: AppRoutes;
   requests: ReturnType<typeof queryRecord>;
 }
 
@@ -63,7 +58,6 @@ export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
   const params = context.params as PathParams;
 
   const modelName = params.model;
-  const routes = await getStaticRoutes();
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
@@ -76,7 +70,6 @@ export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
       modelName,
       attributes,
       associations,
-      routes,
       requests,
     },
   };
@@ -189,11 +182,10 @@ function composeReadOneRequest(
   }
 }
 
-const Record: NextPage<RecordProps> = ({
+const Record: PageWithLayout<RecordProps> = ({
   associations,
   attributes,
   modelName,
-  routes,
   requests,
 }) => {
   const { auth } = useAuth();
@@ -421,50 +413,46 @@ const Record: NextPage<RecordProps> = ({
   };
 
   return (
-    <ModelsLayout brand="Zendro" routes={routes}>
-      <TabContext value={tabIndex}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList
-            onChange={handleOnTabChange}
-            aria-label="lab API tabs example"
-          >
-            <Tab label="Attributes" value="attributes" />
-            <Tab
-              label="Associations"
-              value="associations"
-              disabled={associations.length === 0}
-            />
-          </TabList>
-        </Box>
-        <TabPanel value="attributes">
-          <AttributesForm
-            attributes={formAttributes}
-            className={classes.form}
-            disabled={formView === 'read'}
-            formId={formId}
-            onChange={handleOnChange}
-            onSubmit={handleOnSubmit(formView)}
-            title={{
-              prefix: capitalize(formView),
-              main: modelName,
-            }}
-            actions={
-              <FormActions
-                permissions={auth.user?.permissions[modelName] ?? []}
-                view={formView}
-                formId={formId}
-                onAction={handleOnFormAction}
-              />
-            }
+    <TabContext value={tabIndex}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
+          <Tab label="Attributes" value="attributes" />
+          <Tab
+            label="Associations"
+            value="associations"
+            disabled={associations.length === 0}
           />
-        </TabPanel>
-        <TabPanel value="associations">
-          <AssociationList modelName={modelName} associations={associations} />
-        </TabPanel>
-      </TabContext>
-    </ModelsLayout>
+        </TabList>
+      </Box>
+      <TabPanel value="attributes">
+        <AttributesForm
+          attributes={formAttributes}
+          className={classes.form}
+          disabled={formView === 'read'}
+          formId={formId}
+          onChange={handleOnChange}
+          onSubmit={handleOnSubmit(formView)}
+          title={{
+            prefix: capitalize(formView),
+            main: modelName,
+          }}
+          actions={
+            <FormActions
+              permissions={auth.user?.permissions[modelName] ?? []}
+              view={formView}
+              formId={formId}
+              onAction={handleOnFormAction}
+            />
+          }
+        />
+      </TabPanel>
+      <TabPanel value="associations">
+        <AssociationList modelName={modelName} associations={associations} />
+      </TabPanel>
+    </TabContext>
   );
 };
+Record.layout = ModelsLayout;
 export default Record;
 
 const useStyles = makeStyles((theme: Theme) =>
