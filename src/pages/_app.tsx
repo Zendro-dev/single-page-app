@@ -4,10 +4,9 @@ import { SnackbarProvider } from 'notistack';
 import { AppProps } from 'next/app';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
-import { theme } from '../styles/theme';
-import store from '../store';
-import { DialogProvider } from '@/components/dialog/dialog-provider';
-
+import { DialogProvider } from '@/hooks/useDialog';
+import store from '@/store';
+import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
 
 function App({ Component, pageProps }: AppProps): ReactElement {
