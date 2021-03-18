@@ -393,7 +393,7 @@ const Record: NextPage<RecordProps> = ({
 
       try {
         if (auth.user?.token) {
-          const { data, errors } = await requestOne<DataRecord>(
+          const { errors } = await requestOne<DataRecord>(
             auth.user?.token,
             query,
             resolver,

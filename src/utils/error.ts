@@ -1,14 +1,18 @@
-import { ErrorsAttribute } from "@/components/alert/attributes-error";
+import { ErrorsAttribute } from '@/components/alert/attributes-error';
+import { AxiosError, AxiosResponse } from 'axios';
+import { GraphQLFormattedError } from 'graphql';
 
-type ValidationError = {
+interface ValidationError {
   dataPath: string;
   message: string;
-};
+}
 
-function getValidationErrors(errors:any) {
-  let result:Record<string, string[]> = {};
+function getValidationErrors(
+  errors: GraphQLFormattedError
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
 
-  const errors_detail: ValidationError[] = errors.extensions.validationErrors;
+  const errors_detail: ValidationError[] = errors.extensions?.validationErrors;
   errors_detail.forEach(({ dataPath, message }) => {
     const attribute = dataPath.slice(1);
     result[attribute]
@@ -19,40 +23,47 @@ function getValidationErrors(errors:any) {
   return result;
 }
 
-function castToErrorsAttribute( validationErrors:Record<string, string[]>){
-  let result:Record<string, ErrorsAttribute> = {}; 
+function castToErrorsAttribute(
+  validationErrors: Record<string, string[]>
+): Record<string, ErrorsAttribute> {
+  const result: Record<string, ErrorsAttribute> = {};
 
-   for (const [key, errors] of Object.entries(validationErrors)) {
-     //unique error and as ajvValidation 
-    result[key] = {ajvValidation : Array.from(new Set(errors))};
+  for (const [key, errors] of Object.entries(validationErrors)) {
+    //unique error and as ajvValidation
+    result[key] = { ajvValidation: Array.from(new Set(errors)) };
   }
 
   return result;
 }
 
-export function parseErrors(error: any) {
-  let generalErrors = [];
-  let validationErrors : Record<string, string[]> = {};
+export function parseErrors(
+  error: AxiosError
+): {
+  generalErrors: (GraphQLFormattedError | AxiosResponse)[];
+  attributeErrors: Record<string, ErrorsAttribute>;
+} {
+  let generalErrors: (GraphQLFormattedError | AxiosResponse)[] = [];
+  let validationErrors: Record<string, string[]> = {};
 
   if (error.isAxiosError && error.response) {
     //at this point is a graphql response error (data, errors)
-    const errors = error.response.data.errors;
+    const errors = error.response.data.errors as GraphQLFormattedError[];
     const validation_error = errors.find(
-      (e: any) => e.message === 'validation failed'
+      (e) => e.message === 'validation failed'
     );
 
     validationErrors = validation_error
       ? getValidationErrors(validation_error)
       : {};
-    generalErrors = errors.filter(
-      (e: any) => e.message !== 'validation failed'
-    );
+    generalErrors = errors.filter((e) => e.message !== 'validation failed');
   } else {
-    error.response ? generalErrors.push(error.response): generalErrors.push(error);
+    error.response
+      ? generalErrors.push(error.response)
+      : generalErrors.push(error);
   }
 
   //send as ErrorsAttribute
-  const attributeErrors = castToErrorsAttribute(validationErrors)
+  const attributeErrors = castToErrorsAttribute(validationErrors);
 
-  return {generalErrors, attributeErrors};
+  return { generalErrors, attributeErrors };
 }

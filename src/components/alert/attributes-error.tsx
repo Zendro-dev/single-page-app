@@ -12,9 +12,9 @@ interface ErrorProps {
 
 export default function AttributeErrors({ errors }: ErrorProps): ReactElement {
   return (
-    <div>
+    <ul>
       {errors.ajvValidation && (
-        <Alert severity="error">
+        <Alert severity="error" component="li">
           <AlertTitle> Server side validation </AlertTitle>
           {errors.ajvValidation.map((error) => {
             return <ListItemText key={error} primary={error} />;
@@ -22,11 +22,11 @@ export default function AttributeErrors({ errors }: ErrorProps): ReactElement {
         </Alert>
       )}
       {errors.clientValidation && (
-        <Alert severity="warning">
+        <Alert severity="warning" component="li">
           <AlertTitle> Client side validation </AlertTitle>
           <ListItemText primary={errors.clientValidation} />
         </Alert>
       )}
-    </div>
+    </ul>
   );
 }

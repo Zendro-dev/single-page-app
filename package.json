@@ -30,6 +30,7 @@
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
     "date-fns": "^2.17.0",
+    "graphql": "^15.5.0",
     "i18next": "^19.9.1",
     "i18next-browser-languagedetector": "^6.0.1",
     "inflection": "^1.12.0",
