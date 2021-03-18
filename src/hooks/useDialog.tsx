@@ -75,8 +75,6 @@ export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({
       hideOk: true,
       hideCancel: true,
       open: true,
-      onOk: close(),
-      onClose: close(),
     });
   };
 
@@ -95,7 +93,6 @@ export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({
       hideCancel: true,
       open: true,
       onOk: close(onOk),
-      onClose: close(),
     });
   };
 
