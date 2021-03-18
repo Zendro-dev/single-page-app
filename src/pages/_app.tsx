@@ -5,11 +5,13 @@ import { AppProps } from 'next/app';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { DialogProvider } from '@/hooks/useDialog';
+import { AppWithLayouts } from '@/layouts';
 import store from '@/store';
 import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
 
-function App({ Component, pageProps }: AppProps): ReactElement {
+function App({ Component, pageProps }: AppWithLayouts<AppProps>): ReactElement {
+  const Layout = Component.layout ?? (({ children }) => <>{children}</>);
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -21,7 +23,9 @@ function App({ Component, pageProps }: AppProps): ReactElement {
           }}
         >
           <DialogProvider>
-            <Component {...pageProps} />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>
