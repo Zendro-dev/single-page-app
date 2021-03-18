@@ -18,6 +18,7 @@ import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
 import { useDialog } from '@/hooks/useDialog';
+import useToastNotification from '@/hooks/useToastNotification';
 import ModelsLayout from '@/layouts/models';
 
 import {
@@ -39,7 +40,7 @@ import {
   getStaticModel,
 } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
-import { parseValidationErrors } from '@/utils/error';
+import { parseErrors } from '@/utils/error';
 import { ErrorsAttribute } from '@/components/alert/attributes-error';
 import { isNullorEmpty } from '@/utils/validation';
 
@@ -118,7 +119,7 @@ interface InitAttributesArgs {
   formView: FormView;
   attributes: ParsedAttribute[];
   data?: DataRecord | null;
-  errors?: Record<string, string[] | undefined>;
+  errors?: Record<string, ErrorsAttribute>;
 }
 /**
  * Compose an array of form attributes from a combination of static types
@@ -143,7 +144,7 @@ function initAttributes({
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
         value: data ? data[name] : null,
-        error: errors ? { ajvValidation: errors[name] } : null,
+        error: errors && errors[name] ? errors[name] : null,
       });
       return attrArr;
     },
@@ -188,6 +189,7 @@ const Record: NextPage<RecordProps> = ({
   const router = useRouter();
   const classes = useStyles();
   const dialog = useDialog();
+  const { showSnackbar } = useToastNotification();
   const { queryId, formView } = parseUrlQuery(router.query as PathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
@@ -225,7 +227,6 @@ const Record: NextPage<RecordProps> = ({
     {
       revalidateOnFocus: false,
       onSuccess: ({ data, errors }) => {
-        // TODO: check/parse what kind of data and errors we want to set
         dispatch({
           type: 'reset',
           payload: {
@@ -234,12 +235,12 @@ const Record: NextPage<RecordProps> = ({
             data,
           },
         });
+        if (!isNullorEmpty(errors)) {
+          showSnackbar('Error in Graphql response', 'error', errors);
+        }
       },
-      onError: (responseErrors) => {
-        // TODO: parse the err array and set the internal errors state accordingly
-        // const { ajvValidation } = responseErrors;
-        // Check if ajvValidation is not null (or empty?) and dispatch errors to
-        // the formAttributes reducer as needed.
+      onError: (errors) => {
+        showSnackbar('Error in request to server', 'error', errors);
       },
     }
   );
@@ -342,6 +343,7 @@ const Record: NextPage<RecordProps> = ({
               await requestOne(auth.user.token, query, resolver, variables);
               router.push(`/${modelName}`);
             } catch (errors) {
+              showSnackbar('Error in request to server', 'error', errors);
               console.error(errors);
             }
           },
@@ -397,20 +399,27 @@ const Record: NextPage<RecordProps> = ({
             resolver,
             variables
           );
+
+          if (!isNullorEmpty(errors)) {
+            showSnackbar('Error in Graphql response', 'error', errors);
+          }
+
           // TODO: if errors, update errors but not data
           if (formView === 'update' && !errors) mutate(variables);
           router.push(`/${modelName}`);
         }
       } catch (errors) {
-        const validation_errors = parseValidationErrors(errors);
-        for (const [key, error] of Object.entries(validation_errors)) {
+        console.log('ERRORS', [errors]);
+        const { attributeErrors, generalErrors } = parseErrors(errors);
+        for (const [key, error] of Object.entries(attributeErrors)) {
           dispatch({
             type: 'update',
-            payload: { key, error: { ajvValidation: error } },
+            payload: { key, error },
           });
         }
-
-        console.error(errors);
+        if (!isNullorEmpty(generalErrors)) {
+          showSnackbar('Error in request to server', 'error', generalErrors);
+        }
       }
     };
 
