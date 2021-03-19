@@ -1,7 +1,6 @@
 import { PropsWithChildren, ReactElement } from 'react';
 import Link from 'next/link';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { Typography } from '@material-ui/core';
 import LanguageSwitcher from '@/components/toolbar/lang-switcher';
 import LogoutButton from '@/components/toolbar/logout-button';
 
@@ -20,9 +19,7 @@ export default function Toolbar({
       {props.children}
 
       <Link href="/" passHref>
-        <Typography marginLeft="1rem" variant="h4" component="a" noWrap>
-          {brand}
-        </Typography>
+        <a className={classes.brand}>{brand}</a>
       </Link>
 
       <div className={classes.menus}>
@@ -44,6 +41,13 @@ const useStyles = makeStyles((theme) => {
       color: theme.palette.getContrastText(theme.palette.primary.main),
       backgroundColor: theme.palette.primary.main,
       boxShadow: theme.shadows[3],
+    },
+    brand: {
+      marginLeft: theme.spacing(4),
+      ...theme.typography.h5,
+      [theme.breakpoints.up('sm')]: {
+        ...theme.typography.h4,
+      },
     },
     menus: {
       marginLeft: 'auto',

@@ -29,17 +29,15 @@ interface RestrictedResourceProps {
 export default function RestrictedResource(
   props: PropsWithChildren<RestrictedResourceProps>
 ): ReactElement {
-  const classes = useStyles();
-
-  const router = useRouter();
-
   const { isAllowed, redirectTimer } = useAuth({
     redirectTo: `/home`,
     redirectIfNotAllowed: true,
     redirectTimeout: 10,
   });
-
+  const router = useRouter();
   const [allow, setAllow] = useState(false);
+  const classes = useStyles();
+
   useEffect(() => setAllow(isAllowed), [isAllowed, setAllow]);
 
   const resourceInfo = useMemo<KeyValueMap>(() => {
@@ -106,11 +104,21 @@ const useStyles = makeStyles((theme) =>
       textDecoration: 'underline',
     },
     header: {
-      ...theme.typography.h2,
+      textAlign: 'center',
+      ...theme.typography.h6,
+      [theme.breakpoints.up('sm')]: {
+        ...theme.typography.h4,
+      },
+      [theme.breakpoints.up('md')]: {
+        ...theme.typography.h3,
+      },
     },
     text: {
       color: theme.palette.text.primary,
-      ...theme.typography.h5,
+      ...theme.typography.body1,
+      [theme.breakpoints.up('sm')]: {
+        ...theme.typography.h5,
+      },
     },
     timer: {
       color: 'orangered',

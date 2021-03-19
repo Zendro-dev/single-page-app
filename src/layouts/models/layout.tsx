@@ -1,9 +1,14 @@
-import React, { PropsWithChildren, ReactElement, useReducer } from 'react';
+import React, {
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 import dynamic from 'next/dynamic';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Box, Fab, Zoom } from '@material-ui/core';
+import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
+import { Box, Fab, useMediaQuery, Zoom } from '@material-ui/core';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
@@ -25,19 +30,23 @@ export default function ModelsLayout({
   routes,
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
-  const classes = useStyles();
-  const [drawerOpen, toggleDrawer] = useReducer<(state: boolean) => boolean>(
-    (state) => !state,
-    true
-  );
   const { auth } = useAuth();
+  const classes = useStyles();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const theme = useTheme();
+
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  useEffect(() => setDrawerOpen(isLargeScreen), [isLargeScreen]);
 
   return (
     <div className={classes.root}>
-      <Toolbar brand={brand ?? 'Zendro'}>
+      <Toolbar brand={brand ?? ''}>
         <Zoom in={true} timeout={500}>
           <Box>
-            <Fab size="medium" onClick={toggleDrawer}>
+            <Fab
+              size={isLargeScreen ? 'medium' : 'small'}
+              onClick={() => setDrawerOpen((state) => !state)}
+            >
               {drawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </Fab>
           </Box>
@@ -46,7 +55,9 @@ export default function ModelsLayout({
 
       <div className={classes.mainContainer}>
         <Navigation
-          className={drawerOpen ? classes.drawerOpen : classes.drawerClosed}
+          className={clsx(classes.drawer, {
+            [classes.drawerClosed]: !drawerOpen,
+          })}
           permissions={auth.user?.permissions}
           routes={routes ?? ((appRoutes as unknown) as AppRoutes)}
         />
@@ -62,7 +73,7 @@ export default function ModelsLayout({
   );
 }
 
-const useStyles = makeStyles((theme: Theme) => {
+const useStyles = makeStyles((theme) => {
   return createStyles({
     root: {
       height: '100%',
@@ -72,8 +83,15 @@ const useStyles = makeStyles((theme: Theme) => {
       display: 'flex',
       height: `calc(100% - ${theme.spacing(18)})`,
     },
-    drawerOpen: {
-      width: '18rem',
+    drawer: {
+      width: '100%',
+      transition: theme.transitions.create(['width'], {
+        duration: theme.transitions.duration.standard,
+        easing: theme.transitions.easing.sharp,
+      }),
+      [theme.breakpoints.up('md')]: {
+        width: theme.spacing(72),
+      },
     },
     drawerClosed: {
       width: 0,
@@ -87,11 +105,14 @@ const useStyles = makeStyles((theme: Theme) => {
       }),
     },
     mainContentShift: {
-      width: `calc(100% - 18rem)`,
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.sharp,
-      }),
+      width: 0,
+      [theme.breakpoints.up('md')]: {
+        width: `calc(100% - ${theme.spacing(72)})`,
+        transition: theme.transitions.create(['width'], {
+          duration: theme.transitions.duration.standard,
+          easing: theme.transitions.easing.sharp,
+        }),
+      },
     },
   });
 });

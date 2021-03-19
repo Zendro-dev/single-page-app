@@ -96,10 +96,6 @@ const useStyles = makeStyles((theme) => {
       overflow: 'hidden',
       borderRight: '1px solid',
       borderRightColor: theme.palette.grey[300],
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.sharp,
-      }),
     },
     homeLink: {
       display: 'flex',
@@ -108,7 +104,7 @@ const useStyles = makeStyles((theme) => {
       paddingBottom: theme.spacing(3),
     },
     linkText: {
-      paddingLeft: theme.spacing(8),
+      paddingLeft: theme.spacing(18),
     },
   });
 });
