@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import clsx from 'clsx';
 
 import { Box, createStyles, makeStyles } from '@material-ui/core';
 import {
@@ -10,18 +11,15 @@ import {
 import { NavGroup, NavLink } from '@/components/navigation';
 import { AuthPermissions } from '@/types/auth';
 import { AppRoutes } from '@/types/routes';
-import clsx from 'clsx';
 
 interface AppDrawerProps {
   className?: string;
-  component?: React.ElementType;
   permissions?: AuthPermissions;
   routes: AppRoutes;
 }
 
 export default function Navigation({
   className,
-  component,
   permissions,
   routes,
 }: AppDrawerProps): ReactElement {
@@ -43,10 +41,7 @@ export default function Navigation({
   };
 
   return (
-    <Box
-      component={component}
-      className={clsx(classes.drawer, className ?? '')}
-    >
+    <Box component="nav" className={clsx(classes.drawer, className ?? '')}>
       <NavLink
         className={classes.homeLink}
         href="/home"
@@ -101,10 +96,6 @@ const useStyles = makeStyles((theme) => {
       overflow: 'hidden',
       borderRight: '1px solid',
       borderRightColor: theme.palette.grey[300],
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.sharp,
-      }),
     },
     homeLink: {
       display: 'flex',
@@ -113,7 +104,7 @@ const useStyles = makeStyles((theme) => {
       paddingBottom: theme.spacing(3),
     },
     linkText: {
-      paddingLeft: theme.spacing(8),
+      paddingLeft: theme.spacing(18),
     },
   });
 });

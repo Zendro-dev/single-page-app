@@ -1,10 +1,6 @@
 import React from 'react';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import {
-  getStaticModel,
-  getStaticRoutes,
-  getStaticModelPaths,
-} from '@/utils/static';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { getStaticModel, getStaticModelPaths } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
 import {
   queryRecord,
@@ -12,13 +8,8 @@ import {
   queryModelTableRecordsCount,
 } from '@/utils/queries';
 import { PathParams } from '@/types/models';
-import { AppRoutes } from '@/types/routes';
-import ModelsLayout from '@/layouts/models';
+import { ModelsLayout, PageWithLayout } from '@/layouts';
 import EnhancedTable, { EnhancedTableProps } from '@/components/records-table';
-
-interface ModelProps extends EnhancedTableProps {
-  routes: AppRoutes;
-}
 
 export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   const paths = await getStaticModelPaths();
@@ -28,13 +19,13 @@ export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
-  context
-) => {
+export const getStaticProps: GetStaticProps<
+  EnhancedTableProps,
+  PathParams
+> = async (context) => {
   const params = context.params as PathParams;
 
   const modelName = params.model;
-  const routes = await getStaticRoutes();
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
@@ -52,26 +43,23 @@ export const getStaticProps: GetStaticProps<ModelProps, PathParams> = async (
         delete: _delete,
         count,
       },
-      routes,
       key: modelName,
     },
   };
 };
 
-const Model: NextPage<ModelProps> = ({
+const Model: PageWithLayout<EnhancedTableProps> = ({
   modelName,
   attributes,
   requests,
-  routes,
 }) => {
   return (
-    <ModelsLayout brand="Zendro" routes={routes}>
-      <EnhancedTable
-        modelName={modelName}
-        attributes={attributes}
-        requests={requests}
-      />
-    </ModelsLayout>
+    <EnhancedTable
+      modelName={modelName}
+      attributes={attributes}
+      requests={requests}
+    />
   );
 };
+Model.layout = ModelsLayout;
 export default Model;
