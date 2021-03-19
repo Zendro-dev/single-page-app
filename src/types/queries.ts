@@ -27,9 +27,11 @@ export interface QueryVariableSearch {
   search?: QueryVariableSearch[];
 }
 
+export type OrderDirection = 'ASC' | 'DESC';
+
 export interface QueryVariableOrder {
   field: string;
-  order: 'ASC' | 'DESC';
+  order: OrderDirection;
 }
 
 export interface QueryVariablePagination {

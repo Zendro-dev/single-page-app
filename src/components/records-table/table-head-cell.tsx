@@ -7,9 +7,9 @@ import {
   Box,
   TableCellProps,
 } from '@material-ui/core';
-import { Order } from './table-head';
 import { SvgIconType } from '@/types/elements';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { OrderDirection } from '@/types/queries';
 
 interface EnhacedTableHeadCellProps extends TableCellProps {
   label: string;
@@ -17,8 +17,8 @@ interface EnhacedTableHeadCellProps extends TableCellProps {
   tooltip?: string;
   disableSort: boolean;
   activeOrder: boolean;
-  orderDirection: Order;
-  onTableCellClick(field: string): void;
+  orderDirection: OrderDirection;
+  onSortLabelClick(field: string): void;
 }
 
 export default function EnhancedTableHeadCell({
@@ -28,7 +28,7 @@ export default function EnhancedTableHeadCell({
   tooltip,
   activeOrder,
   orderDirection,
-  onTableCellClick,
+  onSortLabelClick,
   ...props
 }: EnhacedTableHeadCellProps): ReactElement {
   const classes = useStyles();
@@ -37,9 +37,9 @@ export default function EnhancedTableHeadCell({
       <TableSortLabel
         active={activeOrder}
         disabled={disableSort}
-        direction={orderDirection}
+        direction={orderDirection.toLowerCase() as Lowercase<OrderDirection>}
         onClick={() => {
-          onTableCellClick(label);
+          onSortLabelClick(label);
         }}
       >
         {Icon && tooltip && (
