@@ -317,24 +317,22 @@ export default function EnhancedTable({
             activeOrder={variables.order?.field ?? attributes[0].name}
             orderDirection={variables.order?.order ?? 'ASC'}
           />
-          {!isEmptyArray(rows) && (
-            <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
-              <TableBody>
-                {rows.map((record, index) => (
-                  // TODO key should use primaryKey value
-                  <EnhancedTableRow
-                    attributes={attributes}
-                    permissions={auth.user?.permissions[modelName] ?? []}
-                    record={record}
-                    key={`${index}`}
-                    onRead={handleActionClick('read')}
-                    onUpdate={handleActionClick('update')}
-                    onDelete={handleActionClick('delete')}
-                  />
-                ))}
-              </TableBody>
-            </Fade>
-          )}
+          <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
+            <TableBody>
+              {rows.map((record, index) => (
+                // TODO key should use primaryKey value
+                <EnhancedTableRow
+                  attributes={attributes}
+                  permissions={auth.user?.permissions[modelName] ?? []}
+                  record={record}
+                  key={`${index}`}
+                  onRead={handleActionClick('read')}
+                  onUpdate={handleActionClick('update')}
+                  onDelete={handleActionClick('delete')}
+                />
+              ))}
+            </TableBody>
+          </Fade>
         </Table>
         {isValidatingRecords && (
           <div className={classes.tablePlaceholder}>
