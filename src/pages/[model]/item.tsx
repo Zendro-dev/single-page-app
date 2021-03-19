@@ -409,7 +409,7 @@ const Record: NextPage<RecordProps> = ({
           router.push(`/${modelName}`);
         }
       } catch (errors) {
-        console.log('ERRORS', [errors]);
+        console.error([errors]);
         const { attributeErrors, generalErrors } = parseErrors(errors);
         for (const [key, error] of Object.entries(attributeErrors)) {
           dispatch({
