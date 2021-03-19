@@ -14,6 +14,8 @@ import {
 import { AttributeValue, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 import AttributeField from '../input/attribute-field';
+import AttributeErrors from '../alert/attributes-error';
+import { ErrorsAttribute } from '../alert/attributes-error';
 
 export interface AttributesFormProps {
   actions: ReactNode;
@@ -26,11 +28,12 @@ export interface AttributesFormProps {
   };
   formId?: string;
   onChange: (key: string) => (value: AttributeValue) => void;
+  onError: (key: string) => (value: string | null) => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
 export interface FormAttribute extends ParsedAttribute {
-  error?: string | null;
+  error?: ErrorsAttribute | null;
   readOnly?: boolean;
   value: AttributeValue;
 }
@@ -41,6 +44,7 @@ export default function AttributesForm({
   disabled,
   title,
   onChange,
+  onError,
   onSubmit,
   formId,
   ...props
@@ -103,8 +107,16 @@ export default function AttributesForm({
             <AttributeField
               key={name}
               type={type}
-              error={error ? true : false}
-              helperText={error}
+              error={
+                error && (error.ajvValidation || error.clientValidation)
+                  ? true
+                  : false
+              }
+              helperText={
+                error && (error.ajvValidation || error.clientValidation) ? (
+                  <AttributeErrors errors={error} />
+                ) : undefined
+              }
               InputProps={{
                 readOnly,
               }}
@@ -132,6 +144,7 @@ export default function AttributesForm({
                   : undefined
               }
               onChange={disabled ? undefined : onChange(name)}
+              onError={disabled ? undefined : onError(name)}
               value={value}
             />
           );

@@ -18,6 +18,7 @@ import AssociationList from '@/components/association-list';
 
 import useAuth from '@/hooks/useAuth';
 import { useDialog } from '@/hooks/useDialog';
+import useToastNotification from '@/hooks/useToastNotification';
 import ModelsLayout from '@/layouts/models';
 
 import {
@@ -27,13 +28,15 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
-import { RawQuery, ComposedQuery } from '@/types/queries';
+import { QueryVariables } from '@/types/queries';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { requestOne } from '@/utils/requests';
+import { requestOne, GraphqlResponse } from '@/utils/requests';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isNullorUndefined } from '@/utils/validation';
+import { parseErrors } from '@/utils/error';
+import { ErrorsAttribute } from '@/components/alert/attributes-error';
 import { isNullorEmpty } from '@/utils/validation';
 import { PageWithLayout } from '@/layouts';
 
@@ -109,7 +112,7 @@ interface InitAttributesArgs {
   formView: FormView;
   attributes: ParsedAttribute[];
   data?: DataRecord | null;
-  errors?: Record<string, string | undefined>;
+  errors?: Record<string, ErrorsAttribute>;
 }
 /**
  * Compose an array of form attributes from a combination of static types
@@ -134,7 +137,7 @@ function initAttributes({
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
         value: data ? data[name] : null,
-        error: errors ? errors[name] : null,
+        error: errors && errors[name] ? errors[name] : null,
       });
       return attrArr;
     },
@@ -143,7 +146,10 @@ function initAttributes({
 }
 
 type FormAttributesAction =
-  | { type: 'update'; payload: { key: string; value: AttributeValue } }
+  | {
+      type: 'update';
+      payload: { key: string; value?: AttributeValue; error?: ErrorsAttribute };
+    }
   | { type: 'reset'; payload: InitAttributesArgs };
 function formAttributesReducer(
   state: FormAttribute[],
@@ -154,31 +160,14 @@ function formAttributesReducer(
       return initAttributes(action.payload);
     }
     case 'update': {
-      const { key, value } = action.payload;
+      const { key, value, error } = action.payload;
       const attr = state.find(({ name }) => key === name);
-      if (attr) attr.value = value;
+      if (attr && value !== undefined) attr.value = value;
+      if (attr && error) {
+        attr.error = attr.error ? { ...attr.error, ...error } : error;
+      }
       return [...state];
     }
-  }
-}
-
-/**
- * Compose the run-time read-one query using static and dynamic data.
- * @param rawQuery static raw query object
- * @param idValue requested attribute id
- */
-function composeReadOneRequest(
-  attributes: ParsedAttribute[],
-  rawQuery: RawQuery,
-  idValue?: string | number
-): ComposedQuery | undefined {
-  const idField = attributes.find(({ primaryKey }) => primaryKey);
-  if (idValue && idField) {
-    return {
-      resolver: rawQuery.resolver,
-      query: rawQuery.query,
-      variables: { [idField.name]: idValue },
-    };
   }
 }
 
@@ -192,6 +181,7 @@ const Record: PageWithLayout<RecordProps> = ({
   const router = useRouter();
   const classes = useStyles();
   const dialog = useDialog();
+  const { showSnackbar } = useToastNotification();
   const { queryId, formView } = parseUrlQuery(router.query as PathParams);
   const formId = `AttributesForm-${queryId ?? 'create'}`;
 
@@ -208,29 +198,41 @@ const Record: PageWithLayout<RecordProps> = ({
   /**
    * Composed read request from the url.
    */
-  const readRequest = useMemo<ComposedQuery | undefined>(
-    () => composeReadOneRequest(attributes, requests.read, queryId),
-    [attributes, queryId, requests.read]
-  );
+  const variables = useMemo<QueryVariables | undefined>(() => {
+    const idField = attributes.find(({ primaryKey }) => primaryKey);
+    if (queryId && idField) return { [idField.name]: queryId };
+  }, [attributes, queryId]);
 
   /**
    * Query data from the GraphQL endpoint.
    */
-  const { data, mutate } = useSWR<Record<string, AttributeValue> | null>(
-    readRequest && auth?.user?.token ? [auth.user.token, readRequest] : null,
+  const { data: graphqlResponse, mutate } = useSWR<GraphqlResponse<DataRecord>>(
+    variables && auth?.user?.token
+      ? [
+          auth.user.token,
+          requests.read.query,
+          requests.read.resolver,
+          variables,
+        ]
+      : null,
     requestOne,
     {
       revalidateOnFocus: false,
-      onSuccess: (data) => {
-        if (data)
-          dispatch({
-            type: 'reset',
-            payload: { formView, attributes, data },
-          });
+      onSuccess: ({ data, errors }) => {
+        dispatch({
+          type: 'reset',
+          payload: {
+            formView,
+            attributes,
+            data,
+          },
+        });
+        if (!isNullorEmpty(errors)) {
+          showSnackbar('Error in Graphql response', 'error', errors);
+        }
       },
-      onError: (responseErrors) => {
-        // TODO: parse the err array and set the internal errors state accordingly
-        console.log({ responseErrors });
+      onError: (errors) => {
+        showSnackbar('Error in request to server', 'error', errors);
       },
     }
   );
@@ -241,6 +243,13 @@ const Record: PageWithLayout<RecordProps> = ({
    */
   const handleOnChange = (key: string) => (value: AttributeValue) => {
     dispatch({ type: 'update', payload: { key, value } });
+  };
+
+  const handleOnError = (key: string) => (value: string | null) => {
+    dispatch({
+      type: 'update',
+      payload: { key, error: { clientValidation: value } },
+    });
   };
 
   /**
@@ -254,13 +263,13 @@ const Record: PageWithLayout<RecordProps> = ({
        */
       case 'cancel': {
         let diffData = 0;
-
         if (formView === 'create') {
           diffData = formAttributes.filter(({ value }) => value !== null)
             .length;
-        } else if (formView === 'update' && data) {
+        } else if (formView === 'update' && graphqlResponse?.data) {
+          const dataRecord = graphqlResponse.data;
           diffData = formAttributes.filter(
-            ({ name, value }) => value !== data[name]
+            ({ name, value }) => value !== dataRecord[name]
           ).length;
         }
 
@@ -289,7 +298,11 @@ const Record: PageWithLayout<RecordProps> = ({
         router.push(`/${modelName}/item?${action}=${queryId}`);
         dispatch({
           type: 'reset',
-          payload: { formView: action, attributes, data },
+          payload: {
+            formView: action,
+            attributes,
+            data: graphqlResponse?.data,
+          },
         });
         break;
       }
@@ -304,7 +317,6 @@ const Record: PageWithLayout<RecordProps> = ({
           okText: 'YES',
           cancelText: 'NO',
           onOk: async () => {
-            const { query, resolver } = requests.delete;
             const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
             const idValue = formAttributes.find(
               ({ name }) => idKey && name === idKey
@@ -319,15 +331,11 @@ const Record: PageWithLayout<RecordProps> = ({
               if (!auth.user?.token) return;
 
               const variables = { [idKey]: idValue };
-              const request: ComposedQuery = {
-                resolver,
-                query,
-                variables,
-              };
-
-              await requestOne(auth.user.token, request);
+              const { query, resolver } = requests.delete;
+              await requestOne(auth.user.token, query, resolver, variables);
               router.push(`/${modelName}`);
             } catch (errors) {
+              showSnackbar('Error in request to server', 'error', errors);
               console.error(errors);
             }
           },
@@ -362,29 +370,60 @@ const Record: PageWithLayout<RecordProps> = ({
       return isNullorEmpty(value) ? acc : (acc += 1);
     }, 0);
 
-    const submit = async (): Promise<void> => {
-      const { query, resolver } =
-        formView === 'create' ? requests.create : requests.update;
+    const clientValidationErrors = formAttributes.reduce((acc, { error }) => {
+      return error && error.clientValidation ? (acc += 1) : acc;
+    }, 0);
 
-      const data = formAttributes.reduce<Record<string, AttributeValue>>(
+    const submit = async (): Promise<void> => {
+      const variables = formAttributes.reduce<Record<string, AttributeValue>>(
         (acc, { name, value }) => ({ ...acc, [name]: value }),
         {}
       );
 
-      const request: ComposedQuery = {
-        resolver,
-        query,
-        variables: data,
-      };
+      const { query, resolver } =
+        formView === 'create' ? requests.create : requests.update;
 
       try {
-        if (auth.user?.token) await requestOne(auth.user?.token, request);
-        if (formView === 'update') mutate(data);
-        router.push(`/${modelName}`);
+        if (auth.user?.token) {
+          const { errors } = await requestOne<DataRecord>(
+            auth.user?.token,
+            query,
+            resolver,
+            variables
+          );
+
+          if (!isNullorEmpty(errors)) {
+            showSnackbar('Error in Graphql response', 'error', errors);
+          }
+
+          // TODO: if errors, update errors but not data
+          if (formView === 'update' && !errors) mutate(variables);
+          router.push(`/${modelName}`);
+        }
       } catch (errors) {
-        console.error(errors);
+        console.error([errors]);
+        const { attributeErrors, generalErrors } = parseErrors(errors);
+        for (const [key, error] of Object.entries(attributeErrors)) {
+          dispatch({
+            type: 'update',
+            payload: { key, error },
+          });
+        }
+        if (!isNullorEmpty(generalErrors)) {
+          showSnackbar('Error in request to server', 'error', generalErrors);
+        }
       }
     };
+
+    if (clientValidationErrors > 0) {
+      dialog.openConfirm({
+        title: 'Validation errors',
+        message: 'Please fix client side validation errors',
+        hideOk: true,
+        cancelText: 'OK',
+      });
+      return;
+    }
 
     if (nonNullValues < formAttributes.length) {
       dialog.openConfirm({
@@ -431,6 +470,7 @@ const Record: PageWithLayout<RecordProps> = ({
           disabled={formView === 'read'}
           formId={formId}
           onChange={handleOnChange}
+          onError={handleOnError}
           onSubmit={handleOnSubmit(formView)}
           title={{
             prefix: capitalize(formView),

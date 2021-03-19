@@ -24,6 +24,7 @@ import {
 
 interface InputFieldProps {
   onChange?: (value: AttributeValue) => void;
+  onError?: (value: string | null) => void;
   type: AttributeScalarType | AttributeArrayType;
   value: AttributeValue;
 }
@@ -62,6 +63,7 @@ export default function AttributeField({
 
   const handleOnClear = (): void => {
     if (props.onChange && !props.InputProps?.readOnly) props.onChange(null);
+    if (props.onError) props.onError(null);
   };
 
   return (

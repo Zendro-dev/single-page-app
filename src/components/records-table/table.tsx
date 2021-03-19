@@ -124,9 +124,12 @@ export default function EnhancedTable({
   const { auth } = useAuth();
   const dialog = useDialog();
 
-  /* HANDLERS */
-  const handleSetOrder = (value: QueryVariableOrder): void => {
-    dispatch({ type: 'SET_ORDER', payload: value });
+  const handleSetOrder = (field: string): void => {
+    const isAsc =
+      field === variables.order?.field && variables.order.order === 'ASC';
+    const order = isAsc ? 'DESC' : 'ASC';
+
+    dispatch({ type: 'SET_ORDER', payload: { field, order } });
   };
 
   const handleActionClick = (
@@ -310,26 +313,26 @@ export default function EnhancedTable({
           <EnhancedTableHead
             permissions={auth.user?.permissions[modelName] ?? []}
             attributes={attributes}
-            handleSetOrder={handleSetOrder}
+            onSortLabelClick={handleSetOrder}
+            activeOrder={variables.order?.field ?? attributes[0].name}
+            orderDirection={variables.order?.order ?? 'ASC'}
           />
-          {!isEmptyArray(rows) && !isValidatingRecords && (
-            <Fade in={!isValidatingRecords}>
-              <TableBody>
-                {rows.map((record, index) => (
-                  // TODO key should use primaryKey value
-                  <EnhancedTableRow
-                    attributes={attributes}
-                    permissions={auth.user?.permissions[modelName] ?? []}
-                    record={record}
-                    key={`${index}`}
-                    onRead={handleActionClick('read')}
-                    onUpdate={handleActionClick('update')}
-                    onDelete={handleActionClick('delete')}
-                  />
-                ))}
-              </TableBody>
-            </Fade>
-          )}
+          <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
+            <TableBody>
+              {rows.map((record, index) => (
+                // TODO key should use primaryKey value
+                <EnhancedTableRow
+                  attributes={attributes}
+                  permissions={auth.user?.permissions[modelName] ?? []}
+                  record={record}
+                  key={`${index}`}
+                  onRead={handleActionClick('read')}
+                  onUpdate={handleActionClick('update')}
+                  onDelete={handleActionClick('delete')}
+                />
+              ))}
+            </TableBody>
+          </Fade>
         </Table>
         {isValidatingRecords && (
           <div className={classes.tablePlaceholder}>
@@ -380,10 +383,12 @@ const useStyles = makeStyles((theme) =>
       overflow: 'auto',
     },
     tablePlaceholder: {
+      position: 'absolute',
       display: 'flex',
-      flexGrow: 0.5,
       justifyContent: 'center',
       alignItems: 'center',
+      width: '100%',
+      height: '100%',
     },
     pagination: {
       padding: theme.spacing(6, 2),

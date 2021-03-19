@@ -5,6 +5,7 @@ import {
   Tooltip,
   makeStyles,
   IconButton,
+  createStyles,
 } from '@material-ui/core';
 import {
   DeleteOutline as DeleteIcon,
@@ -20,7 +21,6 @@ interface EnhancedTableRowIconProps {
 }
 
 interface EnhancedTableRowProps {
-  // TODO correct typing for record
   record: DataRecord;
   attributes: ParsedAttribute[];
   permissions: AclPermission[];
@@ -35,7 +35,7 @@ function EnhancedTableRowIcon({
   children,
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   return (
-    <TableCell style={{ width: '3rem' }} padding="checkbox" align="center">
+    <TableCell padding="checkbox" align="center">
       <Tooltip title={label}>
         <IconButton color="default" onClick={onClick}>
           {children}
@@ -52,8 +52,7 @@ export default function EnhancedTableRow({
   onRead,
   onUpdate,
   onDelete,
-}: // actions,
-EnhancedTableRowProps): ReactElement {
+}: EnhancedTableRowProps): ReactElement {
   // TODO needs to be aware of the model to compose the correct Link to View/Update/Delete
 
   const classes = useStyles();
@@ -68,12 +67,7 @@ EnhancedTableRowProps): ReactElement {
     // TODO permissions
     // ? accomodate associations
 
-    <TableRow
-      hover
-      role="checkbox"
-      tabIndex={-1}
-      onDoubleClick={() => onRead(primaryKey)}
-    >
+    <TableRow hover role="checkbox" onDoubleClick={() => onRead(primaryKey)}>
       {(permissions.includes('read') || permissions.includes('*')) && (
         <EnhancedTableRowIcon label="detail" onClick={() => onRead(primaryKey)}>
           <DetailIcon fontSize="small" className={classes.iconDetail} />
@@ -110,20 +104,22 @@ EnhancedTableRowProps): ReactElement {
   );
 }
 
-const useStyles = makeStyles(() => ({
-  iconDetail: {
-    '&:hover': {
-      color: '#3f51b5',
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    iconDetail: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
     },
-  },
-  iconEdit: {
-    '&:hover': {
-      color: '#3f51b5',
+    iconEdit: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
     },
-  },
-  iconDelete: {
-    '&:hover': {
-      color: '#f50057',
+    iconDelete: {
+      '&:hover': {
+        color: theme.palette.secondary.main,
+      },
     },
-  },
-}));
+  })
+);

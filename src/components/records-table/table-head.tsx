@@ -1,46 +1,31 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
 import KeyIcon from '@material-ui/icons/VpnKey';
 import EnhancedTableHeadCell from './table-head-cell';
-import { QueryVariableOrder } from '@/types/queries';
 import { ParsedAttribute } from '@/types/models';
 import { AclPermission } from '@/types/acl';
+import { OrderDirection } from '@/types/queries';
 
 interface EnhancedTableHeadProps {
   attributes: ParsedAttribute[];
   permissions: AclPermission[];
-  handleSetOrder(value: QueryVariableOrder): void;
+  onSortLabelClick(value: string): void;
+  activeOrder: string;
+  orderDirection: OrderDirection;
 }
-
-declare global {
-  interface String {
-    toUpperCase(this: 'asc' | 'desc'): 'ASC' | 'DESC';
-  }
-}
-
-export type Order = 'asc' | 'desc';
 
 export default function EnhancedTableHead({
   attributes,
   permissions,
-  handleSetOrder,
+  onSortLabelClick,
+  activeOrder,
+  orderDirection,
 }: EnhancedTableHeadProps): ReactElement {
-  const [activeOrderCol, setActiveOrderCol] = useState(attributes[0].name);
-  const [activeOrder, setActiveOrder] = useState<Order>('asc');
-
-  const handleTableHeadCellClick = (field: string): void => {
-    const isAsc = activeOrderCol === field && activeOrder === 'asc';
-    setActiveOrder(isAsc ? 'desc' : 'asc');
-    setActiveOrderCol(field);
-    handleSetOrder({ field: field, order: activeOrder.toUpperCase() });
-  };
-
   return (
     // TODO colspan depending on permissions
     <TableHead>
       <TableRow>
         <TableCell
-          style={{ width: '9rem' }}
           colSpan={
             permissions.includes('*')
               ? 3
@@ -54,6 +39,7 @@ export default function EnhancedTableHead({
             variant="caption"
             display="inline"
             noWrap={true}
+            width="9rem"
           >
             Actions
           </Typography>
@@ -69,14 +55,11 @@ export default function EnhancedTableHead({
                 : 'left'
             }
             disableSort={false}
-            activeOrder={activeOrderCol === attribute.name}
+            activeOrder={activeOrder === attribute.name}
             orderDirection={
-              activeOrderCol === attribute.name ? activeOrder : 'asc'
+              activeOrder === attribute.name ? orderDirection : 'ASC'
             }
-            sortDirection={
-              activeOrderCol === attribute.name ? activeOrder : false
-            }
-            onTableCellClick={handleTableHeadCellClick}
+            onSortLabelClick={onSortLabelClick}
             key={`EnhancedTableHeadCell-${attribute.name}-${index}`}
           />
         ))}

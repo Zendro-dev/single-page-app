@@ -28,7 +28,7 @@ export const getStaticProps: GetStaticProps<
   const modelName = params.model;
   const dataModel = await getStaticModel(modelName);
 
-  const attributes = getAttributeList(dataModel);
+  const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const read = queryModelTableRecords(modelName, attributes);
   // TODO rename delete to something different to destructure
   const _delete = queryRecord(modelName, attributes).delete;
