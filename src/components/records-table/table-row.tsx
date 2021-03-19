@@ -5,6 +5,7 @@ import {
   Tooltip,
   makeStyles,
   IconButton,
+  createStyles,
 } from '@material-ui/core';
 import {
   DeleteOutline as DeleteIcon,
@@ -103,20 +104,22 @@ export default function EnhancedTableRow({
   );
 }
 
-const useStyles = makeStyles(() => ({
-  iconDetail: {
-    '&:hover': {
-      color: '#3f51b5',
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    iconDetail: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
     },
-  },
-  iconEdit: {
-    '&:hover': {
-      color: '#3f51b5',
+    iconEdit: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
     },
-  },
-  iconDelete: {
-    '&:hover': {
-      color: '#f50057',
+    iconDelete: {
+      '&:hover': {
+        color: theme.palette.secondary.main,
+      },
     },
-  },
-}));
+  })
+);
