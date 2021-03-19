@@ -43,10 +43,7 @@ export default function ModelsLayout({
       <Toolbar brand={brand ?? ''}>
         <Zoom in={true} timeout={500}>
           <Box>
-            <Fab
-              size={isLargeScreen ? 'medium' : 'small'}
-              onClick={() => setDrawerOpen((state) => !state)}
-            >
+            <Fab size="small" onClick={() => setDrawerOpen((state) => !state)}>
               {drawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </Fab>
           </Box>
