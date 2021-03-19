@@ -23,7 +23,7 @@ function App({ Component, pageProps }: AppWithLayouts<AppProps>): ReactElement {
           }}
         >
           <DialogProvider>
-            <Layout>
+            <Layout brand="Zendro">
               <Component {...pageProps} />
             </Layout>
           </DialogProvider>
