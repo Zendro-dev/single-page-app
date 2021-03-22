@@ -54,6 +54,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
         onChange={onFieldChange('email')}
         type="email"
         value={state?.email}
+        data-cy="login-form-email"
       />
 
       <PasswordField
@@ -61,6 +62,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
         label="Password"
         onChange={onFieldChange('password')}
         value={state?.password}
+        data-cy="login-form-password"
       />
 
       <div className={classes.buttonContainer}>
@@ -70,6 +72,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
           variant="contained"
           color="primary"
           type="submit"
+          data-cy="login-form-login"
         >
           Login
         </Button>
