@@ -91,32 +91,13 @@ const Record: PageWithLayout<RecordProps> = ({
     'attributes'
   );
 
-  /* AUXILIARY */
-
-  const countDiffs = (formData: FormAttribute[]): number => {
-    let diffCount = 0;
-
-    if (recordData) {
-      diffCount = formData.reduce((acc, { name, value }) => {
-        const cachedValue = recordData[requests.create.resolver][name];
-        // TODO: deep comparison for array types
-        if (value !== cachedValue) acc++;
-        return acc;
-      }, diffCount);
-    }
-
-    return diffCount;
-  };
-
   /* ACTION HANDLERS */
 
   /**
    * Exit the form and go back to the model table page.
    */
-  const handleOnCancel: ActionHandler = (formData) => {
-    const diffs = countDiffs(formData);
-
-    if (diffs > 0) {
+  const handleOnCancel: ActionHandler = (formData, formStats) => {
+    if (formStats.unset > 0) {
       return dialog.openConfirm({
         title: 'Some fields have been modified.',
         message: 'Do you want to leave anyway?',

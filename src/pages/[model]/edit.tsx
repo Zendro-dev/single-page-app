@@ -10,7 +10,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import AttributesForm, {
   ActionHandler,
-  FormAttribute,
+  formDiff,
 } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
@@ -123,31 +123,13 @@ const Record: PageWithLayout<RecordProps> = ({
     }
   );
 
-  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
-  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-
   /* STATE */
 
+  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
+  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
   );
-
-  /* AUXILIARY */
-
-  const countDiffs = (formData: FormAttribute[]): number => {
-    let diffCount = 0;
-
-    if (recordData) {
-      diffCount = formData.reduce((acc, { name, value }) => {
-        const cachedValue = recordData[requests.read.resolver][name];
-        // TODO: deep comparison for array types
-        if (value !== cachedValue) acc++;
-        return acc;
-      }, diffCount);
-    }
-
-    return diffCount;
-  };
 
   /* ACTION HANDLERS */
 
@@ -155,7 +137,11 @@ const Record: PageWithLayout<RecordProps> = ({
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = (formData) => {
-    const diffs = countDiffs(formData);
+    let diffs = 0;
+
+    if (recordData) {
+      diffs = formDiff(formData, recordData[requests.read.resolver]);
+    }
 
     if (diffs > 0) {
       return dialog.openConfirm({
@@ -216,7 +202,11 @@ const Record: PageWithLayout<RecordProps> = ({
    * Reload page data.
    */
   const handleOnReload: ActionHandler = (formData) => {
-    const diffs = countDiffs(formData);
+    let diffs = 0;
+
+    if (recordData) {
+      diffs = formDiff(formData, recordData[requests.read.resolver]);
+    }
 
     const revalidateData = async (): Promise<void> => {
       mutateRecord(undefined, true);

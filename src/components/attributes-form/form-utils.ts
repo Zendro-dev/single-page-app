@@ -1,6 +1,8 @@
 import { FormAttribute, FormView } from './form';
-import { DataRecord, ParsedAttribute } from '@/types/models';
+import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
+
+/* STATE MANAGEMENT */
 
 interface InitForm {
   action: 'INIT_FORM';
@@ -127,6 +129,13 @@ interface FormStats {
   unset: number;
 }
 
+/* UTILITY FUNCTIONS */
+
+/**
+ * Compute various useful form statistics from current attribute values.
+ * @param formAttributes array of form attributes
+ * @returns form statistics related to current attributes
+ */
 export function formStats(formAttributes: FormAttribute[]): FormStats {
   return formAttributes.reduce(
     (acc, { value, clientError }) => {
@@ -136,4 +145,22 @@ export function formStats(formAttributes: FormAttribute[]): FormStats {
     },
     { clientErrors: 0, unset: 0 } as FormStats
   );
+}
+
+/**
+ * Count differences between form attributes and a map of attribute values.
+ * @param formData array of form attributes
+ * @param recordData map of attribute name to value pairs
+ * @returns number of attributes with differing values
+ */
+export function formDiff(
+  formData: FormAttribute[],
+  recordData: Record<string, AttributeValue>
+): number {
+  return formData.reduce((acc, { name, value }) => {
+    const cachedValue = recordData[name];
+    // TODO: deep comparison for array types
+    if (value !== cachedValue) acc++;
+    return acc;
+  }, 0);
 }
