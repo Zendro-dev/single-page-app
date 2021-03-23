@@ -22,12 +22,12 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
+import { ExtendedClientError } from '@/types/requests';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { parseValidationErrors } from '@/utils/requests';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
-import { ExtendedClientError } from '@/types/requests';
 import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {
