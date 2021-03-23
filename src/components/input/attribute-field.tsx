@@ -73,7 +73,7 @@ export default function AttributeField({
         onChange={props.onChange ? handleOnChange : undefined}
         InputProps={{
           ...props.InputProps,
-          endAdornment: (
+          endAdornment: props.onChange && (
             <InputAdornment position="end">
               <Tooltip title="Unset value">
                 <span>
