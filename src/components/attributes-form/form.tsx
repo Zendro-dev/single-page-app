@@ -265,7 +265,14 @@ export default function AttributesForm({
       </Box>
 
       <form id={formId} className={className}>
-        <FormHeader locked={disabled} prefix={formView} title={modelName} />
+        <FormHeader
+          locked={disabled}
+          prefix={formView}
+          title={modelName}
+          subtitle={`Completed ${formAttributes.length - formStats.unset} / ${
+            formAttributes.length
+          }`}
+        />
 
         {formAttributes.map((attribute) => {
           const {
