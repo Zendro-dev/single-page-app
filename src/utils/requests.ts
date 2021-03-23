@@ -110,10 +110,15 @@ export async function requestOne<T>(
   return { data: data ? data[resolver] : data, errors };
 }
 
+/**
+ * Parse and extract validation errors from a graphql errors response.
+ * @param errors graphql errors with optional ajv errors extension
+ * @returns map of attribute name to ajv error messages
+ */
 export function parseValidationErrors(
   errors: GraphQLErrors[]
 ): Record<string, string[]> {
-  const errorSets = errors.reduce((acc, { extensions }) => {
+  return errors.reduce((acc, { extensions }) => {
     extensions?.validationErrors.forEach(({ dataPath, keyword, message }) => {
       const attributeName = dataPath.slice(1);
       const errors = new Set(acc[attributeName]);
@@ -123,6 +128,4 @@ export function parseValidationErrors(
     });
     return acc;
   }, {} as Record<string, string[]>);
-
-  return errorSets;
 }
