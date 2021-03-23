@@ -50,7 +50,7 @@ export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
 ) => {
   const { nameCp, namePlCp } = getInflections(modelName);
   const resolver = `count${namePlCp}`;
-  const query = `query countRecords($search: search${nameCp}Input) { 
+  const query = `query countRecords($search: search${nameCp}Input) {
     ${resolver}( search: $search ) }`;
 
   return {
@@ -69,7 +69,15 @@ export const queryRecord: QueryRecord = (modelName, attributes) => {
 
   const { args, idArg, idVar, fields, vars } = parseQueryAttributes(attributes);
 
+  const primaryKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
+
+  if (!primaryKey)
+    throw new Error(
+      `Primary key attribute could not be found in model ${modelName}`
+    );
+
   return {
+    primaryKey,
     create: {
       resolver: createResolver,
       query: `mutation createRecord(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
@@ -132,6 +140,7 @@ function parseQueryAttributes(
 } {
   return {
     /**
+     * Get all arguments as required in the add and update functions.
      */
     get args() {
       return attributes

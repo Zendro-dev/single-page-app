@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { request } from 'graphql-request';
-import { GRAPHQL_URL } from '@/config/globals';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -11,7 +9,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useAuth, useToastNotification } from '@/hooks';
+import { useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import {
@@ -20,7 +18,6 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
-import { QueryVariables } from '@/types/queries';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
@@ -72,22 +69,14 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const { auth } = useAuth();
+  const client = useZendroClient();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
 
   /* REQUEST */
 
-  const query = router.query as ModelUrlQuery;
-
-  /**
-   * Composed read request from the url.
-   */
-  const readQueryVariables = useMemo<QueryVariables | undefined>(() => {
-    const idField = attributes.find(({ primaryKey }) => primaryKey);
-    if (query.id && idField) return { [idField.name]: query.id };
-  }, [attributes, query.id]);
+  const urlQuery = router.query as ModelUrlQuery;
 
   /**
    * Query data from the GraphQL endpoint.
@@ -96,10 +85,11 @@ const Record: PageWithLayout<RecordProps> = ({
     Record<string, DataRecord>,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    readQueryVariables && auth?.user?.token
-      ? [GRAPHQL_URL, requests.read.query, readQueryVariables]
-      : null,
-    request,
+    urlQuery.id ? [requests.read.query, urlQuery.id] : null,
+    () => {
+      const { primaryKey, read } = requests;
+      return client.request(read.query, { [primaryKey]: urlQuery.id });
+    },
     {
       shouldRetryOnError: false,
       onSuccess: (data) => setRecordData(data),
@@ -134,13 +124,13 @@ const Record: PageWithLayout<RecordProps> = ({
    * Navigate to the record details page.
    */
   const handleOnUpdate: ActionHandler = () => {
-    router.push(`/${modelName}/edit?id=${query.id}`);
+    router.push(`/${modelName}/edit?id=${urlQuery.id}`);
   };
 
   /**
    * Reload page data.
    */
-  const handleOnReload: ActionHandler = () => {
+  const handleOnReload: ActionHandler = async () => {
     mutateRecord(undefined, true);
   };
 

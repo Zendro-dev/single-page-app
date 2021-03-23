@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import { request } from 'graphql-request';
-import { GRAPHQL_URL } from '@/config/globals';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -14,7 +12,7 @@ import AttributesForm, {
 } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useAuth, useDialog, useToastNotification } from '@/hooks';
+import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import {
@@ -23,7 +21,6 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
-import { QueryVariables } from '@/types/queries';
 import { ExtendedClientError } from '@/types/requests';
 import { ModelUrlQuery } from '@/types/routes';
 
@@ -77,7 +74,7 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const { auth } = useAuth();
+  const client = useZendroClient();
   const router = useRouter();
   const classes = useStyles();
   const dialog = useDialog();
@@ -85,15 +82,7 @@ const Record: PageWithLayout<RecordProps> = ({
 
   /* REQUEST */
 
-  const query = router.query as ModelUrlQuery;
-
-  /**
-   * Composed read request from the url.
-   */
-  const readQueryVariables = useMemo<QueryVariables | undefined>(() => {
-    const idField = attributes.find(({ primaryKey }) => primaryKey);
-    if (query.id && idField) return { [idField.name]: query.id };
-  }, [attributes, query.id]);
+  const urlQuery = router.query as ModelUrlQuery;
 
   /**
    * Query data from the GraphQL endpoint.
@@ -102,10 +91,11 @@ const Record: PageWithLayout<RecordProps> = ({
     Record<string, DataRecord>,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    readQueryVariables && auth?.user?.token
-      ? [GRAPHQL_URL, requests.read.query, readQueryVariables]
-      : null,
-    request,
+    urlQuery.id ? [requests.read.query, urlQuery.id] : null,
+    () => {
+      const { primaryKey, read } = requests;
+      return client.request(read.query, { [primaryKey]: urlQuery.id });
+    },
     {
       revalidateOnFocus: false,
       shouldRetryOnError: false,
@@ -162,26 +152,17 @@ const Record: PageWithLayout<RecordProps> = ({
   const handleOnDelete: ActionHandler = () => {
     dialog.openConfirm({
       title: 'Are you sure you want to delete this item?',
-      message: `Item with id ${query.id} in model ${modelName}.`,
+      message: `Item with id ${urlQuery.id} in model ${modelName}.`,
       okText: 'YES',
       cancelText: 'NO',
       onOk: async () => {
         if (!recordData) return;
 
         try {
-          const idKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
-          if (!idKey)
-            throw new Error('The record is missing a primary key attribute');
-
-          const idValue = recordData[requests.read.resolver][idKey];
-          if (!idValue)
-            throw new Error('The record primary key has not been set');
-
-          if (!auth.user?.token)
-            throw new Error('The current user does not have an access token');
-
-          await request(GRAPHQL_URL, requests.delete.query, {
-            [idKey]: idValue,
+          const { read, delete: _delete, primaryKey } = requests;
+          const idValue = recordData[read.resolver][primaryKey];
+          await client.request(_delete.query, {
+            [primaryKey]: idValue,
           });
           router.push(`/${modelName}`);
         } catch (error) {
@@ -195,7 +176,7 @@ const Record: PageWithLayout<RecordProps> = ({
    * Navigate to the record details page.
    */
   const handleOnDetails: ActionHandler = () => {
-    router.push(`/${modelName}/details?id=${query.id}`);
+    router.push(`/${modelName}/details?id=${urlQuery.id}`);
   };
 
   /**
@@ -236,12 +217,9 @@ const Record: PageWithLayout<RecordProps> = ({
 
     const submit = async (): Promise<void> => {
       try {
-        if (!auth.user?.token)
-          throw new Error('The current user does not have an access token');
-
-        const response = await request<Record<string, DataRecord>>(
-          GRAPHQL_URL,
-          requests.update.query,
+        const { update } = requests;
+        const response = await client.request<Record<string, DataRecord>>(
+          update.query,
           dataRecord
         );
 
@@ -287,7 +265,7 @@ const Record: PageWithLayout<RecordProps> = ({
     }
 
     if (formStats.unset > 0) {
-      const idMsg = query.id ? ` (id: ${query.id})` : '';
+      const idMsg = urlQuery.id ? ` (id: ${urlQuery.id})` : '';
       return dialog.openConfirm({
         title: `Some fields are empty.${idMsg}`,
         message: 'Do you want to continue anyway?',

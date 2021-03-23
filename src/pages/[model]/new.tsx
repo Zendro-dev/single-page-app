@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import { request } from 'graphql-request';
-import { GRAPHQL_URL } from '@/config/globals';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -10,7 +8,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useAuth, useDialog, useToastNotification } from '@/hooks';
+import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import {
@@ -71,7 +69,7 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const { auth } = useAuth();
+  const client = useZendroClient();
   const router = useRouter();
   const classes = useStyles();
   const dialog = useDialog();
@@ -118,12 +116,9 @@ const Record: PageWithLayout<RecordProps> = ({
 
     const submit = async (): Promise<void> => {
       try {
-        if (!auth.user?.token)
-          throw new Error('The current user does not have an access token');
-
-        const response = await request<Record<string, DataRecord>>(
-          GRAPHQL_URL,
-          requests.create.query,
+        const { create } = requests;
+        const response = await client.request<Record<string, DataRecord>>(
+          create.query,
           dataRecord
         );
 
