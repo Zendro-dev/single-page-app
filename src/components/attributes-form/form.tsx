@@ -65,18 +65,11 @@ interface FormStats {
   unset: number;
 }
 
-export const FormContext = createContext<{
-  formId: string;
-  formView: FormView;
-}>({
-  formId: 'AttributesForm-create',
-  formView: 'create',
-});
-
 export default function AttributesForm({
   actions,
   attributes,
   className,
+  disabled,
   data,
   errors,
   formId,
@@ -178,170 +171,163 @@ export default function AttributesForm({
   };
 
   return (
-    <FormContext.Provider
-      value={{
-        formId,
-        formView,
-      }}
-    >
-      <Box position="relative" width="100%">
-        <Box
-          position="absolute"
-          display="flex"
-          justifyContent="space-between"
-          top={-28}
-          right={0}
-          paddingX={10}
-          width="100%"
-        >
-          <div className={clsx(classes.actions, classes.leftActions)}>
-            {actions?.cancel && (
-              <ActionButton
-                color="secondary"
-                form={formId}
-                onClick={handleOnAction({
-                  action: 'cancel',
-                  handler: actions.cancel,
-                })}
-                icon={CancelIcon}
-                tooltip="Exit form"
-              />
-            )}
+    <Box position="relative" width="100%">
+      <Box
+        position="absolute"
+        display="flex"
+        justifyContent="space-between"
+        top={-28}
+        right={0}
+        paddingX={10}
+        width="100%"
+      >
+        <div className={clsx(classes.actions, classes.leftActions)}>
+          {actions?.cancel && (
+            <ActionButton
+              color="secondary"
+              form={formId}
+              onClick={handleOnAction({
+                action: 'cancel',
+                handler: actions.cancel,
+              })}
+              icon={CancelIcon}
+              tooltip="Exit form"
+            />
+          )}
 
-            {actions?.read && (
-              <ActionButton
-                color="primary"
-                form={formId}
-                icon={ReadIcon}
-                onClick={handleOnAction({
-                  action: 'read',
-                  handler: actions.read,
-                })}
-                tooltip="View record details"
-              />
-            )}
+          {actions?.read && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={ReadIcon}
+              onClick={handleOnAction({
+                action: 'read',
+                handler: actions.read,
+              })}
+              tooltip="View record details"
+            />
+          )}
 
-            {actions?.update && (
-              <ActionButton
-                color="primary"
-                form={formId}
-                icon={EditIcon}
-                onClick={handleOnAction({
-                  action: 'update',
-                  handler: actions.update,
-                })}
-                tooltip="Edit Record"
-              />
-            )}
-          </div>
+          {actions?.update && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={EditIcon}
+              onClick={handleOnAction({
+                action: 'update',
+                handler: actions.update,
+              })}
+              tooltip="Edit Record"
+            />
+          )}
+        </div>
 
-          <div className={clsx(classes.actions, classes.rightActions)}>
-            {actions?.delete && (
-              <ActionButton
-                color="secondary"
-                form={formId}
-                icon={DeleteIcon}
-                onClick={handleOnAction({
-                  action: 'delete',
-                  handler: actions.delete,
-                })}
-                tooltip="Delete record"
-              />
-            )}
+        <div className={clsx(classes.actions, classes.rightActions)}>
+          {actions?.delete && (
+            <ActionButton
+              color="secondary"
+              form={formId}
+              icon={DeleteIcon}
+              onClick={handleOnAction({
+                action: 'delete',
+                handler: actions.delete,
+              })}
+              tooltip="Delete record"
+            />
+          )}
 
-            {actions?.reload && (
-              <ActionButton
-                color="primary"
-                form={formId}
-                icon={Reload}
-                tooltip="Reload data"
-                onClick={handleOnAction({
-                  action: 'reload',
-                  handler: actions.reload,
-                })}
-              />
-            )}
+          {actions?.reload && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={Reload}
+              tooltip="Reload data"
+              onClick={handleOnAction({
+                action: 'reload',
+                handler: actions.reload,
+              })}
+            />
+          )}
 
-            {actions?.submit && (
-              <ActionButton
-                color="primary"
-                form={formId}
-                icon={SaveIcon}
-                tooltip="Submit changes"
-                type="submit"
-                onClick={handleOnAction({
-                  action: 'submit',
-                  handler: actions.submit,
-                })}
-              />
-            )}
-          </div>
-        </Box>
-
-        <form id={formId} className={className}>
-          <FormHeader prefix={formView} title={modelName} />
-
-          {formAttributes.map((attribute) => {
-            const {
-              name,
-              type,
-              value,
-              clientError,
-              serverErrors,
-              readOnly,
-              primaryKey,
-            } = attribute;
-
-            return (
-              <AttributeField
-                key={name}
-                type={type}
-                error={clientError || serverErrors ? true : false}
-                helperText={
-                  (clientError || serverErrors) && (
-                    <AttributeErrors
-                      errors={{
-                        ajvValidation: serverErrors,
-                        clientValidation: clientError,
-                      }}
-                    />
-                  )
-                }
-                InputProps={{
-                  readOnly,
-                }}
-                label={name}
-                leftIcon={
-                  primaryKey
-                    ? (props: SvgIconProps): ReactElement => (
-                        <Tooltip title={`${name} is the primary key`}>
-                          <KeyIcon {...props} fontSize="small" color="action" />
-                        </Tooltip>
-                      )
-                    : undefined
-                }
-                rightIcon={
-                  readOnly
-                    ? (props: SvgIconProps): ReactElement => (
-                        <Tooltip title="This field cannot be modified">
-                          <LockIcon
-                            {...props}
-                            fontSize="small"
-                            color="secondary"
-                          />
-                        </Tooltip>
-                      )
-                    : undefined
-                }
-                onChange={handleOnChange(name)}
-                onError={handleOnError(name)}
-                value={value}
-              />
-            );
-          })}
-        </form>
+          {actions?.submit && (
+            <ActionButton
+              color="primary"
+              form={formId}
+              icon={SaveIcon}
+              tooltip="Submit changes"
+              type="submit"
+              onClick={handleOnAction({
+                action: 'submit',
+                handler: actions.submit,
+              })}
+            />
+          )}
+        </div>
       </Box>
-    </FormContext.Provider>
+
+      <form id={formId} className={className}>
+        <FormHeader locked={disabled} prefix={formView} title={modelName} />
+
+        {formAttributes.map((attribute) => {
+          const {
+            name,
+            type,
+            value,
+            clientError,
+            serverErrors,
+            readOnly,
+            primaryKey,
+          } = attribute;
+
+          return (
+            <AttributeField
+              key={name}
+              type={type}
+              error={clientError || serverErrors ? true : false}
+              helperText={
+                (clientError || serverErrors) && (
+                  <AttributeErrors
+                    errors={{
+                      ajvValidation: serverErrors,
+                      clientValidation: clientError,
+                    }}
+                  />
+                )
+              }
+              InputProps={{
+                readOnly,
+              }}
+              label={name}
+              leftIcon={
+                primaryKey
+                  ? (props: SvgIconProps): ReactElement => (
+                      <Tooltip title={`${name} is the primary key`}>
+                        <KeyIcon {...props} fontSize="small" color="action" />
+                      </Tooltip>
+                    )
+                  : undefined
+              }
+              rightIcon={
+                readOnly
+                  ? (props: SvgIconProps): ReactElement => (
+                      <Tooltip title="This field cannot be modified">
+                        <LockIcon
+                          {...props}
+                          fontSize="small"
+                          color="secondary"
+                        />
+                      </Tooltip>
+                    )
+                  : undefined
+              }
+              onChange={!disabled ? handleOnChange(name) : undefined}
+              onError={!disabled ? handleOnError(name) : undefined}
+              value={value}
+            />
+          );
+        })}
+      </form>
+    </Box>
   );
 }
 
