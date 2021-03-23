@@ -258,6 +258,8 @@ const Record: PageWithLayout<RecordProps> = ({
         mutateRecord({
           [requests.read.resolver]: response[requests.update.resolver],
         });
+
+        router.push(`/${modelName}`);
       } catch (error) {
         const clientError = error as ExtendedClientError<
           Record<string, DataRecord>
