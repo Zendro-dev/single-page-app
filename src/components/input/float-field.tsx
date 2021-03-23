@@ -3,7 +3,7 @@ import BaseField, { BaseFieldProps } from './base-field';
 
 export interface FloatFieldProps {
   onChange?: (value: number | null) => void;
-  onError?: (value: string | null) => void;
+  onError?: (value?: string) => void;
   value: number | null;
 }
 
@@ -20,7 +20,7 @@ export default function FloatField({
       event.target.value === '' ? null : parseFloat(event.target.value);
 
     if ((floatValue === null || !isNaN(floatValue)) && onChange && onError) {
-      onError(null);
+      onError();
       onChange(floatValue);
     }
   };

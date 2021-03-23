@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { request } from 'graphql-request';
+import { Variables } from 'graphql-request/dist/types';
 import { GRAPHQL_URL } from '@/config/globals';
 import { QueryVariables } from '@/types/queries';
-import { RequestOneResponse } from '@/types/requests';
+import { GraphQLErrors, RequestOneResponse } from '@/types/requests';
 
 export interface GraphqlResponse<T = unknown> {
   data?: T | null;
@@ -50,6 +52,45 @@ export async function graphqlRequest<T = unknown>(
   return { data: response.data.data, errors: response.data.errors };
 }
 
+interface GraphqlRequestOptions {
+  resolver?: string;
+  variables?: Variables;
+}
+
+export async function graphqlRequest2<T = unknown>(
+  token: string,
+  query: string,
+  options?: {
+    variables?: Variables;
+  }
+): Promise<Record<string, T>>;
+
+export async function graphqlRequest2<T = unknown>(
+  token: string,
+  query: string,
+  options: {
+    resolver: string;
+    variables?: Variables;
+  }
+): Promise<T>;
+
+export async function graphqlRequest2<T = unknown>(
+  token: string,
+  query: string,
+  options?: GraphqlRequestOptions
+): Promise<T | Record<string, T>> {
+  let res: T | Record<string, T>;
+
+  res = await request<Record<string, T>>(
+    GRAPHQL_URL as string,
+    query,
+    options?.variables
+  );
+
+  if (options?.resolver) res = res[options?.resolver];
+  return res;
+}
+
 export async function requestOne<T>(
   token: string,
   query: string,
@@ -67,4 +108,21 @@ export async function requestOne<T>(
   });
 
   return { data: data ? data[resolver] : data, errors };
+}
+
+export function parseValidationErrors(
+  errors: GraphQLErrors[]
+): Record<string, string[]> {
+  const errorSets = errors.reduce((acc, { extensions }) => {
+    extensions?.validationErrors.forEach(({ dataPath, keyword, message }) => {
+      const attributeName = dataPath.slice(1);
+      const errors = new Set(acc[attributeName]);
+
+      errors.add(message ?? keyword);
+      acc[attributeName] = Array.from(errors);
+    });
+    return acc;
+  }, {} as Record<string, string[]>);
+
+  return errorSets;
 }

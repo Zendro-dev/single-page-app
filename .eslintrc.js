@@ -98,7 +98,7 @@ module.exports = {
         // Warn about unused variables
         '@typescript-eslint/no-unused-vars': [
           'warn',
-          { argsIgnorePattern: '^_' },
+          { argsIgnorePattern: '^_', args: 'after-used' },
         ],
 
         // Require return types on functions only where useful

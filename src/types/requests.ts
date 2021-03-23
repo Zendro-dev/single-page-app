@@ -1,4 +1,8 @@
+import { ClientError } from 'graphql-request';
+import { GraphQLResponse } from 'graphql-request/dist/types';
 import { DataRecord } from './models';
+import { ErrorObject } from 'ajv';
+import { GraphQLFormattedError } from 'graphql';
 
 export interface ReadManyResponse {
   [key: string]: {
@@ -24,3 +28,18 @@ export interface PageInfo {
 }
 
 export type CrudRequest = 'create' | 'read' | 'update' | 'delete';
+
+type GraphQLRequest = ClientError['request'];
+// type GraphQLResponse = ClientError['response'];
+
+export type GraphQLErrors = GraphQLFormattedError<{
+  validationErrors: ErrorObject[];
+}>;
+
+export interface ExtendedClientError<T = unknown> {
+  response: {
+    error?: string;
+    errors?: GraphQLErrors[];
+  } & Exclude<GraphQLResponse<T>, 'errors'>;
+  request: GraphQLRequest;
+}

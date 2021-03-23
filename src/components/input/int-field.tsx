@@ -3,7 +3,7 @@ import BaseField, { BaseFieldProps } from './base-field';
 
 export interface IntFieldProps {
   onChange?: (value: number | null) => void;
-  onError?: (value: string | null) => void;
+  onError?: (value?: string) => void;
   value: number | null;
 }
 
@@ -22,7 +22,7 @@ export default function IntField({
         : Math.round(parseFloat(event.target.value));
 
     if ((intValue === null || !isNaN(intValue)) && onChange && onError) {
-      onError(null);
+      onError();
       onChange(intValue);
     }
   };

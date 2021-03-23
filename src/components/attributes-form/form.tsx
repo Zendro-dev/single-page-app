@@ -1,169 +1,372 @@
-import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import React, {
+  createContext,
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useReducer,
+} from 'react';
 
-import { Lock as LockIcon, VpnKey as KeyIcon } from '@material-ui/icons';
-
+import { Box, Tooltip, SvgIconProps } from '@material-ui/core';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
-  Box,
-  Tooltip,
-  Typography,
-  SvgIconProps,
-  makeStyles,
-  createStyles,
-} from '@material-ui/core';
+  Cached as Reload,
+  Clear as CancelIcon,
+  Create as EditIcon,
+  Delete as DeleteIcon,
+  Lock as LockIcon,
+  Visibility as ReadIcon,
+  VpnKey as KeyIcon,
+  Save as SaveIcon,
+} from '@material-ui/icons';
 
-import { AttributeValue, ParsedAttribute } from '@/types/models';
+import AttributeErrors from '@/components/alert/attributes-error';
+import ActionButton from '@/components/buttons/fab';
+import AttributeField from '@/components/input/attribute-field';
+
+import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
-import AttributeField from '../input/attribute-field';
-import AttributeErrors from '../alert/attributes-error';
-import { ErrorsAttribute } from '../alert/attributes-error';
+
+import { formAttributesReducer, initForm } from './form-utils';
+import clsx from 'clsx';
+import FormHeader from './form-header';
+
+type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
+export type ActionHandler = (
+  data: FormAttribute[],
+  stats: FormStats,
+  callback?: () => void
+) => void;
 
 export interface AttributesFormProps {
-  actions: ReactNode;
-  attributes: FormAttribute[];
+  actions?: Partial<Record<FormAction, ActionHandler>>;
+  // actions2?: { [key in FormAction]?: ActionHandler };
+  attributes: ParsedAttribute[];
   className?: string;
+  data?: DataRecord;
   disabled?: boolean;
-  title: {
-    prefix?: string;
-    main: string;
-  };
-  formId?: string;
-  onChange: (key: string) => (value: AttributeValue) => void;
-  onError: (key: string) => (value: string | null) => void;
-  onSubmit: React.FormEventHandler<HTMLFormElement>;
+  errors?: Record<string, string[]>;
+  formId: string;
+  formView: FormView;
+  modelName: string;
 }
 
 export interface FormAttribute extends ParsedAttribute {
-  error?: ErrorsAttribute | null;
+  serverErrors?: string[];
+  clientError?: string;
   readOnly?: boolean;
   value: AttributeValue;
 }
 
+export type FormView = 'create' | 'read' | 'update';
+
+interface FormStats {
+  clientErrors: number;
+  unset: number;
+}
+
+export const FormContext = createContext<{
+  formId: string;
+  formView: FormView;
+}>({
+  formId: 'AttributesForm-create',
+  formView: 'create',
+});
+
 export default function AttributesForm({
+  actions,
   attributes,
   className,
-  disabled,
-  title,
-  onChange,
-  onError,
-  onSubmit,
+  data,
+  errors,
   formId,
-  ...props
+  formView,
+  modelName,
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
   const classes = useStyles();
 
-  const nonNullValues = attributes.reduce((acc, { value }) => {
-    return isNullorEmpty(value) ? acc : (acc += 1);
-  }, 0);
+  /* STATE */
+
+  const [formAttributes, dispatch] = useReducer(
+    formAttributesReducer,
+    { formView, attributes },
+    initForm
+  );
+
+  const formStats = useMemo(
+    () =>
+      formAttributes.reduce(
+        (acc, { value, clientError }) => {
+          if (isNullorEmpty(value)) acc.unset += 1;
+          if (clientError) acc.clientErrors += 1;
+          return acc;
+        },
+        { clientErrors: 0, unset: 0 } as FormStats
+      ),
+    [formAttributes]
+  );
+
+  /* EFFECTS */
+
+  useEffect(
+    function updateFormValues() {
+      if (data) {
+        dispatch({
+          action: 'UPDATE_VALUES',
+          payload: { data },
+        });
+      }
+    },
+    [data, dispatch]
+  );
+
+  useEffect(
+    function updateFormServerErrors() {
+      dispatch({
+        action: 'UDPATE_SERVER_ERRORS',
+        payload: {
+          errors,
+        },
+      });
+    },
+    [errors]
+  );
+
+  /* HANDLERS */
+
+  const handleOnAction = ({
+    handler,
+  }: {
+    action: FormAction;
+    handler: ActionHandler;
+  }) => (event: React.FormEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    formAttributes.reduce(
+      (acc, { value, clientError }) => {
+        if (isNullorEmpty(value)) acc.unset += 1;
+        if (clientError) acc.clientErrors += 1;
+        return acc;
+      },
+      { clientErrors: 0, unset: 0 } as FormStats
+    );
+
+    // let callback: (() => void) | undefined;
+    handler(formAttributes, formStats);
+  };
+
+  /**
+   * Update an attribute value in the internal state.
+   * @param attrName name of the attribute that changed in the form
+   */
+  const handleOnChange = (attrName: string) => (value: AttributeValue) => {
+    dispatch({
+      action: 'UPDATE_ONE',
+      payload: { attrName, field: { key: 'value', value } },
+    });
+  };
+
+  /**
+   * Update an attribute error in the internal state.
+   * @param attrName name of the attribute that changed in the form
+   */
+  const handleOnError = (attrName: string) => (error?: string) => {
+    dispatch({
+      action: 'UPDATE_ONE',
+      payload: { attrName, field: { key: 'clientError', value: error } },
+    });
+  };
 
   return (
-    <Box position="relative" width="100%">
-      <Box
-        position="absolute"
-        display="flex"
-        justifyContent="space-between"
-        top={-28}
-        right={0}
-        paddingX={10}
-        width="100%"
-      >
-        {props.actions}
-      </Box>
-
-      <form id={formId} className={className} onSubmit={onSubmit}>
+    <FormContext.Provider
+      value={{
+        formId,
+        formView,
+      }}
+    >
+      <Box position="relative" width="100%">
         <Box
-          component="legend"
+          position="absolute"
           display="flex"
           justifyContent="space-between"
-          marginX={9.5}
-          mb={6}
+          top={-28}
+          right={0}
+          paddingX={10}
+          width="100%"
         >
-          <Box display="flex" alignItems="center">
-            {disabled && (
-              <Tooltip title="The form is in read-only mode">
-                <LockIcon
-                  color="secondary"
-                  className={classes.lockedFormIcon}
-                />
-              </Tooltip>
+          <div className={clsx(classes.actions, classes.leftActions)}>
+            {actions?.cancel && (
+              <ActionButton
+                color="secondary"
+                form={formId}
+                onClick={handleOnAction({
+                  action: 'cancel',
+                  handler: actions.cancel,
+                })}
+                icon={CancelIcon}
+                tooltip="Exit form"
+              />
             )}
 
-            <Typography variant="h6" component="h1">
-              {title.prefix && (
-                <span className={classes.titlePrefix}>{title.prefix}</span>
-              )}
-              {title.main}
-            </Typography>
-          </Box>
+            {actions?.read && (
+              <ActionButton
+                color="primary"
+                form={formId}
+                icon={ReadIcon}
+                onClick={handleOnAction({
+                  action: 'read',
+                  handler: actions.read,
+                })}
+                tooltip="View record details"
+              />
+            )}
 
-          <Typography variant="subtitle1" color="textSecondary">
-            Completed: {nonNullValues} / {attributes.length}
-          </Typography>
+            {actions?.update && (
+              <ActionButton
+                color="primary"
+                form={formId}
+                icon={EditIcon}
+                onClick={handleOnAction({
+                  action: 'update',
+                  handler: actions.update,
+                })}
+                tooltip="Edit Record"
+              />
+            )}
+          </div>
+
+          <div className={clsx(classes.actions, classes.rightActions)}>
+            {actions?.delete && (
+              <ActionButton
+                color="secondary"
+                form={formId}
+                icon={DeleteIcon}
+                onClick={handleOnAction({
+                  action: 'delete',
+                  handler: actions.delete,
+                })}
+                tooltip="Delete record"
+              />
+            )}
+
+            {actions?.reload && (
+              <ActionButton
+                color="primary"
+                form={formId}
+                icon={Reload}
+                tooltip="Reload data"
+                onClick={handleOnAction({
+                  action: 'reload',
+                  handler: actions.reload,
+                })}
+              />
+            )}
+
+            {actions?.submit && (
+              <ActionButton
+                color="primary"
+                form={formId}
+                icon={SaveIcon}
+                tooltip="Submit changes"
+                type="submit"
+                onClick={handleOnAction({
+                  action: 'submit',
+                  handler: actions.submit,
+                })}
+              />
+            )}
+          </div>
         </Box>
 
-        {attributes.map((attribute) => {
-          const { name, type, value, error, readOnly, primaryKey } = attribute;
+        <form id={formId} className={className}>
+          <FormHeader prefix={formView} title={modelName} />
 
-          return (
-            <AttributeField
-              key={name}
-              type={type}
-              error={
-                error && (error.ajvValidation || error.clientValidation)
-                  ? true
-                  : false
-              }
-              helperText={
-                error && (error.ajvValidation || error.clientValidation) ? (
-                  <AttributeErrors errors={error} />
-                ) : undefined
-              }
-              InputProps={{
-                readOnly,
-              }}
-              label={name}
-              leftIcon={
-                primaryKey
-                  ? (props: SvgIconProps): ReactElement => (
-                      <Tooltip title={`${name} is the primary key`}>
-                        <KeyIcon {...props} fontSize="small" color="action" />
-                      </Tooltip>
-                    )
-                  : undefined
-              }
-              rightIcon={
-                readOnly
-                  ? (props: SvgIconProps): ReactElement => (
-                      <Tooltip title="This field cannot be modified">
-                        <LockIcon
-                          {...props}
-                          fontSize="small"
-                          color="secondary"
-                        />
-                      </Tooltip>
-                    )
-                  : undefined
-              }
-              onChange={disabled ? undefined : onChange(name)}
-              onError={disabled ? undefined : onError(name)}
-              value={value}
-            />
-          );
-        })}
-      </form>
-    </Box>
+          {formAttributes.map((attribute) => {
+            const {
+              name,
+              type,
+              value,
+              clientError,
+              serverErrors,
+              readOnly,
+              primaryKey,
+            } = attribute;
+
+            return (
+              <AttributeField
+                key={name}
+                type={type}
+                error={clientError || serverErrors ? true : false}
+                helperText={
+                  (clientError || serverErrors) && (
+                    <AttributeErrors
+                      errors={{
+                        ajvValidation: serverErrors,
+                        clientValidation: clientError,
+                      }}
+                    />
+                  )
+                }
+                InputProps={{
+                  readOnly,
+                }}
+                label={name}
+                leftIcon={
+                  primaryKey
+                    ? (props: SvgIconProps): ReactElement => (
+                        <Tooltip title={`${name} is the primary key`}>
+                          <KeyIcon {...props} fontSize="small" color="action" />
+                        </Tooltip>
+                      )
+                    : undefined
+                }
+                rightIcon={
+                  readOnly
+                    ? (props: SvgIconProps): ReactElement => (
+                        <Tooltip title="This field cannot be modified">
+                          <LockIcon
+                            {...props}
+                            fontSize="small"
+                            color="secondary"
+                          />
+                        </Tooltip>
+                      )
+                    : undefined
+                }
+                onChange={handleOnChange(name)}
+                onError={handleOnError(name)}
+                value={value}
+              />
+            );
+          })}
+        </form>
+      </Box>
+    </FormContext.Provider>
   );
 }
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    titlePrefix: {
-      ...theme.typography.h6,
-      color: 'GrayText',
-      fontWeight: 'bold',
-      marginRight: theme.spacing(2),
+    actions: {
+      '& > button, a': {
+        width: theme.spacing(12),
+        height: theme.spacing(12),
+      },
+      '& > button:not(:first-child), a:not(:first-child)': {
+        marginLeft: theme.spacing(6),
+      },
     },
-    lockedFormIcon: {
-      marginRight: theme.spacing(2),
+    leftActions: {
+      '& > button:first-child, a:first-child': {
+        width: theme.spacing(14),
+        height: theme.spacing(14),
+      },
+    },
+    rightActions: {
+      '& > button:last-child, a:last-child': {
+        width: theme.spacing(14),
+        height: theme.spacing(14),
+      },
     },
   })
 );
