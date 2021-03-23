@@ -69,11 +69,11 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const client = useZendroClient();
+  const dialog = useDialog();
   const router = useRouter();
   const classes = useStyles();
-  const dialog = useDialog();
   const { showSnackbar } = useToastNotification();
+  const zendro = useZendroClient();
 
   /* REQUEST */
 
@@ -117,7 +117,7 @@ const Record: PageWithLayout<RecordProps> = ({
     const submit = async (): Promise<void> => {
       try {
         const { create } = requests;
-        const response = await client.request<Record<string, DataRecord>>(
+        const response = await zendro.request<Record<string, DataRecord>>(
           create.query,
           dataRecord
         );

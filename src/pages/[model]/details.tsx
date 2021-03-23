@@ -69,10 +69,10 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const client = useZendroClient();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
+  const zendro = useZendroClient();
 
   /* REQUEST */
 
@@ -88,7 +88,7 @@ const Record: PageWithLayout<RecordProps> = ({
     urlQuery.id ? [requests.read.query, urlQuery.id] : null,
     () => {
       const { primaryKey, read } = requests;
-      return client.request(read.query, { [primaryKey]: urlQuery.id });
+      return zendro.request(read.query, { [primaryKey]: urlQuery.id });
     },
     {
       shouldRetryOnError: false,

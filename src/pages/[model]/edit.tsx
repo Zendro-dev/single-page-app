@@ -74,11 +74,11 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const client = useZendroClient();
+  const dialog = useDialog();
   const router = useRouter();
   const classes = useStyles();
-  const dialog = useDialog();
   const { showSnackbar } = useToastNotification();
+  const zendro = useZendroClient();
 
   /* REQUEST */
 
@@ -94,7 +94,7 @@ const Record: PageWithLayout<RecordProps> = ({
     urlQuery.id ? [requests.read.query, urlQuery.id] : null,
     () => {
       const { primaryKey, read } = requests;
-      return client.request(read.query, { [primaryKey]: urlQuery.id });
+      return zendro.request(read.query, { [primaryKey]: urlQuery.id });
     },
     {
       revalidateOnFocus: false,
@@ -161,7 +161,7 @@ const Record: PageWithLayout<RecordProps> = ({
         try {
           const { read, delete: _delete, primaryKey } = requests;
           const idValue = recordData[read.resolver][primaryKey];
-          await client.request(_delete.query, {
+          await zendro.request(_delete.query, {
             [primaryKey]: idValue,
           });
           router.push(`/${modelName}`);
@@ -218,7 +218,7 @@ const Record: PageWithLayout<RecordProps> = ({
     const submit = async (): Promise<void> => {
       try {
         const { update } = requests;
-        const response = await client.request<Record<string, DataRecord>>(
+        const response = await zendro.request<Record<string, DataRecord>>(
           update.query,
           dataRecord
         );
