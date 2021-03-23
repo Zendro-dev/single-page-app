@@ -24,13 +24,14 @@ import {
   PathParams,
 } from '@/types/models';
 import { QueryVariables } from '@/types/queries';
+import { ExtendedClientError } from '@/types/requests';
+import { ModelUrlQuery } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { parseValidationErrors } from '@/utils/requests';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
-import { ExtendedClientError } from '@/types/requests';
-import { ModelUrlQuery } from '@/types/routes';
+import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -197,9 +198,8 @@ const Record: PageWithLayout<RecordProps> = ({
             [idKey]: idValue,
           });
           router.push(`/${modelName}`);
-        } catch (errors) {
-          showSnackbar('Error in request to server', 'error', errors);
-          console.error(errors);
+        } catch (error) {
+          showSnackbar('Error in request to server', 'error', error);
         }
       },
     });
@@ -215,11 +215,10 @@ const Record: PageWithLayout<RecordProps> = ({
   /**
    * Reload page data.
    */
-  const handleOnReload: ActionHandler = (formData, stats, callback) => {
+  const handleOnReload: ActionHandler = (formData) => {
     const diffs = countDiffs(formData);
 
     const revalidateData = async (): Promise<void> => {
-      if (callback) callback();
       mutateRecord(undefined, true);
     };
 
@@ -251,9 +250,7 @@ const Record: PageWithLayout<RecordProps> = ({
           throw new Error('The current user does not have an access token');
 
         const response = await request<Record<string, DataRecord>>(
-          // auth.user?.token,
           GRAPHQL_URL,
-          // 'api/mock',
           requests.update.query,
           dataRecord
         );
@@ -278,12 +275,15 @@ const Record: PageWithLayout<RecordProps> = ({
 
         if (graphqlErrors) {
           const validationErrors = parseValidationErrors(graphqlErrors);
+          if (!isEmptyObject(validationErrors)) {
+            showSnackbar(
+              `The server returned a ${clientError.response.status} error`,
+              `error`,
+              clientError
+            );
+          }
           setAjvErrors(validationErrors);
         }
-
-        // console.log({ clientError });
-        // console.log({ genericError });
-        // console.log({ graphqlErrors });
       }
     };
 
