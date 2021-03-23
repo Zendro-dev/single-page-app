@@ -101,7 +101,6 @@ const Record: PageWithLayout<RecordProps> = ({
       : null,
     request,
     {
-      revalidateOnFocus: false,
       shouldRetryOnError: false,
       onSuccess: (data) => setRecordData(data),
       onError: (error) => {
