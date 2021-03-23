@@ -7,10 +7,7 @@ import { GRAPHQL_URL } from '@/config/globals';
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
-import AttributesForm, {
-  ActionHandler,
-  FormAttribute,
-} from '@/components/attributes-form';
+import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
 import { useAuth, useDialog, useToastNotification } from '@/hooks';
