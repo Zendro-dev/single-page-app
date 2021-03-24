@@ -8,7 +8,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import AttributesForm, {
   ActionHandler,
-  formDiff,
+  computeDiffs,
 } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
@@ -130,7 +130,7 @@ const Record: PageWithLayout<RecordProps> = ({
     let diffs = 0;
 
     if (recordData) {
-      diffs = formDiff(formData, recordData[requests.read.resolver]);
+      diffs = computeDiffs(formData, recordData[requests.read.resolver]);
     }
 
     if (diffs > 0) {
@@ -186,7 +186,7 @@ const Record: PageWithLayout<RecordProps> = ({
     let diffs = 0;
 
     if (recordData) {
-      diffs = formDiff(formData, recordData[requests.read.resolver]);
+      diffs = computeDiffs(formData, recordData[requests.read.resolver]);
     }
 
     const revalidateData = async (): Promise<void> => {

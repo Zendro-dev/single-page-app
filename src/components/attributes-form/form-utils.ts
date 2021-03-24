@@ -131,7 +131,7 @@ interface FormStats {
  * @param formAttributes array of form attributes
  * @returns form statistics related to current attributes
  */
-export function formStats(formAttributes: FormAttribute[]): FormStats {
+export function computeStats(formAttributes: FormAttribute[]): FormStats {
   return formAttributes.reduce(
     (acc, { value, clientError }) => {
       if (isNullorEmpty(value)) acc.unset += 1;
@@ -148,7 +148,7 @@ export function formStats(formAttributes: FormAttribute[]): FormStats {
  * @param recordData map of attribute name to value pairs
  * @returns number of attributes with differing values
  */
-export function formDiff(
+export function computeDiffs(
   formData: FormAttribute[],
   recordData: Record<string, AttributeValue>
 ): number {

@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useReducer,
 } from 'react';
+import clsx from 'clsx';
 
 import { Box, Tooltip, SvgIconProps } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -26,8 +27,7 @@ import AttributeField from '@/components/input/attribute-field';
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 
-import { formAttributesReducer, initForm } from './form-utils';
-import clsx from 'clsx';
+import { formAttributesReducer, computeStats, initForm } from './form-utils';
 import FormHeader from './form-header';
 
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
@@ -85,18 +85,9 @@ export default function AttributesForm({
     initForm
   );
 
-  const formStats = useMemo(
-    () =>
-      formAttributes.reduce(
-        (acc, { value, clientError }) => {
-          if (isNullorEmpty(value)) acc.unset += 1;
-          if (clientError) acc.clientErrors += 1;
-          return acc;
-        },
-        { clientErrors: 0, unset: 0 } as FormStats
-      ),
-    [formAttributes]
-  );
+  const formStats = useMemo(() => computeStats(formAttributes), [
+    formAttributes,
+  ]);
 
   /* EFFECTS */
 
