@@ -17,11 +17,11 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
-import { ExtendedClientError } from '@/types/requests';
+import { ExtendedClientError } from '@/types/errors';
 
+import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { parseValidationErrors } from '@/utils/requests';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
 
@@ -125,6 +125,7 @@ const Record: PageWithLayout<RecordProps> = ({
         setRecordData(response);
         router.push(`/${modelName}`);
       } catch (error) {
+        setAjvErrors(undefined);
         const clientError = error as ExtendedClientError<
           Record<string, DataRecord>
         >;
@@ -139,17 +140,24 @@ const Record: PageWithLayout<RecordProps> = ({
           );
         }
 
-        if (graphqlErrors) {
-          const validationErrors = parseValidationErrors(graphqlErrors);
-          if (isEmptyObject(validationErrors)) {
-            showSnackbar(
-              `The server returned a ${clientError.response.status} error`,
-              `error`,
-              clientError
-            );
-          }
-          setAjvErrors(validationErrors);
+        if (!graphqlErrors) return;
+        const { nonExtensionsErrors, validationErrors } = parseGraphqlErrors(
+          graphqlErrors
+        );
+
+        // Send generic GraphQL errors to the notification queue
+        if (nonExtensionsErrors.length > 0) {
+          showSnackbar(
+            `The server returned a ${clientError.response.status} error`,
+            `error`,
+            nonExtensionsErrors
+          );
         }
+
+        // Send validation errors to the form serverErrors
+        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
+
+        // TODO: handle extensionErrors
       }
     };
 

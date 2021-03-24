@@ -22,7 +22,7 @@ import {
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
-import { ExtendedClientError } from '@/types/requests';
+import { ExtendedClientError } from '@/types/errors';
 import { ModelUrlQuery } from '@/types/routes';
 
 interface RecordProps {

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
 import { QueryVariables } from '@/types/queries';
-import { GraphQLErrors } from '@/types/requests';
 
 export interface GraphqlResponse<T = unknown> {
   data?: T | null;
@@ -48,24 +47,4 @@ export async function graphqlRequest<T = unknown>(
 
   // ? check for response.data ?
   return { data: response.data.data, errors: response.data.errors };
-}
-
-/**
- * Parse and extract validation errors from a graphql errors response.
- * @param errors graphql errors with optional ajv errors extension
- * @returns map of attribute name to ajv error messages
- */
-export function parseValidationErrors(
-  errors: GraphQLErrors[]
-): Record<string, string[]> {
-  return errors.reduce((acc, { extensions }) => {
-    extensions?.validationErrors?.forEach(({ dataPath, keyword, message }) => {
-      const attributeName = dataPath.slice(1);
-      const errors = new Set(acc[attributeName]);
-
-      errors.add(message ?? keyword);
-      acc[attributeName] = Array.from(errors);
-    });
-    return acc;
-  }, {} as Record<string, string[]>);
 }
