@@ -84,10 +84,9 @@ interface UpdateOne {
   action: 'UPDATE_ONE';
   payload: {
     attrName: string;
-    field: {
-      key: keyof FormAttribute;
-      value: FormAttribute[keyof FormAttribute];
-    };
+    attrField: Partial<
+      Record<keyof FormAttribute, FormAttribute[keyof FormAttribute]>
+    >;
   };
 }
 
@@ -95,13 +94,9 @@ function updateOne(
   state: FormAttribute[],
   payload: UpdateOne['payload']
 ): FormAttribute[] {
-  const { attrName, field } = payload;
+  const { attrName, attrField } = payload;
   const attr = state.find(({ name }) => attrName === name);
-
-  if (attr) {
-    Object.assign(attr, { [field.key]: field.value });
-  }
-
+  if (attr) Object.assign(attr, attrField);
   return [...state];
 }
 
@@ -124,12 +119,12 @@ export function formAttributesReducer(
   }
 }
 
+/* UTILITY FUNCTIONS */
+
 interface FormStats {
   clientErrors: number;
   unset: number;
 }
-
-/* UTILITY FUNCTIONS */
 
 /**
  * Compute various useful form statistics from current attribute values.

@@ -154,7 +154,7 @@ export default function AttributesForm({
   const handleOnChange = (attrName: string) => (value: AttributeValue) => {
     dispatch({
       action: 'UPDATE_ONE',
-      payload: { attrName, field: { key: 'value', value } },
+      payload: { attrName, attrField: { value } },
     });
   };
 
@@ -162,10 +162,10 @@ export default function AttributesForm({
    * Update an attribute error in the internal state.
    * @param attrName name of the attribute that changed in the form
    */
-  const handleOnError = (attrName: string) => (error?: string) => {
+  const handleOnError = (attrName: string) => (error: string | null) => {
     dispatch({
       action: 'UPDATE_ONE',
-      payload: { attrName, field: { key: 'clientError', value: error } },
+      payload: { attrName, attrField: { clientError: error } },
     });
   };
 
