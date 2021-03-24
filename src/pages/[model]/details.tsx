@@ -103,10 +103,9 @@ const Record: PageWithLayout<RecordProps> = ({
     }
   );
 
-  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
-
   /* STATE */
 
+  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
   );

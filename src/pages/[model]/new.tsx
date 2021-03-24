@@ -75,13 +75,9 @@ const Record: PageWithLayout<RecordProps> = ({
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
 
-  /* REQUEST */
-
-  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
-  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-
   /* STATE */
 
+  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
   );
@@ -117,12 +113,11 @@ const Record: PageWithLayout<RecordProps> = ({
     const submit = async (): Promise<void> => {
       try {
         const { create } = requests;
-        const response = await zendro.request<Record<string, DataRecord>>(
+        await zendro.request<Record<string, DataRecord>>(
           create.query,
           dataRecord
         );
 
-        setRecordData(response);
         router.push(`/${modelName}`);
       } catch (error) {
         setAjvErrors(undefined);
@@ -211,7 +206,6 @@ const Record: PageWithLayout<RecordProps> = ({
         <AttributesForm
           attributes={attributes}
           className={classes.form}
-          data={recordData?.[requests.create.resolver]}
           errors={ajvErrors}
           formId={router.asPath}
           formView="create"
