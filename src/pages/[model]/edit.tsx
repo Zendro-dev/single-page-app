@@ -92,10 +92,8 @@ const Record: PageWithLayout<RecordProps> = ({
     ExtendedClientError<Record<string, DataRecord>>
   >(
     urlQuery.id ? [requests.read.query, urlQuery.id] : null,
-    () => {
-      const { primaryKey, read } = requests;
-      return zendro.request(read.query, { [primaryKey]: urlQuery.id });
-    },
+    (query: string, id: string) =>
+      zendro.request(query, { [requests.primaryKey]: id }),
     {
       revalidateOnFocus: false,
       shouldRetryOnError: false,
@@ -217,9 +215,8 @@ const Record: PageWithLayout<RecordProps> = ({
 
     const submit = async (): Promise<void> => {
       try {
-        const { update } = requests;
         const response = await zendro.request<Record<string, DataRecord>>(
-          update.query,
+          requests.update.query,
           dataRecord
         );
 
