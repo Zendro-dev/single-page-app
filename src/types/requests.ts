@@ -33,7 +33,7 @@ type GraphQLRequest = ClientError['request'];
 // type GraphQLResponse = ClientError['response'];
 
 export type GraphQLErrors = GraphQLFormattedError<{
-  validationErrors: ErrorObject[];
+  validationErrors?: ErrorObject[];
 }>;
 
 export interface ExtendedClientError<T = unknown> {

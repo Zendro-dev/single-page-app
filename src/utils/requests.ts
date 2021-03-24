@@ -119,7 +119,7 @@ export function parseValidationErrors(
   errors: GraphQLErrors[]
 ): Record<string, string[]> {
   return errors.reduce((acc, { extensions }) => {
-    extensions?.validationErrors.forEach(({ dataPath, keyword, message }) => {
+    extensions?.validationErrors?.forEach(({ dataPath, keyword, message }) => {
       const attributeName = dataPath.slice(1);
       const errors = new Set(acc[attributeName]);
 
