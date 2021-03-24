@@ -55,6 +55,7 @@ const InputField = ({
 export default function AttributeField({
   leftIcon,
   rightIcon,
+  InputProps,
   ...props
 }: WithContainerProps<BaseFieldProps<InputFieldProps>>): ReactElement {
   const handleOnChange = (value: AttributeValue): void => {
@@ -62,7 +63,7 @@ export default function AttributeField({
   };
 
   const handleOnClear = (): void => {
-    if (props.onChange && !props.InputProps?.readOnly) props.onChange(null);
+    if (props.onChange && !InputProps?.readOnly) props.onChange(null);
     if (props.onError) props.onError();
   };
 
@@ -72,7 +73,7 @@ export default function AttributeField({
         {...props}
         onChange={props.onChange ? handleOnChange : undefined}
         InputProps={{
-          ...props.InputProps,
+          ...InputProps,
           endAdornment: props.onChange && (
             <InputAdornment position="end">
               <Tooltip title="Unset value">
