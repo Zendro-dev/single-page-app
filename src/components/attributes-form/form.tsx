@@ -162,7 +162,7 @@ export default function AttributesForm({
    * Update an attribute error in the internal state.
    * @param attrName name of the attribute that changed in the form
    */
-  const handleOnError = (attrName: string) => (error: string | null) => {
+  const handleOnError = (attrName: string) => (error?: string) => {
     dispatch({
       action: 'UPDATE_ONE',
       payload: { attrName, attrField: { clientError: error } },
