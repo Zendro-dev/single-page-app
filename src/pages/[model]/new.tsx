@@ -141,7 +141,7 @@ const Record: PageWithLayout<RecordProps> = ({
 
         if (graphqlErrors) {
           const validationErrors = parseValidationErrors(graphqlErrors);
-          if (!isEmptyObject(validationErrors)) {
+          if (isEmptyObject(validationErrors)) {
             showSnackbar(
               `The server returned a ${clientError.response.status} error`,
               `error`,
