@@ -1,0 +1,18 @@
+{
+  "model" : "continent",
+  "storageType" : "sql",
+  "attributes" : {
+    "continent_id": "String",
+    "name" : "String"
+  },
+  "associations": {
+    "countries": {
+      "type" : "to_many",
+      "target" : "country",
+      "targetKey" : "continent_id",
+      "keyIn": "country",
+      "targetStorageType" : "sql"
+    }
+  },
+  "internalId": "continent_id"
+}

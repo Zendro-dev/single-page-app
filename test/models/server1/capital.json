@@ -1,0 +1,20 @@
+{
+  "model" : "capital",
+  "storageType" : "sql",
+  "attributes" : {
+    "name" : "String",
+    "capital_id" : "String",
+    
+    "country_id": "String"
+  },
+  "associations": {
+    "unique_country": {
+      "type" : "to_one",
+      "target" : "country",
+      "targetKey" : "country_id",
+      "keyIn": "capital",
+      "targetStorageType" : "sql"
+    }
+  },
+  "internalId": "capital_id"
+}

@@ -63,6 +63,42 @@ PORT=5000 yarn dev
 - You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 - The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
+
+## Testing
+
+The Zendro application uses the [Cypress](https://docs.cypress.io/guides/overview/why-cypress) framework for end-to-end/integration testing. We do _not_ mock any data, which implies the necessity of a running zendro graphql [backend](https://github.com/Zendro-dev/graphql-server). Testing can be done in either of two ways
+
+### Interactive real time testing
+
+While developing the application in a Sandbox tests can be interactively run in either the cypress dashboard using
+```bash
+yarn cy:open
+```
+or the cypress CLI using
+```bash
+yarn cy:run
+```
+Using the cypress dashboard comes with several build in advantages, which can be very helpful debugging: 
+* When serving the application in development mode cypress will watch file changes and rerun tests accordingly
+* Step-by-step feedback for every test and the possibility to go back in time via DOM snapshots
+* manually run tests in isolation or run the full suite
+
+### Full test run
+In case there is no active backend to run the tests again a full test run can be performed using
+```bash
+yarn test-integration
+```
+This will setup a test environment including a graphql-server and graphql-server-model-codegen to generate the backend code, as well as building the application, serving it and running the full test suite.  
+
+Run
+```bash
+yarn test-integration -h
+```
+for more help and possible run-options. 
+### Writing tests
+Test files and tests can be added in the `/cypress` folder at the root of the project. See the [docs](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests#Folder-Structure) for more information.
+### Coverage
+E2E code coverage collected during each test is done via `@cypress/code-coverage` plugin. t merges coverage from each test and saves the combined result. It also calls nyc (its peer dependency) to generate static HTML reports for human consumption in `/coverage`. See the [docs](https://docs.cypress.io/guides/tooling/code-coverage#E2E-code-coverage) for more information
 ## Deployment
 
 ### Static Application
