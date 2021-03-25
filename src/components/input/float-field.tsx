@@ -1,18 +1,22 @@
 import { ReactElement } from 'react';
-import BaseField, { BaseFieldProps } from './base-field';
+import { Overwrite } from 'utility-types';
+import TextField, { TextFieldProps } from './text-field';
 
-export interface FloatFieldProps {
-  onChange?: (value: number | null) => void;
-  onError?: (value?: string) => void;
-  value: number | null;
-}
+type FloatFieldProps = Overwrite<
+  TextFieldProps,
+  {
+    onChange?: (value: number | null) => void;
+    onError?: (value?: string) => void;
+    value: number | null;
+  }
+>;
 
 export default function FloatField({
   onChange,
   onError,
   value,
   ...props
-}: BaseFieldProps<FloatFieldProps>): ReactElement {
+}: FloatFieldProps): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -39,7 +43,7 @@ export default function FloatField({
   };
 
   return (
-    <BaseField
+    <TextField
       {...props}
       onChange={handleOnChange}
       onKeyDown={handleOnKeyDown}

@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+import { Overwrite } from 'utility-types';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Checkbox,
@@ -6,21 +7,24 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@material-ui/core';
-import { BaseFieldProps } from './base-field';
+import { TextFieldProps } from './text-field';
 
-export interface BoolFieldProps {
-  onChange?: (value: boolean | null) => void;
-  value: boolean | null;
-}
+type BoolFieldProps = Overwrite<
+  TextFieldProps,
+  {
+    onChange?: (value: boolean | null) => void;
+    value: boolean | null;
+  }
+>;
 
 export default function BoolField({
   error,
   helperText,
-  InputProps,
   label,
   onChange,
+  readOnly,
   value,
-}: BaseFieldProps<BoolFieldProps>): ReactElement {
+}: BoolFieldProps): ReactElement {
   const classes = useStyles();
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
@@ -65,14 +69,17 @@ export default function BoolField({
             color="default"
             checked={value ?? false}
             indeterminate={value === null}
-            onChange={InputProps?.readOnly ? undefined : handleOnChange}
+            onChange={readOnly ? undefined : handleOnChange}
           />
         }
         label={label}
       />
       {helperText && (
-        <FormHelperText className={classes.helperText}>
-          {helperText}
+        <FormHelperText
+          component={helperText.component ?? 'p'}
+          className={classes.helperText}
+        >
+          {helperText.node}
         </FormHelperText>
       )}
     </FormControl>

@@ -1,49 +1,59 @@
+import { useReducer } from 'react';
 import { enUS as en, es, de } from 'date-fns/locale';
+import { Overwrite } from 'utility-types';
 import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
-import BaseField, { BaseFieldProps } from './base-field';
+import TextField, { TextFieldProps } from './text-field';
+import { InputBaseComponentProps } from '@material-ui/core';
 
-export interface DateTimeFieldProps {
-  onChange?: (value: Date | null) => void;
-  value: Date | null;
-}
+type DateTimeFieldProps = Overwrite<
+  TextFieldProps,
+  {
+    onChange?: (value: Date | null) => void;
+    value: Date | null;
+  }
+>;
 
 const localeMap = { en, es, de };
-const mask = {
-  en: '__/__/____ __:__',
-  es: '__/__/____ __:__',
-  de: '__/__/____ __:__',
-};
 
 export default function DateTimePicker({
-  InputProps,
   onChange,
   value,
-  ...baseProps
-}: BaseFieldProps<DateTimeFieldProps>): React.ReactElement {
+  ...props
+}: DateTimeFieldProps): React.ReactElement {
   const handleOnChange = (date: Date | null): void => {
     if (onChange) onChange(date);
   };
+
+  const [showAdornment, toggleAdornment] = useReducer((state) => !state, true);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['en']}>
       <MobileDateTimePicker
         ampm={false}
         clearable
-        mask={mask['en']}
+        mask="____/__/__ __:__:__:___"
+        inputFormat="yyyy/MM/dd HH:mm:ss:sss"
         onChange={handleOnChange}
-        disabled={InputProps?.disabled}
-        readOnly={InputProps?.readOnly || !onChange}
-        renderInput={(props) => (
-          <BaseField
-            {...props}
-            {...baseProps}
-            fullWidth
-            InputProps={InputProps}
-            margin="normal"
-            variant="outlined"
-          />
-        )}
+        disabled={props.disabled}
+        onClose={toggleAdornment}
+        onOpen={toggleAdornment}
+        readOnly={props.readOnly || !onChange}
+        renderInput={(textFieldProps) => {
+          const inputProps = textFieldProps.inputProps as Omit<
+            InputBaseComponentProps,
+            'color'
+          >;
+          return (
+            <TextField
+              {...inputProps}
+              {...props}
+              endAdornment={showAdornment ? props.endAdornment : undefined}
+              // readOnly={textFieldProps.InputProps?.readOnly}
+              fullWidth
+            />
+          );
+        }}
         value={value}
       />
     </LocalizationProvider>

@@ -20,15 +20,15 @@ import {
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import AttributeErrors from '@/components/alert/attributes-error';
 import ActionButton from '@/components/buttons/fab';
-import AttributeField from '@/components/input/attribute-field';
 
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 
-import { formAttributesReducer, computeStats, initForm } from './form-utils';
+import FormErrors from './form-errors';
 import FormHeader from './form-header';
+import FormField from './form-field';
+import { formAttributesReducer, computeStats, initForm } from './form-utils';
 
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
 export type ActionHandler = (
@@ -277,23 +277,23 @@ export default function AttributesForm({
           } = attribute;
 
           return (
-            <AttributeField
+            <FormField
               key={name}
               type={type}
               error={clientError || serverErrors ? true : false}
               helperText={
-                (clientError || serverErrors) && (
-                  <AttributeErrors
-                    errors={{
-                      ajvValidation: serverErrors,
-                      clientValidation: clientError,
-                    }}
-                  />
-                )
+                clientError || serverErrors
+                  ? {
+                      component: 'ul',
+                      node: (
+                        <FormErrors
+                          ajvValidation={serverErrors}
+                          clientValidation={clientError}
+                        />
+                      ),
+                    }
+                  : undefined
               }
-              InputProps={{
-                readOnly,
-              }}
               label={name}
               leftIcon={
                 primaryKey
@@ -304,6 +304,7 @@ export default function AttributesForm({
                     )
                   : undefined
               }
+              readOnly={readOnly}
               rightIcon={
                 readOnly
                   ? (props: SvgIconProps): ReactElement => (
