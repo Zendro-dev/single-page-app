@@ -260,7 +260,7 @@ const Record: PageWithLayout<RecordProps> = ({
     };
 
     if (formStats.clientErrors > 0) {
-      return dialog.openAlert({
+      return dialog.openMessage({
         title: 'Validation errors',
         message: 'Please fix client side validation errors',
       });
