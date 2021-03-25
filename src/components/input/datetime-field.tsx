@@ -32,8 +32,8 @@ export default function DateTimePicker({
       <MobileDateTimePicker
         ampm={false}
         clearable
-        mask="____/__/__ __:__:__:___"
-        inputFormat="yyyy/MM/dd HH:mm:ss:sss"
+        mask="____/__/__ __:__:__.___"
+        inputFormat="yyyy/MM/dd HH:mm:ss.SSS" //https://date-fns.org/v2.19.0/docs/format
         onChange={handleOnChange}
         disabled={props.disabled}
         onClose={toggleAdornment}
