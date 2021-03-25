@@ -1,32 +1,31 @@
 import { Alert, AlertTitle, ListItemText } from '@material-ui/core';
 import { ReactElement } from 'react';
 
-export interface ErrorsAttribute {
+interface FormErrorsProps {
   ajvValidation?: string[] | null | undefined;
   clientValidation?: string | null | undefined;
 }
 
-interface ErrorProps {
-  errors: ErrorsAttribute;
-}
-
-export default function AttributeErrors({ errors }: ErrorProps): ReactElement {
+export default function AttributeErrors({
+  ajvValidation,
+  clientValidation,
+}: FormErrorsProps): ReactElement {
   return (
-    <ul>
-      {errors.ajvValidation && (
+    <>
+      {ajvValidation && (
         <Alert severity="error" component="li">
           <AlertTitle> Server side validation </AlertTitle>
-          {errors.ajvValidation.map((error) => {
+          {ajvValidation.map((error) => {
             return <ListItemText key={error} primary={error} />;
           })}
         </Alert>
       )}
-      {errors.clientValidation && (
+      {clientValidation && (
         <Alert severity="warning" component="li">
           <AlertTitle> Client side validation </AlertTitle>
-          <ListItemText primary={errors.clientValidation} />
+          <ListItemText primary={clientValidation} />
         </Alert>
       )}
-    </ul>
+    </>
   );
 }

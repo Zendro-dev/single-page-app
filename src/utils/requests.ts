@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { GRAPHQL_URL } from '@/config/globals';
 import { QueryVariables } from '@/types/queries';
-import { RequestOneResponse } from '@/types/requests';
 
 export interface GraphqlResponse<T = unknown> {
   data?: T | null;
@@ -48,23 +47,4 @@ export async function graphqlRequest<T = unknown>(
 
   // ? check for response.data ?
   return { data: response.data.data, errors: response.data.errors };
-}
-
-export async function requestOne<T>(
-  token: string,
-  query: string,
-  resolver: string,
-  variables: QueryVariables,
-  additionalData?: { [key: string]: unknown }
-): Promise<GraphqlResponse<T>> {
-  const { data, errors } = await graphqlRequest<RequestOneResponse<T>>(
-    token,
-    query,
-    variables,
-    additionalData
-  ).catch((err) => {
-    throw err;
-  });
-
-  return { data: data ? data[resolver] : data, errors };
 }

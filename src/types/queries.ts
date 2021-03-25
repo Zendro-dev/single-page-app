@@ -70,6 +70,7 @@ export type QueryRecord = (
   modelName: string,
   attributes: ParsedAttribute[]
 ) => {
+  primaryKey: string;
   create: RawQuery;
   read: RawQuery;
   update: RawQuery;

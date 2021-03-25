@@ -1,16 +1,27 @@
-export const GRAPHQL_URL = process.env.NEXT_PUBLIC_ZENDRO_GRAPHQL_URL;
-export const LOGIN_URL = process.env.NEXT_PUBLIC_ZENDRO_LOGIN_URL;
-export const EXPORT_URL = process.env.NEXT_PUBLIC_ZENDRO_EXPORT_URL;
-export const MAX_UPLOAD_SIZE = process.env.NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE; // size in MB
-export const MAX_RECORD_LIMIT = process.env.NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT;
-export const REDUX_LOGGER = process.env.NEXT_PUBLIC_REDUX_LOGGER;
+const EXPORT_URL = String(process.env.NEXT_PUBLIC_ZENDRO_EXPORT_URL ?? '');
+const GRAPHQL_URL = String(process.env.NEXT_PUBLIC_ZENDRO_GRAPHQL_URL ?? '');
+const LOGIN_URL = String(process.env.NEXT_PUBLIC_ZENDRO_LOGIN_URL ?? '');
+const MAX_RECORD_LIMIT = Number(
+  process.env.NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT
+);
+const MAX_UPLOAD_SIZE = Number(process.env.NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE); // size in MB
+const REDUX_LOGGER = String(process.env.NEXT_PUBLIC_REDUX_LOGGER ?? '');
 
-const config = {
+interface Config {
+  EXPORT_URL: string;
+  GRAPHQL_URL: string;
+  LOGIN_URL: string;
+  MAX_UPLOAD_SIZE: number;
+  MAX_RECORD_LIMIT: number;
+  REDUX_LOGGER: string;
+}
+
+const config: Config = {
+  EXPORT_URL,
   GRAPHQL_URL,
   LOGIN_URL,
-  EXPORT_URL,
-  MAX_UPLOAD_SIZE: Number(MAX_UPLOAD_SIZE),
-  MAX_RECORD_LIMIT: Number(MAX_RECORD_LIMIT),
+  MAX_RECORD_LIMIT,
+  MAX_UPLOAD_SIZE,
   REDUX_LOGGER,
 };
 
@@ -24,5 +35,14 @@ if (
   console.error(JSON.stringify(config, null, 2));
   throw new Error('Some mandatory variables in `env.local` are not being set');
 }
+
+export {
+  EXPORT_URL,
+  GRAPHQL_URL,
+  LOGIN_URL,
+  MAX_RECORD_LIMIT,
+  MAX_UPLOAD_SIZE,
+  REDUX_LOGGER,
+};
 
 export default config;
