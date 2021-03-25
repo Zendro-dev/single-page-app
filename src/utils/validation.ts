@@ -7,7 +7,10 @@
  * @param x variable to check
  */
 export function isNullorEmpty(x: unknown): boolean {
-  return isNullorUndefined(x) || isEmptyArray(x) || isEmptyObject(x);
+  if (isNullorUndefined(x)) return true;
+  if (isObject(x)) return Object.keys(x).length === 0;
+  if (Array.isArray(x)) return x.length === 0;
+  return false;
 }
 
 /**
@@ -19,7 +22,7 @@ export function isNullorUndefined(x: unknown): x is null | undefined {
 }
 
 /**
- * Check whether a variable is an empty array.
+ * Check whether a variable is an empty type of Array.
  * @param x variable to validate
  */
 export function isEmptyArray(x: unknown): boolean {
@@ -27,15 +30,20 @@ export function isEmptyArray(x: unknown): boolean {
 }
 
 /**
- * Check whether a variable is:
- * - an empty array
- * - an empty object
+ * Check whether a variable is an empty type of Record<string,unknown>.
  * @param x variable to validate
  */
 export function isEmptyObject(x: unknown): boolean {
-  if (isNullorUndefined(x) || typeof x !== 'object') return false;
-  const _x = x as { length: number };
-  return _x.length !== undefined && _x.length === 0;
+  return isObject(x) ? Object.keys(x).length === 0 : false;
+}
+
+/**
+ * Check whether a variable is of type Record<string,unknown> and empty.
+ * @param x variable to validate
+ * @returns whether _x_ is an empty object
+ */
+export function isObject(x: unknown): x is Record<string, unknown> {
+  return typeof x === 'object' && x !== null && !Array.isArray(x);
 }
 
 export function isIntValue(value: string): boolean {

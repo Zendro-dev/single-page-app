@@ -1,16 +1,20 @@
 import { ReactElement } from 'react';
-import BaseField, { BaseFieldProps } from './base-field';
+import { Overwrite } from 'utility-types';
+import TextField, { TextFieldProps } from './text-field';
 
-export interface StringFieldProps {
-  onChange?: (value: string | null) => void;
-  value: string | null;
-}
+type StringFieldProps = Overwrite<
+  TextFieldProps,
+  {
+    onChange?: (value: string | null) => void;
+    value: string | null;
+  }
+>;
 
 export default function StringField({
   onChange,
   value,
   ...props
-}: BaseFieldProps<StringFieldProps>): ReactElement {
+}: StringFieldProps): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -19,5 +23,5 @@ export default function StringField({
     }
   };
 
-  return <BaseField {...props} onChange={handleOnChange} value={value ?? ''} />;
+  return <TextField {...props} onChange={handleOnChange} value={value ?? ''} />;
 }

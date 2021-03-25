@@ -3,13 +3,13 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { SvgIconType } from '@/types/elements';
 import { ReactElement, PropsWithChildren } from 'react';
 
-export interface InputContainerProps {
+interface InputContainerProps {
   className?: string;
   leftIcon?: SvgIconType;
   rightIcon?: SvgIconType;
 }
 
-export type WithContainerProps<T> = T &
+export type WithIcons<T> = T &
   Pick<InputContainerProps, 'leftIcon' | 'rightIcon'>;
 
 export default function InputContainer({

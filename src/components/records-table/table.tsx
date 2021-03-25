@@ -135,14 +135,15 @@ export default function EnhancedTable({
   const handleActionClick = (
     action: 'create' | 'read' | 'update' | 'delete'
   ) => async (primaryKey: string | number) => {
-    const route = `/${modelName}/item?${action}=${primaryKey}`;
     switch (action) {
       case 'read':
+        router.push(`/${modelName}/details?id=${primaryKey}`);
+        break;
       case 'update':
-        router.push(route);
+        router.push(`/${modelName}/edit?id=${primaryKey}`);
         break;
       case 'create':
-        router.push(`/${modelName}/item`);
+        router.push(`/${modelName}/new`);
         break;
       case 'delete': {
         dialog.openConfirm({

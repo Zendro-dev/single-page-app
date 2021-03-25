@@ -1,18 +1,22 @@
 import { ReactElement } from 'react';
-import BaseField, { BaseFieldProps } from './base-field';
+import { Overwrite } from 'utility-types';
+import TextField, { TextFieldProps } from './text-field';
 
-export interface IntFieldProps {
-  onChange?: (value: number | null) => void;
-  onError?: (value: string | null) => void;
-  value: number | null;
-}
+type IntFieldProps = Overwrite<
+  TextFieldProps,
+  {
+    onChange?: (value: number | null) => void;
+    onError?: (value?: string) => void;
+    value: number | null;
+  }
+>;
 
 export default function IntField({
   onChange,
   onError,
   value,
   ...props
-}: BaseFieldProps<IntFieldProps>): ReactElement {
+}: IntFieldProps): ReactElement {
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -22,7 +26,7 @@ export default function IntField({
         : Math.round(parseFloat(event.target.value));
 
     if ((intValue === null || !isNaN(intValue)) && onChange && onError) {
-      onError(null);
+      onError();
       onChange(intValue);
     }
   };
@@ -41,7 +45,7 @@ export default function IntField({
   };
 
   return (
-    <BaseField
+    <TextField
       {...props}
       onChange={handleOnChange}
       onKeyDown={handleOnKeyDown}
