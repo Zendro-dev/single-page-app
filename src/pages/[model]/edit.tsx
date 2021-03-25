@@ -241,23 +241,21 @@ const Record: PageWithLayout<RecordProps> = ({
         }
 
         if (!graphqlErrors) return;
-        const { nonExtensionsErrors, validationErrors } = parseGraphqlErrors(
+        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
           graphqlErrors
         );
 
         // Send generic GraphQL errors to the notification queue
-        if (nonExtensionsErrors.length > 0) {
+        if (nonValidationErrors.length > 0) {
           showSnackbar(
             `The server returned a ${clientError.response.status} error`,
             `error`,
-            nonExtensionsErrors
+            nonValidationErrors
           );
         }
 
         // Send validation errors to the form serverErrors
         if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
-
-        // TODO: handle extensionErrors
       }
     };
 

@@ -9,20 +9,19 @@ export function parseGraphqlErrors(
   errors: GraphQLError[]
 ): ParsedGraphQLErrors {
   const parsedErrors: ParsedGraphQLErrors = {
-    extensionsErrors: {},
-    nonExtensionsErrors: [],
+    nonValidationErrors: [],
     validationErrors: {},
   };
 
   return errors.reduce((acc, error) => {
     // If no extensions, store the full GraphQLError (unknown error)
-    if (!error.extensions) {
-      acc.nonExtensionsErrors.push(error);
+    if (!error.extensions?.validationErrors) {
+      acc.nonValidationErrors.push(error);
       return acc;
     }
 
     // Parse validation errors
-    error.extensions.validationErrors?.forEach(
+    error.extensions.validationErrors.forEach(
       ({ dataPath, keyword, message }) => {
         const attributeName = dataPath.slice(1);
         const errors = new Set(acc.validationErrors[attributeName]);
@@ -30,8 +29,6 @@ export function parseGraphqlErrors(
         acc.validationErrors[attributeName] = Array.from(errors);
       }
     );
-
-    // TODO: parse extensionErrors that are not validation (ddm?)
 
     return acc;
   }, parsedErrors);
