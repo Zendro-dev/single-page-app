@@ -1,0 +1,105 @@
+version: "3.8"
+
+services:
+  gql_postgres1:
+    container_name: postgres1
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    ports:
+     - 1234:5432
+    networks:
+     - instance1
+
+  gql_science_db_graphql_server1:
+    container_name: server1
+    depends_on:
+      - gql_postgres1
+    build:
+      context: .
+      dockerfile: Dockerfile.graphql_server
+    volumes:
+      - ../test_env/gql_science_db_graphql_server1:/usr/src/app
+      - ./data_models_storage_config1.json:/usr/src/app/config/data_models_storage_config.json
+      - ./integration-test.sql:/usr/src/app/integration-test.sql
+      - ./migrateDbAndStartServer.sh:/usr/src/app/migrateDbAndStartServer.sh
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      REQUIRE_SIGN_IN: "false"
+      LIMIT_RECORDS: 25
+      JQ_PATH: /usr/bin/jq
+    networks:
+      - integrationtest
+      - instance1
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./migrateDbAndStartServer.sh
+
+  # gql_ncbi_sim_srv1:
+  #   container_name: gql_ncbi_sim_srv
+  #   depends_on:
+  #     - gql_postgres1
+  #     - gql_science_db_graphql_server1
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.ncbi_sim_srv
+  #   volumes:
+  #     - ./ncbi_sim_srv:/usr/src/app
+  #   ports:
+  #     - "3344:3344"
+  #   environment:
+  #       PORT: 3344
+  #       BASE_URL: /aminoAcidSequence
+  #   networks:
+  #     - instance1
+  #   command:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       npm install
+  #       npm start
+
+  # gql_postgres2:
+  #   container_name: postgres2
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.postgres
+  #   ports:
+  #    - 1235:5431
+  #   networks:
+  #     - instance2
+
+  # gql_science_db_graphql_server2:
+  #   container_name: server2
+  #   depends_on:
+  #     - gql_postgres2
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.graphql_server
+  #   volumes:
+  #     - ../test_env/gql_science_db_graphql_server2:/usr/src/app
+  #     - ./data_models_storage_config2.json:/usr/src/app/config/data_models_storage_config.json
+  #   ports:
+  #     - "3030:3030"
+  #   environment:
+  #     PORT: 3030
+  #     REQUIRE_SIGN_IN: "false"
+  #     LIMIT_RECORDS: 26
+  #     JQ_PATH: /usr/bin/jq
+  #   networks:
+  #     - integrationtest
+  #     - instance2
+  #   command:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       ./migrateDbAndStartServer.sh
+
+networks:
+  instance1:
+  # instance2:
+  integrationtest:

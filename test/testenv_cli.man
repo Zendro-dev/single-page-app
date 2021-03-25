@@ -1,0 +1,114 @@
+.\" Manpage for zendro graphql-server-model-codegen integration tests.
+.TH Zendro 1 "04 Dec 2020" "1.0" "integration-tests"
+
+.SH NAME
+testenv_cli.sh
+
+.SH USAGE
+npm run test-integration [-- OPTIONS]
+
+.SH DESCRIPTION
+
+Command line utility to perform graphql server integration tests.
+
+.SH DEFAULT
+The default behavior (no options) consists of six actions:
+
+.PP
+.B 1)
+Perform a full cleanup of any pre-existing enviroment, including docker images and volumes.
+
+.PP
+.B 2)
+Setup a new testing environment by cloning the latest master branch of Zendro graphql servers.
+
+.PP
+.B 3)
+Run the code generator over the cloned servers and apply custom integration test patches.
+
+.PP
+.B 4)
+Up the docker services and wait for the servers to ready for requests.
+
+.PP
+.B 5)
+Execute the integration test suites using mocha.
+
+.PP
+.B 6)
+Perform a full cleanup as described in \fB1)\fR (this step can be optionally disabled by using the -k option)
+
+.SH OPTIONS
+
+.B -c, --cleanup
+
+    Stop and remove the testing environment, including docker containers,
+    volumes, images, and the environment folder.
+
+.B -g, --generate-code
+
+    Run the code generator and apply custom integration test patches.
+
+.B -h, -help
+
+    Display this manual page.
+
+.B -k, --keep-running
+
+    Set a flag to skip the full cleanup step that follows after running the test
+    suites. This option is compatible with a default run, and with the -t and -T
+    flags.
+
+.B -r, --restart-containers
+
+    This option re-initializes the docker environment, removing containers and
+    anonymous volumes, but without removing their images
+
+.B -t, --run-test-only
+
+    This option runs the integration test suite and optionally performs a full
+    cleanup. It is compatible with the -k flag, to keep the running environment
+    alive.
+
+.B -T, --generate-code-and-run-tests
+
+    This option runs the code generator, applies patches, runs tests, and
+    performs a full cleanup. It is compatible with the -k flag, to keep the
+    running environment alive.
+
+.SH EXAMPLES
+
+.B
+To run the default behavior
+.PP
+$ npm run test-integration
+
+.B
+To run default behavior but skip final cleanup
+.PP
+$ npm run test-integration -- -k
+
+.B
+To generate code
+.PP
+$ npm run test-integration -- -g
+
+.B
+To restart containers:
+.PP
+$ npm run test-integration -- -r
+
+.B
+To only run the tests and keep the docker environment alive
+.PP
+$ npm run test-integration -- -t -k
+
+.B
+To generate code, run the tests, and perform a full cleanup at the end
+.PP
+$ npm run test-integration -- -T
+
+.B
+To do a full clean up
+.PP
+$ npm run test-integration -- -c

@@ -13,7 +13,7 @@ export default function AttributeErrors({
   return (
     <>
       {ajvValidation && (
-        <Alert severity="error" component="li">
+        <Alert severity="error">
           <AlertTitle> Server side validation </AlertTitle>
           {ajvValidation.map((error) => {
             return <ListItemText key={error} primary={error} />;
@@ -21,7 +21,7 @@ export default function AttributeErrors({
         </Alert>
       )}
       {clientValidation && (
-        <Alert severity="warning" component="li">
+        <Alert severity="warning">
           <AlertTitle> Client side validation </AlertTitle>
           <ListItemText primary={clientValidation} />
         </Alert>

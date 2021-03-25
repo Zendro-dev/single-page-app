@@ -1,0 +1,19 @@
+{
+  "model": "alien",
+  "storageType": "sql",
+  "attributes": {
+    "idField": "String",
+    "stringField": "String",
+    "intField": "Int",
+    "floatField": "Float",
+    "datetimeField": "DateTime",
+    "booleanField": "Boolean",
+
+    "stringArrayField": "[String]",
+    "intArrayField": "[Int]",
+    "floatArrayField": "[Float]",
+    "datetimeArrayField": "[DateTime]",
+    "booleanArrayField": "[Boolean]"
+  },
+  "internalId" : "idField"
+}

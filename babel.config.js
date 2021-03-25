@@ -1,4 +1,4 @@
 const presets = ['next/babel'];
-const plugins = [];
+const plugins = ['istanbul'];
 
 module.exports = { presets, plugins };
