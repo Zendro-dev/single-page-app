@@ -90,7 +90,7 @@ const Record: PageWithLayout<RecordProps> = ({
   const handleOnCancel: ActionHandler = (formData, formStats) => {
     if (formStats.unset > 0) {
       return dialog.openConfirm({
-        title: 'Some fields have been modified.',
+        title: 'Some fields have been added.',
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
