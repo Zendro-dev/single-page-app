@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import Reload from '@material-ui/icons/Replay';
 import Add from '@material-ui/icons/AddBox';
 import Import from '@material-ui/icons/UnarchiveOutlined';
@@ -7,6 +7,15 @@ import SearchField from './table-toolbar-search-field';
 import DownloadMenu from './table-toolbar-download-menu';
 import UploadDialog from './table-toolbar-upload-dialog';
 import { Box } from '@material-ui/core';
+import { AclPermission } from '@/types/acl';
+
+interface TableToolBarProps {
+  modelName: string;
+  permissions: AclPermission[];
+  onReload: () => void;
+  onSearch: (value: string) => void;
+  onAdd: (primaryKey: string | number) => Promise<void>;
+}
 
 export default function TableToolBar({
   modelName,
@@ -14,14 +23,13 @@ export default function TableToolBar({
   onReload,
   onSearch,
   onAdd,
-}) {
+}: TableToolBarProps): ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const handleImportClicked = () => {
+  const handleImportClicked = (): void => {
     setDialogOpen(true);
   };
 
-  const handleDone = () => {
+  const handleDone = (): void => {
     setDialogOpen(false);
     onReload();
   };
