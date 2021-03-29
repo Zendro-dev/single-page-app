@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -9,6 +9,7 @@ import {
   Select,
   Box,
   FormControl,
+  createStyles,
 } from '@material-ui/core';
 import {
   FirstPage,
@@ -17,52 +18,67 @@ import {
   LastPage,
 } from '@material-ui/icons';
 
-const useStyles = makeStyles(() => ({
-  paginationLimit: {
-    minWidth: '5rem',
-    marginLeft: '1rem',
-    marginRight: '1rem',
-  },
-}));
+interface RecordsTablePaginationProps {
+  paginationLimit?: number;
+  count: number;
+  options: number[];
+  hasFirstPage: boolean | null;
+  hasLastPage: boolean | null;
+  hasNextPage: boolean | null;
+  hasPreviousPage: boolean | null;
+  onPagination: (action: string) => void;
+  onPaginationLimitChange: (
+    event: React.ChangeEvent<{ value: number }>
+  ) => void;
+}
 
-export default function RecordsTablePagination(props) {
+export default function RecordsTablePagination({
+  paginationLimit,
+  count,
+  options,
+  hasFirstPage,
+  hasLastPage,
+  hasNextPage,
+  hasPreviousPage,
+  onPagination,
+  onPaginationLimitChange,
+}: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
-  const handleOnPagination = (action) => () => {
-    if (props.onPagination) {
-      props.onPagination(action);
+  const handleOnPagination = (action: string) => () => {
+    if (onPagination) {
+      onPagination(action);
     }
   };
-  const handlePaginationLimitChange = (event) => {
-    if (props.onPaginationLimitChange) {
-      props.onPaginationLimitChange(event);
+  const handlePaginationLimitChange = (
+    event: React.ChangeEvent<{ value: number }>
+  ): void => {
+    if (onPaginationLimitChange) {
+      onPaginationLimitChange(event);
     }
   };
   return (
-    <Box display="flex" alignItems="center" className={props.className}>
+    <Box display="flex" alignItems="center" className={classes.pagination}>
       <FormControl className={classes.paginationLimit}>
         <InputLabel shrink>Rows</InputLabel>
-        <Select
-          value={props.paginationLimit}
-          onChange={handlePaginationLimitChange}
-        >
-          {props.options.map((rowValue, index) => (
+        <Select value={paginationLimit} onChange={handlePaginationLimitChange}>
+          {options.map((rowValue, index) => (
             <MenuItem value={rowValue} key={index}>
               {rowValue}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-      {props.count && (
+      {count && (
         <div>
           <InputLabel shrink>Count</InputLabel>
-          <InputBase value={props.count} disabled={true} />
+          <InputBase value={count} disabled={true} />
         </div>
       )}
       <Tooltip title="First page" style={{ marginLeft: 'auto' }}>
         <span>
           <IconButton
             onClick={handleOnPagination('first')}
-            disabled={!props.hasFirstPage}
+            disabled={!hasFirstPage}
           >
             <FirstPage />
           </IconButton>
@@ -72,7 +88,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('backward')}
-            disabled={!props.hasPreviousPage}
+            disabled={!hasPreviousPage}
           >
             <KeyboardArrowLeft />
           </IconButton>
@@ -82,7 +98,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('forward')}
-            disabled={!props.hasNextPage}
+            disabled={!hasNextPage}
           >
             <KeyboardArrowRight />
           </IconButton>
@@ -92,7 +108,7 @@ export default function RecordsTablePagination(props) {
         <span>
           <IconButton
             onClick={handleOnPagination('last')}
-            disabled={!props.hasLastPage}
+            disabled={!hasLastPage}
           >
             <LastPage />
           </IconButton>
@@ -101,3 +117,16 @@ export default function RecordsTablePagination(props) {
     </Box>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    pagination: {
+      padding: theme.spacing(6, 2),
+    },
+    paginationLimit: {
+      minWidth: '5rem',
+      marginLeft: '1rem',
+      marginRight: '1rem',
+    },
+  })
+);
