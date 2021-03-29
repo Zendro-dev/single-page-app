@@ -36,13 +36,6 @@ export default function useModel(): UseModel {
       }
     }
 
-    console.log({
-      allowed,
-      model,
-      request,
-      id,
-    });
-
     return {
       allowed,
       id,
