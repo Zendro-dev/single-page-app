@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { KeyboardEventHandler, ReactElement, useState } from 'react';
 import { TextField } from '@material-ui/core';
 import Search from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Backspace';
@@ -6,28 +6,34 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 
 import ClickableIcon from '../buttons/icon-button';
 
-export default function SearchField(props) {
+interface SearchFieldProps {
+  onSearchClick: (value: string) => void;
+}
+
+export default function SearchField({
+  onSearchClick,
+}: SearchFieldProps): ReactElement {
   const [clearDisabled, setClearDisabled] = useState(true);
   const [searchValue, setSearchValue] = useState('');
 
-  const searchClick = () => {
+  const searchClick = (): void => {
     if (searchValue !== '') setClearDisabled(false);
-    props.onSearchClick(searchValue);
+    onSearchClick(searchValue);
   };
 
-  const clearClick = () => {
+  const clearClick = (): void => {
     setSearchValue('');
     setClearDisabled(true);
-    props.onSearchClick('');
+    onSearchClick('');
   };
 
-  const handleEnter = (event) => {
+  const handleEnter: KeyboardEventHandler = (event) => {
     if (event.key === 'Enter') {
       searchClick();
     }
   };
 
-  const handleSearchField = (value) => {
+  const handleSearchField = (value: string): void => {
     setSearchValue(value);
   };
 

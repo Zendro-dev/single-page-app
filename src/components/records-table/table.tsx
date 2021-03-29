@@ -15,27 +15,26 @@ import TableToolbar from './table-toolbar';
 import EnhancedTableRow from './table-row';
 import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
-import { graphqlRequest } from '@/utils/requests';
-import useAuth from '@/hooks/useAuth';
 import { DataRecord, ParsedAttribute } from '@/types/models';
 import {
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
   QueryVariablePagination,
+  QueryVariables,
   QueryVariableSearch,
   RawQuery,
 } from '@/types/queries';
 import { createSearch } from '@/utils/search';
-import useToastNotification from '@/hooks/useToastNotification';
-import {
-  EdgePageInfo,
-  PageInfo,
-  ReadManyResponse,
-  RequestOneResponse,
-} from '@/types/requests';
+import { EdgePageInfo, PageInfo, ReadManyResponse } from '@/types/requests';
 import { isEmptyArray, isNullorEmpty } from '@/utils/validation';
 
-import { useDialog } from '@/hooks/useDialog';
+import {
+  useAuth,
+  useDialog,
+  useToastNotification,
+  useZendroClient,
+} from '@/hooks';
+import { ExtendedClientError } from '@/types/errors';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -121,9 +120,11 @@ export default function EnhancedTable({
   const classes = useStyles();
   const router = useRouter();
   const { showSnackbar } = useToastNotification();
-  const { auth } = useAuth();
   const dialog = useDialog();
+  const zendro = useZendroClient();
+  const { auth } = useAuth();
 
+  /* HANDLERS */
   const handleSetOrder = (field: string): void => {
     const isAsc =
       field === variables.order?.field && variables.order.order === 'ASC';
@@ -132,55 +133,37 @@ export default function EnhancedTable({
     dispatch({ type: 'SET_ORDER', payload: { field, order } });
   };
 
-  const handleActionClick = (
-    action: 'create' | 'read' | 'update' | 'delete'
-  ) => async (primaryKey: string | number) => {
-    switch (action) {
-      case 'read':
-        router.push(`/models/${modelName}/details?id=${primaryKey}`);
-        break;
-      case 'update':
-        router.push(`/models/${modelName}/edit?id=${primaryKey}`);
-        break;
-      case 'create':
-        router.push(`/models/${modelName}/new`);
-        break;
-      case 'delete': {
-        dialog.openConfirm({
-          onOk: async () => {
-            const idField = attributes[0].name;
-            if (auth.user?.token) {
-              try {
-                const { errors } = await graphqlRequest(
-                  auth.user?.token,
-                  requests.delete.query,
-                  {
-                    [idField]: primaryKey,
-                  }
-                );
-                if (!isNullorEmpty(errors))
-                  showSnackbar('Error in Graphql response', 'error', errors);
+  const handleOnCreate = (): void => {
+    router.push(`/models/${modelName}/new`);
+  };
 
-                mutateRecords();
-                mutateCount();
-              } catch (error) {
-                console.error(error);
-                showSnackbar(
-                  'Error in request to server',
-                  'error',
-                  error.response
-                );
-              }
-            }
-          },
-          title: 'Are you sure you want to delete this item?',
-          message: `Item with id ${primaryKey} in model ${modelName}.`,
-          okText: 'YES',
-          cancelText: 'NO',
-        });
-        break;
-      }
-    }
+  const handleOnRead = (primaryKey: string | number): void => {
+    router.push(`/models/${modelName}/details?id=${primaryKey}`);
+  };
+
+  const handleOnUpdate = (primaryKey: string | number): void => {
+    router.push(`/models/${modelName}/edit?id=${primaryKey}`);
+  };
+
+  const handleOnDelete = (primaryKey: string | number): void => {
+    dialog.openConfirm({
+      title: 'Are you sure you want to delete this item?',
+      message: `Item with id ${primaryKey} in model ${modelName}.`,
+      okText: 'YES',
+      cancelText: 'NO',
+      onOk: async () => {
+        const idField = attributes[0].name;
+        try {
+          await zendro.request(requests.delete.query, {
+            [idField]: primaryKey,
+          });
+          mutateRecords();
+          mutateCount();
+        } catch (error) {
+          showSnackbar('Error in request to server', 'error', error);
+        }
+      },
+    });
   };
 
   const handleSetSearch = (value: string): void => {
@@ -250,50 +233,58 @@ export default function EnhancedTable({
 
   /* DATA FETCHING */
   // Records
-  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
-    auth?.user?.token
-      ? [auth.user.token, requests.read.query, variables]
-      : null,
-    graphqlRequest,
+  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR<
+    ReadManyResponse,
+    ExtendedClientError<ReadManyResponse>
+  >(
+    [requests.read.query, variables],
+    (query: string, variables: QueryVariables) =>
+      zendro.request(query, variables),
     {
-      onSuccess: ({ data, errors }) => {
+      onSuccess: (data) => {
         if (!isNullorEmpty(data)) {
-          const connection = unwrapConnection(
-            data as ReadManyResponse,
-            requests.read.resolver
-          );
+          const connection = unwrapConnection(data, requests.read.resolver);
           setRows(connection.data);
           setPageInfo(connection.pageInfo);
         }
-
-        if (!isNullorEmpty(errors))
-          showSnackbar('Error in Graphql response', 'error', errors);
       },
       onError: (error) => {
-        console.error(error);
-        showSnackbar('Error in request to server', 'error', error.response);
+        const genericError = error.response.error;
+        const graphqlErrors = error.response.errors;
+
+        if (graphqlErrors)
+          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+
+        if (genericError)
+          showSnackbar('Error in request to server', 'error', genericError);
       },
       shouldRetryOnError: false,
     }
   );
 
   // Count
-  const { mutate: mutateCount } = useSWR(
-    auth?.user?.token
-      ? [auth.user.token, requests.count.query, variables]
-      : null,
-    graphqlRequest,
+  const { mutate: mutateCount } = useSWR<
+    Record<string, number>,
+    ExtendedClientError<Record<string, number>>
+  >(
+    [requests.count.query, variables],
+    (query: string, variables: QueryVariables) =>
+      zendro.request(query, variables),
     {
-      onSuccess: ({ data, errors }) => {
-        const countData = data as RequestOneResponse<number>;
-        if (!isNullorEmpty(data)) setCount(countData[requests.count.resolver]);
-
-        if (!isNullorEmpty(errors))
-          showSnackbar('Error in Graphql response', 'error', errors);
+      onSuccess: (data) => {
+        if (!isNullorEmpty(data)) {
+          setCount(data[requests.count.resolver]);
+        }
       },
       onError: (error) => {
-        console.error(error);
-        showSnackbar('Error in request to server', 'error', error.response);
+        const genericError = error.response.error;
+        const graphqlErrors = error.response.errors;
+
+        if (graphqlErrors)
+          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+
+        if (genericError)
+          showSnackbar('Error in request to server', 'error', genericError);
       },
       shouldRetryOnError: false,
     }
@@ -304,7 +295,7 @@ export default function EnhancedTable({
       <TableToolbar
         modelName={modelName}
         permissions={auth.user?.permissions[modelName] ?? []}
-        onAdd={handleActionClick('create')}
+        onAdd={handleOnCreate}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
       />
@@ -327,9 +318,9 @@ export default function EnhancedTable({
                   permissions={auth.user?.permissions[modelName] ?? []}
                   record={record}
                   key={`${index}`}
-                  onRead={handleActionClick('read')}
-                  onUpdate={handleActionClick('update')}
-                  onDelete={handleActionClick('delete')}
+                  onRead={handleOnRead}
+                  onUpdate={handleOnUpdate}
+                  onDelete={handleOnDelete}
                 />
               ))}
             </TableBody>
@@ -350,7 +341,6 @@ export default function EnhancedTable({
       </div>
 
       <RecordsTablePagination
-        className={classes.pagination}
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}

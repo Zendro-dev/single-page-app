@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useState, useRef, ReactElement, ChangeEventHandler } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -10,15 +10,20 @@ import {
   Typography,
 } from '@material-ui/core';
 import { MAX_UPLOAD_SIZE } from '@/config/globals';
-import useSWR from 'swr';
 import { graphqlRequest } from '@/utils/requests';
 import { queryBulkCreate } from '@/utils/queries';
 import useAuth from '@/hooks/useAuth';
 import useToastNotification from '@/hooks/useToastNotification';
-import { isNullorEmpty } from '@/utils/validation';
 
-export default function UploadDialog(props) {
-  const file = useRef(null);
+interface UploadDialogProps {
+  modelName: string;
+  handleDone: () => void;
+}
+
+export default function UploadDialog({
+  modelName,
+  handleDone,
+}: UploadDialogProps): ReactElement {
   const { auth } = useAuth();
   const { showSnackbar } = useToastNotification();
   const [open, setOpen] = useState(true);
@@ -26,48 +31,20 @@ export default function UploadDialog(props) {
   const [loading, setLoading] = useState(false);
   const [limitExceeded, setLimitExceeded] = useState(false);
 
-  const request = useMemo(() => {
-    return queryBulkCreate(props.modelName);
-  }, [props.modelName]);
+  const file = useRef<File | null>(null);
 
-  const handleOnClose = () => {
+  const handleOnClose = (): void => {
     file.current = null;
     setLoading(false);
     setOpen(false);
-    props.handleDone();
+    handleDone();
   };
 
-  const onUploadSucces = (data) => {
-    //send message to user
-
-    if (!isNullorEmpty(data)) {
-      showSnackbar(
-        'The data has been sent. A report with the status of the import process will be sent to your email.',
-        'success'
-      );
-    } else {
-      showSnackbar(
-        'Null data received: GraphQL query returns no data.',
-        'warning'
-      );
-    }
-
-    handleOnClose();
-  };
-
-  const onUploadError = (error) => {
-    //send error message to user
-    console.error(error);
-    showSnackbar(
-      'An error occurred while trying to execute the GraphQL query. Please contact your administrator.',
-      'error'
-    );
-    handleOnClose();
-  };
-
-  const handleOnChange = (event) => {
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ): void => {
     setLimitExceeded(false);
-    if (event.target.files.length > 0) {
+    if (event.target.files && event.target.files.length > 0) {
       if (event.target.files[0].size / (1024 * 1024) > MAX_UPLOAD_SIZE) {
         setLimitExceeded(true);
       } else {
@@ -77,24 +54,33 @@ export default function UploadDialog(props) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (): Promise<void> => {
     setLoading(true);
-  };
-
-  useSWR(
-    loading
-      ? [
+    try {
+      if (auth.user?.token) {
+        await graphqlRequest(
           auth.user.token,
-          request.query,
+          queryBulkCreate(modelName).query,
           null,
           {
             csv_file: file.current,
-          },
-        ]
-      : null,
-    graphqlRequest,
-    { onSuccess: onUploadSucces, onError: onUploadError }
-  );
+          }
+        );
+        showSnackbar(
+          'The data has been sent. A report with the status of the import process will be sent to your email.',
+          'success'
+        );
+      }
+      // ? Null data received ?
+    } catch (error) {
+      showSnackbar(
+        'An error occurred while trying to execute the GraphQL query. Please contact your administrator.',
+        'error',
+        error
+      );
+    }
+    handleOnClose();
+  };
 
   return (
     <>

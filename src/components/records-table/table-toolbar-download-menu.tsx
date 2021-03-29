@@ -1,18 +1,15 @@
-import { useMemo, useState } from 'react';
+import { MouseEventHandler, ReactElement, useState } from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Export from '@material-ui/icons/SaveAlt';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import { EXPORT_URL } from '../../config/globals';
 import ClickableIcon from '@/components/buttons/icon-button';
-import useSWR from 'swr';
-import { graphqlRequest } from '@/utils/requests';
 import { queryCsvTemplate } from '@/utils/queries';
 import useToastNotification from '@/hooks/useToastNotification';
-import useAuth from '@/hooks/useAuth';
-import { isNullorEmpty } from '@/utils/validation';
+import { useZendroClient } from '@/hooks';
 
-function downloadFile(data, name) {
+function downloadFile(data: unknown[], name: string): void {
   const file = data.join('\n');
   const url = window.URL.createObjectURL(new Blob([file]));
   const link = document.createElement('a');
@@ -22,50 +19,37 @@ function downloadFile(data, name) {
   link.click();
 }
 
-export default function DownloadMenu(props) {
-  const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
-  const [downloadTemplate, setDownloadTemplate] = useState(false);
-  const { auth } = useAuth();
-  const { showSnackbar } = useToastNotification();
+interface DownloadMenuProps {
+  modelName: string;
+}
 
-  const request = useMemo(() => {
-    return queryCsvTemplate(props.modelName);
-  }, [props.modelName]);
-
-  useSWR(
-    downloadTemplate ? [auth.user.token, request.query] : null,
-    graphqlRequest,
-    {
-      onSuccess: ({ data, errors }) => {
-        setDownloadTemplate(false);
-        if (!isNullorEmpty(data)) {
-          downloadFile(
-            data[request.resolver],
-            `${props.modelName}-template.csv`
-          );
-        }
-
-        if (!isNullorEmpty(errors)) {
-          showSnackbar('Error in Graphql response', 'error', errors);
-        }
-      },
-      onError: (error) => {
-        console.error(error);
-        showSnackbar('Error in request to server', 'error', error.response);
-      },
-    }
+export default function DownloadMenu({
+  modelName,
+}: DownloadMenuProps): ReactElement {
+  const [downloadAnchorEl, setDownloadAnchorEl] = useState<Element | null>(
+    null
   );
+  const { showSnackbar } = useToastNotification();
+  const zendro = useZendroClient();
 
-  const handleClick = (event) => {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     setDownloadAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setDownloadAnchorEl(null);
   };
 
-  const handleDownloadTemplate = () => {
-    setDownloadTemplate(true);
+  const handleDownloadTemplate = async (): Promise<void> => {
+    const request = queryCsvTemplate(modelName);
+    console.log(request);
+    try {
+      const response = await zendro.request(request.query);
+      downloadFile(response[request.resolver], `${modelName}-template.csv`);
+    } catch (error) {
+      showSnackbar('Error in request to server', 'error', error);
+    }
+
     setDownloadAnchorEl(null);
   };
 
@@ -86,7 +70,7 @@ export default function DownloadMenu(props) {
 
         <MenuItem>
           <form action={EXPORT_URL}>
-            <input type="hidden" name="model" value={props.modelName} />
+            <input type="hidden" name="model" value={modelName} />
             <ButtonBase color="default" type="submit" onClick={handleClose}>
               Export data to CSV file 2
             </ButtonBase>
