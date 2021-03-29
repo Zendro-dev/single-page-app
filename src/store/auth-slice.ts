@@ -48,25 +48,40 @@ const authSlice = createSlice({
   initialState: initialState(),
   reducers: {
     logUserOut: (state) => {
-      state.user = undefined;
       localStorage.removeItem('token');
-      state.status = 'idle';
+      return {
+        ...state,
+        user: undefined,
+        status: 'idle',
+      };
     },
     cancelLogin: (state) => {
-      state.status = 'cancelled';
+      return {
+        ...state,
+        status: 'cancelled',
+      };
     },
   },
   extraReducers: (builder) => {
     builder.addCase(logUserIn.pending, (state) => {
-      state.status = 'loading';
+      return {
+        ...state,
+        status: 'loading',
+      };
     });
     builder.addCase(logUserIn.fulfilled, (state, action) => {
-      state.status = 'success';
-      state.user = action.payload;
+      return {
+        ...state,
+        status: 'success',
+        user: action.payload,
+      };
     });
     builder.addCase(logUserIn.rejected, (state, action) => {
-      state.status = 'failed';
-      state.error = action.error as AuthError;
+      return {
+        ...state,
+        status: 'failed',
+        error: action.error as AuthError,
+      };
     });
   },
 });
