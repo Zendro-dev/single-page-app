@@ -124,6 +124,7 @@ export default function EnhancedTable({
   const zendro = useZendroClient();
   const { auth } = useAuth();
 
+  /* HANDLERS */
   const handleSetOrder = (field: string): void => {
     const isAsc =
       field === variables.order?.field && variables.order.order === 'ASC';
@@ -132,40 +133,37 @@ export default function EnhancedTable({
     dispatch({ type: 'SET_ORDER', payload: { field, order } });
   };
 
-  const handleActionClick = (
-    action: 'create' | 'read' | 'update' | 'delete'
-  ) => async (primaryKey: string | number) => {
-    const route = `/${modelName}/item?${action}=${primaryKey}`;
-    switch (action) {
-      case 'read':
-      case 'update':
-        router.push(route);
-        break;
-      case 'create':
-        router.push(`/${modelName}/item`);
-        break;
-      case 'delete': {
-        dialog.openConfirm({
-          title: 'Are you sure you want to delete this item?',
-          message: `Item with id ${primaryKey} in model ${modelName}.`,
-          okText: 'YES',
-          cancelText: 'NO',
-          onOk: async () => {
-            const idField = attributes[0].name;
-            try {
-              await zendro.request(requests.delete.query, {
-                [idField]: primaryKey,
-              });
-              mutateRecords();
-              mutateCount();
-            } catch (error) {
-              showSnackbar('Error in request to server', 'error', error);
-            }
-          },
-        });
-        break;
-      }
-    }
+  const handleOnCreate = (): void => {
+    router.push(`/${modelName}/new`);
+  };
+
+  const handleOnRead = (primaryKey: string | number): void => {
+    router.push(`/${modelName}/details?id=${primaryKey}`);
+  };
+
+  const handleOnUpdate = (primaryKey: string | number): void => {
+    router.push(`/${modelName}/edit?id=${primaryKey}`);
+  };
+
+  const handleOnDelete = (primaryKey: string | number): void => {
+    dialog.openConfirm({
+      title: 'Are you sure you want to delete this item?',
+      message: `Item with id ${primaryKey} in model ${modelName}.`,
+      okText: 'YES',
+      cancelText: 'NO',
+      onOk: async () => {
+        const idField = attributes[0].name;
+        try {
+          await zendro.request(requests.delete.query, {
+            [idField]: primaryKey,
+          });
+          mutateRecords();
+          mutateCount();
+        } catch (error) {
+          showSnackbar('Error in request to server', 'error', error);
+        }
+      },
+    });
   };
 
   const handleSetSearch = (value: string): void => {
@@ -297,7 +295,7 @@ export default function EnhancedTable({
       <TableToolbar
         modelName={modelName}
         permissions={auth.user?.permissions[modelName] ?? []}
-        onAdd={handleActionClick('create')}
+        onAdd={handleOnCreate}
         onReload={() => mutateRecords()}
         onSearch={handleSetSearch}
       />
@@ -320,9 +318,9 @@ export default function EnhancedTable({
                   permissions={auth.user?.permissions[modelName] ?? []}
                   record={record}
                   key={`${index}`}
-                  onRead={handleActionClick('read')}
-                  onUpdate={handleActionClick('update')}
-                  onDelete={handleActionClick('delete')}
+                  onRead={handleOnRead}
+                  onUpdate={handleOnUpdate}
+                  onDelete={handleOnDelete}
                 />
               ))}
             </TableBody>
@@ -343,7 +341,6 @@ export default function EnhancedTable({
       </div>
 
       <RecordsTablePagination
-        className={classes.pagination}
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
