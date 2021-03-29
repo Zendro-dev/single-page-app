@@ -8,19 +8,6 @@ const { resolveCustom } = require('./helpers/resolve-custom');
  **/
 
 /**
- * Parse model routes.
- * @param   {string} file model file name
- * @returns {ModelRoute[]}
- */
-function parseRoutes(file) {
-  const { name } = parse(file);
-  return {
-    name,
-    href: `/models/${name}`,
-  };
-}
-
-/**
  * Import custom or create default application routes.
  * @returns {AppRoutes} application routes
  */
@@ -28,6 +15,13 @@ async function buildRoutes() {
   let routes;
 
   const routesPath = resolveCustom('routes.json');
+  const parseRoutes = (group) => (file) => {
+    const { name } = parse(file);
+    return {
+      name,
+      href: `/${group}/${name}`,
+    };
+  };
 
   try {
     await stat(routesPath.absolute);
@@ -36,8 +30,8 @@ async function buildRoutes() {
     const adminModels = await readdir('./admin');
     const dataModels = await readdir('./models');
 
-    const admin = adminModels.map(parseRoutes);
-    const models = dataModels.map(parseRoutes);
+    const admin = adminModels.map(parseRoutes('admin'));
+    const models = dataModels.map(parseRoutes('models'));
 
     routes = {
       admin,

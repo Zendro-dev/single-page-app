@@ -10,7 +10,11 @@ export interface AppRoutes {
   models: ModelRoute[];
 }
 
-export interface ModelUrlQuery extends ParsedUrlQuery {
+export interface GroupUrlQuery extends ParsedUrlQuery {
+  group: string;
+}
+
+export interface ModelUrlQuery extends GroupUrlQuery, ParsedUrlQuery {
   model: string;
   id?: string;
 }

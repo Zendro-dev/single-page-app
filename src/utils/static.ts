@@ -39,11 +39,13 @@ export async function getStaticModelPaths(): Promise<
   Array<{ params: ModelUrlQuery }>
 > {
   const routes = await getStaticRoutes();
-  const getModelNames = ({ name }: ModelRoute): { params: ModelUrlQuery } => ({
-    params: { model: name },
+  const getModelNames = (group: string) => ({
+    name,
+  }: ModelRoute): { params: ModelUrlQuery } => ({
+    params: { group, model: name },
   });
-  const adminRoutes = routes.admin.map(getModelNames);
-  const modelRoutes = routes.models.map(getModelNames);
+  const adminRoutes = routes.admin.map(getModelNames('admin'));
+  const modelRoutes = routes.models.map(getModelNames('models'));
 
   return [...adminRoutes, ...modelRoutes];
 }
