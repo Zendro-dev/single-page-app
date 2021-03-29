@@ -117,7 +117,7 @@ const Record: PageWithLayout<RecordProps> = ({
    * Navigate to the record details page.
    */
   const handleOnUpdate: ActionHandler = () => {
-    router.push(`/${modelName}/edit?id=${urlQuery.id}`);
+    router.push(`/models/${modelName}/edit?id=${urlQuery.id}`);
   };
 
   /**

@@ -170,7 +170,7 @@ const Record: PageWithLayout<RecordProps> = ({
    * Navigate to the record details page.
    */
   const handleOnDetails: ActionHandler = () => {
-    router.push(`/${modelName}/details?id=${urlQuery.id}`);
+    router.push(`/models/${modelName}/details?id=${urlQuery.id}`);
   };
 
   /**
