@@ -134,15 +134,15 @@ export default function EnhancedTable({
   };
 
   const handleOnCreate = (): void => {
-    router.push(`/${modelName}/new`);
+    router.push(`/models/${modelName}/new`);
   };
 
   const handleOnRead = (primaryKey: string | number): void => {
-    router.push(`/${modelName}/details?id=${primaryKey}`);
+    router.push(`/models/${modelName}/details?id=${primaryKey}`);
   };
 
   const handleOnUpdate = (primaryKey: string | number): void => {
-    router.push(`/${modelName}/edit?id=${primaryKey}`);
+    router.push(`/models/${modelName}/edit?id=${primaryKey}`);
   };
 
   const handleOnDelete = (primaryKey: string | number): void => {

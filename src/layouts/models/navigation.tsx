@@ -44,7 +44,7 @@ export default function Navigation({
     <Box component="nav" className={clsx(classes.drawer, className ?? '')}>
       <NavLink
         className={classes.homeLink}
-        href="/home"
+        href="/models"
         icon={HomeIcon}
         text="Home"
         textProps={{

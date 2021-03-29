@@ -12,18 +12,13 @@ import AssociationList from '@/components/association-list';
 import { useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
-import {
-  DataRecord,
-  ParsedAssociation,
-  ParsedAttribute,
-  PathParams,
-} from '@/types/models';
+import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { ModelUrlQuery } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { ExtendedClientError } from '@/types/errors';
-import { ModelUrlQuery } from '@/types/routes';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -32,7 +27,7 @@ interface RecordProps {
   requests: ReturnType<typeof queryRecord>;
 }
 
-export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
+export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
   return {
     paths,
@@ -40,10 +35,11 @@ export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
-  context
-) => {
-  const params = context.params as PathParams;
+export const getStaticProps: GetStaticProps<
+  RecordProps,
+  ModelUrlQuery
+> = async (context) => {
+  const params = context.params as ModelUrlQuery;
 
   const modelName = params.model;
   const dataModel = await getStaticModel(modelName);
@@ -114,7 +110,7 @@ const Record: PageWithLayout<RecordProps> = ({
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = () => {
-    router.push(`/${modelName}`);
+    router.push(`/models/${modelName}`);
   };
 
   /**

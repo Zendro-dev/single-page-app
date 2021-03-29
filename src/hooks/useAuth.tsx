@@ -1,17 +1,12 @@
-import { useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { authSelector, logUserIn, logUserOut } from '../store/auth-slice';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { authSelector, logUserIn, logUserOut } from '@/store/auth-slice';
 import { AuthState } from '@/types/auth';
-import useRedirect from './useRedirect';
-import { parseUrlQuery } from '@/utils/router';
-import { PathParams } from '@/types/models';
 
 interface AuthOptions {
   redirectTo: string;
   redirectIfFound?: boolean;
-  redirectIfNotAllowed?: boolean;
-  redirectTimeout?: number;
 }
 type AuthLogin = (email: string, password: string) => void;
 type AuthLogout = () => void;
@@ -20,40 +15,13 @@ interface UseAuth {
   auth: AuthState;
   login: AuthLogin;
   logout: AuthLogout;
-  isAllowed: boolean;
-  redirectTimer: number;
 }
 
 export default function useAuth(options?: AuthOptions): UseAuth {
-  const { redirectTo, redirectIfFound, redirectIfNotAllowed, redirectTimeout } =
-    options ?? {};
-  const auth = useSelector(authSelector);
+  const { redirectTo, redirectIfFound } = options ?? {};
   const dispatch = useDispatch();
   const router = useRouter();
-
-  const { redirect, redirectTimer } = useRedirect({
-    redirectTo,
-    redirectTimeout,
-  });
-
-  /**
-   * Compute whether the user has permissions to access the
-   * current resource
-   */
-  const isAllowed = useMemo(() => {
-    const { model, request } = parseUrlQuery(
-      router.asPath,
-      router.query as PathParams
-    );
-
-    if (!model) return true;
-
-    const allowed = auth.user?.permissions[model]?.some(
-      (x) => !request || x === request || x === '*'
-    );
-
-    return allowed ?? false;
-  }, [auth.user, router.asPath, router.query]);
+  const auth = useSelector(authSelector);
 
   /**
    * Redirect a user depending on the hook options
@@ -68,35 +36,19 @@ export default function useAuth(options?: AuthOptions): UseAuth {
       if (!redirectTo || auth.status === 'loading') return;
 
       /**
-       * TOP PRECEDENCE: Redirect if only redirectTo is set and
-       * a valid user was not found
+       * Redirect if only redirectTo is set and a valid user was not found
        */
       const onUserNotFound = !auth.user && !redirectIfFound;
       /**
-       * MID PRECEDENCE: Redirect if redirectIfFound is also set,
-       * and a valid user was found
+       * Redirect if redirectIfFound is also set, and a valid user was found
        */
       const onUserFound = auth.user && redirectIfFound;
-      /**
-       * BOTTOM PRECEDENCE: Redirect if redirectIfNotAllowed is also
-       * set and the user does not have sufficient permissions
-       */
-      const onUserNotAllowed = auth.user && redirectIfNotAllowed && !isAllowed;
 
-      if (onUserNotFound || onUserFound || onUserNotAllowed) {
-        redirect(redirectTo);
+      if (onUserNotFound || onUserFound) {
+        router.push(redirectTo);
       }
     },
-    [
-      auth,
-      isAllowed,
-      redirect,
-      redirectTo,
-      redirectIfFound,
-      redirectIfNotAllowed,
-      redirectTimeout,
-      router,
-    ]
+    [auth, redirectTo, redirectIfFound, router]
   );
 
   /**
@@ -117,5 +69,5 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     dispatch(logUserOut());
   };
 
-  return { auth, login, logout, isAllowed, redirectTimer };
+  return { auth, login, logout };
 }

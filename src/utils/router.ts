@@ -1,32 +1,26 @@
-import { PathParams } from '@/types/models';
 import { CrudRequest } from '@/types/requests';
 
-interface ParsedQuery {
-  model: string;
-  request?: CrudRequest;
-  resource?: string;
-}
 /**
- * Compute the type of operation requested from the URL query.
- * @param query valid Zendro url query
+ * Compute the requested model operation from the URL path and model name.
+ * @param path current router path (`router.asPath`)
+ * @param model requested model name
  */
-export function parseUrlQuery(path: string, query: PathParams): ParsedQuery {
-  const { model, read, update } = query ?? {};
-  const create = path.split('/').pop() === 'item';
+export function getPathRequest(
+  path: string,
+  model: string
+): CrudRequest | undefined {
+  let lastChunk = path.split('/').pop();
+  if (!lastChunk) return;
 
-  const request = create
-    ? 'create'
-    : read
+  const query = lastChunk.indexOf('?');
+  if (query > -1) lastChunk = lastChunk.substring(0, query);
+  if (!lastChunk) return;
+
+  return lastChunk === model || lastChunk === 'details'
     ? 'read'
-    : update
+    : lastChunk === 'edit'
     ? 'update'
+    : lastChunk === 'new'
+    ? 'create'
     : undefined;
-
-  const resource = read ?? update ?? undefined;
-
-  return {
-    model,
-    request,
-    resource,
-  };
 }
