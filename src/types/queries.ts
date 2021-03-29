@@ -61,7 +61,7 @@ export type QueryModelTableRecordsCount = (modelName: string) => RawQuery;
 
 export type QueryCsvTemplate = (modelName: string) => RawQuery;
 
-export type QueryBulkCreate = (modelName: string, file: File) => RawQuery;
+export type QueryBulkCreate = (modelName: string) => RawQuery;
 
 /**
  * RECORD

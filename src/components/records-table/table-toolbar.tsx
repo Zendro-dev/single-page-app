@@ -14,7 +14,7 @@ interface TableToolBarProps {
   permissions: AclPermission[];
   onReload: () => void;
   onSearch: (value: string) => void;
-  onAdd: (primaryKey: string | number) => Promise<void>;
+  onAdd: () => void;
 }
 
 export default function TableToolBar({
