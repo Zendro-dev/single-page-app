@@ -1,4 +1,13 @@
 /**
+ * Check whether an array or mapped type has non-falsy values.
+ * @param x array or object to check
+ * @returns whether the object has non-falsy values
+ */
+export function hasValues(x: unknown[] | Record<string, unknown>): boolean {
+  return Object.values(x).some((x) => x);
+}
+
+/**
  * Check whether an unknown variable is:
  * - an empty array
  * - an empty object

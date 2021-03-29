@@ -1,22 +1,22 @@
+import clsx from 'clsx';
+import dynamic from 'next/dynamic';
 import React, {
   PropsWithChildren,
   ReactElement,
   useEffect,
   useState,
 } from 'react';
-import clsx from 'clsx';
-import dynamic from 'next/dynamic';
 
-import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import { Box, Fab, useMediaQuery, Zoom } from '@material-ui/core';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import RestrictedResource from '@/components/placeholders/restricted-resource';
+import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
 import appRoutes, { AppRoutes } from '@/build/routes';
 import useAuth from '@/hooks/useAuth';
+import Restricted from './restricted';
 import Toolbar from './toolbar';
 const Navigation = dynamic(() => import('./navigation'), { ssr: false });
 
@@ -63,7 +63,7 @@ export default function ModelsLayout({
             [classes.mainContentShift]: drawerOpen,
           })}
         >
-          <RestrictedResource>{children}</RestrictedResource>
+          <Restricted>{children}</Restricted>
         </main>
       </div>
     </div>
@@ -100,9 +100,22 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.standard,
         easing: theme.transitions.easing.sharp,
       }),
+      [theme.breakpoints.down('md')]: {
+        opacity: 100,
+        transition: theme.transitions.create(['opacity'], {
+          delay: theme.transitions.duration.standard,
+          easing: theme.transitions.easing.sharp,
+        }),
+      },
     },
     mainContentShift: {
-      width: 0,
+      [theme.breakpoints.down('md')]: {
+        opacity: 0,
+        transition: theme.transitions.create(['opacity'], {
+          delay: -1000,
+          easing: theme.transitions.easing.sharp,
+        }),
+      },
       [theme.breakpoints.up('md')]: {
         width: `calc(100% - ${theme.spacing(72)})`,
         transition: theme.transitions.create(['width'], {
