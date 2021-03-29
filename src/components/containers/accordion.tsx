@@ -1,39 +1,20 @@
-import { useState } from 'react';
-
+import { PropsWithChildren, useState } from 'react';
+import { Box, Collapse, IconButton, Typography } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { Box, Collapse, IconButton, List, Typography } from '@material-ui/core';
 
 import {
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
 } from '@material-ui/icons';
 
-import { SvgIconType } from '@/types/elements';
-import { isNullorUndefined } from '@/utils/validation';
-
-import Item from './item';
-
-export interface KeyValue {
-  key: string;
-  value: string;
-  icon: SvgIconType;
-}
-
-export interface KeyValueMap {
-  [key: string]: Omit<KeyValue, 'key'>;
-}
-
-export interface AccordionProps {
+interface AccordionProps {
   label: string;
   text?: string;
-  items: KeyValue[] | KeyValueMap;
 }
 
-export default function Accordion({
-  label,
-  text,
-  items,
-}: AccordionProps): React.ReactElement {
+export default function Accordion(
+  props: PropsWithChildren<AccordionProps>
+): React.ReactElement {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const handleOnToggle = (): void => {
@@ -41,14 +22,7 @@ export default function Accordion({
   };
 
   return (
-    <Box
-      className={classes.root}
-      component="li"
-      position="relative"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-    >
+    <Box className={classes.root}>
       <Box display="flex" alignItems="center">
         <IconButton className={classes.iconButton} onClick={handleOnToggle}>
           {open ? <CollapseIcon /> : <ExpandIcon />}
@@ -56,30 +30,18 @@ export default function Accordion({
 
         <Box padding={4} width="100%">
           <Typography component="p" fontSize={15} fontWeight="bold">
-            {label.toUpperCase()}
+            {props.label.toUpperCase()}
           </Typography>
-          {text && (
+          {props.text && (
             <Typography component="p" variant="subtitle1" color="GrayText">
-              {text}
+              {props.text}
             </Typography>
           )}
         </Box>
       </Box>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List className={classes.nested}>
-          {Array.isArray(items)
-            ? items.map(({ key, value, icon }) =>
-                !isNullorUndefined(value) ? (
-                  <Item key={key} label={key} text={value} Icon={icon} />
-                ) : undefined
-              )
-            : Object.entries(items).map(([key, { value, icon }]) =>
-                !isNullorUndefined(value) ? (
-                  <Item key={key} label={key} text={value} Icon={icon} />
-                ) : undefined
-              )}
-        </List>
+        {props.children}
       </Collapse>
     </Box>
   );
@@ -88,6 +50,10 @@ export default function Accordion({
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
       '&:not(:first-child)::before': {
         content: '""',
         // display: 'block',
@@ -105,9 +71,6 @@ const useStyles = makeStyles((theme) =>
         backgroundColor: theme.palette.grey[400],
       },
       marginRight: theme.spacing(2),
-    },
-    nested: {
-      marginLeft: theme.spacing(11),
     },
   })
 );

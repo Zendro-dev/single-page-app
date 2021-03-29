@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import useSWR from 'swr';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
-import AttributesForm, { ActionHandler } from '@/components/attributes-form';
+import AttributesForm, {
+  ActionHandler,
+  computeDiffs,
+} from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
 import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
-import {
-  DataRecord,
-  ParsedAssociation,
-  ParsedAttribute,
-  PathParams,
-} from '@/types/models';
 import { ExtendedClientError } from '@/types/errors';
+import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { ModelUrlQuery } from '@/types/routes';
 
 import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
@@ -32,7 +32,7 @@ interface RecordProps {
   requests: ReturnType<typeof queryRecord>;
 }
 
-export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
+export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
   return {
     paths,
@@ -40,10 +40,11 @@ export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<RecordProps, PathParams> = async (
-  context
-) => {
-  const params = context.params as PathParams;
+export const getStaticProps: GetStaticProps<
+  RecordProps,
+  ModelUrlQuery
+> = async (context) => {
+  const params = context.params as ModelUrlQuery;
 
   const modelName = params.model;
   const dataModel = await getStaticModel(modelName);
@@ -75,8 +76,40 @@ const Record: PageWithLayout<RecordProps> = ({
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
 
+  /* REQUEST */
+
+  const urlQuery = router.query as ModelUrlQuery;
+
+  /**
+   * Query data from the GraphQL endpoint.
+   */
+  const { mutate: mutateRecord } = useSWR<
+    Record<string, DataRecord>,
+    ExtendedClientError<Record<string, DataRecord>>
+  >(
+    urlQuery.id ? [requests.read.query, urlQuery.id] : null,
+    (query: string, id: string) =>
+      zendro.request(query, { [requests.primaryKey]: id }),
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+      onSuccess: (data) => {
+        setRecordData(data);
+        setAjvErrors(undefined);
+      },
+      onError: (error) => {
+        showSnackbar(
+          'There was an error in the server request',
+          'error',
+          error
+        );
+      },
+    }
+  );
+
   /* STATE */
 
+  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
@@ -87,18 +120,84 @@ const Record: PageWithLayout<RecordProps> = ({
   /**
    * Exit the form and go back to the model table page.
    */
-  const handleOnCancel: ActionHandler = (formData, formStats) => {
-    if (formStats.unset > 0) {
+  const handleOnCancel: ActionHandler = (formData) => {
+    let diffs = 0;
+
+    if (recordData) {
+      diffs = computeDiffs(formData, recordData[requests.read.resolver]);
+    }
+
+    if (diffs > 0) {
       return dialog.openConfirm({
-        title: 'Some fields have been added.',
+        title: 'Some fields have been modified.',
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
-        onOk: () => router.push(`/${modelName}`),
+        onOk: () => router.push(`/models/${modelName}`),
       });
     }
 
-    router.push(`/${modelName}`);
+    router.push(`/models/${modelName}`);
+  };
+
+  /**
+   * Delete the current record and return to the model table.
+   */
+  const handleOnDelete: ActionHandler = () => {
+    dialog.openConfirm({
+      title: 'Are you sure you want to delete this item?',
+      message: `Item with id ${urlQuery.id} in model ${modelName}.`,
+      okText: 'YES',
+      cancelText: 'NO',
+      onOk: async () => {
+        if (!recordData) return;
+
+        try {
+          const { read, delete: _delete, primaryKey } = requests;
+          const idValue = recordData[read.resolver][primaryKey];
+          await zendro.request(_delete.query, {
+            [primaryKey]: idValue,
+          });
+          router.push(`/${modelName}`);
+        } catch (error) {
+          showSnackbar('Error in request to server', 'error', error);
+        }
+      },
+    });
+  };
+
+  /**
+   * Navigate to the record details page.
+   */
+  const handleOnDetails: ActionHandler = () => {
+    router.push(`/${modelName}/details?id=${urlQuery.id}`);
+  };
+
+  /**
+   * Reload page data.
+   */
+  const handleOnReload: ActionHandler = (formData) => {
+    let diffs = 0;
+
+    if (recordData) {
+      diffs = computeDiffs(formData, recordData[requests.read.resolver]);
+    }
+
+    const revalidateData = async (): Promise<void> => {
+      mutateRecord(undefined, true);
+    };
+
+    if (diffs > 0)
+      dialog.openConfirm({
+        title: 'Some fields have been modified.',
+        message: 'Do you want to reload anyway?',
+        okText: 'Yes',
+        cancelText: 'No',
+        onOk: revalidateData,
+      });
+    else {
+      revalidateData();
+    }
   };
 
   /**
@@ -112,15 +211,17 @@ const Record: PageWithLayout<RecordProps> = ({
 
     const submit = async (): Promise<void> => {
       try {
-        const { create } = requests;
-        await zendro.request<Record<string, DataRecord>>(
-          create.query,
+        const response = await zendro.request<Record<string, DataRecord>>(
+          requests.update.query,
           dataRecord
         );
 
+        mutateRecord({
+          [requests.read.resolver]: response[requests.update.resolver],
+        });
+
         router.push(`/${modelName}`);
       } catch (error) {
-        setAjvErrors(undefined);
         const clientError = error as ExtendedClientError<
           Record<string, DataRecord>
         >;
@@ -162,8 +263,9 @@ const Record: PageWithLayout<RecordProps> = ({
     }
 
     if (formStats.unset > 0) {
+      const idMsg = urlQuery.id ? ` (id: ${urlQuery.id})` : '';
       return dialog.openConfirm({
-        title: `Some fields are empty.`,
+        title: `Some fields are empty.${idMsg}`,
         message: 'Do you want to continue anyway?',
         okText: 'YES',
         cancelText: 'NO',
@@ -204,12 +306,16 @@ const Record: PageWithLayout<RecordProps> = ({
         <AttributesForm
           attributes={attributes}
           className={classes.form}
+          data={recordData?.[requests.read.resolver]}
           errors={ajvErrors}
           formId={router.asPath}
-          formView="create"
+          formView="update"
           modelName={modelName}
           actions={{
             cancel: handleOnCancel,
+            delete: handleOnDelete,
+            read: handleOnDetails,
+            reload: handleOnReload,
             submit: handleOnSubmit,
           }}
         />

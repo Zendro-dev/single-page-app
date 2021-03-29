@@ -1,5 +1,3 @@
-import { ParsedUrlQuery } from 'querystring';
-
 /* ATTRIBUTES */
 
 export type AttributeScalarType =
@@ -77,13 +75,4 @@ export interface DataModel {
 
 export interface DataModels {
   [key: string]: DataModel;
-}
-
-/* STATIC TYPES */
-
-export interface PathParams extends ParsedUrlQuery {
-  model: string;
-  create?: string;
-  read?: string;
-  update?: string;
 }
