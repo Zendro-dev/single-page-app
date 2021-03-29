@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
-import { DataModel, DataModels, PathParams } from '../types/models';
-import { AppRoutes, ModelRoute } from '../types/routes';
+import { DataModel, DataModels } from '../types/models';
+import { AppRoutes, ModelRoute, ModelUrlQuery } from '../types/routes';
 
 /**
  * Parse a data model into its javascript object representation.
@@ -36,10 +36,10 @@ export async function getStaticModels(): Promise<DataModels> {
  * Compose static paths for the dynamic [model] pages.
  */
 export async function getStaticModelPaths(): Promise<
-  Array<{ params: PathParams }>
+  Array<{ params: ModelUrlQuery }>
 > {
   const routes = await getStaticRoutes();
-  const getModelNames = ({ name }: ModelRoute): { params: PathParams } => ({
+  const getModelNames = ({ name }: ModelRoute): { params: ModelUrlQuery } => ({
     params: { model: name },
   });
   const adminRoutes = routes.admin.map(getModelNames);

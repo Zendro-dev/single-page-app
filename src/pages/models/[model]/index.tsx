@@ -7,11 +7,11 @@ import {
   queryModelTableRecords,
   queryModelTableRecordsCount,
 } from '@/utils/queries';
-import { PathParams } from '@/types/models';
+import { ModelUrlQuery } from '@/types/routes';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 import EnhancedTable, { EnhancedTableProps } from '@/components/records-table';
 
-export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
+export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
   return {
     paths,
@@ -21,9 +21,9 @@ export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
 
 export const getStaticProps: GetStaticProps<
   EnhancedTableProps,
-  PathParams
+  ModelUrlQuery
 > = async (context) => {
-  const params = context.params as PathParams;
+  const params = context.params as ModelUrlQuery;
 
   const modelName = params.model;
   const dataModel = await getStaticModel(modelName);
