@@ -4,7 +4,7 @@ import { GroupUrlQuery } from '@/types/routes';
 
 export const getStaticPaths: GetStaticPaths<GroupUrlQuery> = async () => {
   return {
-    paths: [{ params: { group: 'admin' } }, { params: { group: 'models' } }],
+    paths: [{ params: { group: 'models' } }],
     fallback: false,
   };
 };
