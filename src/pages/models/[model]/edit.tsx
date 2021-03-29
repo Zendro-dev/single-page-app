@@ -137,11 +137,11 @@ const Record: PageWithLayout<RecordProps> = ({
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
-        onOk: () => router.push(`/${modelName}`),
+        onOk: () => router.push(`/models/${modelName}`),
       });
     }
 
-    router.push(`/${modelName}`);
+    router.push(`/models/${modelName}`);
   };
 
   /**

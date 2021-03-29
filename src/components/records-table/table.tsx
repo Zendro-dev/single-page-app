@@ -137,13 +137,13 @@ export default function EnhancedTable({
   ) => async (primaryKey: string | number) => {
     switch (action) {
       case 'read':
-        router.push(`/${modelName}/details?id=${primaryKey}`);
+        router.push(`/models/${modelName}/details?id=${primaryKey}`);
         break;
       case 'update':
-        router.push(`/${modelName}/edit?id=${primaryKey}`);
+        router.push(`/models/${modelName}/edit?id=${primaryKey}`);
         break;
       case 'create':
-        router.push(`/${modelName}/new`);
+        router.push(`/models/${modelName}/new`);
         break;
       case 'delete': {
         dialog.openConfirm({

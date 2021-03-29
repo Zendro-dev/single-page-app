@@ -8,7 +8,7 @@ import useToastNotification from '@/hooks/useToastNotification';
 export default function LoginPage(): ReactElement {
   const classes = useStyles();
   const { login, auth } = useAuth({
-    redirectTo: '/home',
+    redirectTo: '/models',
     redirectIfFound: true,
   });
   const { showSnackbar } = useToastNotification();

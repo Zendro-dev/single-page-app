@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -9,7 +8,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useToastNotification, useZendroClient } from '@/hooks';
+import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import {
@@ -18,12 +17,13 @@ import {
   ParsedAttribute,
   PathParams,
 } from '@/types/models';
+import { ExtendedClientError } from '@/types/errors';
 
+import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
-import { ExtendedClientError } from '@/types/errors';
-import { ModelUrlQuery } from '@/types/routes';
+import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -69,41 +69,15 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
+  const dialog = useDialog();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
 
-  /* REQUEST */
-
-  const urlQuery = router.query as ModelUrlQuery;
-
-  /**
-   * Query data from the GraphQL endpoint.
-   */
-  const { mutate: mutateRecord } = useSWR<
-    Record<string, DataRecord>,
-    ExtendedClientError<Record<string, DataRecord>>
-  >(
-    urlQuery.id ? [requests.read.query, urlQuery.id] : null,
-    (query: string, id: string) =>
-      zendro.request(query, { [requests.primaryKey]: id }),
-    {
-      shouldRetryOnError: false,
-      onSuccess: (data) => setRecordData(data),
-      onError: (error) => {
-        showSnackbar(
-          'There was an error in the server request',
-          'error',
-          error
-        );
-      },
-    }
-  );
-
   /* STATE */
 
-  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
+  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
   );
@@ -113,22 +87,91 @@ const Record: PageWithLayout<RecordProps> = ({
   /**
    * Exit the form and go back to the model table page.
    */
-  const handleOnCancel: ActionHandler = () => {
-    router.push(`/${modelName}`);
+  const handleOnCancel: ActionHandler = (formData, formStats) => {
+    if (formStats.unset > 0) {
+      return dialog.openConfirm({
+        title: 'Some fields have been added.',
+        message: 'Do you want to leave anyway?',
+        okText: 'Yes',
+        cancelText: 'No',
+        onOk: () => router.push(`/models/${modelName}`),
+      });
+    }
+
+    router.push(`/models/${modelName}`);
   };
 
   /**
-   * Navigate to the record details page.
+   * Submit the form values to the Zendro GraphQL endpoint. Triggers a revalidation.
    */
-  const handleOnUpdate: ActionHandler = () => {
-    router.push(`/${modelName}/edit?id=${urlQuery.id}`);
-  };
+  const handleOnSubmit: ActionHandler = (formData, formStats) => {
+    const dataRecord = formData.reduce<DataRecord>(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {}
+    );
 
-  /**
-   * Reload page data.
-   */
-  const handleOnReload: ActionHandler = async () => {
-    mutateRecord(undefined, true);
+    const submit = async (): Promise<void> => {
+      try {
+        const { create } = requests;
+        await zendro.request<Record<string, DataRecord>>(
+          create.query,
+          dataRecord
+        );
+
+        router.push(`/${modelName}`);
+      } catch (error) {
+        setAjvErrors(undefined);
+        const clientError = error as ExtendedClientError<
+          Record<string, DataRecord>
+        >;
+        const genericError = clientError.response.error;
+        const graphqlErrors = clientError.response.errors;
+
+        if (genericError) {
+          showSnackbar(
+            `The server returned a ${clientError.response.status} error`,
+            'error',
+            clientError
+          );
+        }
+
+        if (!graphqlErrors) return;
+        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
+          graphqlErrors
+        );
+
+        // Send generic GraphQL errors to the notification queue
+        if (nonValidationErrors.length > 0) {
+          showSnackbar(
+            `The server returned a ${clientError.response.status} error`,
+            `error`,
+            nonValidationErrors
+          );
+        }
+
+        // Send validation errors to the form serverErrors
+        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
+      }
+    };
+
+    if (formStats.clientErrors > 0) {
+      return dialog.openMessage({
+        title: 'Validation errors',
+        message: 'Please fix client side validation errors',
+      });
+    }
+
+    if (formStats.unset > 0) {
+      return dialog.openConfirm({
+        title: `Some fields are empty.`,
+        message: 'Do you want to continue anyway?',
+        okText: 'YES',
+        cancelText: 'NO',
+        onOk: submit,
+      });
+    }
+
+    submit();
   };
 
   /* EVENT HANDLERS */
@@ -161,15 +204,13 @@ const Record: PageWithLayout<RecordProps> = ({
         <AttributesForm
           attributes={attributes}
           className={classes.form}
-          data={recordData?.[requests.read.resolver]}
-          disabled
+          errors={ajvErrors}
           formId={router.asPath}
-          formView="read"
+          formView="create"
           modelName={modelName}
           actions={{
             cancel: handleOnCancel,
-            update: handleOnUpdate,
-            reload: handleOnReload,
+            submit: handleOnSubmit,
           }}
         />
       </TabPanel>

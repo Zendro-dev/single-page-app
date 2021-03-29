@@ -45,13 +45,11 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
   return foreignKeys;
 }
 
-interface GetAttributeListOptions {
-  excludeForeignKeys: boolean;
-}
-
 export function getAttributeList(
   model: DataModel,
-  options?: GetAttributeListOptions
+  options?: {
+    excludeForeignKeys: boolean;
+  }
 ): Array<ParsedAttribute> {
   // Get an array of Attribute objects
   const foreignKeys = getForeignKeys(model);

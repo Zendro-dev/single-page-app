@@ -16,7 +16,7 @@ function parseRoutes(file) {
   const { name } = parse(file);
   return {
     name,
-    href: `/${name}`,
+    href: `/models/${name}`,
   };
 }
 
