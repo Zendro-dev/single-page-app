@@ -71,6 +71,7 @@ const Record: PageWithLayout<RecordProps> = ({
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
+  const urlQuery = router.query as ModelUrlQuery;
 
   /* STATE */
 
@@ -91,11 +92,11 @@ const Record: PageWithLayout<RecordProps> = ({
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
-        onOk: () => router.push(`/models/${modelName}`),
+        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
       });
     }
 
-    router.push(`/models/${modelName}`);
+    router.push(`/${urlQuery.group}/${modelName}`);
   };
 
   /**
@@ -115,7 +116,7 @@ const Record: PageWithLayout<RecordProps> = ({
           dataRecord
         );
 
-        router.push(`/${modelName}`);
+        router.push(`/${urlQuery.group}/${modelName}`);
       } catch (error) {
         setAjvErrors(undefined);
         const clientError = error as ExtendedClientError<

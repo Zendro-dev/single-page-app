@@ -9,7 +9,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useToastNotification, useZendroClient } from '@/hooks';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
@@ -65,6 +65,7 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
+  const model = useModel();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
@@ -110,14 +111,14 @@ const Record: PageWithLayout<RecordProps> = ({
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = () => {
-    router.push(`/models/${modelName}`);
+    router.push(`/${urlQuery.group}/${modelName}`);
   };
 
   /**
    * Navigate to the record details page.
    */
   const handleOnUpdate: ActionHandler = () => {
-    router.push(`/models/${modelName}/edit?id=${urlQuery.id}`);
+    router.push(`/${urlQuery.group}/${modelName}/edit?id=${urlQuery.id}`);
   };
 
   /**
@@ -164,7 +165,7 @@ const Record: PageWithLayout<RecordProps> = ({
           modelName={modelName}
           actions={{
             cancel: handleOnCancel,
-            update: handleOnUpdate,
+            update: model.permissions.update ? handleOnUpdate : undefined,
             reload: handleOnReload,
           }}
         />
