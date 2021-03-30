@@ -12,7 +12,12 @@ import AttributesForm, {
 } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
+import {
+  useDialog,
+  useModel,
+  useToastNotification,
+  useZendroClient,
+} from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
@@ -71,6 +76,7 @@ const Record: PageWithLayout<RecordProps> = ({
   requests,
 }) => {
   const dialog = useDialog();
+  const { permissions } = useModel();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
@@ -133,11 +139,11 @@ const Record: PageWithLayout<RecordProps> = ({
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
-        onOk: () => router.push(`/models/${modelName}`),
+        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
       });
     }
 
-    router.push(`/models/${modelName}`);
+    router.push(`/${urlQuery.group}/${modelName}`);
   };
 
   /**
@@ -158,7 +164,7 @@ const Record: PageWithLayout<RecordProps> = ({
           await zendro.request(_delete.query, {
             [primaryKey]: idValue,
           });
-          router.push(`/${modelName}`);
+          router.push(`/${urlQuery.group}/${modelName}`);
         } catch (error) {
           showSnackbar('Error in request to server', 'error', error);
         }
@@ -170,7 +176,7 @@ const Record: PageWithLayout<RecordProps> = ({
    * Navigate to the record details page.
    */
   const handleOnDetails: ActionHandler = () => {
-    router.push(`/models/${modelName}/details?id=${urlQuery.id}`);
+    router.push(`/${urlQuery.group}/${modelName}/details?id=${urlQuery.id}`);
   };
 
   /**
@@ -220,7 +226,7 @@ const Record: PageWithLayout<RecordProps> = ({
           [requests.read.resolver]: response[requests.update.resolver],
         });
 
-        router.push(`/${modelName}`);
+        router.push(`/${urlQuery.group}/${modelName}`);
       } catch (error) {
         const clientError = error as ExtendedClientError<
           Record<string, DataRecord>
@@ -314,7 +320,7 @@ const Record: PageWithLayout<RecordProps> = ({
           actions={{
             cancel: handleOnCancel,
             delete: handleOnDelete,
-            read: handleOnDetails,
+            read: permissions.read ? handleOnDetails : undefined,
             reload: handleOnReload,
             submit: handleOnSubmit,
           }}
