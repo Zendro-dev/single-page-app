@@ -30,23 +30,11 @@ module.exports = {
         // This rule is not compatible with Next.js's <Link /> components
         'jsx-a11y/anchor-is-valid': 'off',
 
+        // Warn about unused variables
         'no-unused-vars': 'warn',
 
-        // Display .prettierrc.js rules as errors
-        'prettier/prettier': [
-          'warn',
-          {
-            semi: true,
-            trailingComma: 'es5',
-            singleQuote: true,
-            printWidth: 80,
-            tabWidth: 2,
-            useTabs: false,
-          },
-        ],
-
-        // We will use TypeScript's types for component props instead
-        'react/prop-types': 'off',
+        // Override prettier/recommended to show errors as warnings
+        'prettier/prettier': ['warn'],
 
         // No need to import React when using Next.js
         'react/react-in-jsx-scope': 'off',
@@ -69,25 +57,14 @@ module.exports = {
         'plugin:react/recommended', // React rules
         'plugin:react-hooks/recommended', // React hooks rules
         'plugin:jsx-a11y/recommended', // Accessibility rules
-        'prettier/@typescript-eslint', // Prettier plugin
         'plugin:prettier/recommended', // Prettier recommended rules
       ],
       rules: {
         // This rule is not compatible with Next.js's <Link /> components
         'jsx-a11y/anchor-is-valid': 'off',
 
-        // Display .prettierrc.js rules as errors
-        'prettier/prettier': [
-          'warn',
-          {
-            semi: true,
-            trailingComma: 'es5',
-            singleQuote: true,
-            printWidth: 80,
-            tabWidth: 2,
-            useTabs: false,
-          },
-        ],
+        // Override prettier/recommended to show errors as warnings
+        'prettier/prettier': ['warn'],
 
         // We will use TypeScript's types for component props instead
         'react/prop-types': 'off',
@@ -95,7 +72,7 @@ module.exports = {
         // No need to import React when using Next.js
         'react/react-in-jsx-scope': 'off',
 
-        // Warn about unused variables
+        // Warn about unused variables (ignore middle vars)
         '@typescript-eslint/no-unused-vars': [
           'warn',
           { argsIgnorePattern: '^_', args: 'after-used' },
