@@ -6,6 +6,7 @@ import {
   QueryBulkCreate,
   QueryRecord,
   QueryModelTableRecordsCount,
+  RawQuery,
 } from '@/types/queries';
 
 /**
@@ -51,11 +52,28 @@ export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
   const { nameCp, namePlCp } = getInflections(modelName);
   const resolver = `count${namePlCp}`;
   const query = `query countRecords($search: search${nameCp}Input) {
-    ${resolver}( search: $search ) }`;
+    ${resolver}( search: $search )
+  }`;
 
   return {
     resolver,
     query,
+  };
+};
+
+export const queryModel = (
+  modelName: string,
+  attributes: ParsedAttribute[]
+): {
+  records: RawQuery;
+  count: RawQuery;
+} => {
+  const records = queryModelTableRecords(modelName, attributes);
+  const count = queryModelTableRecordsCount(modelName);
+
+  return {
+    records,
+    count,
   };
 };
 
