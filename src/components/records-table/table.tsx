@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import EnhancedTableHead from './table-head';
 import TableToolbar from './table-toolbar';
-import EnhancedTableRow from './table-row';
+import EnhancedTableRow, { TableRowAssociationHandler } from './table-row';
 import RecordsTablePagination from './table-pagination';
 import useSWR from 'swr';
 import { DataRecord, ParsedAttribute } from '@/types/models';
@@ -39,6 +39,8 @@ import { ExtendedClientError } from '@/types/errors';
 export interface EnhancedTableProps {
   modelName: string;
   attributes: ParsedAttribute[];
+  associationView?: 'details' | 'update' | 'new';
+  filterID?: string | number;
   requests: {
     read: RawQuery;
     delete: RawQuery;
@@ -101,6 +103,7 @@ export default function EnhancedTable({
   modelName,
   attributes,
   requests,
+  associationView,
 }: EnhancedTableProps): ReactElement {
   // ? To accomodate associations will need to receive the operation as well
 
@@ -113,6 +116,11 @@ export default function EnhancedTable({
     hasPreviousPage: false,
     hasNextPage: false,
   });
+  // ? new Set() worth it? or is it unique by nature anyways (as soon as I click again I remove from list anyways)
+  const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
+  const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
+    []
+  );
 
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 
@@ -123,6 +131,8 @@ export default function EnhancedTable({
   const dialog = useDialog();
   const zendro = useZendroClient();
   const { auth } = useAuth();
+
+  const modelPermissions = auth.user?.permissions[modelName];
 
   /* HANDLERS */
   const handleSetOrder = (field: string): void => {
@@ -164,6 +174,33 @@ export default function EnhancedTable({
         }
       },
     });
+  };
+
+  const associationHandler: TableRowAssociationHandler = (
+    primaryKey,
+    list,
+    action
+  ) => {
+    console.log({ primaryKey, list, action });
+    switch (action) {
+      case 'add':
+        if (list === 'toAdd')
+          setRecordsToAdd((recordsToAdd) => [...recordsToAdd, primaryKey]);
+        else
+          setRecordsToRemove((recordsToRemove) => [
+            ...recordsToRemove,
+            primaryKey,
+          ]);
+        break;
+      case 'remove':
+        if (list === 'toAdd')
+          setRecordsToAdd(recordsToAdd.filter((item) => item !== primaryKey));
+        else
+          setRecordsToRemove(
+            recordsToRemove.filter((item) => item !== primaryKey)
+          );
+        break;
+    }
   };
 
   const handleSetSearch = (value: string): void => {
@@ -301,9 +338,18 @@ export default function EnhancedTable({
       />
 
       <div className={classes.tableWrapper}>
+        <div>{`recordsToAdd: ${recordsToAdd.join(',')}`}</div>
+        <div>{`recordsToRemove: ${recordsToRemove.join(',')}`}</div>
         <Table stickyHeader size="medium">
           <EnhancedTableHead
-            permissions={auth.user?.permissions[modelName] ?? []}
+            actionsColSpan={
+              associationView
+                ? 1
+                : modelPermissions?.includes('*')
+                ? 3
+                : modelPermissions?.filter((action) => action !== 'create')
+                    .length
+            }
             attributes={attributes}
             onSortLabelClick={handleSetOrder}
             activeOrder={variables.order?.field ?? attributes[0].name}
@@ -311,18 +357,51 @@ export default function EnhancedTable({
           />
           <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
             <TableBody>
-              {rows.map((record, index) => (
-                // TODO key should use primaryKey value
-                <EnhancedTableRow
-                  attributes={attributes}
-                  permissions={auth.user?.permissions[modelName] ?? []}
-                  record={record}
-                  key={`${index}`}
-                  onRead={handleOnRead}
-                  onUpdate={handleOnUpdate}
-                  onDelete={handleOnDelete}
-                />
-              ))}
+              {rows.map((record, index) => {
+                const primaryKey = record[attributes[0].name] as
+                  | string
+                  | number;
+                return (
+                  // TODO key should use primaryKey value
+                  <EnhancedTableRow
+                    attributes={attributes}
+                    record={record}
+                    key={primaryKey}
+                    isMarked={
+                      associationView
+                        ? recordsToAdd
+                            .concat(recordsToRemove)
+                            .includes(primaryKey)
+                        : undefined
+                    }
+                    isAssociated={
+                      associationView
+                        ? index % 2 === 0
+                          ? true
+                          : false
+                        : undefined
+                    }
+                    actions={{
+                      read: !associationView ? handleOnRead : undefined,
+                      update:
+                        (modelPermissions?.includes('update') ||
+                          modelPermissions?.includes('*')) &&
+                        !associationView
+                          ? handleOnUpdate
+                          : undefined,
+                      delete:
+                        (modelPermissions?.includes('delete') ||
+                          modelPermissions?.includes('*')) &&
+                        !associationView
+                          ? handleOnDelete
+                          : undefined,
+                      associationHandler: associationView
+                        ? associationHandler
+                        : undefined,
+                    }}
+                  />
+                );
+              })}
             </TableBody>
           </Fade>
         </Table>

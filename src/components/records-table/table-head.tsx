@@ -8,7 +8,7 @@ import { OrderDirection } from '@/types/queries';
 
 interface EnhancedTableHeadProps {
   attributes: ParsedAttribute[];
-  permissions: AclPermission[];
+  actionsColSpan?: number;
   onSortLabelClick(value: string): void;
   activeOrder: string;
   orderDirection: OrderDirection;
@@ -16,24 +16,16 @@ interface EnhancedTableHeadProps {
 
 export default function EnhancedTableHead({
   attributes,
-  permissions,
   onSortLabelClick,
   activeOrder,
   orderDirection,
+  actionsColSpan,
 }: EnhancedTableHeadProps): ReactElement {
   return (
     // TODO colspan depending on permissions
     <TableHead>
       <TableRow>
-        <TableCell
-          colSpan={
-            permissions.includes('*')
-              ? 3
-              : permissions.filter((action) => action !== 'create').length
-          }
-          align="center"
-          padding="checkbox"
-        >
+        <TableCell colSpan={actionsColSpan} align="center" padding="checkbox">
           <Typography
             color="inherit"
             variant="caption"

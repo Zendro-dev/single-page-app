@@ -58,6 +58,7 @@ const Model: PageWithLayout<EnhancedTableProps> = ({
       modelName={modelName}
       attributes={attributes}
       requests={requests}
+      associationView="details"
     />
   );
 };

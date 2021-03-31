@@ -6,14 +6,32 @@ import {
   makeStyles,
   IconButton,
   createStyles,
+  List,
 } from '@material-ui/core';
 import {
   DeleteOutline as DeleteIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailIcon,
+  Link as LinkIcon,
+  LinkOff as LinkOffIcon,
 } from '@material-ui/icons';
 import { DataRecord, ParsedAttribute } from '@/types/models';
-import { AclPermission } from '@/types/acl';
+import clsx from 'clsx';
+
+export type TableRowActionHandler = (primaryKey: string | number) => void;
+
+export type TableRowAssociationHandler = (
+  primaryKey: string | number,
+  list: 'toAdd' | 'toRemove',
+  action: 'add' | 'remove'
+) => void;
+
+interface TableRowAcions {
+  read?: TableRowActionHandler;
+  update?: TableRowActionHandler;
+  delete?: TableRowActionHandler;
+  associationHandler?: TableRowAssociationHandler;
+}
 
 interface EnhancedTableRowIconProps {
   label: string;
@@ -23,10 +41,9 @@ interface EnhancedTableRowIconProps {
 interface EnhancedTableRowProps {
   record: DataRecord;
   attributes: ParsedAttribute[];
-  permissions: AclPermission[];
-  onRead: (primaryKey: string | number) => void;
-  onUpdate: (primaryKey: string | number) => void;
-  onDelete: (primaryKey: string | number) => void;
+  actions: TableRowAcions;
+  isMarked?: boolean;
+  isAssociated?: boolean;
 }
 
 function EnhancedTableRowIcon({
@@ -36,7 +53,7 @@ function EnhancedTableRowIcon({
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   return (
     <TableCell padding="checkbox" align="center">
-      <Tooltip title={label}>
+      <Tooltip title={label} disableInteractive={true} arrow={true}>
         <IconButton color="default" onClick={onClick}>
           {children}
         </IconButton>
@@ -48,13 +65,10 @@ function EnhancedTableRowIcon({
 export default function EnhancedTableRow({
   record,
   attributes,
-  permissions,
-  onRead,
-  onUpdate,
-  onDelete,
+  actions,
+  isMarked,
+  isAssociated,
 }: EnhancedTableRowProps): ReactElement {
-  // TODO needs to be aware of the model to compose the correct Link to View/Update/Delete
-
   const classes = useStyles();
 
   const primaryKey = useMemo(() => {
@@ -63,25 +77,93 @@ export default function EnhancedTableRow({
     return record[primaryKeyAttribute] as string | number;
   }, [attributes, record]);
 
+  const handleOnAction = ({
+    handler,
+  }: {
+    handler: TableRowActionHandler;
+  }) => () => {
+    handler(primaryKey);
+  };
+
+  const handleOnAssocAction = ({
+    handler,
+    list,
+    action,
+  }: {
+    handler: TableRowAssociationHandler;
+    list: 'toAdd' | 'toRemove';
+    action: 'add' | 'remove';
+  }) => () => {
+    handler(primaryKey, list, action);
+  };
+
   return (
-    // TODO permissions
     // ? accomodate associations
 
-    <TableRow hover role="checkbox" onDoubleClick={() => onRead(primaryKey)}>
-      {(permissions.includes('read') || permissions.includes('*')) && (
-        <EnhancedTableRowIcon label="detail" onClick={() => onRead(primaryKey)}>
+    <TableRow
+      hover
+      role="checkbox"
+      onDoubleClick={
+        actions.read
+          ? handleOnAction({
+              handler: actions.read,
+            })
+          : undefined
+      }
+    >
+      {actions.associationHandler && (
+        <EnhancedTableRowIcon
+          label={`${isMarked ? 'un' : ''}marks this record to be ${
+            isAssociated ? 'removed' : 'added'
+          }`}
+          onClick={handleOnAssocAction({
+            handler: actions.associationHandler,
+            list: isAssociated ? 'toRemove' : 'toAdd',
+            action: isMarked ? 'remove' : 'add',
+          })}
+        >
+          {isAssociated ? (
+            isMarked ? (
+              <LinkOffIcon
+                fontSize="small"
+                className={classes.iconLinkOffMarked}
+              />
+            ) : (
+              <LinkIcon fontSize="small" />
+            )
+          ) : isMarked ? (
+            <LinkIcon fontSize="small" className={classes.iconLinkMarked} />
+          ) : (
+            <LinkOffIcon fontSize="small" />
+          )}
+        </EnhancedTableRowIcon>
+      )}
+      {actions.read && (
+        <EnhancedTableRowIcon
+          label="detail"
+          onClick={handleOnAction({
+            handler: actions.read,
+          })}
+        >
           <DetailIcon fontSize="small" className={classes.iconDetail} />
         </EnhancedTableRowIcon>
       )}
-      {(permissions.includes('update') || permissions.includes('*')) && (
-        <EnhancedTableRowIcon label="edit" onClick={() => onUpdate(primaryKey)}>
+      {actions.update && (
+        <EnhancedTableRowIcon
+          label="edit"
+          onClick={handleOnAction({
+            handler: actions.update,
+          })}
+        >
           <EditIcon fontSize="small" className={classes.iconEdit} />
         </EnhancedTableRowIcon>
       )}
-      {(permissions.includes('delete') || permissions.includes('*')) && (
+      {actions.delete && (
         <EnhancedTableRowIcon
           label="delete"
-          onClick={() => onDelete(primaryKey)}
+          onClick={handleOnAction({
+            handler: actions.delete,
+          })}
         >
           <DeleteIcon fontSize="small" className={classes.iconDelete} />
         </EnhancedTableRowIcon>
@@ -120,6 +202,12 @@ const useStyles = makeStyles((theme) =>
       '&:hover': {
         color: theme.palette.secondary.main,
       },
+    },
+    iconLinkMarked: {
+      color: 'green',
+    },
+    iconLinkOffMarked: {
+      color: 'red',
     },
   })
 );
