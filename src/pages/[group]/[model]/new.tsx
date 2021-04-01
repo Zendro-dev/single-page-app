@@ -213,7 +213,12 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel value="associations">
-        <AssociationList modelName={modelName} associations={associations} />
+        <AssociationList
+          associations={associations}
+          attributes={attributes}
+          modelName={modelName}
+          recordId={urlQuery.id}
+        />
       </TabPanel>
     </TabContext>
   );

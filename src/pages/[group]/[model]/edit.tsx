@@ -298,7 +298,7 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: 3 }}>
         <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
           <Tab label="Attributes" value="attributes" />
           <Tab
@@ -326,8 +326,13 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel value="associations">
-        <AssociationList modelName={modelName} associations={associations} />
+      <TabPanel className={classes.tabPanel} value="associations">
+        <AssociationList
+          associations={associations}
+          attributes={attributes}
+          modelName={modelName}
+          recordId={urlQuery.id}
+        />
       </TabPanel>
     </TabContext>
   );
@@ -341,6 +346,13 @@ const useStyles = makeStyles((theme) =>
       borderColor: theme.palette.grey[300],
       margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
+    },
+    tabPanel: {
+      display: 'flex',
+      flexGrow: 1,
+      width: '100%',
+      padding: 0,
+      // padding: theme.spacing(4, 0),
     },
   })
 );

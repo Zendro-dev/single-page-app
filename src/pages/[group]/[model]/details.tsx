@@ -12,13 +12,13 @@ import AssociationList from '@/components/association-list';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
+import { ExtendedClientError } from '@/types/errors';
 import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
-import { ExtendedClientError } from '@/types/errors';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -171,7 +171,12 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel value="associations">
-        <AssociationList modelName={modelName} associations={associations} />
+        <AssociationList
+          associations={associations}
+          attributes={attributes}
+          modelName={modelName}
+          recordId={model.id}
+        />
       </TabPanel>
     </TabContext>
   );
