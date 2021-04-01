@@ -35,6 +35,7 @@ import {
   useZendroClient,
 } from '@/hooks';
 import { ExtendedClientError } from '@/types/errors';
+import { ModelUrlQuery } from '@/types/routes';
 
 export interface EnhancedTableProps {
   modelName: string;
@@ -133,6 +134,7 @@ export default function EnhancedTable({
   const { auth } = useAuth();
 
   const modelPermissions = auth.user?.permissions[modelName];
+  const query = router.query as ModelUrlQuery;
 
   /* HANDLERS */
   const handleSetOrder = (field: string): void => {
@@ -148,11 +150,11 @@ export default function EnhancedTable({
   };
 
   const handleOnRead = (primaryKey: string | number): void => {
-    router.push(`/models/${modelName}/details?id=${primaryKey}`);
+    router.push(`/${query.group}/${modelName}/details?id=${primaryKey}`);
   };
 
   const handleOnUpdate = (primaryKey: string | number): void => {
-    router.push(`/models/${modelName}/edit?id=${primaryKey}`);
+    router.push(`/${query.group}/${modelName}/edit?id=${primaryKey}`);
   };
 
   const handleOnDelete = (primaryKey: string | number): void => {

@@ -13,7 +13,8 @@ import {
 } from '@material-ui/icons';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
-import appRoutes, { AppRoutes } from '@/build/routes';
+import appRoutes from '@/build/routes.preval';
+import { AppRoutes } from '@/types/routes';
 import Toolbar from './toolbar';
 const Models = dynamic(() => import('./main'), { ssr: false });
 
@@ -46,10 +47,7 @@ export default function ModelsLayout({
         </Zoom>
       </Toolbar>
 
-      <Models
-        showNav={showNav}
-        routes={routes ?? ((appRoutes as unknown) as AppRoutes)}
-      >
+      <Models showNav={showNav} routes={routes ?? appRoutes}>
         {children}
       </Models>
     </div>

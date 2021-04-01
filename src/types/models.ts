@@ -55,10 +55,6 @@ export interface Association {
   sublabel?: string;
 }
 
-export interface Associations {
-  [key: string]: Association;
-}
-
 export interface ParsedAssociation extends Association {
   name: string;
 }
@@ -69,10 +65,6 @@ export interface DataModel {
   model: string;
   storageType: 'sql';
   attributes: Attributes;
-  associations?: Associations;
-  internalId: keyof Attributes;
-}
-
-export interface DataModels {
-  [key: string]: DataModel;
+  associations?: Record<string, Association>;
+  internalId: string;
 }

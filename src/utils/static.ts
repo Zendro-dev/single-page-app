@@ -1,7 +1,18 @@
+import { StaticQueries } from '@/types/static';
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
-import { DataModel, DataModels } from '../types/models';
+import { DataModel } from '../types/models';
 import { AppRoutes, ModelRoute, ModelUrlQuery } from '../types/routes';
+import { getAttributeList } from './models';
+import {
+  queryBulkCreate,
+  queryCsvTemplate,
+  queryModelTableRecords,
+  queryModelTableRecordsCount,
+  queryRecord,
+} from './queries';
+
+/* MODELS */
 
 /**
  * Parse a data model into its javascript object representation.
@@ -17,8 +28,8 @@ export async function getStaticModel(name: string): Promise<DataModel> {
  * Parse each data model into its javascript object representation.
  * @param modelPaths array of paths to each data model file
  */
-export async function getStaticModels(): Promise<DataModels> {
-  const models: DataModels = {};
+export async function getStaticModels(): Promise<Record<string, DataModel>> {
+  const models: Record<string, DataModel> = {};
 
   const dataModels = await readdir('./models');
   const adminModels = await readdir('./admin');
@@ -36,7 +47,7 @@ export async function getStaticModels(): Promise<DataModels> {
  * Compose static paths for the dynamic [model] pages.
  */
 export async function getStaticModelPaths(): Promise<
-  Array<{ params: ModelUrlQuery }>
+  { params: ModelUrlQuery }[]
 > {
   const routes = await getStaticRoutes();
   const getModelNames = (group: string) => ({
@@ -91,4 +102,32 @@ export async function whichModel(name: string): Promise<string> {
   }
 
   return modelPath;
+}
+
+/* QUERIES */
+
+export async function getStaticQueries(): Promise<
+  Record<string, StaticQueries>
+> {
+  const staticModels: Record<string, StaticQueries> = {};
+
+  const dataModels = await getStaticModels();
+
+  Object.entries(dataModels).map(([name, schema]) => {
+    const attributes = getAttributeList(schema, { excludeForeignKeys: true });
+    const recordQueries = queryRecord(name, attributes);
+
+    staticModels[name] = {
+      readAll: queryModelTableRecords(name, attributes),
+      countAll: queryModelTableRecordsCount(name),
+      createOne: recordQueries.create,
+      deleteOne: recordQueries.delete,
+      readOne: recordQueries.read,
+      updateOne: recordQueries.update,
+      csvTableTemplate: queryCsvTemplate(name),
+      bulkAddCsv: queryBulkCreate(name),
+    };
+  });
+
+  return staticModels;
 }

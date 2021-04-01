@@ -51,7 +51,8 @@ export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
   const { nameCp, namePlCp } = getInflections(modelName);
   const resolver = `count${namePlCp}`;
   const query = `query countRecords($search: search${nameCp}Input) {
-    ${resolver}( search: $search ) }`;
+    ${resolver}( search: $search )
+  }`;
 
   return {
     resolver,
