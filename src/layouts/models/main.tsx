@@ -49,6 +49,8 @@ const useStyles = makeStyles((theme) => {
     },
     navDrawer: {
       width: '100%',
+      borderRight: '2px solid',
+      borderRightColor: theme.palette.grey[500],
       transition: theme.transitions.create(['width'], {
         duration: theme.transitions.duration.standard,
         easing: theme.transitions.easing.sharp,
@@ -58,10 +60,13 @@ const useStyles = makeStyles((theme) => {
       },
     },
     navDrawerClosed: {
+      borderRight: 0,
       width: 0,
     },
     mainContent: {
-      padding: theme.spacing(3),
+      display: 'flex',
+      flexDirection: 'column',
+      // padding: theme.spacing(3),
       width: '100%',
       transition: theme.transitions.create(['width'], {
         duration: theme.transitions.duration.standard,

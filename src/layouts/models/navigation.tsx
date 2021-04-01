@@ -94,13 +94,11 @@ const useStyles = makeStyles((theme) => {
       flexDirection: 'column',
       flexShrink: 0,
       overflow: 'hidden',
-      borderRight: '1px solid',
-      borderRightColor: theme.palette.grey[300],
     },
     homeLink: {
       display: 'flex',
       alignItems: 'center',
-      paddingTop: theme.spacing(3),
+      paddingTop: theme.spacing(4),
       paddingBottom: theme.spacing(3),
     },
     linkText: {
