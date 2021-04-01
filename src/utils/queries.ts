@@ -6,6 +6,7 @@ import {
   QueryBulkCreate,
   QueryRecord,
   QueryModelTableRecordsCount,
+  QueryModeTableAssociationRecords,
 } from '@/types/queries';
 
 /**
@@ -121,6 +122,129 @@ export const queryBulkCreate: QueryBulkCreate = (modelName) => {
   };
 };
 
+/*
+FILTERS:
+## assocs
+to_one: getOneAssociatedRecords(model, associatedModel)
+to_many: getManyAssociatedRecords(model,associatedModel)
+
+getNotAssociated(model, associatedModel)
+
+## mark
+getMarkedForAssociation(model, list)
+
+QUERIES
+to_one:  readAllAssociationFilterOne(model, associatedModel)
+to_many: readAllAssociationFilterMany(model, associatedModel, filterKey)
+
+The parsing does not need to be any different from the standard case. fieldResolvers will not be displayed anyways, the row uses attributes to ensure correct order
+special parsing is needed for he fieldResolver (also different for to_one, to_many).
+
+#utility
+parseAssociated(response, isConnection) - return list of associated. Use to pass isAssociated to the row
+ */
+
+export const queryModelTableAssociationRecordsToOne: QueryModeTableAssociationRecords = (
+  rootModelName,
+  rootAttributes,
+  fieldModelName,
+  fieldAttribute
+) => {
+  const { namePlLc: rootNamePlLc, nameCp: rootNameCp } = getInflections(
+    rootModelName
+  );
+  const { nameCp: fieldNameCp } = getInflections(fieldModelName);
+
+  const rootResolver = `${rootNamePlLc}Connection`;
+  const fieldResolver = fieldModelName;
+
+  const { fields } = parseQueryAttributes(rootAttributes);
+
+  const query = `query getModelTableOneAssociationRecords(
+    $order: [order${rootNameCp}Input]
+    $search: search${rootNameCp}Input
+    $pagination: paginationCursorInput!
+    $fieldSearch: search${fieldNameCp}Input
+  ) {
+    ${rootResolver}( order: $order search: $search, pagination: $pagination ) {
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      edges {
+        node { 
+          ${fields}
+          ${fieldResolver}( search: $fieldSearch ) {
+            ${fieldAttribute}
+          }
+        }
+      }
+    }
+  }`;
+
+  return {
+    resolver: rootResolver,
+    // fieldResolver,
+    query,
+  };
+};
+
+export const queryModelTableAssociationRecordsToMany: QueryModeTableAssociationRecords = (
+  rootModelName,
+  rootAttributes,
+  fieldModelName,
+  fieldAttribute
+) => {
+  const { namePlLc: rootNamePlLc, nameCp: rootNameCp } = getInflections(
+    rootModelName
+  );
+  const { namePlLc: fieldNamePlLc, nameCp: fieldNameCp } = getInflections(
+    fieldModelName
+  );
+
+  const rootResolver = `${rootNamePlLc}Connection`;
+  const fieldResolver = `${fieldNamePlLc}Connection`;
+
+  const { fields } = parseQueryAttributes(rootAttributes);
+
+  const query = `query getModelTableManyAssociationRecords(
+    $rootOrder: [order${rootNameCp}Input]
+    $rootSearch: search${rootNameCp}Input
+    $rootPagination: paginationCursorInput!
+    $fieldOrder: [order${fieldNameCp}Input]
+    $fieldSearch: search${fieldNameCp}Input
+    $fieldPagination: paginationCursorInput
+  ) {
+    ${rootResolver}( order: $rootOrder search: $rootSearch, pagination: $rootPagination ) {
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      edges {
+        node { 
+          ${fields}
+          ${fieldResolver}( order: $fieldOrder search: $fieldSearch, pagination: $fieldPagination ) {
+            edges{
+              node {
+                ${fieldAttribute}
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
+
+  return {
+    resolver: rootResolver,
+    query,
+  };
+};
+
 /**
  * Parse attributes to compose query and mutation strings:
  * -  idArg: id argument as required in the read and delete functions.
@@ -190,3 +314,7 @@ function parseQueryAttributes(
     },
   };
 }
+
+// function parseAssociatedConnection(data, rootResolver, fieldResolver) {
+
+// }

@@ -63,6 +63,13 @@ export type QueryCsvTemplate = (modelName: string) => RawQuery;
 
 export type QueryBulkCreate = (modelName: string) => RawQuery;
 
+export type QueryModeTableAssociationRecords = (
+  rootModelName: string,
+  rootAttributes: ParsedAttribute[],
+  fieldModelName: string,
+  fieldAttribute: string
+) => RawQuery;
+
 /**
  * RECORD
  */

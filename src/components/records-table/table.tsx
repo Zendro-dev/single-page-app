@@ -102,6 +102,27 @@ const variablesReducer = (
   }
 };
 
+function parseAssociated(
+  data: any,
+  rootResolver: string,
+  rootId: string,
+  fieldResolver: string,
+  fieldId: string,
+  fieldIdValue: string | number
+): (string | number)[] {
+  return data[rootResolver].edges.reduce(
+    (acc: (string | number)[], curr: any) => {
+      const node = curr.node;
+      const field = node[fieldResolver];
+      if (field && field[fieldId] === fieldIdValue) {
+        acc.push(node[rootId]);
+      }
+      return acc;
+    },
+    []
+  );
+}
+
 export default function EnhancedTable({
   className,
   modelName,
@@ -275,10 +296,11 @@ export default function EnhancedTable({
 
   /* DATA FETCHING */
   // Records
-  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR<
-    ReadManyResponse,
-    ExtendedClientError<ReadManyResponse>
-  >(
+  const {
+    data,
+    mutate: mutateRecords,
+    isValidating: isValidatingRecords,
+  } = useSWR<ReadManyResponse, ExtendedClientError<ReadManyResponse>>(
     [requests.read.query, variables],
     (query: string, variables: QueryVariables) =>
       zendro.request(query, variables),
@@ -360,7 +382,7 @@ export default function EnhancedTable({
           />
           <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
             <TableBody>
-              {rows.map((record, index) => {
+              {rows.map((record) => {
                 const primaryKey = record[attributes[0].name] as
                   | string
                   | number;
@@ -379,9 +401,15 @@ export default function EnhancedTable({
                     }
                     isAssociated={
                       associationView
-                        ? index % 2 === 0
-                          ? true
-                          : false
+                        ? data &&
+                          parseAssociated(
+                            data,
+                            'countriesConnection',
+                            'country_id',
+                            'continent',
+                            'continent_id',
+                            'continent_1'
+                          ).includes(primaryKey)
                         : undefined
                     }
                     actions={{

@@ -3,6 +3,7 @@ import { List, ListItem, Typography } from '@material-ui/core';
 import ModelTable from '@/components/records-table';
 import { useZendroClient } from '@/hooks';
 import { ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { queryModelTableAssociationRecordsToOne } from '@/utils/queries';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -28,6 +29,15 @@ export default function AssociationsList({
     //
   };
 
+  const query = queryModelTableAssociationRecordsToOne(
+    'country',
+    attributes,
+    'continent',
+    'continent_id'
+  );
+
+  console.log(query);
+
   return (
     <>
       <div className={classes.root}>
@@ -38,7 +48,13 @@ export default function AssociationsList({
           requests={{
             count: zendro.queries[modelName].countAll,
             delete: zendro.queries[modelName].deleteOne,
-            read: zendro.queries[modelName].readAll,
+            // read: zendro.queries[modelName].readAll,
+            read: queryModelTableAssociationRecordsToOne(
+              'country',
+              attributes,
+              'continent',
+              'continent_id'
+            ),
           }}
           associationView="details"
         />
