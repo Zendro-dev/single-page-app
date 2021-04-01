@@ -15,7 +15,7 @@ export default function ClickableIcon({
   children,
 }: PropsWithChildren<ClickableIconProps>): ReactElement {
   return (
-    <Tooltip title={tooltip}>
+    <Tooltip title={tooltip} disableInteractive>
       <span>
         <IconButton color="inherit" disabled={disabled} onClick={handleOnClick}>
           {children}
