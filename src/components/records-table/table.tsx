@@ -1,5 +1,6 @@
-import React, { useReducer, ReactElement, useState } from 'react';
+import clsx from 'clsx';
 import { useRouter } from 'next/router';
+import React, { useReducer, ReactElement, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -38,6 +39,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { ModelUrlQuery } from '@/types/routes';
 
 export interface EnhancedTableProps {
+  className?: string;
   modelName: string;
   attributes: ParsedAttribute[];
   associationView?: 'details' | 'update' | 'new';
@@ -101,6 +103,7 @@ const variablesReducer = (
 };
 
 export default function EnhancedTable({
+  className,
   modelName,
   attributes,
   requests,
@@ -330,7 +333,7 @@ export default function EnhancedTable({
   );
 
   return (
-    <TableContainer className={classes.root}>
+    <TableContainer className={clsx(classes.root, className)}>
       <TableToolbar
         modelName={modelName}
         permissions={auth.user?.permissions[modelName] ?? []}
@@ -340,8 +343,6 @@ export default function EnhancedTable({
       />
 
       <div className={classes.tableWrapper}>
-        <div>{`recordsToAdd: ${recordsToAdd.join(',')}`}</div>
-        <div>{`recordsToRemove: ${recordsToRemove.join(',')}`}</div>
         <Table stickyHeader size="medium">
           <EnhancedTableHead
             actionsColSpan={
@@ -420,6 +421,8 @@ export default function EnhancedTable({
           </div>
         )}
       </div>
+      <div>{`recordsToAdd: ${recordsToAdd.join(',')}`}</div>
+      <div>{`recordsToRemove: ${recordsToRemove.join(',')}`}</div>
 
       <RecordsTablePagination
         onPagination={handlePagination}
@@ -444,7 +447,7 @@ const useStyles = makeStyles((theme) =>
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-      height: '100%',
+      flexGrow: 1,
       overflow: 'auto',
     },
     tableWrapper: {
