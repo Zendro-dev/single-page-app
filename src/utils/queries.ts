@@ -6,7 +6,6 @@ import {
   QueryBulkCreate,
   QueryRecord,
   QueryModelTableRecordsCount,
-  RawQuery,
 } from '@/types/queries';
 
 /**
@@ -58,22 +57,6 @@ export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
   return {
     resolver,
     query,
-  };
-};
-
-export const queryModel = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-): {
-  records: RawQuery;
-  count: RawQuery;
-} => {
-  const records = queryModelTableRecords(modelName, attributes);
-  const count = queryModelTableRecordsCount(modelName);
-
-  return {
-    records,
-    count,
   };
 };
 
