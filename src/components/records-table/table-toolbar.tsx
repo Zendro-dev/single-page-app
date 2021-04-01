@@ -1,12 +1,15 @@
 import { ReactElement, useState } from 'react';
-import Reload from '@material-ui/icons/Replay';
-import Add from '@material-ui/icons/AddBox';
-import Import from '@material-ui/icons/UnarchiveOutlined';
+import { createStyles, makeStyles } from '@material-ui/core';
+import {
+  AddBox as AddIcon,
+  UnarchiveOutlined as ImportIcon,
+  Replay as ReloadIcon,
+} from '@material-ui/icons';
+
 import ClickableIcon from '../buttons/icon-button';
 import SearchField from './table-toolbar-search-field';
 import DownloadMenu from './table-toolbar-download-menu';
 import UploadDialog from './table-toolbar-upload-dialog';
-import { Box } from '@material-ui/core';
 import { AclPermission } from '@/types/acl';
 
 interface TableToolBarProps {
@@ -25,6 +28,8 @@ export default function TableToolBar({
   onAdd,
 }: TableToolBarProps): ReactElement {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const classes = useStyles();
+
   const handleImportClicked = (): void => {
     setDialogOpen(true);
   };
@@ -35,40 +40,51 @@ export default function TableToolBar({
   };
 
   return (
-    <Box
-      display="flex"
-      marginY="0.5rem"
-      alignItems="center"
-      justifyContent="flex-end"
-    >
-      <ClickableIcon tooltip="Reload list" handleOnClick={onReload}>
-        <Reload color="inherit" fontSize="small" />
-      </ClickableIcon>
-
+    <header className={classes.header}>
       <SearchField onSearchClick={onSearch} />
 
-      {(permissions.includes('create') || permissions.includes('*')) && (
-        <>
-          <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
-            <Add color="primary" />
-          </ClickableIcon>
+      <menu className={classes.menu}>
+        <ClickableIcon tooltip="Reload list" handleOnClick={onReload}>
+          <ReloadIcon color="inherit" fontSize="small" />
+        </ClickableIcon>
 
-          <ClickableIcon
-            tooltip="Import from csv"
-            handleOnClick={handleImportClicked}
-          >
-            <Import color="primary" />
-          </ClickableIcon>
-        </>
-      )}
+        {(permissions.includes('create') || permissions.includes('*')) && (
+          <>
+            <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
+              <AddIcon color="primary" />
+            </ClickableIcon>
 
-      {(permissions.includes('read') || permissions.includes('*')) && (
-        <DownloadMenu modelName={modelName}></DownloadMenu>
-      )}
+            <ClickableIcon
+              tooltip="Import from csv"
+              handleOnClick={handleImportClicked}
+            >
+              <ImportIcon color="primary" />
+            </ClickableIcon>
+          </>
+        )}
 
-      {dialogOpen && (
-        <UploadDialog modelName={modelName} handleDone={handleDone} />
-      )}
-    </Box>
+        {(permissions.includes('read') || permissions.includes('*')) && (
+          <DownloadMenu modelName={modelName}></DownloadMenu>
+        )}
+
+        {dialogOpen && (
+          <UploadDialog modelName={modelName} handleDone={handleDone} />
+        )}
+      </menu>
+    </header>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    header: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: theme.spacing(2),
+    },
+    menu: {
+      display: 'flex',
+    },
+  })
+);
