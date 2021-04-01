@@ -1,16 +1,22 @@
+import { AppProps } from 'next/app';
+import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
-import { SnackbarProvider } from 'notistack';
-import { AppProps } from 'next/app';
+
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
+
 import { DialogProvider } from '@/hooks/useDialog';
-import { AppWithLayouts } from '@/layouts';
+import { PageWithLayout } from '@/layouts';
 import store from '@/store';
 import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
 
-function App({ Component, pageProps }: AppWithLayouts<AppProps>): ReactElement {
+interface ZendroProps extends AppProps {
+  Component: PageWithLayout;
+}
+
+function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
   const Layout = Component.layout ?? (({ children }) => <>{children}</>);
   return (
     <Provider store={store}>
@@ -33,4 +39,4 @@ function App({ Component, pageProps }: AppWithLayouts<AppProps>): ReactElement {
   );
 }
 
-export default App;
+export default Zendro;

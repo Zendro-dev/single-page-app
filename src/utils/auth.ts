@@ -1,9 +1,9 @@
-import Acl, { AclSet } from 'acl';
+import Acl from 'acl';
 import axios from 'axios';
 import decode from 'jwt-decode';
 
-import aclRules from '@/build/acl-rules';
-import routes, { AppRoutes } from '@/build/routes';
+import aclRules from '@/build/acl-rules.preval';
+import appRoutes from '@/build/routes.preval';
 
 import { LOGIN_URL } from '@/config/globals';
 import {
@@ -129,16 +129,13 @@ export async function getUserPermissions(
   const acl = new Acl(new Acl.memoryBackend());
 
   // Default or custom acl rules
-  await acl.allow((aclRules as unknown) as AclSet);
+  await acl.allow(aclRules);
 
   // Current user and its associated roles
   await acl.addUserRoles(user, roles);
 
   // Controlled resources for which permissions should be retrieved
-  const appRoutes = (routes as unknown) as AppRoutes;
-  const adminRoutes = appRoutes.admin;
-  const modelRoutes = appRoutes.models;
-  const resources = [...adminRoutes, ...modelRoutes].map(
+  const resources = [...appRoutes.admin, ...appRoutes.models].map(
     ({ name }) => name
   ) as string[];
 

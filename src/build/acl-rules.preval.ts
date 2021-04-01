@@ -1,8 +1,7 @@
-const { mkdir, readdir, stat, writeFile } = require('fs/promises');
-const { parse } = require('path');
-const { resolveCustom } = require('./helpers/resolve-custom');
-
-/** @typedef {import('acl').AclSet} AclSet */
+import { AclSet } from 'acl';
+import preval from 'next-plugin-preval';
+import { mkdir, readdir, stat, writeFile } from 'fs/promises';
+import { parse } from 'path';
 
 const defaultRoles = [
   {
@@ -19,21 +18,16 @@ const defaultRoles = [
   },
 ];
 
-/**
- * Import a custom or create default ACL rules.
- * @returns {AclSet} acl rules
- */
-async function buildAclRules() {
-  let rules;
-
-  const rulesPath = resolveCustom('acl-rules.json');
+async function buildAclRules(): Promise<AclSet[]> {
+  let aclRules;
+  const rulesPath = 'src/custom/acl-rules.json';
 
   try {
     /**
      * If `acl-rules.json` exists, import the file and cache the contents.
      */
-    await stat(rulesPath.absolute);
-    rules = require(rulesPath.relative);
+    await stat(rulesPath);
+    aclRules = (await import(rulesPath)) as AclSet[];
   } catch (error) {
     /**
      * If the file does not exist, generate the default contents and
@@ -45,7 +39,7 @@ async function buildAclRules() {
     const adminResources = admin.map((file) => parse(file).name);
     const modelResources = models.map((file) => parse(file).name);
 
-    rules = defaultRoles.map(({ roles, permissions }) => ({
+    aclRules = defaultRoles.map(({ roles, permissions }) => ({
       roles,
       allows: [
         {
@@ -56,14 +50,11 @@ async function buildAclRules() {
       ],
     }));
 
-    await mkdir(rulesPath.customDir, { recursive: true });
-    await writeFile(rulesPath.absolute, JSON.stringify(rules, null, 2));
+    await mkdir('src/custom', { recursive: true });
+    await writeFile(rulesPath, JSON.stringify(aclRules, null, 2));
   }
 
-  return {
-    cacheable: false,
-    code: `module.exports = ${JSON.stringify(rules)}`,
-  };
+  return aclRules;
 }
 
-module.exports = buildAclRules;
+export default preval(buildAclRules());

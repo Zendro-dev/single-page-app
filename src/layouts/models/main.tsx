@@ -3,7 +3,7 @@ import React, { PropsWithChildren, ReactElement } from 'react';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { AppRoutes } from '@/build/routes';
+import { AppRoutes } from '@/types/routes';
 import useAuth from '@/hooks/useAuth';
 import Restricted from './restricted';
 import Navigation from './navigation';
