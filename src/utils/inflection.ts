@@ -2,9 +2,13 @@ import { pluralize, capitalize } from 'inflection';
 
 export interface Inflection {
   name: string;
+  /** Capitalized */
   nameCp: string;
+  /** Lowercase */
   nameLc: string;
+  /** Plural-Lowercase */
   namePlLc: string;
+  /** Plural-Capitalized */
   namePlCp: string;
 }
 
