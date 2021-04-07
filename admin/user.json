@@ -5,7 +5,7 @@
     "email": "String",
     "password": "String"
   },
-    "associations": {
+  "associations": {
     "roles": {
       "type": "to_many_through_sql_cross_table",
       "target": "role",
