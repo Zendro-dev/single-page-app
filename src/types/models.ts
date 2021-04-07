@@ -62,9 +62,13 @@ export interface ParsedAssociation extends Association {
 /* DATA MODELS */
 
 export interface DataModel {
+  associations?: Record<string, Association>;
+  attributes: Attributes;
+  internalId?: string;
   model: string;
   storageType: 'sql';
-  attributes: Attributes;
-  associations?: Record<string, Association>;
-  internalId: string;
+}
+
+export interface ParsedDataModel extends DataModel {
+  primaryKey: string;
 }

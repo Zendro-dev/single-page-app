@@ -9,4 +9,5 @@ export interface StaticQueries {
   updateOne: RawQuery;
   csvTableTemplate: RawQuery;
   bulkAddCsv: RawQuery;
+  assoc: Record<string, RawQuery>;
 }

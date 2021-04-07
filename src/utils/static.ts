@@ -1,15 +1,18 @@
+import { RawQuery } from '@/types/queries';
 import { StaticQueries } from '@/types/static';
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
-import { DataModel } from '../types/models';
+import { DataModel, ParsedDataModel } from '../types/models';
 import { AppRoutes, ModelRoute, ModelUrlQuery } from '../types/routes';
 import { getAttributeList } from './models';
 import {
   queryBulkCreate,
   queryCsvTemplate,
-  queryModelTableRecords,
-  queryModelTableRecordsCount,
+  queryRecords,
+  queryRecordsCount,
   queryRecord,
+  queryRecordsWithToOne,
+  queryRecordsWithToMany,
 } from './queries';
 
 /* MODELS */
@@ -18,18 +21,24 @@ import {
  * Parse a data model into its javascript object representation.
  * @param name name of the model to parse
  */
-export async function getStaticModel(name: string): Promise<DataModel> {
+export async function getStaticModel(name: string): Promise<ParsedDataModel> {
   const modelPath = await whichModel(name);
   const json = await readFile(modelPath, { encoding: 'utf8' });
-  return JSON.parse(json) as DataModel;
+  const dataModel = JSON.parse(json) as DataModel;
+  return {
+    primaryKey: dataModel.internalId ?? 'id',
+    ...dataModel,
+  };
 }
 
 /**
  * Parse each data model into its javascript object representation.
  * @param modelPaths array of paths to each data model file
  */
-export async function getStaticModels(): Promise<Record<string, DataModel>> {
-  const models: Record<string, DataModel> = {};
+export async function getStaticModels(): Promise<
+  Record<string, ParsedDataModel>
+> {
+  const models: Record<string, ParsedDataModel> = {};
 
   const dataModels = await readdir('./models');
   const adminModels = await readdir('./admin');
@@ -117,17 +126,79 @@ export async function getStaticQueries(): Promise<
     const attributes = getAttributeList(schema, { excludeForeignKeys: true });
     const recordQueries = queryRecord(name, attributes);
 
+    const assoc = getStaticAssociationQueries(schema, dataModels);
+
     staticModels[name] = {
-      readAll: queryModelTableRecords(name, attributes),
-      countAll: queryModelTableRecordsCount(name),
+      readAll: queryRecords(name, attributes),
+      countAll: queryRecordsCount(name),
       createOne: recordQueries.create,
       deleteOne: recordQueries.delete,
       readOne: recordQueries.read,
       updateOne: recordQueries.update,
       csvTableTemplate: queryCsvTemplate(name),
       bulkAddCsv: queryBulkCreate(name),
+      assoc,
     };
   });
 
   return staticModels;
+}
+
+export function getStaticAssociationQueries(
+  sourceModel: ParsedDataModel,
+  targetModels: Record<string, ParsedDataModel>
+): Record<string, RawQuery> {
+  const assoc: Record<string, RawQuery> = {};
+
+  if (!sourceModel.associations) return assoc;
+
+  for (const [sourceName, { target: targetModelName }] of Object.entries(
+    sourceModel.associations
+  )) {
+    const targetModel = targetModels[targetModelName];
+
+    if (!targetModel.associations)
+      throw new Error(
+        `Model "${targetModel.model}" does not have associations defined, ` +
+          `but "${sourceModel.model}" has it listed as a target in "${sourceName}".`
+      );
+
+    const reverseAssociation = Object.entries(targetModel.associations).find(
+      ([_, association]) => association.target === sourceModel.model
+    );
+
+    if (!reverseAssociation)
+      throw new Error(
+        `The target model "${targetModel.model}" does not have an association ` +
+          `with "${sourceModel.model}" defined as target.`
+      );
+
+    const [targetAssocName, targetAssociation] = reverseAssociation;
+
+    switch (targetAssociation.type) {
+      case 'to_one':
+        assoc[targetModelName] = queryRecordsWithToOne(
+          targetModelName,
+          getAttributeList(targetModel, { excludeForeignKeys: true }),
+          targetAssocName,
+          sourceModel.model,
+          sourceModel.primaryKey
+        );
+        break;
+
+      case 'to_many':
+        assoc[targetModelName] = queryRecordsWithToMany(
+          targetModelName,
+          getAttributeList(targetModel, { excludeForeignKeys: true }),
+          sourceModel.model,
+          sourceModel.primaryKey
+        );
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  return assoc;
 }

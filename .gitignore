@@ -16,6 +16,7 @@ test_env
 /out/
 
 # production
+/src/custom
 /build
 
 # misc
