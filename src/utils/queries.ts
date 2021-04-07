@@ -238,6 +238,11 @@ export const queryRecordsWithToOne = (
     name: queryName,
     resolver: modelResolver,
     query,
+    transform:
+      '.data.countriesConnection.pageInfo as $pageInfo' +
+      ' | .data.countriesConnection.edges' +
+      ' | map(.node) as $records' +
+      ' | { data: { $pageInfo, $records } }',
   };
 };
 
