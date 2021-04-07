@@ -11,6 +11,7 @@ import {
   FloatField,
   IntField,
   StringField,
+  ArrayField,
   TextFieldProps,
   WithIcons,
 } from '@/components/input';
@@ -58,7 +59,7 @@ const InputField = ({
     case 'String':
       return <StringField {...props} value={value as string | null} />;
     default:
-      return <StringField {...props} value={value as string | null} />;
+      return <ArrayField {...props} value={value as string[] | null} />;
   }
 };
 
@@ -83,7 +84,8 @@ export default function AttributeField({
         {...props}
         onChange={props.onChange ? handleOnChange : undefined}
         endAdornment={
-          props.onChange && (
+          props.onChange &&
+          props.type !== '[String]' && (
             <InputAdornment position="end">
               <Tooltip title="Unset value">
                 <span>

@@ -6,6 +6,7 @@ import StringField from './string-field';
 
 import FieldIcons from './field-icons';
 import TextField from './text-field';
+import ArrayField from './array-field';
 
 export * from './bool-field';
 export * from './datetime-field';
@@ -14,6 +15,7 @@ export * from './field-icons';
 export * from './int-field';
 export * from './string-field';
 export * from './text-field';
+export * from './array-field';
 
 export {
   BoolField,
@@ -23,4 +25,5 @@ export {
   IntField,
   StringField,
   TextField,
+  ArrayField,
 };
