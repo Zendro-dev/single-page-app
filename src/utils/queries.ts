@@ -1,67 +1,42 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import {
-  QueryModelTableRecords,
-  QueryCsvTemplate,
-  QueryBulkCreate,
-  QueryRecord,
-  QueryModelTableRecordsCount,
-  QueryModeTableAssociationRecords,
-} from '@/types/queries';
+import { RawQuery } from '@/types/queries';
 
-/**
- * Compose a readMany graphql query to retrieve a list of model records.
- * @param modelName name of the data model to query data from
- * @param attributes a sorted list of attribute fields to query
- */
-export const queryModelTableRecords: QueryModelTableRecords = (
-  modelName,
-  attributes
-) => {
-  const { namePlLc, nameCp } = getInflections(modelName);
-  const { fields } = parseQueryAttributes(attributes);
+export const queryBulkCreate = (modelName: string): RawQuery => {
+  const { nameCp } = getInflections(modelName);
 
-  const resolver = `${namePlLc}Connection`;
-  const query = `query getModelTableRecords(
-      $order: [order${nameCp}Input]
-      $search: search${nameCp}Input
-      $pagination: paginationCursorInput!
-    ) {
-      ${resolver}( order: $order search: $search, pagination: $pagination ) {
-        pageInfo {
-          startCursor
-          endCursor
-          hasPreviousPage
-          hasNextPage
-        }
-        edges {
-          node { ${fields} }
-        }
-      }
-    }`;
-
+  const resolver = `bulkAdd${nameCp}Csv`;
+  const query = `mutation {${resolver}}`;
   return {
-    resolver,
+    name: resolver,
     query,
+    resolver,
   };
 };
 
-export const queryModelTableRecordsCount: QueryModelTableRecordsCount = (
-  modelName
-) => {
-  const { nameCp, namePlCp } = getInflections(modelName);
-  const resolver = `count${namePlCp}`;
-  const query = `query countRecords($search: search${nameCp}Input) {
-    ${resolver}( search: $search )
-  }`;
+export const queryCsvTemplate = (modelName: string): RawQuery => {
+  const { nameCp } = getInflections(modelName);
+
+  const resolver = `csvTableTemplate${nameCp}`;
+  const query = `query {${resolver}}`;
 
   return {
-    resolver,
+    name: resolver,
     query,
+    resolver,
   };
 };
 
-export const queryRecord: QueryRecord = (modelName, attributes) => {
+export const queryRecord = (
+  modelName: string,
+  attributes: ParsedAttribute[]
+): {
+  primaryKey: string;
+  create: RawQuery;
+  read: RawQuery;
+  update: RawQuery;
+  delete: RawQuery;
+} => {
   const { nameCp } = getInflections(modelName);
 
   const createResolver = `add${nameCp}`;
@@ -81,143 +56,113 @@ export const queryRecord: QueryRecord = (modelName, attributes) => {
   return {
     primaryKey,
     create: {
+      name: createResolver,
       resolver: createResolver,
-      query: `mutation createRecord(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
+      query: `mutation ${createResolver}(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
     },
     read: {
+      name: readResolver,
       resolver: readResolver,
-      query: `query readRecord(${idArg}) { ${readResolver}(${idVar}) { ${fields} } }`,
+      query: `query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) { ${fields} } }`,
     },
     update: {
+      name: updateResolver,
       resolver: updateResolver,
-      query: `mutation updateRecord(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
+      query: `mutation ${updateResolver}(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
     },
     delete: {
+      name: deleteResolver,
       resolver: deleteResolver,
-      query: `mutation deleteRecord(${idArg}) { ${deleteResolver}(${idVar}) }`,
+      query: `mutation ${deleteResolver}(${idArg}) { ${deleteResolver}(${idVar}) }`,
     },
   };
 };
 
-export const queryCsvTemplate: QueryCsvTemplate = (modelName) => {
-  const { nameCp } = getInflections(modelName);
-
-  const resolver = `csvTableTemplate${nameCp}`;
-  const query = `query {${resolver}}`;
-
-  return {
-    resolver,
-    query,
-  };
-};
-
-export const queryBulkCreate: QueryBulkCreate = (modelName) => {
-  const { nameCp } = getInflections(modelName);
-
-  const resolver = `bulkAdd${nameCp}Csv`;
-  const query = `mutation {${resolver}}`;
-  return {
-    resolver,
-    query,
-  };
-};
-
-/*
-FILTERS:
-## assocs
-to_one: getOneAssociatedRecords(model, associatedModel)
-to_many: getManyAssociatedRecords(model,associatedModel)
-
-getNotAssociated(model, associatedModel)
-
-## mark
-getMarkedForAssociation(model, list)
-
-QUERIES
-to_one:  readAllAssociationFilterOne(model, associatedModel)
-to_many: readAllAssociationFilterMany(model, associatedModel, filterKey)
-
-The parsing does not need to be any different from the standard case. fieldResolvers will not be displayed anyways, the row uses attributes to ensure correct order
-special parsing is needed for he fieldResolver (also different for to_one, to_many).
-
-#utility
-parseAssociated(response, isConnection) - return list of associated. Use to pass isAssociated to the row
+/**
+ * Compose a readMany graphql query to retrieve a list of model records.
+ * @param modelName name of the data model to query data from
+ * @param attributes a sorted list of attribute fields to query
  */
+export const queryRecords = (
+  modelName: string,
+  attributes: ParsedAttribute[]
+): RawQuery => {
+  const { nameCp, namePlCp, namePlLc } = getInflections(modelName);
+  const { fields } = parseQueryAttributes(attributes);
 
-export const queryModelTableAssociationRecordsToOne: QueryModeTableAssociationRecords = (
-  rootModelName,
-  rootAttributes,
-  fieldModelName,
-  fieldAttribute
-) => {
-  const { namePlLc: rootNamePlLc, nameCp: rootNameCp } = getInflections(
-    rootModelName
-  );
-  const { nameCp: fieldNameCp } = getInflections(fieldModelName);
+  const queryName = `read${namePlCp}`;
+  const resolver = `${namePlLc}Connection`;
 
-  const rootResolver = `${rootNamePlLc}Connection`;
-  const fieldResolver = fieldModelName;
-
-  const { fields } = parseQueryAttributes(rootAttributes);
-
-  const query = `query getModelTableOneAssociationRecords(
-    $order: [order${rootNameCp}Input]
-    $search: search${rootNameCp}Input
-    $pagination: paginationCursorInput!
-    $fieldSearch: search${fieldNameCp}Input
-  ) {
-    ${rootResolver}( order: $order search: $search, pagination: $pagination ) {
-      pageInfo {
-        startCursor
-        endCursor
-        hasPreviousPage
-        hasNextPage
-      }
-      edges {
-        node { 
-          ${fields}
-          ${fieldResolver}( search: $fieldSearch ) {
-            ${fieldAttribute}
-          }
+  const query = `query ${queryName}(
+      $order: [order${nameCp}Input]
+      $search: search${nameCp}Input
+      $pagination: paginationCursorInput!
+    ) {
+      ${resolver}( order: $order search: $search, pagination: $pagination ) {
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+        }
+        edges {
+          node { ${fields} }
         }
       }
-    }
+    }`;
+
+  return {
+    name: queryName,
+    resolver,
+    query,
+  };
+};
+
+export const queryRecordsCount = (modelName: string): RawQuery => {
+  const { nameCp, namePlCp } = getInflections(modelName);
+  const resolver = `count${namePlCp}`;
+  const query = `query ${resolver}($search: search${nameCp}Input) {
+    ${resolver}( search: $search )
   }`;
 
   return {
-    resolver: rootResolver,
-    // fieldResolver,
+    name: resolver,
+    resolver: resolver,
     query,
   };
 };
 
-export const queryModelTableAssociationRecordsToMany: QueryModeTableAssociationRecords = (
-  rootModelName,
-  rootAttributes,
-  fieldModelName,
-  fieldAttribute
-) => {
-  const { namePlLc: rootNamePlLc, nameCp: rootNameCp } = getInflections(
-    rootModelName
-  );
-  const { namePlLc: fieldNamePlLc, nameCp: fieldNameCp } = getInflections(
-    fieldModelName
-  );
+export const queryRecordsWithToMany = (
+  modelName: string,
+  modelAttributes: ParsedAttribute[],
+  assocModelName: string,
+  assocPrimaryKey: string
+): RawQuery => {
+  const {
+    nameCp: assocNameCp,
+    namePlCp: assocNamePlCp,
+    namePlLc: assocNamePlLc,
+  } = getInflections(assocModelName);
 
-  const rootResolver = `${rootNamePlLc}Connection`;
-  const fieldResolver = `${fieldNamePlLc}Connection`;
+  const {
+    nameCp: modelNameCp,
+    namePlCp: modelNamePlCp,
+    namePlLc: modelNamePlLc,
+  } = getInflections(modelName);
 
-  const { fields } = parseQueryAttributes(rootAttributes);
+  const modelResolver = `${modelNamePlLc}Connection`;
+  const { fields } = parseQueryAttributes(modelAttributes);
 
-  const query = `query getModelTableManyAssociationRecords(
-    $rootOrder: [order${rootNameCp}Input]
-    $rootSearch: search${rootNameCp}Input
-    $rootPagination: paginationCursorInput!
-    $fieldOrder: [order${fieldNameCp}Input]
-    $fieldSearch: search${fieldNameCp}Input
-    $fieldPagination: paginationCursorInput
+  const queryName = `read${modelNamePlCp}With${assocNamePlCp}`;
+  const query = `query ${queryName}(
+    $order: [order${modelNameCp}Input]
+    $search: search${modelNameCp}Input
+    $pagination: paginationCursorInput!
+    $assocOrder: [order${assocNameCp}Input]
+    $assocSearch: search${assocNameCp}Input
+    $assocPagination: paginationCursorInput!
   ) {
-    ${rootResolver}( order: $rootOrder search: $rootSearch, pagination: $rootPagination ) {
+    ${modelResolver}( order: $order search: $search, pagination: $pagination ) {
       pageInfo {
         startCursor
         endCursor
@@ -225,12 +170,12 @@ export const queryModelTableAssociationRecordsToMany: QueryModeTableAssociationR
         hasNextPage
       }
       edges {
-        node { 
+        node {
           ${fields}
-          ${fieldResolver}( order: $fieldOrder search: $fieldSearch, pagination: $fieldPagination ) {
+          ${assocNamePlLc}Connection( order: $assocOrder search: $assocSearch, pagination: $assocPagination ) {
             edges{
               node {
-                ${fieldAttribute}
+                ${assocPrimaryKey}
               }
             }
           }
@@ -240,7 +185,58 @@ export const queryModelTableAssociationRecordsToMany: QueryModeTableAssociationR
   }`;
 
   return {
-    resolver: rootResolver,
+    name: queryName,
+    resolver: modelResolver,
+    query,
+  };
+};
+
+export const queryRecordsWithToOne = (
+  modelName: string,
+  modelAttributes: ParsedAttribute[],
+  assocName: string,
+  assocModelName: string,
+  assocPrimaryKey: string
+): RawQuery => {
+  const { nameCp: assocNameCp } = getInflections(assocModelName);
+
+  const {
+    namePlLc: modelNamePlLc,
+    nameCp: modelNameCp,
+    namePlCp: modelNamePlCp,
+  } = getInflections(modelName);
+
+  const { fields: modelFields } = parseQueryAttributes(modelAttributes);
+  const modelResolver = `${modelNamePlLc}Connection`;
+  const queryName = `read${modelNamePlCp}With${assocNameCp}`;
+
+  const query = `query ${queryName} (
+    $order: [order${modelNameCp}Input]
+    $search: search${modelNameCp}Input
+    $pagination: paginationCursorInput!
+    $assocSearch: search${assocNameCp}Input
+  ) {
+    ${modelResolver}( order: $order search: $search, pagination: $pagination ) {
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      edges {
+        node {
+          ${modelFields}
+          ${assocName}( search: $assocSearch ) {
+            ${assocPrimaryKey}
+          }
+        }
+      }
+    }
+  }`;
+
+  return {
+    name: queryName,
+    resolver: modelResolver,
     query,
   };
 };
@@ -314,7 +310,3 @@ function parseQueryAttributes(
     },
   };
 }
-
-// function parseAssociatedConnection(data, rootResolver, fieldResolver) {
-
-// }

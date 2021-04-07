@@ -2,11 +2,7 @@ import React from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { getStaticModel, getStaticModelPaths } from '@/utils/static';
 import { getAttributeList } from '@/utils/models';
-import {
-  queryRecord,
-  queryModelTableRecords,
-  queryModelTableRecordsCount,
-} from '@/utils/queries';
+import { queryRecord, queryRecords, queryRecordsCount } from '@/utils/queries';
 import { ModelUrlQuery } from '@/types/routes';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 import EnhancedTable, { EnhancedTableProps } from '@/components/records-table';
@@ -29,10 +25,9 @@ export const getStaticProps: GetStaticProps<
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const read = queryModelTableRecords(modelName, attributes);
-  // TODO rename delete to something different to destructure
-  const _delete = queryRecord(modelName, attributes).delete;
-  const count = queryModelTableRecordsCount(modelName);
+  const read = queryRecords(modelName, attributes);
+  const recordQueries = queryRecord(modelName, attributes);
+  const count = queryRecordsCount(modelName);
 
   return {
     props: {
@@ -40,7 +35,7 @@ export const getStaticProps: GetStaticProps<
       attributes,
       requests: {
         read,
-        delete: _delete,
+        delete: recordQueries.delete,
         count,
       },
       key: modelName,
