@@ -1,9 +1,9 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { List, ListItem, Typography } from '@material-ui/core';
-import ModelTable from '@/components/records-table';
-import { useZendroClient } from '@/hooks';
+import { useToastNotification, useZendroClient } from '@/hooks';
 import { ParsedAssociation, ParsedAttribute } from '@/types/models';
-import { queryModelTableAssociationRecordsToOne } from '@/utils/queries';
+import { useState } from 'react';
+import useSWR from 'swr';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -18,54 +18,78 @@ export default function AssociationsList({
   modelName,
   recordId,
 }: AssociationListProps): React.ReactElement {
+  const { showSnackbar } = useToastNotification();
+  const [selected, setSelected] = useState<string>(associations[0].target);
   const classes = useStyles();
   const zendro = useZendroClient();
 
-  const handleOnAssociationClick = (): void => {
-    //
+  useSWR(
+    zendro.queries[modelName].assoc[selected].query,
+    (query: string) =>
+      zendro.request(query, {
+        search: undefined,
+        order: undefined,
+        pagination: { first: 25 },
+        assocPagination: { first: 10 },
+      }),
+    {
+      onSuccess: (data) => {
+        console.log({ data });
+      },
+      onError: (error) => {
+        showSnackbar('There was an error', 'error', error);
+      },
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+    }
+  );
+
+  const handleOnAssociationClick = (
+    target: string
+  ) => async (): Promise<void> => {
+    setSelected(target);
+
+    const { query, transform } = zendro.queries[modelName].assoc[selected];
+
+    if (transform) {
+      const res = await zendro
+        .metaRequest<any>(query, {
+          jq: transform,
+          variables: {
+            pagination: { first: 25 },
+          },
+        })
+        .catch((error) => {
+          showSnackbar('There was an error', 'error', error);
+        });
+      console.log({ res });
+    }
   };
 
   const handleOnAssociationKeyDown = (): void => {
     //
   };
 
-  const query = queryModelTableAssociationRecordsToOne(
-    'country',
-    attributes,
-    'continent',
-    'continent_id'
-  );
-
-  console.log(query);
-
   return (
     <>
-      <div className={classes.root}>
-        <ModelTable
-          className={classes.table}
-          attributes={attributes}
-          modelName={modelName}
-          requests={{
-            count: zendro.queries[modelName].countAll,
-            delete: zendro.queries[modelName].deleteOne,
-            // read: zendro.queries[modelName].readAll,
-            read: queryModelTableAssociationRecordsToOne(
-              'country',
-              attributes,
-              'continent',
-              'continent_id'
-            ),
-          }}
-          associationView="details"
-        />
-      </div>
+      {/* <ModelTable
+        className={classes.table}
+        attributes={attributes}
+        modelName={modelName}
+        requests={{
+          count: zendro.queries[modelName].countAll,
+          delete: zendro.queries[modelName].deleteOne,
+          read: zendro.queries[modelName].assoc[selected],
+        }}
+        associationView="details"
+      /> */}
       <List className={classes.nav}>
         {associations.map((association) => (
           <ListItem
             key={`${association.name}-assoc-list`}
             className={classes.navItem}
             button
-            onClick={handleOnAssociationClick}
+            onClick={handleOnAssociationClick(association.target)}
             onKeyDown={handleOnAssociationKeyDown}
           >
             <Typography component="p" fontSize={15} fontWeight="bold">
@@ -83,18 +107,13 @@ export default function AssociationsList({
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    root: {
-      display: 'flex',
-      flexGrow: 1,
-      width: '100%',
-    },
     table: {
       padding: theme.spacing(2, 4),
     },
     nav: {
       // display: 'none',
       display: 'block',
-      padding: theme.spacing(0, 0, 0, 0),
+      padding: 0,
       borderLeft: '1px solid',
       borderLeftColor: theme.palette.grey[300],
       // [theme.breakpoints.up('md')]: {
@@ -107,14 +126,6 @@ const useStyles = makeStyles((theme) =>
       '&:not(:first-child)': {
         borderTop: '1px solid',
         borderTopColor: theme.palette.grey[300],
-        // content: '""',
-        // // display: 'block',
-        // position: 'absolute',
-        // width: '100%',
-        // height: 1,
-        // top: 0,
-        // clear: 'both',
-        // backgroundColor: theme.palette.grey[300],
       },
     },
   })
