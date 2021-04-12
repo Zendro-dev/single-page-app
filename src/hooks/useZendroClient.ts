@@ -91,7 +91,7 @@ export default function useZendroClient(): UseZendroClient {
     }
 
     if (response.data.errors) {
-      throw new ClientError(response, {
+      throw new ClientError(response.data, {
         query,
         variables,
       }) as ExtendedClientError;
