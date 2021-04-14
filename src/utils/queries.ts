@@ -11,6 +11,7 @@ export const queryBulkCreate = (modelName: string): RawQuery => {
     name: resolver,
     query,
     resolver,
+    attributes: [],
   };
 };
 
@@ -24,6 +25,7 @@ export const queryCsvTemplate = (modelName: string): RawQuery => {
     name: resolver,
     query,
     resolver,
+    attributes: [],
   };
 };
 
@@ -59,21 +61,25 @@ export const queryRecord = (
       name: createResolver,
       resolver: createResolver,
       query: `mutation ${createResolver}(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
+      attributes,
     },
     read: {
       name: readResolver,
       resolver: readResolver,
       query: `query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) { ${fields} } }`,
+      attributes,
     },
     update: {
       name: updateResolver,
       resolver: updateResolver,
       query: `mutation ${updateResolver}(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
+      attributes,
     },
     delete: {
       name: deleteResolver,
       resolver: deleteResolver,
       query: `mutation ${deleteResolver}(${idArg}) { ${deleteResolver}(${idVar}) }`,
+      attributes,
     },
   };
 };
@@ -115,6 +121,7 @@ export const queryRecords = (
     name: queryName,
     resolver,
     query,
+    attributes,
   };
 };
 
@@ -129,6 +136,7 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
     name: resolver,
     resolver: resolver,
     query,
+    attributes: [],
   };
 };
 
@@ -151,6 +159,7 @@ export const queryRecordsWithToMany = (
   } = getInflections(modelName);
 
   const modelResolver = `${modelNamePlLc}Connection`;
+  const assocResolver = `${assocNamePlLc}Connection`;
   const { fields } = parseQueryAttributes(modelAttributes);
 
   const queryName = `read${modelNamePlCp}With${assocNamePlCp}`;
@@ -172,7 +181,7 @@ export const queryRecordsWithToMany = (
       edges {
         node {
           ${fields}
-          ${assocNamePlLc}Connection( order: $assocOrder search: $assocSearch, pagination: $assocPagination ) {
+          ${assocResolver}( order: $assocOrder search: $assocSearch, pagination: $assocPagination ) {
             edges{
               node {
                 ${assocPrimaryKey}
@@ -188,9 +197,18 @@ export const queryRecordsWithToMany = (
     name: queryName,
     resolver: modelResolver,
     query,
+    attributes: modelAttributes,
+    assocResolver,
+    transform:
+      `.data.${modelResolver}.pageInfo as $pageInfo` +
+      ` | .data.${modelResolver}.edges | map(.node)` +
+      ` | map(with_entries(select(.key != "${assocResolver}"))` +
+      ` + {${assocResolver}: .${assocResolver}.edges | map(.node)[0]}) as $records` +
+      ' | { data: { $pageInfo, $records } }',
   };
 };
 
+//'.continentsConnection.edges | map(.node) | map(with_entries(select(.key != "countriesConnection")) + {countriesConnection: .countriesConnection.edges | map(.node)[0]})',
 export const queryRecordsWithToOne = (
   modelName: string,
   modelAttributes: ParsedAttribute[],
@@ -238,9 +256,11 @@ export const queryRecordsWithToOne = (
     name: queryName,
     resolver: modelResolver,
     query,
+    attributes: modelAttributes,
+    assocResolver: assocName,
     transform:
-      '.data.countriesConnection.pageInfo as $pageInfo' +
-      ' | .data.countriesConnection.edges' +
+      `.data.${modelResolver}.pageInfo as $pageInfo` +
+      ` | .data.${modelResolver}.edges` +
       ' | map(.node) as $records' +
       ' | { data: { $pageInfo, $records } }',
   };

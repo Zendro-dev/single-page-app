@@ -176,6 +176,7 @@ const Record: PageWithLayout<RecordProps> = ({
           attributes={attributes}
           modelName={modelName}
           recordId={model.id}
+          primaryKey={attributes[0].name}
         />
       </TabPanel>
     </TabContext>

@@ -29,6 +29,7 @@ import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
+import request from 'graphql-request';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -332,6 +333,7 @@ const Record: PageWithLayout<RecordProps> = ({
           attributes={attributes}
           modelName={modelName}
           recordId={urlQuery.id}
+          primaryKey={requests.primaryKey}
         />
       </TabPanel>
     </TabContext>

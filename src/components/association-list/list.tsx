@@ -1,15 +1,26 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { List, ListItem, Typography } from '@material-ui/core';
+import { List, ListItem, TableContainer, Typography } from '@material-ui/core';
 import { useToastNotification, useZendroClient } from '@/hooks';
 import { ParsedAssociation, ParsedAttribute } from '@/types/models';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
+import { PageInfo } from '@/types/requests';
+import { TableRecord } from '../records-table/table2';
+import { TableRowAssociationHandler } from '../records-table/table-row';
+import { QueryVariables } from '@/types/queries';
+import {
+  EnhancedTable,
+  RecordsTablePagination,
+  TableToolBar,
+  useVariables,
+} from '@/components/records-table';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
   modelName: string;
-  recordId?: string;
+  recordId?: string | number;
+  primaryKey: string;
 }
 
 export default function AssociationsList({
@@ -17,25 +28,69 @@ export default function AssociationsList({
   attributes,
   modelName,
   recordId,
+  primaryKey,
 }: AssociationListProps): React.ReactElement {
   const { showSnackbar } = useToastNotification();
   const [selected, setSelected] = useState<string>(associations[0].target);
   const classes = useStyles();
   const zendro = useZendroClient();
 
-  useSWR(
-    zendro.queries[modelName].assoc[selected].query,
-    (query: string) =>
-      zendro.request(query, {
-        search: undefined,
-        order: undefined,
-        pagination: { first: 25 },
-        assocPagination: { first: 10 },
-      }),
+  const [count, setCount] = useState<number>(0);
+  const [records, setRecords] = useState<TableRecord[]>([]);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    startCursor: null,
+    endCursor: null,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  });
+
+  const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
+  const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
+    []
+  );
+
+  const {
+    query,
+    associationAttributes,
+    assocResolver,
+    transform,
+  } = useMemo(() => {
+    const { query, transform, assocResolver, attributes } = zendro.queries[
+      modelName
+    ].assoc[selected];
+    console.log({ query, assocResolver, attributes });
+    console.log(transform);
+    return {
+      query,
+      associationAttributes: attributes,
+      assocResolver,
+      transform,
+    };
+  }, [selected, modelName, zendro.queries]);
+
+  const {
+    variables,
+    handleOrder,
+    handleSearch,
+    handlePagination,
+    handlePaginationLimitChange,
+  } = useVariables(attributes, records, pageInfo);
+
+  console.log({ variables });
+
+  const { data, mutate: mutateRecords } = useSWR(
+    transform ? [query, variables, selected] : null,
+    (query: string, variables: QueryVariables) => {
+      if (transform) {
+        return zendro.metaRequest<any>(query, {
+          jq: transform,
+          variables,
+        });
+      } else {
+        return zendro.request(query, variables);
+      }
+    },
     {
-      onSuccess: (data) => {
-        console.log({ data });
-      },
       onError: (error) => {
         showSnackbar('There was an error', 'error', error);
       },
@@ -44,45 +99,128 @@ export default function AssociationsList({
     }
   );
 
-  const handleOnAssociationClick = (
-    target: string
-  ) => async (): Promise<void> => {
-    setSelected(target);
+  // const { data: count } = useSWR(
+  //   [query, variables, selected],
+  //   (query: string, variables: QueryVariables) =>
+  //     zendro.request(query, {
+  //       variables,
+  //     }),
+  //   {
+  //     onError: (error) => {
+  //       showSnackbar('There was an error', 'error', error);
+  //     },
+  //     shouldRetryOnError: false,
+  //     revalidateOnFocus: false,
+  //   }
+  // );
 
-    const { query, transform } = zendro.queries[modelName].assoc[selected];
+  useEffect(() => {
+    // setRecords([]);
+    if (data) {
+      console.log(data);
+      const parsedRecords = data.records.reduce((acc: any, curr: any) => {
+        const o = { data: curr, isMarked: false, isAssociated: false };
+        // o.isMarked = false;
+        o.isMarked = recordsToAdd
+          .concat(recordsToRemove)
+          .includes(curr[associationAttributes[0].name]);
 
-    if (transform) {
-      const res = await zendro
-        .metaRequest<any>(query, {
-          jq: transform,
-          variables: {
-            pagination: { first: 25 },
-          },
-        })
-        .catch((error) => {
-          showSnackbar('There was an error', 'error', error);
-        });
-      console.log({ res });
+        o.isAssociated =
+          assocResolver &&
+          curr[assocResolver] &&
+          curr[assocResolver][primaryKey] === recordId;
+        acc.push(o);
+        return acc;
+      }, []) as TableRecord[];
+
+      setPageInfo(data.pageInfo);
+      setRecords(parsedRecords);
     }
+    return () => setRecords([]);
+  }, [
+    selected,
+    data,
+    assocResolver,
+    primaryKey,
+    recordId,
+    recordsToAdd,
+    recordsToRemove,
+    associationAttributes,
+  ]);
+
+  const handleOnAssociationClick = (target: string) => (): void => {
+    setSelected(target);
   };
 
   const handleOnAssociationKeyDown = (): void => {
     //
   };
 
+  const handleOnCreate = (): void => {
+    //
+  };
+
+  const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
+    primaryKey,
+    list,
+    action
+  ) => {
+    console.log({ primaryKey, list, action });
+    switch (action) {
+      case 'add':
+        if (list === 'toAdd')
+          setRecordsToAdd((recordsToAdd) => [...recordsToAdd, primaryKey]);
+        else
+          setRecordsToRemove((recordsToRemove) => [
+            ...recordsToRemove,
+            primaryKey,
+          ]);
+        break;
+      case 'remove':
+        if (list === 'toAdd')
+          setRecordsToAdd(recordsToAdd.filter((item) => item !== primaryKey));
+        else
+          setRecordsToRemove(
+            recordsToRemove.filter((item) => item !== primaryKey)
+          );
+        break;
+    }
+  };
+
   return (
     <>
-      {/* <ModelTable
-        className={classes.table}
-        attributes={attributes}
-        modelName={modelName}
-        requests={{
-          count: zendro.queries[modelName].countAll,
-          delete: zendro.queries[modelName].deleteOne,
-          read: zendro.queries[modelName].assoc[selected],
-        }}
-        associationView="details"
-      /> */}
+      <TableContainer className={classes.root}>
+        <TableToolBar
+          modelName={modelName}
+          onAdd={handleOnCreate}
+          onReload={() => mutateRecords()}
+          onSearch={handleSearch}
+        />
+        <EnhancedTable
+          associationView="details"
+          attributes={associationAttributes}
+          records={records}
+          activeOrder={variables.order?.field ?? associationAttributes[0].name}
+          orderDirection={variables.order?.order ?? 'ASC'}
+          onSetOrder={handleOrder}
+          onAssociate={handleOnMarkForAssociationClick}
+          isValidatingRecords={false}
+          primaryKey={associationAttributes[0].name}
+        />
+        <RecordsTablePagination
+          onPagination={handlePagination}
+          count={count}
+          options={[5, 10, 15, 20, 25, 50]}
+          paginationLimit={
+            variables.pagination.first ?? variables.pagination.last
+          }
+          onPaginationLimitChange={handlePaginationLimitChange}
+          hasFirstPage={pageInfo.hasPreviousPage}
+          hasLastPage={pageInfo.hasNextPage}
+          hasPreviousPage={pageInfo.hasPreviousPage}
+          hasNextPage={pageInfo.hasNextPage}
+        />
+      </TableContainer>
       <List className={classes.nav}>
         {associations.map((association) => (
           <ListItem
@@ -107,6 +245,13 @@ export default function AssociationsList({
 
 const useStyles = makeStyles((theme) =>
   createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      flexGrow: 1,
+      overflow: 'auto',
+    },
     table: {
       padding: theme.spacing(2, 4),
     },

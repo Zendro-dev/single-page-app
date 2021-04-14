@@ -5,23 +5,22 @@ import { getAttributeList } from '@/utils/models';
 import { queryRecord, queryRecords, queryRecordsCount } from '@/utils/queries';
 import { ModelUrlQuery } from '@/types/routes';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
-import EnhancedTable, { TableRecord } from '@/components/records-table/table2';
+import { TableRecord } from '@/components/records-table/table2';
 import { createStyles, makeStyles, TableContainer } from '@material-ui/core';
 import { ParsedAttribute } from '@/types/models';
 import { EdgePageInfo, PageInfo, ReadManyResponse } from '@/types/requests';
-import {
-  useDialog,
-  useToastNotification,
-  useVariables,
-  useZendroClient,
-} from '@/hooks';
+import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import { ExtendedClientError } from '@/types/errors';
 import { QueryVariables, RawQuery } from '@/types/queries';
 import { isNullorEmpty } from '@/utils/validation';
-import TableToolBar from '@/components/records-table/table-toolbar';
-import RecordsTablePagination from '@/components/records-table/table-pagination';
+import {
+  EnhancedTable,
+  RecordsTablePagination,
+  TableToolBar,
+  useVariables,
+} from '@/components/records-table';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();

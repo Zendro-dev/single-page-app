@@ -218,6 +218,7 @@ const Record: PageWithLayout<RecordProps> = ({
           attributes={attributes}
           modelName={modelName}
           recordId={urlQuery.id}
+          primaryKey={attributes[0].name}
         />
       </TabPanel>
     </TabContext>
