@@ -355,117 +355,118 @@ export default function EnhancedTable({
   );
 
   return (
-    <TableContainer className={clsx(classes.root, className)}>
-      <TableToolbar
-        modelName={modelName}
-        permissions={auth.user?.permissions[modelName] ?? []}
-        onAdd={handleOnCreate}
-        onReload={() => mutateRecords()}
-        onSearch={handleSetSearch}
-      />
+    <div></div>
+    // <TableContainer className={clsx(classes.root, className)}>
+    //   <TableToolbar
+    //     modelName={modelName}
+    //     permissions={auth.user?.permissions[modelName] ?? []}
+    //     onAdd={handleOnCreate}
+    //     onReload={() => mutateRecords()}
+    //     onSearch={handleSetSearch}
+    //   />
 
-      <div className={classes.tableWrapper}>
-        <Table stickyHeader size="medium">
-          <EnhancedTableHead
-            actionsColSpan={
-              associationView
-                ? 1
-                : modelPermissions?.includes('*')
-                ? 3
-                : modelPermissions?.filter((action) => action !== 'create')
-                    .length
-            }
-            attributes={attributes}
-            onSortLabelClick={handleSetOrder}
-            activeOrder={variables.order?.field ?? attributes[0].name}
-            orderDirection={variables.order?.order ?? 'ASC'}
-          />
-          <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
-            <TableBody>
-              {rows.map((record) => {
-                const primaryKey = record[attributes[0].name] as
-                  | string
-                  | number;
-                return (
-                  // TODO key should use primaryKey value
-                  <EnhancedTableRow
-                    attributes={attributes}
-                    record={record}
-                    key={primaryKey}
-                    isMarked={
-                      associationView
-                        ? recordsToAdd
-                            .concat(recordsToRemove)
-                            .includes(primaryKey)
-                        : undefined
-                    }
-                    isAssociated={
-                      associationView
-                        ? data &&
-                          parseAssociated(
-                            data,
-                            'countriesConnection',
-                            'country_id',
-                            'continent',
-                            'continent_id',
-                            'continent_1'
-                          ).includes(primaryKey)
-                        : undefined
-                    }
-                    actions={{
-                      read: !associationView ? handleOnRead : undefined,
-                      update:
-                        (modelPermissions?.includes('update') ||
-                          modelPermissions?.includes('*')) &&
-                        !associationView
-                          ? handleOnUpdate
-                          : undefined,
-                      delete:
-                        (modelPermissions?.includes('delete') ||
-                          modelPermissions?.includes('*')) &&
-                        !associationView
-                          ? handleOnDelete
-                          : undefined,
-                      associationHandler: associationView
-                        ? associationHandler
-                        : undefined,
-                    }}
-                  />
-                );
-              })}
-            </TableBody>
-          </Fade>
-        </Table>
-        {isValidatingRecords && (
-          <div className={classes.tablePlaceholder}>
-            <Fade in={isValidatingRecords}>
-              <CircularProgress color="primary" disableShrink={true} />
-            </Fade>
-          </div>
-        )}
-        {!isValidatingRecords && isEmptyArray(rows) && (
-          <div className={classes.tablePlaceholder}>
-            <Typography variant="body1">No data to display</Typography>
-          </div>
-        )}
-      </div>
-      <div>{`recordsToAdd: ${recordsToAdd.join(',')}`}</div>
-      <div>{`recordsToRemove: ${recordsToRemove.join(',')}`}</div>
+    //   <div className={classes.tableWrapper}>
+    //     <Table stickyHeader size="medium">
+    //       <EnhancedTableHead
+    //         actionsColSpan={
+    //           associationView
+    //             ? 1
+    //             : modelPermissions?.includes('*')
+    //             ? 3
+    //             : modelPermissions?.filter((action) => action !== 'create')
+    //                 .length
+    //         }
+    //         attributes={attributes}
+    //         onSortLabelClick={handleSetOrder}
+    //         activeOrder={variables.order?.field ?? attributes[0].name}
+    //         orderDirection={variables.order?.order ?? 'ASC'}
+    //       />
+    //       <Fade in={!isValidatingRecords && !isEmptyArray(rows)}>
+    //         <TableBody>
+    //           {rows.map((record) => {
+    //             const primaryKey = record[attributes[0].name] as
+    //               | string
+    //               | number;
+    //             return (
+    //               // TODO key should use primaryKey value
+    //               <EnhancedTableRow
+    //                 attributes={attributes}
+    //                 record={record}
+    //                 key={primaryKey}
+    //                 isMarked={
+    //                   associationView
+    //                     ? recordsToAdd
+    //                         .concat(recordsToRemove)
+    //                         .includes(primaryKey)
+    //                     : undefined
+    //                 }
+    //                 isAssociated={
+    //                   associationView
+    //                     ? data &&
+    //                       parseAssociated(
+    //                         data,
+    //                         'countriesConnection',
+    //                         'country_id',
+    //                         'continent',
+    //                         'continent_id',
+    //                         'continent_1'
+    //                       ).includes(primaryKey)
+    //                     : undefined
+    //                 }
+    //                 actions={{
+    //                   read: !associationView ? handleOnRead : undefined,
+    //                   update:
+    //                     (modelPermissions?.includes('update') ||
+    //                       modelPermissions?.includes('*')) &&
+    //                     !associationView
+    //                       ? handleOnUpdate
+    //                       : undefined,
+    //                   delete:
+    //                     (modelPermissions?.includes('delete') ||
+    //                       modelPermissions?.includes('*')) &&
+    //                     !associationView
+    //                       ? handleOnDelete
+    //                       : undefined,
+    //                   associationHandler: associationView
+    //                     ? associationHandler
+    //                     : undefined,
+    //                 }}
+    //               />
+    //             );
+    //           })}
+    //         </TableBody>
+    //       </Fade>
+    //     </Table>
+    //     {isValidatingRecords && (
+    //       <div className={classes.tablePlaceholder}>
+    //         <Fade in={isValidatingRecords}>
+    //           <CircularProgress color="primary" disableShrink={true} />
+    //         </Fade>
+    //       </div>
+    //     )}
+    //     {!isValidatingRecords && isEmptyArray(rows) && (
+    //       <div className={classes.tablePlaceholder}>
+    //         <Typography variant="body1">No data to display</Typography>
+    //       </div>
+    //     )}
+    //   </div>
+    //   <div>{`recordsToAdd: ${recordsToAdd.join(',')}`}</div>
+    //   <div>{`recordsToRemove: ${recordsToRemove.join(',')}`}</div>
 
-      <RecordsTablePagination
-        onPagination={handlePagination}
-        count={count}
-        options={[5, 10, 15, 20, 25, 50]}
-        paginationLimit={
-          variables.pagination.first ?? variables.pagination.last
-        }
-        onPaginationLimitChange={handlePaginationLimitChange}
-        hasFirstPage={pageInfo.hasPreviousPage}
-        hasLastPage={pageInfo.hasNextPage}
-        hasPreviousPage={pageInfo.hasPreviousPage}
-        hasNextPage={pageInfo.hasNextPage}
-      />
-    </TableContainer>
+    //   <RecordsTablePagination
+    //     onPagination={handlePagination}
+    //     count={count}
+    //     options={[5, 10, 15, 20, 25, 50]}
+    //     paginationLimit={
+    //       variables.pagination.first ?? variables.pagination.last
+    //     }
+    //     onPaginationLimitChange={handlePaginationLimitChange}
+    //     hasFirstPage={pageInfo.hasPreviousPage}
+    //     hasLastPage={pageInfo.hasNextPage}
+    //     hasPreviousPage={pageInfo.hasPreviousPage}
+    //     hasNextPage={pageInfo.hasNextPage}
+    //   />
+    // </TableContainer>
   );
 }
 
