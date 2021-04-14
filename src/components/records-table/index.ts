@@ -1,6 +1,9 @@
-import EnhancedTable from './table2';
+import Table from './table2';
+import TablePagination from './table-pagination';
 import TableToolBar from './table-toolbar';
-import RecordsTablePagination from './table-pagination';
 import useVariables from './useVariables';
 
-export { EnhancedTable, TableToolBar, RecordsTablePagination, useVariables };
+export * from './table2';
+export * from './table-row';
+
+export { Table, TableToolBar, TablePagination, useVariables };

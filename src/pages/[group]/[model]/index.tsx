@@ -16,8 +16,8 @@ import { ExtendedClientError } from '@/types/errors';
 import { QueryVariables, RawQuery } from '@/types/queries';
 import { isNullorEmpty } from '@/utils/validation';
 import {
-  EnhancedTable,
-  RecordsTablePagination,
+  Table,
+  TablePagination,
   TableToolBar,
   useVariables,
 } from '@/components/records-table';
@@ -213,7 +213,7 @@ const Model: PageWithLayout<ModelProps> = ({
         onReload={() => mutateRecords()}
         onSearch={handleSearch}
       />
-      <EnhancedTable
+      <Table
         attributes={attributes}
         records={records}
         activeOrder={variables.order?.field ?? attributes[0].name}
@@ -225,7 +225,7 @@ const Model: PageWithLayout<ModelProps> = ({
         isValidatingRecords={isValidatingRecords}
         primaryKey={attributes[0].name}
       />
-      <RecordsTablePagination
+      <TablePagination
         onPagination={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}

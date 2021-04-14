@@ -1,19 +1,20 @@
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { List, ListItem, TableContainer, Typography } from '@material-ui/core';
-import { useToastNotification, useZendroClient } from '@/hooks';
-import { ParsedAssociation, ParsedAttribute } from '@/types/models';
 import { useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
-import { PageInfo } from '@/types/requests';
-import { TableRecord } from '../records-table/table2';
-import { TableRowAssociationHandler } from '../records-table/table-row';
-import { QueryVariables } from '@/types/queries';
+import { List, ListItem, TableContainer, Typography } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import {
-  EnhancedTable,
-  RecordsTablePagination,
+  Table,
+  TablePagination,
+  TableRecord,
+  TableRowAssociationHandler,
   TableToolBar,
   useVariables,
 } from '@/components/records-table';
+import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { QueryVariables } from '@/types/queries';
+import { PageInfo } from '@/types/requests';
+import { isNullorUndefined } from '@/utils/validation';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -22,6 +23,8 @@ interface AssociationListProps {
   recordId?: string | number;
   primaryKey: string;
 }
+
+type DataRecordWithAssoc<T extends string> = DataRecord & Record<T, DataRecord>;
 
 export default function AssociationsList({
   associations,
@@ -32,6 +35,7 @@ export default function AssociationsList({
 }: AssociationListProps): React.ReactElement {
   const { showSnackbar } = useToastNotification();
   const [selected, setSelected] = useState<string>(associations[0].target);
+  const assocModel = useModel(selected);
   const classes = useStyles();
   const zendro = useZendroClient();
 
@@ -58,12 +62,12 @@ export default function AssociationsList({
     const { query, transform, assocResolver, attributes } = zendro.queries[
       modelName
     ].assoc[selected];
-    console.log({ query, assocResolver, attributes });
-    console.log(transform);
+    // console.log({ query, assocResolver, attributes });
+    // console.log(transform);
     return {
       query,
       associationAttributes: attributes,
-      assocResolver,
+      assocResolver: assocResolver as string,
       transform,
     };
   }, [selected, modelName, zendro.queries]);
@@ -76,18 +80,29 @@ export default function AssociationsList({
     handlePaginationLimitChange,
   } = useVariables(attributes, records, pageInfo);
 
-  console.log({ variables });
+  // console.log({ variables });
 
   const { data, mutate: mutateRecords } = useSWR(
-    transform ? [query, variables, selected] : null,
-    (query: string, variables: QueryVariables) => {
+    [query, variables, selected, transform],
+    (
+      query: string,
+      variables: QueryVariables,
+      selected: string,
+      transform?: string
+    ) => {
       if (transform) {
-        return zendro.metaRequest<any>(query, {
+        return zendro.metaRequest<{
+          pageInfo: PageInfo;
+          records: DataRecordWithAssoc<typeof assocResolver>[];
+        }>(query, {
           jq: transform,
           variables,
         });
       } else {
-        return zendro.request(query, variables);
+        return zendro.request<{
+          pageInfo: PageInfo;
+          records: DataRecordWithAssoc<typeof assocResolver>[];
+        }>(query, variables);
       }
     },
     {
@@ -115,37 +130,46 @@ export default function AssociationsList({
   // );
 
   useEffect(() => {
-    // setRecords([]);
     if (data) {
-      console.log(data);
-      const parsedRecords = data.records.reduce((acc: any, curr: any) => {
-        const o = { data: curr, isMarked: false, isAssociated: false };
-        // o.isMarked = false;
-        o.isMarked = recordsToAdd
-          .concat(recordsToRemove)
-          .includes(curr[associationAttributes[0].name]);
+      // console.log({ data });
+      const parsedRecords = data.records.reduce((acc, record) => {
+        const primaryKey = associationAttributes[0].name;
+        const primaryKeyValue = record[primaryKey] as string;
+        const assocPrimaryKeyValue = assocResolver
+          ? (record[assocResolver][attributes[0].name] as string)
+          : undefined;
 
-        o.isAssociated =
-          assocResolver &&
-          curr[assocResolver] &&
-          curr[assocResolver][primaryKey] === recordId;
-        acc.push(o);
-        return acc;
-      }, []) as TableRecord[];
+        const isMarked = recordsToAdd
+          .concat(recordsToRemove)
+          .includes(primaryKeyValue);
+
+        const isAssociated =
+          !isNullorUndefined(assocPrimaryKeyValue) &&
+          assocPrimaryKeyValue === recordId;
+
+        const parsedRecord: TableRecord = {
+          data: record,
+          isMarked,
+          isAssociated,
+        };
+
+        return [...acc, parsedRecord];
+      }, [] as TableRecord[]);
 
       setPageInfo(data.pageInfo);
       setRecords(parsedRecords);
     }
     return () => setRecords([]);
   }, [
-    selected,
-    data,
+    associationAttributes,
     assocResolver,
+    attributes,
+    data,
     primaryKey,
     recordId,
     recordsToAdd,
     recordsToRemove,
-    associationAttributes,
+    selected,
   ]);
 
   const handleOnAssociationClick = (target: string) => (): void => {
@@ -165,7 +189,7 @@ export default function AssociationsList({
     list,
     action
   ) => {
-    console.log({ primaryKey, list, action });
+    // console.log({ primaryKey, list, action });
     switch (action) {
       case 'add':
         if (list === 'toAdd')
@@ -196,7 +220,7 @@ export default function AssociationsList({
           onReload={() => mutateRecords()}
           onSearch={handleSearch}
         />
-        <EnhancedTable
+        <Table
           associationView="details"
           attributes={associationAttributes}
           records={records}
@@ -207,7 +231,7 @@ export default function AssociationsList({
           isValidatingRecords={false}
           primaryKey={associationAttributes[0].name}
         />
-        <RecordsTablePagination
+        <TablePagination
           onPagination={handlePagination}
           count={count}
           options={[5, 10, 15, 20, 25, 50]}
