@@ -10,7 +10,7 @@ import ClickableIcon from '../buttons/icon-button';
 import SearchField from './table-toolbar-search-field';
 import DownloadMenu from './table-toolbar-download-menu';
 import UploadDialog from './table-toolbar-upload-dialog';
-import { useModel } from '@/hooks';
+import { usePermissions } from '@/hooks';
 
 interface TableToolBarProps {
   modelName: string;
@@ -28,7 +28,7 @@ export default function TableToolBar({
   const [dialogOpen, setDialogOpen] = useState(false);
   const classes = useStyles();
 
-  const { permissions } = useModel();
+  const { permissions } = usePermissions();
 
   const handleImportClicked = (): void => {
     setDialogOpen(true);

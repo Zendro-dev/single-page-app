@@ -9,7 +9,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
-import { useModel, useToastNotification, useZendroClient } from '@/hooks';
+import { usePermissions, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
@@ -65,7 +65,7 @@ const Record: PageWithLayout<RecordProps> = ({
   modelName,
   requests,
 }) => {
-  const model = useModel();
+  const model = usePermissions();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();

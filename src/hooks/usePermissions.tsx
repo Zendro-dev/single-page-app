@@ -2,10 +2,10 @@ import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { authSelector } from '@/store/auth-slice';
+import { ParsedPermissions } from '@/types/acl';
 import { CrudRequest } from '@/types/requests';
 import { ModelUrlQuery } from '@/types/routes';
 import { getPathRequest } from '@/utils/router';
-import { ParsedPermissions } from '@/types/acl';
 
 interface UseModel {
   allowed: boolean;
@@ -16,7 +16,7 @@ interface UseModel {
   request?: CrudRequest;
 }
 
-export default function useModel(): UseModel {
+export default function usePermissions(): UseModel {
   const router = useRouter();
   const { user } = useSelector(authSelector);
 

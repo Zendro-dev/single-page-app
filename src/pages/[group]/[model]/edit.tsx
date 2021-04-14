@@ -14,7 +14,7 @@ import AssociationList from '@/components/association-list';
 
 import {
   useDialog,
-  useModel,
+  usePermissions,
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
@@ -77,7 +77,7 @@ const Record: PageWithLayout<RecordProps> = ({
   requests,
 }) => {
   const dialog = useDialog();
-  const { permissions } = useModel();
+  const { permissions } = usePermissions();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();

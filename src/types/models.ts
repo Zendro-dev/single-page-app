@@ -1,5 +1,7 @@
 /* ATTRIBUTES */
 
+import { Overwrite } from 'utility-types';
+
 export type AttributeScalarType =
   | 'Boolean'
   | 'DateTime'
@@ -72,3 +74,12 @@ export interface DataModel {
 export interface ParsedDataModel extends DataModel {
   primaryKey: string;
 }
+
+export type ParsedDataModel2 = Overwrite<
+  DataModel,
+  {
+    associations?: ParsedAssociation[];
+    attributes: ParsedAttribute[];
+    primaryKey: string;
+  }
+>;

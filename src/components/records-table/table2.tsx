@@ -13,7 +13,7 @@ import EnhancedTableRow, { TableRowAssociationHandler } from './table-row';
 import { DataRecord, ParsedAttribute } from '@/types/models';
 import { isEmptyArray } from '@/utils/validation';
 
-import { useModel } from '@/hooks';
+import { usePermissions } from '@/hooks';
 
 export interface TableRecord {
   data: DataRecord;
@@ -55,7 +55,7 @@ export default function EnhancedTable({
 }: EnhancedTableProps): ReactElement {
   // const dispatch = useContext(VariablesDispatch);
   const classes = useStyles();
-  const { permissions } = useModel();
+  const { permissions } = usePermissions();
 
   return (
     <div className={classes.tableWrapper}>
@@ -79,9 +79,9 @@ export default function EnhancedTable({
               //   | string
               //   | number;
               const recordId = record.data[primaryKey] as string | number;
-              console.log({ recordId });
-              console.log({ record });
-              console.log({ attributes });
+              // console.log({ recordId });
+              // console.log({ record });
+              // console.log({ attributes });
               return (
                 // TODO key should use primaryKey value
                 <EnhancedTableRow
