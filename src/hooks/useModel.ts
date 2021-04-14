@@ -13,28 +13,7 @@ interface UseModel {
 export default function useModel(modelName: string): UseModel {
   const { user } = useSelector(authSelector);
 
-  const parsePermissions = useCallback(
-    (
-      aclPermissions: AclPermission[],
-      defaultPermissions: ParsedPermissions
-    ): ParsedPermissions => {
-      return aclPermissions.reduce(
-        (acc, x) =>
-          x === '*'
-            ? Object.assign(acc, {
-                create: true,
-                read: true,
-                update: true,
-                delete: true,
-              })
-            : Object.assign(acc, { [x]: true }),
-        defaultPermissions
-      );
-    },
-    []
-  );
-
-  const permissions = useMemo(() => {
+  const model = useMemo(() => {
     const defaultPermissions: ParsedPermissions = {
       create: false,
       read: false,
@@ -44,13 +23,28 @@ export default function useModel(modelName: string): UseModel {
 
     const aclPermissions = user?.permissions[modelName];
 
-    return aclPermissions
-      ? parsePermissions(aclPermissions, defaultPermissions)
+    const permissions = aclPermissions
+      ? aclPermissions.reduce(
+          (acc, x) =>
+            x === '*'
+              ? Object.assign(acc, {
+                  create: true,
+                  read: true,
+                  update: true,
+                  delete: true,
+                })
+              : Object.assign(acc, { [x]: true }),
+          defaultPermissions
+        )
       : defaultPermissions;
-  }, [modelName, parsePermissions, user]);
 
-  return {
-    permissions,
-    schema: dataModels[modelName],
-  };
+    const schema = dataModels[modelName];
+
+    return {
+      permissions,
+      schema,
+    };
+  }, [modelName, user]);
+
+  return model;
 }
