@@ -1,6 +1,6 @@
 /* ATTRIBUTES */
 
-import { Overwrite } from 'utility-types';
+import { Assign } from 'utility-types';
 
 export type AttributeScalarType =
   | 'Boolean'
@@ -75,7 +75,7 @@ export interface ParsedDataModel extends DataModel {
   primaryKey: string;
 }
 
-export type ParsedDataModel2 = Overwrite<
+export type ParsedDataModel2 = Assign<
   DataModel,
   {
     associations?: ParsedAssociation[];
