@@ -58,8 +58,38 @@ const InputField = ({
       );
     case 'String':
       return <StringField {...props} value={value as string | null} />;
+    case '[String]':
+      return (
+        <ArrayField {...props} type={type} value={value as string[] | null} />
+      );
+    case '[Boolean]':
+      return (
+        <ArrayField {...props} type={type} value={value as boolean[] | null} />
+      );
+    case '[DateTime]':
+      return (
+        <ArrayField {...props} type={type} value={value as Date[] | null} />
+      );
+    case '[Int]':
+      return (
+        <ArrayField
+          {...props}
+          onError={onError}
+          type={type}
+          value={value as number[] | null}
+        />
+      );
+    case '[Float]':
+      return (
+        <ArrayField
+          {...props}
+          onError={onError}
+          type={type}
+          value={value as number[] | null}
+        />
+      );
     default:
-      return <ArrayField {...props} value={value as string[] | null} />;
+      return <StringField {...props} value={value as string | null} />;
   }
 };
 
@@ -84,8 +114,7 @@ export default function AttributeField({
         {...props}
         onChange={props.onChange ? handleOnChange : undefined}
         endAdornment={
-          props.onChange &&
-          props.type !== '[String]' && (
+          props.onChange && (
             <InputAdornment position="end">
               <Tooltip title="Unset value">
                 <span>

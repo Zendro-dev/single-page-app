@@ -1,0 +1,38 @@
+{
+  "admin": [
+    {
+      "name": "role",
+      "href": "/admin/role"
+    },
+    {
+      "name": "role_to_user",
+      "href": "/admin/role_to_user"
+    },
+    {
+      "name": "user",
+      "href": "/admin/user"
+    }
+  ],
+  "models": [
+    {
+      "name": "alien",
+      "href": "/models/alien"
+    },
+    {
+      "name": "capital",
+      "href": "/models/capital"
+    },
+    {
+      "name": "continent",
+      "href": "/models/continent"
+    },
+    {
+      "name": "country",
+      "href": "/models/country"
+    },
+    {
+      "name": "river",
+      "href": "/models/river"
+    }
+  ]
+}
