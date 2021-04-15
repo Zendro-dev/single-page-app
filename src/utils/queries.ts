@@ -1,6 +1,6 @@
 import { getInflections } from '@/utils/inflection';
 import { ParsedAttribute } from '@/types/models';
-import { RawQuery } from '@/types/queries';
+import { AssocQuery, RawQuery } from '@/types/queries';
 
 export const queryBulkCreate = (modelName: string): RawQuery => {
   const { nameCp } = getInflections(modelName);
@@ -11,7 +11,6 @@ export const queryBulkCreate = (modelName: string): RawQuery => {
     name: resolver,
     query,
     resolver,
-    attributes: [],
   };
 };
 
@@ -25,7 +24,6 @@ export const queryCsvTemplate = (modelName: string): RawQuery => {
     name: resolver,
     query,
     resolver,
-    attributes: [],
   };
 };
 
@@ -61,25 +59,21 @@ export const queryRecord = (
       name: createResolver,
       resolver: createResolver,
       query: `mutation ${createResolver}(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
-      attributes,
     },
     read: {
       name: readResolver,
       resolver: readResolver,
       query: `query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) { ${fields} } }`,
-      attributes,
     },
     update: {
       name: updateResolver,
       resolver: updateResolver,
       query: `mutation ${updateResolver}(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
-      attributes,
     },
     delete: {
       name: deleteResolver,
       resolver: deleteResolver,
       query: `mutation ${deleteResolver}(${idArg}) { ${deleteResolver}(${idVar}) }`,
-      attributes,
     },
   };
 };
@@ -121,7 +115,6 @@ export const queryRecords = (
     name: queryName,
     resolver,
     query,
-    attributes,
   };
 };
 
@@ -136,7 +129,6 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
     name: resolver,
     resolver: resolver,
     query,
-    attributes: [],
   };
 };
 
@@ -145,7 +137,7 @@ export const queryRecordsWithToMany = (
   modelAttributes: ParsedAttribute[],
   assocModelName: string,
   assocPrimaryKey: string
-): RawQuery => {
+): AssocQuery => {
   const {
     nameCp: assocNameCp,
     namePlCp: assocNamePlCp,
@@ -197,7 +189,6 @@ export const queryRecordsWithToMany = (
     name: queryName,
     resolver: modelResolver,
     query,
-    attributes: modelAttributes,
     assocResolver,
     transform:
       `.data.${modelResolver}.pageInfo as $pageInfo` +
@@ -208,14 +199,13 @@ export const queryRecordsWithToMany = (
   };
 };
 
-//'.continentsConnection.edges | map(.node) | map(with_entries(select(.key != "countriesConnection")) + {countriesConnection: .countriesConnection.edges | map(.node)[0]})',
 export const queryRecordsWithToOne = (
   modelName: string,
   modelAttributes: ParsedAttribute[],
   assocName: string,
   assocModelName: string,
   assocPrimaryKey: string
-): RawQuery => {
+): AssocQuery => {
   const { nameCp: assocNameCp } = getInflections(assocModelName);
 
   const {
@@ -256,7 +246,6 @@ export const queryRecordsWithToOne = (
     name: queryName,
     resolver: modelResolver,
     query,
-    attributes: modelAttributes,
     assocResolver: assocName,
     transform:
       `.data.${modelResolver}.pageInfo as $pageInfo` +

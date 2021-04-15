@@ -1,4 +1,4 @@
-import { RawQuery } from './queries';
+import { AssocQuery, RawQuery } from './queries';
 
 export interface StaticQueries {
   readAll: RawQuery;
@@ -9,5 +9,5 @@ export interface StaticQueries {
   updateOne: RawQuery;
   csvTableTemplate: RawQuery;
   bulkAddCsv: RawQuery;
-  assoc: Record<string, RawQuery>;
+  assoc: Record<string, AssocQuery>;
 }

@@ -1,4 +1,4 @@
-import { AttributeScalarType, ParsedAttribute } from '@/types/models';
+import { AttributeScalarType } from '@/types/models';
 
 export interface QueryVariables {
   [key: string]: unknown;
@@ -8,9 +8,11 @@ export interface RawQuery {
   name: string;
   query: string;
   resolver: string;
-  attributes: ParsedAttribute[];
   transform?: string;
-  assocResolver?: string;
+}
+
+export interface AssocQuery extends RawQuery {
+  assocResolver: string;
 }
 
 /**
