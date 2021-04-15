@@ -12,6 +12,7 @@ import { StaticQueries } from '@/types/static';
 import { ExtendedClientError } from '@/types/errors';
 import { OneOf } from '@/types/utility';
 import useAuth from './useAuth';
+import { useCallback, useMemo } from 'react';
 
 type MetaRequestOptions = {
   variables?: Variables;
@@ -39,66 +40,79 @@ interface UseZendroClient {
 export default function useZendroClient(): UseZendroClient {
   const { auth } = useAuth();
 
-  const client = new GraphQLClient(GRAPHQL_URL, {
-    headers: {
-      authorization: 'Bearer ' + auth.user?.token,
-    },
-  });
-
-  const request: GraphQLRequest = (document, variables) => {
-    return client.request(document, variables);
-  };
-
-  const metaRequest: MetaQueryRequest = async (query, options) => {
-    const { variables, jq, jsonPath } = options;
-
-    let response: AxiosResponse<GraphQLResponse>;
-    try {
-      response = await axios({
-        url: METAQUERY_URL,
-        method: 'POST',
+  const client = useMemo(
+    () =>
+      new GraphQLClient(GRAPHQL_URL, {
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json;charset=UTF-8',
-          Authorization: `Bearer ${auth.user?.token}`,
+          authorization: 'Bearer ' + auth.user?.token,
         },
-        data: {
-          queries: [
-            {
-              query,
-              variables,
-            },
-          ],
-          jq,
-          jsonPath,
-        },
-      });
-    } catch (error) {
-      const axiosError = error as AxiosError<GraphQLResponse>;
-      throw new ClientError(
-        axiosError.response?.data ?? {
-          data: null,
-          errors: undefined,
-          extensions: undefined,
-          status: 500,
-          error: axiosError,
-        },
-        {
+      }),
+    [auth.user?.token]
+  );
+
+  const request: GraphQLRequest = useCallback(
+    (document, variables) => {
+      return client.request(document, variables);
+    },
+    [client]
+  );
+
+  const metaRequest: MetaQueryRequest = useCallback(
+    async (query, options) => {
+      const { variables, jq, jsonPath } = options;
+
+      let response: AxiosResponse<GraphQLResponse>;
+      try {
+        response = await axios({
+          url: METAQUERY_URL,
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: `Bearer ${auth.user?.token}`,
+          },
+          data: {
+            queries: [
+              {
+                query,
+                variables,
+              },
+            ],
+            jq,
+            jsonPath,
+          },
+        });
+      } catch (error) {
+        const axiosError = error as AxiosError<GraphQLResponse>;
+        throw new ClientError(
+          axiosError.response?.data ?? {
+            data: null,
+            errors: undefined,
+            extensions: undefined,
+            status: 500,
+            error: axiosError,
+          },
+          {
+            query,
+            variables,
+          }
+        ) as ExtendedClientError;
+      }
+
+      if (response.data.errors) {
+        throw new ClientError(response.data, {
           query,
           variables,
-        }
-      ) as ExtendedClientError;
-    }
+        }) as ExtendedClientError;
+      }
 
-    if (response.data.errors) {
-      throw new ClientError(response.data, {
-        query,
-        variables,
-      }) as ExtendedClientError;
-    }
+      return response.data.data;
+    },
+    [auth.user?.token]
+  );
 
-    return response.data.data;
-  };
-
-  return { metaRequest, queries, request };
+  return useMemo(() => ({ metaRequest, queries, request }), [
+    metaRequest,
+    request,
+  ]);
 }
