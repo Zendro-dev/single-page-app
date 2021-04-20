@@ -7,8 +7,8 @@ import { ModelUrlQuery } from '@/types/routes';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 import { TableRecord } from '@/components/records-table/table2';
 import { createStyles, makeStyles, TableContainer } from '@material-ui/core';
-import { ParsedAttribute } from '@/types/models';
-import { EdgePageInfo, PageInfo, ReadManyResponse } from '@/types/requests';
+import { DataRecord, ParsedAttribute } from '@/types/models';
+import { PageInfo } from '@/types/requests';
 import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -40,7 +40,7 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const read = queryRecords(modelName, attributes);
-  const recordQueries = queryRecord(modelName, attributes);
+  const recordQueries = queryRecord(modelName, attributes, []);
   const count = queryRecordsCount(modelName);
 
   return {
@@ -64,16 +64,6 @@ export interface ModelProps {
     read: RawQuery;
     delete: RawQuery;
     count: RawQuery;
-  };
-}
-
-function unwrapConnection(
-  data: ReadManyResponse,
-  resolver: string
-): EdgePageInfo {
-  return {
-    data: data[resolver].edges.map((edge) => edge.node),
-    pageInfo: data[resolver].pageInfo,
   };
 }
 
@@ -108,6 +98,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
   const query = router.query as ModelUrlQuery;
 
+  const { query: readAll, transform } = zendro.queries[modelName].readAll;
   /* HANDLERS */
 
   const handleOnCreate = (): void => {
@@ -145,22 +136,33 @@ const Model: PageWithLayout<ModelProps> = ({
 
   /* DATA FETCHING */
   // Records
-  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR<
-    ReadManyResponse,
-    ExtendedClientError<ReadManyResponse>
-  >(
-    [requests.read.query, variables],
-    (query: string, variables: QueryVariables) =>
-      zendro.request(query, variables),
+  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
+    [readAll, variables],
+    (query: string, variables: QueryVariables) => {
+      if (transform) {
+        return zendro.metaRequest<{
+          pageInfo: PageInfo;
+          records: DataRecord[];
+        }>(query, {
+          jq: transform,
+          variables,
+        });
+      } else {
+        return zendro.request<{
+          pageInfo: PageInfo;
+          records: DataRecord[];
+        }>(query, variables);
+      }
+    },
     {
       onSuccess: (data) => {
         if (!isNullorEmpty(data)) {
-          const connection = unwrapConnection(data, requests.read.resolver);
-          const recordData = connection.data.map((record) => {
+          // const connection = unwrapConnection(data, requests.read.resolver);
+          const recordData = data.records.map((record) => {
             return { data: record };
           }) as TableRecord[];
           setRecords(recordData);
-          setPageInfo(connection.pageInfo);
+          setPageInfo(data.pageInfo);
         }
       },
       onError: (error) => {
