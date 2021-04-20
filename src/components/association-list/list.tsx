@@ -275,8 +275,6 @@ const useStyles = makeStyles((theme) =>
       width: '100%',
       flexGrow: 1,
       overflow: 'auto',
-    },
-    table: {
       padding: theme.spacing(2, 4),
     },
     nav: {
