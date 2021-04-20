@@ -60,7 +60,7 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const read = queryRecords(modelName, attributes);
-  const recordQueries = queryRecord(modelName, attributes, []);
+  const recordQueries = queryRecord(modelName, attributes);
   const count = queryRecordsCount(modelName);
 
   return {
