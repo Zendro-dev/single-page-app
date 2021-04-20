@@ -29,6 +29,16 @@ export type AttributeValue =
   | string[]
   | null;
 
+export type AttributeScalarValue = boolean | Date | number | string | null;
+
+export type AttributeArrayValue =
+  | boolean[]
+  | Date[]
+  | number[]
+  | string[]
+  | null[]
+  | null;
+
 export interface ParsedAttribute {
   name: string;
   type: AttributeScalarType | AttributeArrayType;

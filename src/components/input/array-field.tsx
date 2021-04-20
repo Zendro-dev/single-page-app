@@ -8,12 +8,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
 
-import {
-  IconButton,
-  InputAdornment,
-  Tooltip,
-  SvgIconProps,
-} from '@material-ui/core';
+import { InputAdornment, SvgIconProps } from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 
@@ -25,30 +20,27 @@ import {
   IntField,
   StringField,
   TextFieldProps,
-  WithIcons,
 } from '@/components/input';
 
-import {
-  AttributeArrayType,
-  AttributeScalarType,
-  AttributeValue,
-} from '@/types/models';
+import ClickableIcon from '@/components/buttons/icon-button';
+
+import { AttributeArrayValue, AttributeScalarValue } from '@/types/models';
 
 type InputFieldProps = Overwrite<
   TextFieldProps,
   {
-    onChange?: (value: AttributeValue) => void;
+    onChange?: (value: AttributeScalarValue) => void;
     onError?: (value?: string) => void;
-    value: AttributeValue;
+    value: AttributeScalarValue;
   }
 >;
 
 type ArrayFieldProps = Overwrite<
   TextFieldProps,
   {
-    onChange?: (value: AttributeArrayType) => void;
+    onChange?: (value: AttributeArrayValue) => void;
     onError?: (value?: string) => void;
-    value: any; //boolean[] | Date[] | number[] | string[] | null;
+    value: AttributeArrayValue;
   }
 >;
 
@@ -91,108 +83,88 @@ export default function ArrayField({
   label,
   ...props
 }: ArrayFieldProps): ReactElement {
-  const handleOnChange2 = (index: number) => (v: AttributeValue): void => {
-    //if (index === -1 && v !== null) {
-
-    console.log('VALUE ', v);
-    if (index === -1) {
-      value ? value.push(null) : (value = [null]);
-    } else if (value) {
+  const handleOnChange = (index: number) => (v: AttributeScalarValue): void => {
+    if (onChange && value) {
       value[index] = v;
-    }
-    if (onChange) {
       onChange(value);
     }
   };
 
-  // const handleOnChange = (
-  //   event: React.ChangeEvent<HTMLInputElement>,
-  //   index: number
-  // ): void => {
-  //   if (index === -1) {
-  //     value ? value.push(event.target.value) : (value = [event.target.value]);
-  //   } else if (value) {
-  //     value[index] = event.target.value;
-  //   }
-  //   if (onChange) {
-  //     onChange(value);
-  //   }
-  // };
-  const addItem = () => {
-    console.log('Clicked ADD');
-    value ? value.push(null) : (value = [null]);
+  const addItem = (index: number): void => {
+    value ? value.splice(index + 1, 0, null) : (value = [null]);
     if (onChange) {
       onChange(value);
     }
   };
 
   const handleOnClear = (index: number): void => {
-    console.log('Clear this');
-    if (onChange && !props.readOnly) {
+    if (value && onChange && !props.readOnly) {
       value[index] = null;
+      onChange(value);
+    }
+  };
+
+  const deleteItem = (index: number): void => {
+    if (value && onChange && !props.readOnly) {
+      value.splice(index, 1);
       onChange(value);
     }
   };
 
   return (
     <List subheader={<ListSubheader> {label} </ListSubheader>}>
-      <ListItem button onClick={addItem}>
-        <ListItemIcon>
-          <AddIcon />
-        </ListItemIcon>
-        <ListItemText primary="Add item" />
-      </ListItem>
+      {onChange && (
+        <ListItem
+          button
+          onClick={() => {
+            addItem(-1);
+          }}
+        >
+          <ListItemIcon>
+            <AddIcon />
+          </ListItemIcon>
+          <ListItemText primary="Add item" />
+        </ListItem>
+      )}
       {value &&
-        value.map((v: any, index: any) => (
+        value.map((v: AttributeScalarValue, index: number) => (
           <ListItem key={index}>
             <FieldIcons
-              rightIcon={(props: SvgIconProps): ReactElement => (
-                <Tooltip title="Add item below">
-                  <IconButton
-                    tabIndex="-1"
-                    onClick={() => {
-                      handleOnClear(index);
-                    }}
-                  >
-                    <AddIcon {...props} />
-                  </IconButton>
-                </Tooltip>
-              )}
+              rightIcon={
+                onChange
+                  ? (props: SvgIconProps): ReactElement => (
+                      <ClickableIcon
+                        tooltip="Add item below"
+                        handleOnClick={() => addItem(index)}
+                      >
+                        <AddIcon {...props} />
+                      </ClickableIcon>
+                    )
+                  : undefined
+              }
             >
               <ArrayInputField
                 {...props}
                 type={type}
                 value={v}
                 label={'array item'}
-                onChange={handleOnChange2(index)}
+                onChange={handleOnChange(index)}
                 onError={onError}
                 endAdornment={
                   onChange && (
                     <InputAdornment position="end">
-                      <Tooltip title="Unset item">
-                        <span>
-                          <IconButton
-                            tabIndex="-1"
-                            onClick={() => {
-                              handleOnClear(index);
-                            }}
-                          >
-                            <ClearIcon />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                      <Tooltip title="Delete item">
-                        <span>
-                          <IconButton
-                            tabIndex="-1"
-                            onClick={() => {
-                              handleOnClear(index);
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
+                      <ClickableIcon
+                        tooltip="Unset item"
+                        handleOnClick={() => handleOnClear(index)}
+                      >
+                        <ClearIcon />
+                      </ClickableIcon>
+                      <ClickableIcon
+                        tooltip="Delete item"
+                        handleOnClick={() => deleteItem(index)}
+                      >
+                        <DeleteIcon />
+                      </ClickableIcon>
                     </InputAdornment>
                   )
                 }
