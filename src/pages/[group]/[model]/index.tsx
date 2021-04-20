@@ -34,8 +34,8 @@ import { ModelsLayout, PageWithLayout } from '@/layouts';
 import { ExtendedClientError } from '@/types/errors';
 import { QueryVariables, RawQuery } from '@/types/queries';
 import { ModelUrlQuery } from '@/types/routes';
-import { ParsedAttribute } from '@/types/models';
-import { EdgePageInfo, PageInfo, ReadManyResponse } from '@/types/requests';
+import { DataRecord, ParsedAttribute } from '@/types/models';
+import { PageInfo, ReadManyResponse } from '@/types/requests';
 
 import { getAttributeList } from '@/utils/models';
 import { queryRecord, queryRecords, queryRecordsCount } from '@/utils/queries';
@@ -60,7 +60,7 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const read = queryRecords(modelName, attributes);
-  const recordQueries = queryRecord(modelName, attributes);
+  const recordQueries = queryRecord(modelName, attributes, []);
   const count = queryRecordsCount(modelName);
 
   return {
@@ -84,16 +84,6 @@ export interface ModelProps {
     read: RawQuery;
     delete: RawQuery;
     count: RawQuery;
-  };
-}
-
-function unwrapConnection(
-  data: ReadManyResponse,
-  resolver: string
-): EdgePageInfo {
-  return {
-    data: data[resolver].edges.map((edge) => edge.node),
-    pageInfo: data[resolver].pageInfo,
   };
 }
 
@@ -132,6 +122,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
   const query = router.query as ModelUrlQuery;
 
+  const { query: readAll, transform } = zendro.queries[modelName].readAll;
   /* TOOLBAR ACTIONS */
 
   const handleImportCsv = async (
@@ -217,22 +208,33 @@ const Model: PageWithLayout<ModelProps> = ({
   /* DATA FETCHING */
 
   // Records
-  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR<
-    ReadManyResponse,
-    ExtendedClientError<ReadManyResponse> | Error
-  >(
-    [requests.read.query, variables],
-    (query: string, variables: QueryVariables) =>
-      zendro.request(query, variables),
+  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
+    [readAll, variables],
+    (query: string, variables: QueryVariables) => {
+      if (transform) {
+        return zendro.metaRequest<{
+          pageInfo: PageInfo;
+          records: DataRecord[];
+        }>(query, {
+          jq: transform,
+          variables,
+        });
+      } else {
+        return zendro.request<{
+          pageInfo: PageInfo;
+          records: DataRecord[];
+        }>(query, variables);
+      }
+    },
     {
       onSuccess: (data) => {
         if (!isNullorEmpty(data)) {
-          const connection = unwrapConnection(data, requests.read.resolver);
-          const recordData = connection.data.map((record) => {
+          // const connection = unwrapConnection(data, requests.read.resolver);
+          const recordData = data.records.map((record) => {
             return { data: record };
           }) as TableRecord[];
           setRecords(recordData);
-          setPageInfo(connection.pageInfo);
+          setPageInfo(data.pageInfo);
         }
       },
       onError: (error) => {
