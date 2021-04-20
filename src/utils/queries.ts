@@ -1,5 +1,5 @@
 import { getInflections } from '@/utils/inflection';
-import { ParsedAttribute } from '@/types/models';
+import { ParsedAssociation, ParsedAttribute } from '@/types/models';
 import { AssocQuery, RawQuery } from '@/types/queries';
 
 export const queryBulkCreate = (modelName: string): RawQuery => {
@@ -29,7 +29,8 @@ export const queryCsvTemplate = (modelName: string): RawQuery => {
 
 export const queryRecord = (
   modelName: string,
-  attributes: ParsedAttribute[]
+  attributes: ParsedAttribute[],
+  associations: ParsedAssociation[] = []
 ): {
   primaryKey: string;
   create: RawQuery;
@@ -45,6 +46,10 @@ export const queryRecord = (
   const deleteResolver = `delete${nameCp}`;
 
   const { args, idArg, idVar, fields, vars } = parseQueryAttributes(attributes);
+
+  const { assocArgs, assocVars } = associations
+    ? parseQueryAssociations(associations)
+    : { assocArgs: '', assocVars: '' };
 
   const primaryKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
 
@@ -68,12 +73,101 @@ export const queryRecord = (
     update: {
       name: updateResolver,
       resolver: updateResolver,
-      query: `mutation ${updateResolver}(${args}) { ${updateResolver}(${vars}) { ${fields} } }`,
+      query: `mutation ${updateResolver}(${args} ${assocArgs}) { ${updateResolver}(${vars} ${assocVars}) { ${fields} } }`,
     },
     delete: {
       name: deleteResolver,
       resolver: deleteResolver,
       query: `mutation ${deleteResolver}(${idArg}) { ${deleteResolver}(${idVar}) }`,
+    },
+  };
+};
+
+export const readOneRecordWithAssoc = (
+  modelName: string,
+  attributes: ParsedAttribute[],
+  assocName: string,
+  assocModelName: string,
+  associationAttributes: ParsedAttribute[]
+): {
+  readOneRecordWithToMany: AssocQuery;
+  readOneRecordWithToOne: AssocQuery;
+  readOneRecordWithAssocCount: AssocQuery;
+} => {
+  const { nameCp } = getInflections(modelName);
+  const { namePlLc: assocNamePlLc, namePlCp: assocNamePlCp } = getInflections(
+    assocModelName
+  );
+  const readResolver = `readOne${nameCp}`;
+
+  const { idArg, idVar } = parseQueryAttributes(attributes);
+  const { fields } = parseQueryAttributes(associationAttributes);
+
+  /* TO MANY */
+  const assocResolverToMany = `${assocNamePlLc}Connection`;
+  const queryNameToMany = `readOne${nameCp}With${assocNamePlCp}`;
+  const queryToMany = `
+  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
+    ${assocResolverToMany} ( order: $order search: $search, pagination: $pagination ) {
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      } 
+      edges {
+        node { ${fields} }
+      }
+    }
+  } } 
+  `;
+
+  /* TO ONE */
+  const queryNameToOne = `readOne${nameCp}With${assocName}`;
+  const queryToOne = `
+  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
+    ${assocName}( search: $search ) {
+      ${fields}
+    }
+  } } 
+  `;
+
+  /* COUNT */
+  const queryNameCount = `readOne${nameCp}With${assocNamePlCp}Count`;
+  const countResolver = `countFiltered${assocNamePlCp}`;
+  const queryCount = `
+  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
+   ${countResolver} 
+  } } 
+  `;
+
+  return {
+    readOneRecordWithToOne: {
+      name: queryNameToOne,
+      resolver: readResolver,
+      assocResolver: assocName,
+      query: queryToOne,
+      transform:
+        ` | .data.${readResolver}.${assocName}` +
+        ` | map(.${fields.split(' ').join(',')}) as $records` +
+        ' | { data: { $records } }',
+    },
+    readOneRecordWithToMany: {
+      name: queryNameToMany,
+      resolver: readResolver,
+      assocResolver: assocResolverToMany,
+      query: queryToMany,
+      transform:
+        `.data.${readResolver}.${assocResolverToMany}.pageInfo as $pageInfo` +
+        ` | .data.${readResolver}.${assocResolverToMany}.edges` +
+        ' | map(.node) as $records' +
+        ' | { data: { $pageInfo, $records } }',
+    },
+    readOneRecordWithAssocCount: {
+      name: queryNameCount,
+      resolver: readResolver,
+      assocResolver: countResolver,
+      query: queryCount,
     },
   };
 };
@@ -115,6 +209,11 @@ export const queryRecords = (
     name: queryName,
     resolver,
     query,
+    transform:
+      `.data.${resolver}.pageInfo as $pageInfo` +
+      ` | .data.${resolver}.edges` +
+      ' | map(.node) as $records' +
+      ' | { data: { $pageInfo, $records } }',
   };
 };
 
@@ -321,6 +420,40 @@ function parseQueryAttributes(
      */
     get vars() {
       return attributes.map(({ name }) => `${name}: $${name}`).join(' ');
+    },
+  };
+}
+
+function parseQueryAssociations(
+  associations: ParsedAssociation[]
+): { assocArgs: string; assocVars: string } {
+  return {
+    get assocArgs() {
+      return associations
+        .reduce((acc: string[], curr) => {
+          const { namePlCp, nameCp } = getInflections(curr.name);
+          const mutationName = curr.type === 'to_one' ? nameCp : namePlCp;
+          acc.push(
+            `$add${mutationName}: ${curr.type === 'to_one' ? 'ID' : '[ID]'}`
+          );
+          acc.push(
+            `$remove${mutationName}: ${curr.type === 'to_one' ? 'ID' : '[ID]'}`
+          );
+          return acc;
+        }, [])
+        .join(' ');
+    },
+
+    get assocVars() {
+      return associations
+        .reduce((acc: string[], curr) => {
+          const { namePlCp, nameCp } = getInflections(curr.name);
+          const mutationName = curr.type === 'to_one' ? nameCp : namePlCp;
+          acc.push(`add${mutationName}: $add${mutationName}`);
+          acc.push(`remove${mutationName}: $remove${mutationName}`);
+          return acc;
+        }, [])
+        .join(' ');
     },
   };
 }
