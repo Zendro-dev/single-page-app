@@ -21,6 +21,11 @@ type MetaRequestOptions = {
   jsonPath: string;
 }>;
 
+type LegacyRequest = <T = unknown>(
+  query: string,
+  requestData: Record<string, string | Blob>
+) => Promise<T>;
+
 type MetaQueryRequest = <T = unknown>(
   query: string,
   options: MetaRequestOptions
@@ -32,6 +37,7 @@ type GraphQLRequest = <T = any>(
 ) => Promise<T>;
 
 interface UseZendroClient {
+  legacyRequest: LegacyRequest;
   metaRequest: MetaQueryRequest;
   request: GraphQLRequest;
   queries: Record<string, StaticQueries>;
@@ -111,7 +117,59 @@ export default function useZendroClient(): UseZendroClient {
     [auth.user?.token]
   );
 
-  return useMemo(() => ({ metaRequest, queries, request }), [
+  const legacyRequest: LegacyRequest = useCallback(
+    async (query, requestData) => {
+      const formData = new FormData();
+
+      formData.append('query', query);
+      Object.entries(requestData).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
+
+      let response: AxiosResponse<GraphQLResponse>;
+      try {
+        response = await axios({
+          url: GRAPHQL_URL,
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: `Bearer ${auth.user?.token}`,
+          },
+          data: formData,
+        });
+      } catch (error) {
+        const axiosError = error as AxiosError<GraphQLResponse>;
+        throw new ClientError(
+          axiosError.response?.data ?? {
+            data: null,
+            errors: undefined,
+            extensions: undefined,
+            status: 500,
+            error: axiosError,
+          },
+          {
+            query,
+            variables: requestData.variables as Variables | undefined,
+            ...formData,
+          }
+        ) as ExtendedClientError;
+      }
+
+      if (response.data.errors) {
+        throw new ClientError(response.data, {
+          query,
+          variables: requestData.variables as Variables | undefined,
+        }) as ExtendedClientError;
+      }
+
+      return response.data.data;
+    },
+    [auth.user?.token]
+  );
+
+  return useMemo(() => ({ legacyRequest, metaRequest, queries, request }), [
+    legacyRequest,
     metaRequest,
     request,
   ]);
