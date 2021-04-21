@@ -446,7 +446,7 @@ const useStyles = makeStyles((theme) =>
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: theme.spacing(2),
+      marginTop: theme.spacing(8),
     },
     toolbarFilters: {
       marginLeft: theme.spacing(4),
