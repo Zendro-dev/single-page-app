@@ -29,7 +29,6 @@ import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
-import request from 'graphql-request';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -300,7 +299,10 @@ const Record: PageWithLayout<RecordProps> = ({
   return (
     <TabContext value={currentTab}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: 3 }}>
-        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
+        <TabList
+          onChange={handleOnTabChange}
+          aria-label="record attributes and associations"
+        >
           <Tab label="Attributes" value="attributes" />
           <Tab
             label="Associations"
@@ -352,9 +354,6 @@ const useStyles = makeStyles((theme) =>
     tabPanel: {
       display: 'flex',
       flexGrow: 1,
-      width: '100%',
-      padding: 0,
-      // padding: theme.spacing(4, 0),
     },
   })
 );
