@@ -111,9 +111,15 @@ export default function EnhancedTableRow({
     >
       {actions.associationHandler && (
         <EnhancedTableRowIcon
-          label={`${isMarked ? 'un' : ''}marks this record to be ${
-            isAssociated ? 'removed' : 'added'
-          }`}
+          label={
+            isAssociated
+              ? isMarked
+                ? 'marked to be disassociated, click to reset'
+                : 'click to disassociate'
+              : isMarked
+              ? 'marked to be associated, click to reset'
+              : 'click to associate'
+          }
           onClick={handleOnAssocAction({
             handler: actions.associationHandler,
             list: isAssociated ? 'toRemove' : 'toAdd',
