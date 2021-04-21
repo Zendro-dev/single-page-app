@@ -21,6 +21,7 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
         format(query, { parser: 'graphql' })
       );
     }
+    // Generate association queries
     for (const assocQueries of Object.values(withFilter)) {
       for (const { name, query } of Object.values(assocQueries)) {
         await writeFile(

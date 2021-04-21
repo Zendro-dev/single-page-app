@@ -146,6 +146,9 @@ export async function getStaticQueries(): Promise<
   return staticModels;
 }
 
+/**
+ * generates the static queries used to request association related data.
+ */
 export function getStaticAssociationQueries(
   sourceModel: ParsedDataModel,
   targetModels: Record<string, ParsedDataModel>
@@ -187,6 +190,9 @@ export function getStaticAssociationQueries(
       targetModelName,
       getAttributeList(targetModel, { excludeForeignKeys: true })
     );
+    // For editing associations we directly request records of the associated
+    // data-model. The distinction has to be made for the association type of
+    // the target to the source (reverse).
     switch (targetAssociation.type) {
       case 'to_one':
         withFilter[targetModelName] = {
@@ -217,6 +223,8 @@ export function getStaticAssociationQueries(
       default:
         break;
     }
+    // For viewing/filtering associations we request only actually associated records.
+    // The distinction has to be made for the association type of the source to the target.
     switch (sourceModelAssociationType) {
       case 'to_one':
         Object.assign(withFilter[targetModelName], {

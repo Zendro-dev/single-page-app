@@ -117,7 +117,6 @@ export default function AssociationsList({
       } else {
         variables[primaryKey] = recordId;
       }
-      console.log({ variables });
       try {
         if (transform) {
           data = await zendro.metaRequest<AssocResponse>(query, {
@@ -127,7 +126,6 @@ export default function AssociationsList({
         } else {
           data = await zendro.request<AssocResponse>(query, variables);
         }
-        console.log({ data });
         return data;
       } catch (error) {
         showSnackbar('There was an error', 'error', error);
@@ -170,7 +168,6 @@ export default function AssociationsList({
           ? zendro.queries[modelName].withFilter[assocTarget].readFiltered
           : zendro.queries[modelName].withFilter[assocTarget].readAll;
 
-      console.log({ assoc });
       const response = await queryAssocRecords(assoc.query, assoc.transform);
       setRecordsToAdd([]);
       setRecordsToRemove([]);
@@ -211,7 +208,6 @@ export default function AssociationsList({
         setCount(1);
         return;
       }
-      console.log('countAssoc: ', assoc);
       try {
         if (assoc.transform) {
           data = await zendro.metaRequest(assoc.query, {
@@ -221,7 +217,6 @@ export default function AssociationsList({
         } else {
           data = await zendro.request(assoc.query, variables);
         }
-        console.log('countData: ', data);
         setCount(data);
       } catch (error) {
         showSnackbar('There was an error', 'error', error);
@@ -294,17 +289,24 @@ export default function AssociationsList({
     const assocVariables = {
       [primaryKey]: recordId,
       [`add${mutationName}`]:
-        selected.type === 'to_one' ? recordsToAdd.toString() : recordsToAdd,
+        recordsToAdd.length > 0
+          ? selected.type === 'to_one'
+            ? recordsToAdd.toString()
+            : recordsToAdd
+          : undefined,
       [`remove${mutationName}`]:
-        selected.type === 'to_one'
-          ? recordsToRemove.toString()
-          : recordsToRemove,
+        recordsToRemove.length > 0
+          ? selected.type === 'to_one'
+            ? recordsToRemove.toString()
+            : recordsToRemove
+          : undefined,
     };
     try {
-      await zendro.request<Record<string, DataRecord>>(
+      const response = await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
         assocVariables
       );
+      console.log({ response });
     } catch (error) {
       console.error(error);
     }
