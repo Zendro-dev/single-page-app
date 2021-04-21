@@ -10,10 +10,12 @@ import { IconButton } from '@/components/buttons';
 
 interface SearchFieldProps {
   onSearchClick: (value: string) => void;
+  placeholder?: string;
 }
 
 export default function SearchField({
   onSearchClick,
+  placeholder,
 }: SearchFieldProps): ReactElement {
   const [clearDisabled, setClearDisabled] = useState(true);
   const [searchValue, setSearchValue] = useState('');
@@ -42,14 +44,14 @@ export default function SearchField({
 
   return (
     <TextField
-      placeholder={'Type your search'}
+      label={placeholder ?? 'Type your search'}
       value={searchValue}
-      variant="standard"
+      variant="outlined"
+      className={classes.searchField}
       InputProps={{
-        className: classes.searchField,
         startAdornment: (
           <InputAdornment position="start">
-            <IconButton tooltip="Search" onClick={searchClick}>
+            <IconButton size="small" tooltip="Search" onClick={searchClick}>
               <SearchIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
@@ -58,6 +60,7 @@ export default function SearchField({
           <InputAdornment position="end">
             <IconButton
               component="span"
+              size="small"
               tooltip="Clear search"
               disabled={clearDisabled}
               onClick={clearClick}
@@ -79,7 +82,9 @@ export default function SearchField({
 const useStyles = makeStyles((theme) =>
   createStyles({
     searchField: {
-      padding: theme.spacing(1, 0),
+      '& .MuiOutlinedInput-input': {
+        padding: theme.spacing(3, 0),
+      },
     },
   })
 );
