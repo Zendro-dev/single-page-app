@@ -78,7 +78,7 @@ export default function ArrayField({
   onChange,
   onError,
   value,
-  endAdornment,
+  endAdornment: _,
   type,
   label,
   ...props
