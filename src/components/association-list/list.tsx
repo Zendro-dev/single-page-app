@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { List, ListItem, TableContainer, Typography } from '@material-ui/core';
+import {
+  Button,
+  List,
+  ListItem,
+  TableContainer,
+  Typography,
+} from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import {
@@ -13,6 +19,7 @@ import {
 import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
 import { PageInfo } from '@/types/requests';
 import { isNullorUndefined } from '@/utils/validation';
+import { getInflections } from '@/utils/inflection';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -20,6 +27,7 @@ interface AssociationListProps {
   modelName: string;
   recordId?: string | number;
   primaryKey: string;
+  associationView: 'new' | 'update' | 'detail';
 }
 
 interface AssocResponse {
@@ -34,6 +42,8 @@ export default function AssociationsList({
   attributes,
   modelName,
   recordId,
+  primaryKey,
+  associationView,
 }: AssociationListProps): React.ReactElement {
   const { showSnackbar } = useToastNotification();
   const getModel = useModel();
@@ -67,6 +77,25 @@ export default function AssociationsList({
   const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
     []
   );
+  const [selected, setSelected] = useState({
+    target: associations[0].target,
+    name: associations[0].name,
+    type: associations[0].type,
+  });
+
+  // const selectedAssociation = useMemo(() => getModel(selected.target), [
+  //   selected,
+  //   getModel,
+  // ]);
+
+  // const queries = useCallback(
+  //   () => {
+  //     callback
+  //   },
+  //   [input],
+  // )
+
+  // console.log(selectedAssociation);
 
   console.log('render');
 
@@ -78,13 +107,30 @@ export default function AssociationsList({
     handlePaginationLimitChange,
   } = useVariables(attributes, assocTable.records, assocTable.pageInfo);
 
+  // if (associationView === 'detail') {
+  //   variables.search = {
+  //     field: primaryKey,
+  //     value: recordId as string,
+  //     operator: 'eq',
+  //   };
+  // }
+
   const queryAssocRecords = useCallback(
     async (
       query: string,
       transform?: string
     ): Promise<AssocResponse | undefined> => {
       let data: AssocResponse | undefined;
-
+      if (associationView !== 'detail') {
+        variables.assocSearch = {
+          field: primaryKey,
+          value: recordId as string,
+          operator: 'eq',
+        };
+      } else {
+        variables[primaryKey] = recordId;
+      }
+      console.log({ variables });
       try {
         if (transform) {
           data = await zendro.metaRequest<AssocResponse>(query, {
@@ -94,39 +140,41 @@ export default function AssociationsList({
         } else {
           data = await zendro.request<AssocResponse>(query, variables);
         }
-
+        console.log({ data });
         return data;
       } catch (error) {
         showSnackbar('There was an error', 'error', error);
       }
     },
-    [showSnackbar, variables, zendro]
+    [showSnackbar, variables, zendro, primaryKey, recordId]
   );
 
   const parseAssocRecords = useCallback(
-    async (
+    (
       records: DataRecordWithAssoc[],
-      assocPrimaryKey: string,
+      // assocPrimaryKey: string,
       assocResolver: string
-    ): Promise<TableRecord[]> => {
-      const parsedRecords = records.reduce((acc, record) => {
-        const assocPrimaryKeyValue = record[assocPrimaryKey] as string;
+    ): TableRecord[] => {
+      const parsedRecords = records.reduce((acc, record, index) => {
+        // const assocPrimaryKeyValue = record[assocPrimaryKey] as string;
         const recordPrimaryKey = attributes[0].name;
-        const recordPrimaryKeyValue = record[assocResolver][
-          recordPrimaryKey
-        ] as string;
+        const recordPrimaryKeyValue =
+          record[assocResolver] &&
+          (record[assocResolver][recordPrimaryKey] as string);
 
-        const isMarked = recordsToAdd
-          .concat(recordsToRemove)
-          .includes(assocPrimaryKeyValue);
+        // const isMarked = recordsToAdd
+        //   .concat(recordsToRemove)
+        //   .includes(assocPrimaryKeyValue);
 
         const isAssociated =
           !isNullorUndefined(recordPrimaryKeyValue) &&
           recordPrimaryKeyValue === recordId;
 
+        // console.log(`${index} - ${recordPrimaryKeyValue} - ${recordId}`);
+
         const parsedRecord: TableRecord = {
           data: record,
-          isMarked,
+          isMarked: false,
           isAssociated,
         };
 
@@ -135,21 +183,29 @@ export default function AssociationsList({
 
       return parsedRecords;
     },
-    [attributes, recordId, recordsToAdd, recordsToRemove]
+    [attributes, recordId]
   );
 
   const loadAssocData = useCallback(
     async (assocModelName: string): Promise<void> => {
       const model = getModel(assocModelName);
-      const assoc = zendro.queries[modelName].assoc[assocModelName];
-      const response = await queryAssocRecords(assoc.query, assoc.transform);
+      const assoc =
+        associationView === 'detail'
+          ? zendro.queries[modelName].withFilter[assocModelName].readFiltered
+          : zendro.queries[modelName].withFilter[assocModelName].readAll;
 
-      if (response) {
-        const parsedRecords = await parseAssocRecords(
+      console.log({ assoc });
+      const response = await queryAssocRecords(assoc.query, assoc.transform);
+      // console.log({ response });
+      setRecordsToAdd([]);
+      setRecordsToRemove([]);
+      if (response && recordId) {
+        const parsedRecords = parseAssocRecords(
           response.records,
-          model.schema.primaryKey,
+          // model.schema.primaryKey,
           assoc.assocResolver
         );
+        // setRawRecords(response.records);
         setAssocTable({
           attributes: model.schema.attributes,
           modelName: assocModelName,
@@ -159,20 +215,68 @@ export default function AssociationsList({
         });
       }
     },
-    [getModel, modelName, parseAssocRecords, queryAssocRecords, zendro.queries]
+    [
+      getModel,
+      modelName,
+      queryAssocRecords,
+      zendro.queries,
+      parseAssocRecords,
+      recordId,
+      associationView,
+    ]
+  );
+
+  const loadAssocCount = useCallback(
+    async (assocModelName: string): Promise<void> => {
+      let data;
+      const assoc =
+        associationView === 'detail'
+          ? zendro.queries[modelName].withFilter[assocModelName].countFiltered
+          : zendro.queries[assocModelName].countAll;
+      if (!assoc) {
+        setCount(1);
+        return;
+      }
+      console.log('countAssoc: ', assoc);
+      try {
+        if (assoc.transform) {
+          data = await zendro.metaRequest(assoc.query, {
+            jq: assoc.transform,
+            variables,
+          });
+        } else {
+          data = await zendro.request(assoc.query, variables);
+        }
+        console.log('countData: ', data);
+        setCount(data);
+      } catch (error) {
+        showSnackbar('There was an error', 'error', error);
+      }
+    },
+    [showSnackbar, variables, zendro, associationView, modelName]
   );
 
   useEffect(
     function loadFirstMountAssociationData() {
-      loadAssocData(associations[0].target);
+      console.log('Fetch records');
+      loadAssocData(selected.target);
+      loadAssocCount(selected.target);
     },
-    [associations, loadAssocData]
+    [associations, loadAssocData, loadAssocCount, selected.target]
   );
 
   const handleOnAssociationClick = (
-    target: string
+    target: string,
+    type: 'to_one' | 'to_many' | 'to_many_through_sql_cross_table',
+    name: string
   ) => async (): Promise<void> => {
-    if (target !== assocTable.modelName) loadAssocData(target);
+    if (target !== selected.target) {
+      // loadAssocData(target);
+      // loadAssocCount(target);
+      setSelected({ ...selected, target, name, type });
+      setRecordsToAdd([]);
+      setRecordsToRemove([]);
+    }
   };
 
   const handleOnAssociationKeyDown = (): void => {
@@ -184,35 +288,76 @@ export default function AssociationsList({
   };
 
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
-    primaryKey,
+    recordToMark,
     list,
     action
   ) => {
     // console.log({ primaryKey, list, action });
+    // const currAssoc = assocTable.records.filter(
+    //   (record) => record.isAssociated
+    // )[0].data[selectedAssociation.schema.primaryKey] as string | number;
+    // console.log(currAssoc);
     switch (action) {
       case 'add':
-        if (list === 'toAdd')
-          setRecordsToAdd((recordsToAdd) => [...recordsToAdd, primaryKey]);
-        else
+        if (list === 'toAdd') {
+          // if (selected.type === 'to_one' && currAssoc) {
+          //   setRecordsToAdd([recordToMark]);
+          //   setRecordsToRemove((recordsToRemove) => [
+          //     ...recordsToRemove,
+          //     currAssoc,
+          //   ]);
+          // } else {
+          setRecordsToAdd((recordsToAdd) => [...recordsToAdd, recordToMark]);
+          // }
+        } else
           setRecordsToRemove((recordsToRemove) => [
             ...recordsToRemove,
-            primaryKey,
+            recordToMark,
           ]);
         break;
       case 'remove':
         if (list === 'toAdd')
-          setRecordsToAdd(recordsToAdd.filter((item) => item !== primaryKey));
+          setRecordsToAdd(recordsToAdd.filter((item) => item !== recordToMark));
         else
           setRecordsToRemove(
-            recordsToRemove.filter((item) => item !== primaryKey)
+            recordsToRemove.filter((item) => item !== recordToMark)
           );
         break;
     }
   };
 
+  const handleSubmit = async (): Promise<void> => {
+    // console.log(zendro.queries[modelName].updateOne.query);
+    // console.log(assocTable.modelName);
+    const { namePlCp, nameCp } = getInflections(selected.name);
+    const mutationName = selected.type === 'to_one' ? nameCp : namePlCp;
+    const assocVariables = {
+      [primaryKey]: recordId,
+      [`add${mutationName}`]:
+        selected.type === 'to_one' ? recordsToAdd.toString() : recordsToAdd,
+      [`remove${mutationName}`]:
+        selected.type === 'to_one'
+          ? recordsToRemove.toString()
+          : recordsToRemove,
+    };
+    // console.log(zendro.queries[modelName].updateOne.query);
+    // console.log({ assocVariables });
+    try {
+      const response = await zendro.request<Record<string, DataRecord>>(
+        zendro.queries[modelName].updateOne.query,
+        assocVariables
+      );
+      // console.log({ response });
+    } catch (error) {
+      console.error(error);
+    }
+    loadAssocData(selected.target);
+  };
+
   return (
     <>
       <TableContainer className={classes.root}>
+        {/* <div>{JSON.stringify(assocTable.records)}</div> */}
         <TableToolBar
           modelName={modelName}
           onAdd={handleOnCreate}
@@ -220,7 +365,7 @@ export default function AssociationsList({
           onSearch={handleSearch}
         />
         <Table
-          associationView="details"
+          associationView={associationView}
           attributes={assocTable.attributes}
           records={assocTable.records}
           activeOrder={variables.order?.field ?? assocTable.primaryKey}
@@ -229,6 +374,8 @@ export default function AssociationsList({
           onAssociate={handleOnMarkForAssociationClick}
           isValidatingRecords={false}
           primaryKey={assocTable.primaryKey}
+          recordsToAdd={recordsToAdd}
+          recordsToRemove={recordsToRemove}
         />
         <TablePagination
           onPagination={handlePagination}
@@ -238,10 +385,18 @@ export default function AssociationsList({
             variables.pagination.first ?? variables.pagination.last
           }
           onPaginationLimitChange={handlePaginationLimitChange}
-          hasFirstPage={assocTable.pageInfo.hasPreviousPage}
-          hasLastPage={assocTable.pageInfo.hasNextPage}
-          hasPreviousPage={assocTable.pageInfo.hasPreviousPage}
-          hasNextPage={assocTable.pageInfo.hasNextPage}
+          hasFirstPage={
+            assocTable.pageInfo ? assocTable.pageInfo.hasPreviousPage : false
+          }
+          hasLastPage={
+            assocTable.pageInfo ? assocTable.pageInfo.hasNextPage : false
+          }
+          hasPreviousPage={
+            assocTable.pageInfo ? assocTable.pageInfo.hasPreviousPage : false
+          }
+          hasNextPage={
+            assocTable.pageInfo ? assocTable.pageInfo.hasNextPage : false
+          }
         />
       </TableContainer>
 
@@ -251,7 +406,11 @@ export default function AssociationsList({
             key={`${association.name}-assoc-list`}
             className={classes.navItem}
             button
-            onClick={handleOnAssociationClick(association.target)}
+            onClick={handleOnAssociationClick(
+              association.target,
+              association.type,
+              association.name
+            )}
             onKeyDown={handleOnAssociationKeyDown}
           >
             <Typography component="p" fontSize={15} fontWeight="bold">
@@ -263,6 +422,7 @@ export default function AssociationsList({
           </ListItem>
         ))}
       </List>
+      <Button onClick={handleSubmit}>Submit</Button>
     </>
   );
 }
