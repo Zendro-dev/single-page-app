@@ -1,10 +1,10 @@
-import { RawQuery } from '@/types/queries';
-import { StaticQueries } from '@/types/static';
+import { AssocQuery } from '@/types/queries';
+import { StaticAssocQueries, StaticQueries } from '@/types/static';
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
 import { DataModel, ParsedDataModel } from '../types/models';
 import { AppRoutes, ModelRoute, ModelUrlQuery } from '../types/routes';
-import { getAttributeList } from './models';
+import { getAttributeList, parseAssociations } from './models';
 import {
   queryBulkCreate,
   queryCsvTemplate,
@@ -13,6 +13,7 @@ import {
   queryRecord,
   queryRecordsWithToOne,
   queryRecordsWithToMany,
+  readOneRecordWithAssoc,
 } from './queries';
 
 /* MODELS */
@@ -124,9 +125,10 @@ export async function getStaticQueries(): Promise<
 
   Object.entries(dataModels).map(([name, schema]) => {
     const attributes = getAttributeList(schema, { excludeForeignKeys: true });
-    const recordQueries = queryRecord(name, attributes);
+    const associations = parseAssociations(schema);
+    const recordQueries = queryRecord(name, attributes, associations);
 
-    const assoc = getStaticAssociationQueries(schema, dataModels);
+    const withFilter = getStaticAssociationQueries(schema, dataModels);
 
     staticModels[name] = {
       readAll: queryRecords(name, attributes),
@@ -137,7 +139,7 @@ export async function getStaticQueries(): Promise<
       updateOne: recordQueries.update,
       csvTableTemplate: queryCsvTemplate(name),
       bulkAddCsv: queryBulkCreate(name),
-      assoc,
+      withFilter,
     };
   });
 
@@ -147,14 +149,15 @@ export async function getStaticQueries(): Promise<
 export function getStaticAssociationQueries(
   sourceModel: ParsedDataModel,
   targetModels: Record<string, ParsedDataModel>
-): Record<string, RawQuery> {
-  const assoc: Record<string, RawQuery> = {};
+): Record<string, StaticAssocQueries> {
+  const withFilter: Record<string, StaticAssocQueries> = {};
 
-  if (!sourceModel.associations) return assoc;
+  if (!sourceModel.associations) return withFilter;
 
-  for (const [sourceName, { target: targetModelName }] of Object.entries(
-    sourceModel.associations
-  )) {
+  for (const [
+    sourceName,
+    { target: targetModelName, type: sourceModelAssociationType },
+  ] of Object.entries(sourceModel.associations)) {
     const targetModel = targetModels[targetModelName];
 
     if (!targetModel.associations)
@@ -172,33 +175,65 @@ export function getStaticAssociationQueries(
         `The target model "${targetModel.model}" does not have an association ` +
           `with "${sourceModel.model}" defined as target.`
       );
-
     const [targetAssocName, targetAssociation] = reverseAssociation;
-
+    const {
+      readOneRecordWithToOne,
+      readOneRecordWithAssocCount,
+      readOneRecordWithToMany,
+    } = readOneRecordWithAssoc(
+      sourceModel.model,
+      getAttributeList(sourceModel, { excludeForeignKeys: true }),
+      sourceName,
+      targetModelName,
+      getAttributeList(targetModel, { excludeForeignKeys: true })
+    );
     switch (targetAssociation.type) {
       case 'to_one':
-        assoc[targetModelName] = queryRecordsWithToOne(
-          targetModelName,
-          getAttributeList(targetModel, { excludeForeignKeys: true }),
-          targetAssocName,
-          sourceModel.model,
-          sourceModel.primaryKey
-        );
+        withFilter[targetModelName] = {
+          readAll: queryRecordsWithToOne(
+            targetModelName,
+            getAttributeList(targetModel, { excludeForeignKeys: true }),
+            targetAssocName,
+            sourceModel.model,
+            sourceModel.primaryKey
+          ),
+          readFiltered: {} as AssocQuery,
+        };
         break;
-
+      case 'to_many_through_sql_cross_table':
       case 'to_many':
-        assoc[targetModelName] = queryRecordsWithToMany(
-          targetModelName,
-          getAttributeList(targetModel, { excludeForeignKeys: true }),
-          sourceModel.model,
-          sourceModel.primaryKey
-        );
+        withFilter[targetModelName] = {
+          readAll: queryRecordsWithToMany(
+            targetModelName,
+            getAttributeList(targetModel, { excludeForeignKeys: true }),
+            sourceModel.model,
+            sourceModel.primaryKey
+          ),
+          readFiltered: {} as AssocQuery,
+        };
+
         break;
 
       default:
         break;
     }
+    switch (sourceModelAssociationType) {
+      case 'to_one':
+        Object.assign(withFilter[targetModelName], {
+          readFiltered: readOneRecordWithToOne,
+        });
+        break;
+      case 'to_many_through_sql_cross_table':
+      case 'to_many':
+        Object.assign(withFilter[targetModelName], {
+          readFiltered: readOneRecordWithToMany,
+          countFiltered: readOneRecordWithAssocCount,
+        });
+        break;
+      default:
+        break;
+    }
   }
 
-  return assoc;
+  return withFilter;
 }

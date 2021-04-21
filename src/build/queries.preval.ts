@@ -8,7 +8,9 @@ import { getStaticQueries } from '@/utils/static';
 async function buildQueries(): Promise<Record<string, StaticQueries>> {
   const modelQueries = await getStaticQueries();
 
-  for (const [model, { assoc, ...queries }] of Object.entries(modelQueries)) {
+  for (const [model, { withFilter, ...queries }] of Object.entries(
+    modelQueries
+  )) {
     const modelDir = `src/custom/queries/${model}`;
     await mkdir(modelDir, { recursive: true });
 
@@ -19,13 +21,13 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
         format(query, { parser: 'graphql' })
       );
     }
-
-    // Generate association-specific queries
-    for (const { name, query } of Object.values(assoc)) {
-      await writeFile(
-        join(modelDir, name) + '.gql',
-        format(query, { parser: 'graphql' })
-      );
+    for (const assocQueries of Object.values(withFilter)) {
+      for (const { name, query } of Object.values(assocQueries)) {
+        await writeFile(
+          join(modelDir, name) + '.gql',
+          format(query, { parser: 'graphql' })
+        );
+      }
     }
   }
 

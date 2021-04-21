@@ -47,4 +47,6 @@ export interface QueryModelTableRecordsVariables extends QueryVariables {
   search?: QueryVariableSearch;
   pagination: QueryVariablePagination;
   order?: QueryVariableOrder;
+  assocSearch?: QueryVariableSearch;
+  assocPagination?: QueryVariablePagination;
 }

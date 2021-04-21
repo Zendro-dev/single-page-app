@@ -45,7 +45,15 @@ export const queryRecord = (
   const updateResolver = `update${nameCp}`;
   const deleteResolver = `delete${nameCp}`;
 
-  const { args, idArg, idVar, fields, vars } = parseQueryAttributes(attributes);
+  const {
+    args,
+    argsNoAutoId,
+    idArg,
+    idVar,
+    fields,
+    vars,
+    varsNoAutoId,
+  } = parseQueryAttributes(attributes);
 
   const { assocArgs, assocVars } = associations
     ? parseQueryAssociations(associations)
@@ -63,7 +71,7 @@ export const queryRecord = (
     create: {
       name: createResolver,
       resolver: createResolver,
-      query: `mutation ${createResolver}(${args}) { ${createResolver}(${vars}) { ${fields} } }`,
+      query: `mutation ${createResolver}(${argsNoAutoId}) { ${createResolver}(${varsNoAutoId}) { ${fields} } }`,
     },
     read: {
       name: readResolver,
@@ -94,10 +102,17 @@ export const readOneRecordWithAssoc = (
   readOneRecordWithToOne: AssocQuery;
   readOneRecordWithAssocCount: AssocQuery;
 } => {
+  // console.log({
+  //   modelName,
+  //   assocName,
+  //   assocModelName,
+  // });
   const { nameCp } = getInflections(modelName);
-  const { namePlLc: assocNamePlLc, namePlCp: assocNamePlCp } = getInflections(
-    assocModelName
-  );
+  const {
+    nameCp: assocNameCp,
+    namePlLc: assocNamePlLc,
+    namePlCp: assocNamePlCp,
+  } = getInflections(assocModelName);
   const readResolver = `readOne${nameCp}`;
 
   const { idArg, idVar } = parseQueryAttributes(attributes);
@@ -107,7 +122,11 @@ export const readOneRecordWithAssoc = (
   const assocResolverToMany = `${assocNamePlLc}Connection`;
   const queryNameToMany = `readOne${nameCp}With${assocNamePlCp}`;
   const queryToMany = `
-  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
+  query ${readResolver}(
+    ${idArg}
+    $order: [order${assocNameCp}Input]
+    $search: search${assocNameCp}Input
+    $pagination: paginationCursorInput!) { ${readResolver}(${idVar}) {
     ${assocResolverToMany} ( order: $order search: $search, pagination: $pagination ) {
       pageInfo {
         startCursor
@@ -126,7 +145,7 @@ export const readOneRecordWithAssoc = (
   const queryNameToOne = `readOne${nameCp}With${assocName}`;
   const queryToOne = `
   query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
-    ${assocName}( search: $search ) {
+    ${assocName}{
       ${fields}
     }
   } } 
@@ -148,8 +167,8 @@ export const readOneRecordWithAssoc = (
       assocResolver: assocName,
       query: queryToOne,
       transform:
-        ` | .data.${readResolver}.${assocName}` +
-        ` | map(.${fields.split(' ').join(',')}) as $records` +
+        ` .data.${readResolver}` +
+        ` | map({${fields.split(' ').join(',')}}) as $records` +
         ' | { data: { $records } }',
     },
     readOneRecordWithToMany: {
@@ -168,6 +187,7 @@ export const readOneRecordWithAssoc = (
       resolver: readResolver,
       assocResolver: countResolver,
       query: queryCount,
+      transform: `.data.${readResolver}.${countResolver} as $count | {data: $count}`,
     },
   };
 };
@@ -228,6 +248,7 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
     name: resolver,
     resolver: resolver,
     query,
+    transform: `.data.${resolver} as $count | {data: $count}`,
   };
 };
 
@@ -367,19 +388,32 @@ function parseQueryAttributes(
   attributes: ParsedAttribute[]
 ): {
   args: string;
+  argsNoAutoId: string;
   idArg: string;
   idVar: string;
   fields: string;
   vars: string;
+  varsNoAutoId: string;
 } {
   return {
     /**
-     * Get all arguments as required in the add and update functions.
+     * Get all arguments as required in the update function.
      */
     get args() {
       return attributes
         .map(({ name, type, primaryKey }) =>
           primaryKey ? `$${name}: ID!` : `$${name}: ${type}`
+        )
+        .join(' ');
+    },
+
+    /**
+     * Get all arguments as required in the add function.
+     */
+    get argsNoAutoId() {
+      return attributes
+        .map(({ name, type, primaryKey, automaticId }) =>
+          automaticId ? '' : primaryKey ? `$${name}: ID!` : `$${name}: ${type}`
         )
         .join(' ');
     },
@@ -416,10 +450,21 @@ function parseQueryAttributes(
     },
 
     /**
-     * Get all variables as required in the add and update mutations.
+     * Get all variables as required in the update mutation.
      */
     get vars() {
       return attributes.map(({ name }) => `${name}: $${name}`).join(' ');
+    },
+
+    /**
+     * Get all variables as required in the add mutation.
+     */
+    get varsNoAutoId() {
+      return attributes
+        .map(({ name, automaticId }) =>
+          automaticId ? '' : `${name}: $${name}`
+        )
+        .join(' ');
     },
   };
 }

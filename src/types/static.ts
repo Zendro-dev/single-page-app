@@ -9,5 +9,12 @@ export interface StaticQueries {
   updateOne: RawQuery;
   csvTableTemplate: RawQuery;
   bulkAddCsv: RawQuery;
-  assoc: Record<string, AssocQuery>;
+  // assoc: Record<string, AssocQuery>;
+  withFilter: Record<string, StaticAssocQueries>;
+}
+
+export interface StaticAssocQueries {
+  readAll: AssocQuery;
+  readFiltered: AssocQuery;
+  countFiltered?: AssocQuery;
 }
