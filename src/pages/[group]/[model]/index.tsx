@@ -173,7 +173,7 @@ const Model: PageWithLayout<ModelProps> = ({
   /* HANDLERS */
 
   const handleOnCreate = (): void => {
-    router.push(`/models/${modelName}/new`);
+    router.push(`/${query.group}/${modelName}/new`);
   };
 
   const handleOnRead = (primaryKey: string | number): void => {

@@ -47,7 +47,7 @@ export const getStaticProps: GetStaticProps<
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes);
+  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
@@ -107,16 +107,20 @@ const Record: PageWithLayout<RecordProps> = ({
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
-
+    const primaryKey = attributes[0].name;
     const submit = async (): Promise<void> => {
       try {
         const { create } = requests;
-        await zendro.request<Record<string, DataRecord>>(
+        const response = await zendro.request<Record<string, DataRecord>>(
           create.query,
           dataRecord
         );
 
-        router.push(`/${urlQuery.group}/${modelName}`);
+        router.push(
+          `/${urlQuery.group}/${modelName}/edit?id=${
+            response[create.resolver][primaryKey]
+          }`
+        );
       } catch (error) {
         setAjvErrors(undefined);
         const clientError = error as ExtendedClientError<
@@ -212,8 +216,9 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel value="associations">
+      <TabPanel value="associations" className={classes.tabPanel}>
         <AssociationList
+          associationView="new"
           associations={associations}
           attributes={attributes}
           modelName={modelName}
@@ -233,6 +238,13 @@ const useStyles = makeStyles((theme) =>
       borderColor: theme.palette.grey[300],
       margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
+    },
+    tabPanel: {
+      display: 'flex',
+      flexGrow: 1,
+      width: '100%',
+      padding: 0,
+      // padding: theme.spacing(4, 0),
     },
   })
 );

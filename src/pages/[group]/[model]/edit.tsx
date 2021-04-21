@@ -56,7 +56,7 @@ export const getStaticProps: GetStaticProps<
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes);
+  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
@@ -331,6 +331,7 @@ const Record: PageWithLayout<RecordProps> = ({
       </TabPanel>
       <TabPanel className={classes.tabPanel} value="associations">
         <AssociationList
+          associationView="update"
           associations={associations}
           attributes={attributes}
           modelName={modelName}

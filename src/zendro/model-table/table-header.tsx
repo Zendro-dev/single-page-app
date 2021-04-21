@@ -12,7 +12,7 @@ import { OrderDirection } from '@/types/queries';
 
 interface TableHeaderProps {
   attributes: ParsedAttribute[];
-  actionsColSpan?: number;
+  actionsColSpan: number;
   onSortLabelClick(value: string): void;
   activeOrder: string;
   orderDirection: OrderDirection;
@@ -28,21 +28,23 @@ export default function TableHeader({
   return (
     <MuiTableHead>
       <MuiTableRow>
-        <MuiTableCell
-          colSpan={actionsColSpan}
-          align="center"
-          padding="checkbox"
-        >
-          <Typography
-            color="inherit"
-            display="inline"
-            noWrap
-            variant="caption"
-            width="9rem"
+        {actionsColSpan > 0 && (
+          <MuiTableCell
+            colSpan={actionsColSpan}
+            align="center"
+            padding="checkbox"
           >
-            Actions
-          </Typography>
-        </MuiTableCell>
+            <Typography
+              color="inherit"
+              display="inline"
+              noWrap
+              variant="caption"
+              width="9rem"
+            >
+              Actions
+            </Typography>
+          </MuiTableCell>
+        )}
         {attributes.map((attribute, index) => (
           <TableColumn
             label={attribute.name}

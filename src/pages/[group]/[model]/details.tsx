@@ -46,7 +46,7 @@ export const getStaticProps: GetStaticProps<
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes);
+  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
@@ -170,8 +170,9 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel value="associations">
+      <TabPanel value="associations" className={classes.tabPanel}>
         <AssociationList
+          associationView="details"
           associations={associations}
           attributes={attributes}
           modelName={modelName}
@@ -191,6 +192,10 @@ const useStyles = makeStyles((theme) =>
       borderColor: theme.palette.grey[300],
       margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
+    },
+    tabPanel: {
+      display: 'flex',
+      flexGrow: 1,
     },
   })
 );

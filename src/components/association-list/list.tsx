@@ -92,20 +92,6 @@ export default function AssociationsList({
     type: associations[0].type,
   });
 
-  // const selectedAssociation = useMemo(() => getModel(selected.target), [
-  //   selected,
-  //   getModel,
-  // ]);
-
-  // const queries = useCallback(
-  //   () => {
-  //     callback
-  //   },
-  //   [input],
-  // )
-
-  // console.log(selectedAssociation);
-
   console.log('render');
 
   const {
@@ -115,14 +101,6 @@ export default function AssociationsList({
     handlePagination,
     handlePaginationLimitChange,
   } = useVariables(attributes, assocTable.records, assocTable.pageInfo);
-
-  // if (associationView === 'detail') {
-  //   variables.search = {
-  //     field: primaryKey,
-  //     value: recordId as string,
-  //     operator: 'eq',
-  //   };
-  // }
 
   const queryAssocRecords = useCallback(
     async (
@@ -155,31 +133,20 @@ export default function AssociationsList({
         showSnackbar('There was an error', 'error', error);
       }
     },
-    [showSnackbar, variables, zendro, primaryKey, recordId]
+    [showSnackbar, variables, zendro, primaryKey, recordId, associationView]
   );
 
   const parseAssocRecords = useCallback(
-    (
-      records: DataRecordWithAssoc[],
-      // assocPrimaryKey: string,
-      assocResolver: string
-    ): TableRecord[] => {
-      const parsedRecords = records.reduce((acc, record, index) => {
-        // const assocPrimaryKeyValue = record[assocPrimaryKey] as string;
+    (records: DataRecordWithAssoc[], assocResolver: string): TableRecord[] => {
+      const parsedRecords = records.reduce((acc, record) => {
         const recordPrimaryKey = attributes[0].name;
         const recordPrimaryKeyValue =
           record[assocResolver] &&
           (record[assocResolver][recordPrimaryKey] as string);
 
-        // const isMarked = recordsToAdd
-        //   .concat(recordsToRemove)
-        //   .includes(assocPrimaryKeyValue);
-
         const isAssociated =
           !isNullorUndefined(recordPrimaryKeyValue) &&
           recordPrimaryKeyValue === recordId;
-
-        // console.log(`${index} - ${recordPrimaryKeyValue} - ${recordId}`);
 
         const parsedRecord: TableRecord = {
           data: record,
@@ -205,16 +172,13 @@ export default function AssociationsList({
 
       console.log({ assoc });
       const response = await queryAssocRecords(assoc.query, assoc.transform);
-      // console.log({ response });
       setRecordsToAdd([]);
       setRecordsToRemove([]);
       if (response && recordId) {
         const parsedRecords = parseAssocRecords(
           response.records,
-          // model.schema.primaryKey,
           assoc.assocResolver
         );
-        // setRawRecords(response.records);
         setAssocTable({
           assocName: assocName,
           attributes: model.schema.attributes,
@@ -271,33 +235,18 @@ export default function AssociationsList({
       loadAssocData(selected.name, selected.target);
       loadAssocCount(selected.target);
     },
-    [associations, loadAssocData, loadAssocCount, selected.target]
+    [associations, loadAssocData, loadAssocCount, selected]
   );
 
-  const handleOnAssociationClick = (
-    target: string,
-    type: 'to_one' | 'to_many' | 'to_many_through_sql_cross_table',
-    name: string
-  ) => async (): Promise<void> => {
+  const handleOnAssociationSelect = (target: string, name: string): void => {
+    const assoc = associations.find(
+      (association) => association.target === target
+    ) as ParsedAssociation;
     if (target !== selected.target) {
-      // loadAssocData(target);
-      // loadAssocCount(target);
-      setSelected({ ...selected, target, name, type });
+      setSelected({ target, name, type: assoc.type });
       setRecordsToAdd([]);
       setRecordsToRemove([]);
     }
-  };
-
-  const handleOnAssociationSelect = (target: string, name: string): void => {
-    if (target !== assocTable.modelName) loadAssocData(name, target);
-  };
-
-  const handleOnAssociationKeyDown = (): void => {
-    //
-  };
-
-  const handleOnCreate = (): void => {
-    //
   };
 
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
@@ -340,8 +289,6 @@ export default function AssociationsList({
   };
 
   const handleSubmit = async (): Promise<void> => {
-    // console.log(zendro.queries[modelName].updateOne.query);
-    // console.log(assocTable.modelName);
     const { namePlCp, nameCp } = getInflections(selected.name);
     const mutationName = selected.type === 'to_one' ? nameCp : namePlCp;
     const assocVariables = {
@@ -353,14 +300,11 @@ export default function AssociationsList({
           ? recordsToRemove.toString()
           : recordsToRemove,
     };
-    // console.log(zendro.queries[modelName].updateOne.query);
-    // console.log({ assocVariables });
     try {
-      const response = await zendro.request<Record<string, DataRecord>>(
+      await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
         assocVariables
       );
-      // console.log({ response });
     } catch (error) {
       console.error(error);
     }
@@ -375,39 +319,40 @@ export default function AssociationsList({
             placeholder={`Search ${assocTable.assocName}`}
             onSearchClick={handleSearch}
           />
-
-          <StyledSelect
-            className={classes.toolbarFilters}
-            id={`${modelName}-association-filters`}
-            label={`Select ${assocTable.assocName} filters`}
-            items={[
-              {
-                id: 'select-filter',
-                text: 'No Filters',
-                icon: FilterIcon,
-              },
-              {
-                id: 'associated',
-                text: 'Associated',
-                icon: LinkIcon,
-              },
-              {
-                id: 'not-associated',
-                text: 'Not Associated',
-                icon: LinkOffIcon,
-              },
-              {
-                id: 'marked-for-association',
-                text: 'Marked For Association',
-                icon: LinkIcon,
-              },
-              {
-                id: 'marked-for-disassociation',
-                text: 'Marked for Disassociation',
-                icon: LinkOffIcon,
-              },
-            ]}
-          />
+          {associationView !== 'details' && (
+            <StyledSelect
+              className={classes.toolbarFilters}
+              id={`${modelName}-association-filters`}
+              label={`Select ${assocTable.assocName} filters`}
+              items={[
+                {
+                  id: 'select-filter',
+                  text: 'No Filters',
+                  icon: FilterIcon,
+                },
+                {
+                  id: 'associated',
+                  text: 'Associated',
+                  icon: LinkIcon,
+                },
+                {
+                  id: 'not-associated',
+                  text: 'Not Associated',
+                  icon: LinkOffIcon,
+                },
+                {
+                  id: 'marked-for-association',
+                  text: 'Marked For Association',
+                  icon: LinkIcon,
+                },
+                {
+                  id: 'marked-for-disassociation',
+                  text: 'Marked for Disassociation',
+                  icon: LinkOffIcon,
+                },
+              ]}
+            />
+          )}
         </div>
 
         <div className={classes.toolbarActions}>
@@ -419,15 +364,14 @@ export default function AssociationsList({
           >
             <ReloadIcon />
           </IconButton>
-
-          <IconButton
-            tooltip={`Save ${assocTable.modelName} data`}
-            onClick={() => {
-              console.log(assocTable.modelName);
-            }}
-          >
-            <SaveIcon />
-          </IconButton>
+          {associationView !== 'details' && (
+            <IconButton
+              tooltip={`Save ${assocTable.modelName} data`}
+              onClick={handleSubmit}
+            >
+              <SaveIcon />
+            </IconButton>
+          )}
 
           <StyledSelect
             className={classes.toolbarAssocSelect}

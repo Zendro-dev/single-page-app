@@ -37,6 +37,8 @@ export interface EnhancedTableProps {
   onAssociate?: TableRowAssociationHandler;
   associationView?: 'details' | 'update' | 'new';
   primaryKey: string;
+  recordsToAdd?: (string | number)[];
+  recordsToRemove?: (string | number)[];
 }
 
 export default function EnhancedTable({
@@ -52,17 +54,20 @@ export default function EnhancedTable({
   orderDirection,
   isValidatingRecords,
   primaryKey,
+  recordsToAdd,
+  recordsToRemove,
 }: EnhancedTableProps): ReactElement {
   // const dispatch = useContext(VariablesDispatch);
   const classes = useStyles();
   const { permissions } = usePermissions();
-
   return (
     <div className={classes.tableWrapper}>
       <Table stickyHeader size="medium">
         <TableHeader
           actionsColSpan={
-            associationView
+            associationView === 'details'
+              ? 0
+              : associationView === 'new' || associationView === 'update'
               ? 1
               : Object.keys(permissions).filter((action) => action !== 'create')
                   .length
@@ -75,20 +80,18 @@ export default function EnhancedTable({
         <Fade in={!isValidatingRecords && !isEmptyArray(records)}>
           <TableBody>
             {records.map((record) => {
-              // const primaryKey = record.data[attributes[0].name] as
-              //   | string
-              //   | number;
               const recordId = record.data[primaryKey] as string | number;
-              // console.log({ records, recordId });
-              // console.log({ record });
-              // console.log({ attributes });
               return (
                 // TODO key should use primaryKey value
                 <TableRow
                   attributes={attributes}
                   record={record.data}
                   key={recordId}
-                  isMarked={record.isMarked}
+                  isMarked={
+                    recordsToAdd &&
+                    recordsToRemove &&
+                    recordsToAdd.concat(recordsToRemove).includes(recordId)
+                  }
                   isAssociated={record.isAssociated}
                   actions={{
                     read: !associationView ? onRead : undefined,
@@ -100,9 +103,8 @@ export default function EnhancedTable({
                       permissions.delete && !associationView
                         ? onDelete
                         : undefined,
-                    associationHandler: associationView
-                      ? onAssociate
-                      : undefined,
+                    associationHandler:
+                      associationView !== 'details' ? onAssociate : undefined,
                   }}
                 />
               );
