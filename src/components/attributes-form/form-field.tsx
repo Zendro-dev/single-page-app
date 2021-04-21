@@ -20,12 +20,13 @@ import {
   AttributeArrayType,
   AttributeScalarType,
   AttributeValue,
+  AttributeArrayValue,
 } from '@/types/models';
 
 type InputFieldProps = Overwrite<
   TextFieldProps,
   {
-    onChange?: (value: AttributeValue) => void;
+    onChange?: (value: AttributeValue | AttributeArrayValue) => void;
     onError?: (value?: string) => void;
     type: AttributeScalarType | AttributeArrayType;
     value: AttributeValue;
@@ -98,7 +99,9 @@ export default function AttributeField({
   rightIcon,
   ...props
 }: WithIcons<InputFieldProps>): ReactElement {
-  const handleOnChange = (value: AttributeValue): void => {
+  const handleOnChange = (
+    value: AttributeValue | AttributeArrayValue
+  ): void => {
     if (props.onChange) props.onChange(value);
   };
 
