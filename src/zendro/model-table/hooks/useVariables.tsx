@@ -1,4 +1,3 @@
-import { TableRecord } from '@/components/records-table/table2';
 import { ParsedAttribute } from '@/types/models';
 import {
   QueryModelTableRecordsVariables,
@@ -9,10 +8,12 @@ import {
 import { PageInfo } from '@/types/requests';
 import { createSearch } from '@/utils/search';
 import { isEmptyArray } from '@/utils/validation';
-import { useReducer } from 'react';
+import { Dispatch, useReducer } from 'react';
+import { TableRecord } from '@/zendro/model-table/table';
 
 interface UseVariables {
   variables: QueryModelTableRecordsVariables;
+  variablesDispatch: Dispatch<VariableAction>;
   handleSearch: (value: string) => void;
   handleOrder: (field: string) => void;
   handlePagination: (action: string) => void;
@@ -59,6 +60,7 @@ const variablesReducer = (
         search: undefined,
         order: undefined,
         pagination: { first: 25 },
+        assocPagination: { first: 1 },
       };
   }
 };
@@ -83,6 +85,7 @@ export default function useVariables(
 
   /* ORDER */
   const handleOrder = (field: string): void => {
+    console.log({ field });
     const isAsc =
       field === variables.order?.field && variables.order.order === 'ASC';
     const order = isAsc ? 'DESC' : 'ASC';
@@ -93,7 +96,7 @@ export default function useVariables(
   /* PAGINATION */
   const handlePagination = (action: string): void => {
     const limit = variables.pagination.first ?? variables.pagination.last;
-    console.log({ action, limit, records, pageInfo });
+    // console.log({ action, limit, records, pageInfo });
     switch (action) {
       case 'first':
         dispatch({
@@ -149,6 +152,7 @@ export default function useVariables(
 
   return {
     variables,
+    variablesDispatch: dispatch,
     handleSearch,
     handleOrder,
     handlePagination,

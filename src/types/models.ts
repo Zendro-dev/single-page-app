@@ -7,7 +7,8 @@ export type AttributeScalarType =
   | 'DateTime'
   | 'Float'
   | 'Int'
-  | 'String';
+  | 'String'
+  | 'Array';
 
 export type AttributeArrayType =
   | '[Boolean]'
