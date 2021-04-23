@@ -273,19 +273,23 @@ export default function AssociationsList({
     action
   ) => {
     // console.log({ primaryKey, list, action });
-    const currAssoc = assocTable.records.filter(
+    const currAssocRecord = assocTable.records.find(
       (record) => record.isAssociated
-    )[0].data[assocTable.primaryKey] as string | number;
-    console.log(currAssoc);
+    );
+    const currAssocRecordId = currAssocRecord
+      ? (currAssocRecord.data[assocTable.primaryKey] as string | number)
+      : undefined;
+    console.log(currAssocRecordId);
     switch (action) {
       case 'add':
         if (list === 'toAdd') {
-          if (selected.type === 'to_one' && currAssoc) {
+          if (selected.type === 'to_one') {
             setRecordsToAdd([recordToMark]);
-            setRecordsToRemove((recordsToRemove) => [
-              ...recordsToRemove,
-              currAssoc,
-            ]);
+            if (currAssocRecordId)
+              setRecordsToRemove((recordsToRemove) => [
+                ...recordsToRemove,
+                currAssocRecordId,
+              ]);
           } else {
             setRecordsToAdd((recordsToAdd) => [...recordsToAdd, recordToMark]);
           }
@@ -301,7 +305,7 @@ export default function AssociationsList({
           console.log({ selected, recordsToAdd });
           if (selected.type === 'to_one') {
             setRecordsToRemove(
-              recordsToRemove.filter((item) => item !== currAssoc)
+              recordsToRemove.filter((item) => item !== currAssocRecordId)
             );
           }
         } else
@@ -341,6 +345,7 @@ export default function AssociationsList({
       console.error(error);
     }
     await loadAssocData(selected.name, selected.target);
+    loadAssocCount(selected.target);
     setRecordsToAdd([]);
     setRecordsToRemove([]);
   };
