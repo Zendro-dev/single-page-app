@@ -18,16 +18,7 @@ export interface Attributes {
   [key: string]: AttributeScalarType | AttributeArrayType;
 }
 
-export type AttributeValue =
-  | boolean
-  | boolean[]
-  | Date
-  | Date[]
-  | number
-  | number[]
-  | string
-  | string[]
-  | null;
+export type AttributeValue = AttributeScalarValue | AttributeArrayValue;
 
 export type AttributeScalarValue = boolean | Date | number | string | null;
 
