@@ -4,12 +4,14 @@ import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
+import { BubbleChart as ModelIcon, Edit as EditIcon } from '@material-ui/icons';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/components/attributes-form';
+import BreadCrumbs from '@/components/navigation/breadcrumbs';
 import AssociationList from '@/components/association-list';
 
 import {
@@ -298,10 +300,30 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: 3 }}>
+      <Box className={classes.tabNav}>
+        <BreadCrumbs
+          id={`${modelName}-association-breadcrumbs`}
+          crumbs={[
+            {
+              text: modelName,
+              icon: ModelIcon,
+              href: `/${urlQuery.group}/${urlQuery.model}`,
+            },
+            {
+              text: 'Edit',
+              icon: EditIcon,
+            },
+            {
+              text: urlQuery.id as string,
+              href: `/${urlQuery.group}/${urlQuery.model}/edit/?id=${urlQuery.id}`,
+            },
+          ]}
+        />
+
         <TabList
-          onChange={handleOnTabChange}
           aria-label="record attributes and associations"
+          className={classes.tabList}
+          onChange={handleOnTabChange}
         >
           <Tab label="Attributes" value="attributes" />
           <Tab
@@ -351,6 +373,21 @@ const useStyles = makeStyles((theme) =>
       borderColor: theme.palette.grey[300],
       margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
+    },
+    tabNav: {
+      display: 'flex',
+      alignItems: 'center',
+      marginTop: theme.spacing(3),
+      padding: theme.spacing(0, 4),
+      borderBottom: '1px solid',
+      borderBottomColor: theme.palette.divider,
+    },
+    tabList: {
+      marginLeft: theme.spacing(20),
+      '& .MuiTab-root': {
+        textTransform: 'capitalize',
+        fontSize: theme.spacing(5),
+      },
     },
     tabPanel: {
       display: 'flex',
