@@ -13,15 +13,11 @@ import {
   Upload as ImportIcon,
 } from '@material-ui/icons';
 
+import { getStaticModel } from '@/build/models';
+import { getStaticModelPaths } from '@/build/routes';
+
 import { IconButton } from '@/components/buttons';
 import { EXPORT_URL } from '@/config/globals';
-import {
-  Table,
-  TablePagination,
-  TableRecord,
-  TableSearch,
-  useVariables,
-} from '@/zendro/model-table';
 
 import {
   useDialog,
@@ -39,8 +35,15 @@ import { PageInfo, ReadManyResponse } from '@/types/requests';
 
 import { getAttributeList } from '@/utils/models';
 import { queryRecord, queryRecords, queryRecordsCount } from '@/utils/queries';
-import { getStaticModel, getStaticModelPaths } from '@/utils/static';
 import { isNullorEmpty } from '@/utils/validation';
+
+import {
+  Table,
+  TablePagination,
+  TableRecord,
+  TableSearch,
+  useVariables,
+} from '@/zendro/model-table';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();

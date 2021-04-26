@@ -46,20 +46,31 @@ export interface DataRecord {
 
 /* ASSOCIATIONS */
 
+export type AssociationType =
+  | 'to_one'
+  | 'to_many'
+  | 'to_many_through_sql_cross_table';
+
 export interface Association {
-  type: 'to_one' | 'to_many' | 'to_many_through_sql_cross_table';
+  type: AssociationType;
+  reverseAssociationType?: AssociationType;
+  targetStorageType: 'sql';
   target: string;
   targetKey: string;
   sourceKey?: string;
   keyIn?: string;
   keysIn?: string;
-  targetStorageType: 'sql';
-  label: string;
+  label?: string;
   sublabel?: string;
 }
 
 export interface ParsedAssociation extends Association {
   name: string;
+}
+
+export interface ParsedAssociation2 extends Association {
+  name: string;
+  reverseAssociationType: AssociationType;
 }
 
 /* DATA MODELS */
@@ -81,6 +92,15 @@ export type ParsedDataModel2 = Assign<
   {
     associations?: ParsedAssociation[];
     attributes: ParsedAttribute[];
+    primaryKey: string;
+  }
+>;
+
+export type ParsedDataModel3 = Assign<
+  DataModel,
+  {
+    associations?: Record<string, ParsedAssociation2>;
+    attributes: Record<string, ParsedAttribute>;
     primaryKey: string;
   }
 >;

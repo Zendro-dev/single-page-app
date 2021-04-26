@@ -6,6 +6,9 @@ import useSWR from 'swr';
 import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
+import { getStaticModel } from '@/build/models';
+import { getStaticModelPaths } from '@/build/routes';
+
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
 import AssociationList from '@/components/association-list';
 
@@ -18,7 +21,6 @@ import { ModelUrlQuery } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 
 interface RecordProps {
   associations: ParsedAssociation[];

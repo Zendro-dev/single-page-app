@@ -7,6 +7,9 @@ import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
 import { BubbleChart as ModelIcon, Edit as EditIcon } from '@material-ui/icons';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
+import { getStaticModel } from '@/build/models';
+import { getStaticModelPaths } from '@/build/routes';
+
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
@@ -29,7 +32,6 @@ import { ModelUrlQuery } from '@/types/routes';
 import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {

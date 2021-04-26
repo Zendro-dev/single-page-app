@@ -1,7 +1,7 @@
+import preval from 'next-plugin-preval';
 import { ParsedDataModel2 } from '@/types/models';
 import { getAttributeList, parseAssociations } from '@/utils/models';
-import { getStaticModels } from '@/utils/static';
-import preval from 'next-plugin-preval';
+import { getStaticModels } from './models';
 
 async function buildModels(): Promise<Record<string, ParsedDataModel2>> {
   const models = await getStaticModels();

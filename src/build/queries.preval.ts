@@ -3,7 +3,7 @@ import preval from 'next-plugin-preval';
 import { join } from 'path';
 import { format } from 'prettier';
 import { StaticQueries } from '@/types/static';
-import { getStaticQueries } from '@/utils/static';
+import { getStaticQueries } from './queries';
 
 async function buildQueries(): Promise<Record<string, StaticQueries>> {
   const modelQueries = await getStaticQueries();
