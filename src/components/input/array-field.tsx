@@ -3,7 +3,12 @@ import { Overwrite } from 'utility-types';
 
 import AddIcon from '@material-ui/icons/Add';
 
-import { Button, InputAdornment, SvgIconProps } from '@material-ui/core';
+import {
+  Button,
+  InputAdornment,
+  SvgIconProps,
+  FormHelperText,
+} from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 
@@ -79,6 +84,7 @@ export default function ArrayField({
   onError,
   value,
   endAdornment: _,
+  helperText,
   type,
   label,
   ...props
@@ -128,6 +134,11 @@ export default function ArrayField({
               overflow: 'auto',
             }}
           >
+            {helperText && (
+              <FormHelperText component={helperText.component ?? 'p'}>
+                {helperText.node}
+              </FormHelperText>
+            )}
             {onChange && (
               <Button fullWidth={true} onClick={addItem(-1)}>
                 <AddIcon /> Add item
