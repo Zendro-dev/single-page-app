@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) =>
     root: {
       position: 'relative',
       display: 'flex',
-      margin: theme.spacing(5, 0, 10, 0),
+      margin: theme.spacing(5, 0, 6, 0),
     },
     actionX: {
       '& > svg': {
