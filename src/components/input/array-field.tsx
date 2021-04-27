@@ -88,11 +88,16 @@ export default function ArrayField({
       </AccordionSummary>
       <AccordionDetails>
         <fieldset className={classes.fieldset}>
+          {/* VALIDATION ERRORS */}
           {helperText && (
-            <FormHelperText component={helperText.component ?? 'p'}>
+            <FormHelperText
+              className={classes.helperText}
+              component={helperText.component ?? 'p'}
+            >
               {helperText.node}
             </FormHelperText>
           )}
+
           {/* INSERT AT POSITION=0 */}
           <Button className={classes.actionAddNew} onClick={addItem(-1)}>
             <AddIcon /> Add New Item
@@ -217,6 +222,9 @@ const useStyles = makeStyles((theme) =>
       '&:hover .action-bottom': {
         display: 'inline-flex',
       },
+    },
+    helperText: {
+      marginBottom: theme.spacing(2),
     },
   })
 );
