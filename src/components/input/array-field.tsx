@@ -216,6 +216,7 @@ const useStyles = makeStyles((theme) =>
       border: 0,
       overflowY: 'auto',
       position: 'relative',
+      maxHeight: theme.spacing(180),
     },
     fieldContainer: {
       width: '100%',
