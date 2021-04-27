@@ -196,8 +196,8 @@ const useStyles = makeStyles((theme) =>
     actionAddNewBottom: {
       display: 'none',
       '&:hover': {
-        color: theme.palette.primary.main,
-        backgroundColor: theme.palette.background.default,
+        color: theme.palette.background.default,
+        backgroundColor: theme.palette.primary.main,
       },
     },
     actionClear: {
