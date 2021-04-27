@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
 
-import { Button, InputAdornment } from '@material-ui/core';
+import { Button, FormHelperText, InputAdornment } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Add as AddIcon,
@@ -40,6 +40,7 @@ export default function ArrayField({
   onError,
   value: arrayValue,
   endAdornment: _,
+  helperText,
   type,
   label,
   ...props
@@ -87,6 +88,11 @@ export default function ArrayField({
       </AccordionSummary>
       <AccordionDetails>
         <fieldset className={classes.fieldset}>
+          {helperText && (
+            <FormHelperText component={helperText.component ?? 'p'}>
+              {helperText.node}
+            </FormHelperText>
+          )}
           {/* INSERT AT POSITION=0 */}
           <Button className={classes.actionAddNew} onClick={addItem(-1)}>
             <AddIcon /> Add New Item
