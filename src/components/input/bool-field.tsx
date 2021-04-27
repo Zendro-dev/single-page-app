@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) =>
       marginLeft: theme.spacing(4),
     },
     root: {
-      margin: theme.spacing(2, 0),
+      margin: theme.spacing(1, 0, 2, 0),
     },
   })
 );
