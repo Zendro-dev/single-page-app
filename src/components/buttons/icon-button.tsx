@@ -1,26 +1,37 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
+import React, { ReactElement } from 'react';
+import {
+  IconButton as MuiIconButton,
+  IconButtonProps as MuiIconButtonProps,
+  Tooltip,
+} from '@material-ui/core';
 
-interface ClickableIconProps {
-  tooltip: string;
-  disabled?: boolean;
-  handleOnClick: React.MouseEventHandler<HTMLButtonElement>;
+export interface IconButtonProps extends MuiIconButtonProps {
+  component?: React.ElementType;
+  tooltip?: string;
 }
 
-export default function ClickableIcon({
+export default function IconButton({
   tooltip,
-  handleOnClick,
-  disabled,
-  children,
-}: PropsWithChildren<ClickableIconProps>): ReactElement {
+  onClick,
+  ...props
+}: IconButtonProps): ReactElement {
   return (
-    <Tooltip title={tooltip}>
-      <span>
-        <IconButton color="inherit" disabled={disabled} onClick={handleOnClick}>
-          {children}
-        </IconButton>
-      </span>
-    </Tooltip>
+    <>
+      {tooltip ? (
+        <Tooltip title={tooltip} disableInteractive>
+          <MuiIconButton
+            component={props.disabled ? 'span' : props.component ?? 'button'}
+            {...props}
+            onClick={onClick}
+          >
+            {props.children}
+          </MuiIconButton>
+        </Tooltip>
+      ) : (
+        <MuiIconButton {...props} onClick={onClick}>
+          {props.children}
+        </MuiIconButton>
+      )}
+    </>
   );
 }

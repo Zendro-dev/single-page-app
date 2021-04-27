@@ -43,12 +43,11 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       width: '100%',
-      margin: theme.spacing(5, 0, 2, 0),
     },
     helperText: {
-      marginLeft: theme.spacing(4),
-      padding: 0,
+      width: '100%',
+      marginTop: theme.spacing(1),
+      padding: theme.spacing(0, 4, 0, 4),
     },
-    input: {},
   })
 );

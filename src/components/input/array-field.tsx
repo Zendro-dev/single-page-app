@@ -1,39 +1,29 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
 
-import AddIcon from '@material-ui/icons/Add';
-
-import { Button, InputAdornment, SvgIconProps } from '@material-ui/core';
-import { Clear as ClearIcon } from '@material-ui/icons';
-import { Delete as DeleteIcon } from '@material-ui/icons';
-
+import { Button, InputAdornment } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
-  BoolField,
-  DateTimeField,
-  FieldIcons,
-  FloatField,
-  IntField,
-  StringField,
-  TextFieldProps,
-} from '@/components/input';
+  Add as AddIcon,
+  Clear as ClearIcon,
+  Delete as DeleteIcon,
+} from '@material-ui/icons';
 
-import ClickableIcon from '@/components/buttons/icon-button';
+import { FieldIcons, InputField, TextFieldProps } from '@/components/input';
+import IconButton from '@/components/buttons/icon-button';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { AttributeArrayValue, AttributeScalarValue } from '@/types/models';
-
-type InputFieldProps = Overwrite<
-  TextFieldProps,
-  {
-    onChange?: (value: AttributeScalarValue) => void;
-    onError?: (value?: string) => void;
-    value: AttributeScalarValue;
-  }
->;
+import {
+  AttributeArrayType,
+  AttributeArrayValue,
+  AttributeScalarType,
+  AttributeScalarValue,
+} from '@/types/models';
+import clsx from 'clsx';
 
 type ArrayFieldProps = Overwrite<
   TextFieldProps,
@@ -41,52 +31,28 @@ type ArrayFieldProps = Overwrite<
     onChange?: (value: AttributeArrayValue) => void;
     onError?: (value?: string) => void;
     value: AttributeArrayValue;
+    type: AttributeArrayType;
   }
 >;
-
-const ArrayInputField = ({
-  type,
-  value,
-  onError,
-  ...props
-}: Overwrite<TextFieldProps, InputFieldProps>): ReactElement => {
-  switch (type) {
-    case '[Boolean]':
-      return <BoolField {...props} value={value as boolean | null} />;
-    case '[DateTime]':
-      return <DateTimeField {...props} value={value as Date | null} />;
-    case '[Float]':
-      return (
-        <FloatField
-          {...props}
-          onError={onError}
-          value={value as number | null}
-        />
-      );
-    case '[Int]':
-      return (
-        <IntField {...props} onError={onError} value={value as number | null} />
-      );
-    case '[String]':
-      return <StringField {...props} value={value as string | null} />;
-    default:
-      return <StringField {...props} value={value as string | null} />;
-  }
-};
 
 export default function ArrayField({
   onChange,
   onError,
-  value,
+  value: arrayValue,
   endAdornment: _,
   type,
   label,
   ...props
 }: ArrayFieldProps): ReactElement {
-  const handleOnChange = (index: number) => (v: AttributeScalarValue): void => {
-    if (onChange && value) {
-      value[index] = v;
-      onChange(value);
+  const classes = useStyles();
+
+  const handleOnChange = (index: number) => (
+    v: AttributeScalarValue | AttributeArrayValue
+  ): void => {
+    const scalarValue = v as AttributeScalarValue;
+    if (onChange && arrayValue) {
+      arrayValue[index] = scalarValue;
+      onChange(arrayValue);
     }
   };
 
@@ -94,93 +60,157 @@ export default function ArrayField({
     event: React.MouseEvent<HTMLButtonElement>
   ): void => {
     event.preventDefault();
-    value ? value.splice(index + 1, 0, null) : (value = [null]);
+    arrayValue ? arrayValue.splice(index + 1, 0, null) : (arrayValue = [null]);
     if (onChange) {
-      onChange(value);
+      onChange(arrayValue);
     }
   };
 
   const handleOnClear = (index: number): void => {
-    if (value && onChange && !props.readOnly) {
-      value[index] = null;
-      onChange(value);
+    if (arrayValue && onChange && !props.readOnly) {
+      arrayValue[index] = null;
+      onChange(arrayValue);
     }
   };
 
   const deleteItem = (index: number): void => {
-    if (value && onChange && !props.readOnly) {
-      value.splice(index, 1);
-      onChange(value);
+    if (arrayValue && onChange && !props.readOnly) {
+      arrayValue.splice(index, 1);
+      onChange(arrayValue);
     }
   };
 
   return (
-    <div style={{ width: '100%', paddingBottom: '10px' }}>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          {label}
-        </AccordionSummary>
-        <AccordionDetails>
-          <fieldset
-            style={{
-              width: '100%',
-              height: '150px',
-              overflow: 'auto',
-            }}
-          >
-            {onChange && (
-              <Button fullWidth={true} onClick={addItem(-1)}>
-                <AddIcon /> Add item
-              </Button>
-            )}
-            {value &&
-              value.map((v: AttributeScalarValue, index: number) => (
-                <div key={index}>
-                  <FieldIcons
-                    rightIcon={
-                      onChange
-                        ? (props: SvgIconProps): ReactElement => (
-                            <ClickableIcon
-                              tooltip="Delete item"
-                              handleOnClick={() => deleteItem(index)}
-                            >
-                              <DeleteIcon {...props} />
-                            </ClickableIcon>
-                          )
-                        : undefined
+    <Accordion className={classes.accordion}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        {label}
+      </AccordionSummary>
+      <AccordionDetails>
+        <fieldset className={classes.fieldset}>
+          {/* INSERT AT POSITION=0 */}
+          <Button className={classes.actionAddNew} onClick={addItem(-1)}>
+            <AddIcon /> Add New Item
+          </Button>
+
+          {/* ARRAY FIELD */}
+          {arrayValue &&
+            arrayValue.length > 0 &&
+            arrayValue.map(
+              (scalarValue: AttributeScalarValue, index: number) => (
+                <FieldIcons
+                  key={index}
+                  className={classes.fieldContainer}
+                  actionBottom={
+                    onChange && (
+                      <IconButton
+                        className={clsx(
+                          classes.actionAddNewBottom,
+                          'action-bottom'
+                        )}
+                        onClick={addItem(index)}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    )
+                  }
+                  actionRight={
+                    onChange && (
+                      <IconButton
+                        className={clsx(classes.actionDelete)}
+                        size="small"
+                        tooltip="Delete item"
+                        onClick={() => deleteItem(index)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )
+                  }
+                >
+                  <InputField
+                    {...props}
+                    style={{
+                      width: '100%',
+                    }}
+                    type={
+                      type.substring(1, type.length - 1) as AttributeScalarType
                     }
-                  >
-                    <ArrayInputField
-                      {...props}
-                      type={type}
-                      value={v}
-                      label={'item ' + index}
-                      onChange={handleOnChange(index)}
-                      onError={onError}
-                      endAdornment={
-                        onChange && (
-                          <InputAdornment position="end">
-                            <ClickableIcon
-                              tooltip="Unset item"
-                              handleOnClick={() => handleOnClear(index)}
-                            >
-                              <ClearIcon />
-                            </ClickableIcon>
-                          </InputAdornment>
-                        )
-                      }
-                    />
-                  </FieldIcons>
-                  {onChange && (
-                    <Button fullWidth={true} onClick={addItem(index)}>
-                      <AddIcon /> Add item
-                    </Button>
-                  )}
-                </div>
-              ))}
-          </fieldset>
-        </AccordionDetails>
-      </Accordion>
-    </div>
+                    value={scalarValue}
+                    label={'item ' + index}
+                    onChange={handleOnChange(index)}
+                    onError={onError}
+                    endAdornment={
+                      onChange && (
+                        <InputAdornment position="end">
+                          <IconButton
+                            className={classes.actionClear}
+                            tooltip="Unset item"
+                            onClick={() => handleOnClear(index)}
+                          >
+                            <ClearIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }
+                  />
+                </FieldIcons>
+              )
+            )}
+        </fieldset>
+      </AccordionDetails>
+    </Accordion>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    accordion: {
+      boxShadow: 'none',
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderRadius: theme.shape.borderRadius,
+      borderColor: 'rgba(0, 0, 0, 0.23)',
+      backgroundColor: 'inherit',
+      padding: theme.spacing(2, 0),
+      width: '100%',
+    },
+    actionAddNew: {
+      color: theme.palette.grey[700],
+      fontWeight: 'bold',
+      margin: theme.spacing(0, 0, 2, 6),
+      '&:hover': {
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.background.default,
+      },
+    },
+    actionAddNewBottom: {
+      display: 'none',
+      '&:hover': {
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.background.default,
+      },
+    },
+    actionClear: {
+      '&:hover': {
+        color: theme.palette.secondary.main,
+        backgroundColor: theme.palette.background.default,
+      },
+    },
+    actionDelete: {
+      '&:hover': {
+        color: theme.palette.secondary.main,
+        backgroundColor: theme.palette.background.default,
+      },
+    },
+    fieldset: {
+      border: 0,
+      overflowY: 'auto',
+      position: 'relative',
+    },
+    fieldContainer: {
+      width: '100%',
+      '&:hover .action-bottom': {
+        display: 'inline-flex',
+      },
+    },
+  })
+);
