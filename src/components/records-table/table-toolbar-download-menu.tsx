@@ -55,7 +55,7 @@ export default function DownloadMenu({
 
   return (
     <>
-      <ClickableIcon tooltip="Download options" handleOnClick={handleClick}>
+      <ClickableIcon tooltip="Download options" onClick={handleClick}>
         <Export color="primary" />
       </ClickableIcon>
       <Menu

@@ -41,7 +41,7 @@ export default function TableToolBar({
       alignItems="center"
       justifyContent="flex-end"
     >
-      <ClickableIcon tooltip="Reload list" handleOnClick={onReload}>
+      <ClickableIcon tooltip="Reload list" onClick={onReload}>
         <Reload color="inherit" fontSize="small" />
       </ClickableIcon>
 
@@ -49,13 +49,13 @@ export default function TableToolBar({
 
       {(permissions.includes('create') || permissions.includes('*')) && (
         <>
-          <ClickableIcon tooltip="Add new no_assoc" handleOnClick={onAdd}>
+          <ClickableIcon tooltip="Add new no_assoc" onClick={onAdd}>
             <Add color="primary" />
           </ClickableIcon>
 
           <ClickableIcon
             tooltip="Import from csv"
-            handleOnClick={handleImportClicked}
+            onClick={handleImportClicked}
           >
             <Import color="primary" />
           </ClickableIcon>

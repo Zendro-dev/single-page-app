@@ -45,7 +45,7 @@ export default function SearchField({
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <ClickableIcon tooltip="Search" handleOnClick={searchClick}>
+            <ClickableIcon tooltip="Search" onClick={searchClick}>
               <Search color="inherit" fontSize="small" />
             </ClickableIcon>
           </InputAdornment>
@@ -55,7 +55,7 @@ export default function SearchField({
             <ClickableIcon
               tooltip="Clear search"
               disabled={clearDisabled}
-              handleOnClick={clearClick}
+              onClick={clearClick}
             >
               <ClearIcon
                 color={clearDisabled ? 'inherit' : 'secondary'}
