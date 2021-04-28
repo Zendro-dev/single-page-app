@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { QueryVariablePagination } from '@/types/queries';
 import { PageInfo } from '@/types/requests';
-import { TableRecord } from '../table';
 
 export type TablePage = 'first' | 'last' | 'next' | 'previous';
 
 export interface UsePaginationProps {
-  records: TableRecord[];
-  pageInfo: PageInfo;
+  recordCount: number;
+  endCursor: string | null;
+  startCursor: string | null;
   tablePage: TablePage;
   tableLimit: number;
 }
 
 export default function usePagination({
-  records,
-  pageInfo,
+  recordCount,
+  endCursor,
+  startCursor,
   tablePage,
   tableLimit,
 }: UsePaginationProps): QueryVariablePagination {
@@ -33,17 +34,24 @@ export default function usePagination({
       case 'next':
         setPagination({
           first: tableLimit,
-          after: records.length ? pageInfo.endCursor : undefined,
+          after: recordCount ? endCursor : undefined,
         });
         break;
       case 'previous':
         setPagination({
           last: tableLimit,
-          before: records.length ? pageInfo.startCursor : undefined,
+          before: recordCount ? startCursor : undefined,
         });
         break;
     }
-  }, [tableLimit, tablePage, pageInfo, records, setPagination]);
+  }, [
+    tableLimit,
+    tablePage,
+    endCursor,
+    startCursor,
+    recordCount,
+    setPagination,
+  ]);
 
   return pagination;
 }

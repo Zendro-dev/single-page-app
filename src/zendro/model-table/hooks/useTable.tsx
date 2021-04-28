@@ -6,7 +6,6 @@ import {
   QueryVariablePagination,
 } from '@/types/queries';
 import { PageInfo } from '@/types/requests';
-import { TableRecord } from '@/zendro/model-table/table';
 
 import useOrder, { UseOrderProps } from './useOrder';
 import usePagination, { UsePaginationProps } from './usePagination';
@@ -21,7 +20,7 @@ interface UseTableProps
     UsePaginationProps,
     UseSearchProps {
   attributes: ParsedAttribute[];
-  records: TableRecord[];
+  recordCount: number;
   pageInfo: PageInfo;
   associationPrimaryKeyValue: string;
   associationPrimaryKey: string;
@@ -29,7 +28,7 @@ interface UseTableProps
 
 export default function useTable({
   attributes,
-  records,
+  recordCount: recordCount,
   pageInfo,
   // PAGINATION
   tablePage,
@@ -46,8 +45,6 @@ export default function useTable({
   sortDirection,
   sortField,
 }: UseTableProps): UseTable {
-  console.log('useTable');
-
   const [assocPagination] = useState<QueryVariablePagination>({
     first: 1,
   });
@@ -66,8 +63,9 @@ export default function useTable({
   /* PAGINATION */
 
   const pagination = usePagination({
-    records,
-    pageInfo,
+    recordCount,
+    endCursor: pageInfo.endCursor,
+    startCursor: pageInfo.startCursor,
     tableLimit,
     tablePage,
   });
