@@ -1,4 +1,3 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import { GraphQLClient } from 'graphql-request';
 import {
   ClientError,
@@ -6,20 +5,25 @@ import {
   RequestDocument,
   Variables,
 } from 'graphql-request/dist/types';
-import queries from '@/build/queries.preval';
 import { GRAPHQL_URL, METAQUERY_URL } from '@/config/globals';
+import queries from '@/build/queries.preval';
 import { StaticQueries } from '@/types/static';
-import { ExtendedClientError } from '@/types/errors';
-import { OneOf } from '@/types/utility';
 import useAuth from './useAuth';
 import { useCallback, useMemo } from 'react';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { ExtendedClientError } from '@/types/errors';
+import { OneOf } from '@/types/utility';
 
 type MetaRequestOptions = {
   variables?: Variables;
-} & OneOf<{
   jq: string;
   jsonPath: string;
-}>;
+} & Partial<
+  OneOf<{
+    jq: string;
+    jsonPath: string;
+  }>
+>;
 
 type LegacyRequest = <T = unknown>(
   query: string,
@@ -56,6 +60,16 @@ export default function useZendroClient(): UseZendroClient {
     [auth.user?.token]
   );
 
+  const metaClient = useMemo(
+    () =>
+      new GraphQLClient(METAQUERY_URL, {
+        headers: {
+          authorization: 'Bearer ' + auth.user?.token,
+        },
+      }),
+    [auth.user?.token]
+  );
+
   const request: GraphQLRequest = useCallback(
     (document, variables) => {
       return client.request(document, variables);
@@ -64,57 +78,13 @@ export default function useZendroClient(): UseZendroClient {
   );
 
   const metaRequest: MetaQueryRequest = useCallback(
-    async (query, options) => {
-      const { variables, jq, jsonPath } = options;
-
-      let response: AxiosResponse<GraphQLResponse>;
-      try {
-        response = await axios({
-          url: METAQUERY_URL,
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json;charset=UTF-8',
-            Authorization: `Bearer ${auth.user?.token}`,
-          },
-          data: {
-            queries: [
-              {
-                query,
-                variables,
-              },
-            ],
-            jq,
-            jsonPath,
-          },
-        });
-      } catch (error) {
-        const axiosError = error as AxiosError<GraphQLResponse>;
-        throw new ClientError(
-          axiosError.response?.data ?? {
-            data: null,
-            errors: undefined,
-            extensions: undefined,
-            status: 500,
-            error: axiosError,
-          },
-          {
-            query,
-            variables,
-          }
-        ) as ExtendedClientError;
-      }
-
-      if (response.data.errors) {
-        throw new ClientError(response.data, {
-          query,
-          variables,
-        }) as ExtendedClientError;
-      }
-
-      return response.data.data;
+    (query, { variables, jq, jsonPath }) => {
+      if (jq) return metaClient.request(query, variables, { jq });
+      else if (jsonPath)
+        return metaClient.request(query, variables, { jsonPath });
+      else return metaClient.request(query, variables);
     },
-    [auth.user?.token]
+    [metaClient]
   );
 
   const legacyRequest: LegacyRequest = useCallback(
