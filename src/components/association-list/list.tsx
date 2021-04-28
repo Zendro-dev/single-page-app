@@ -22,8 +22,8 @@ import {
   TablePagination,
   TableRowAssociationHandler,
   TableSearch,
-  TablePage,
   useTablePagination,
+  UseTablePaginationProps,
   useTableSearch,
   useTableOrder,
 } from '@/zendro/model-table';
@@ -62,36 +62,18 @@ export default function AssociationsList({
   const classes = useStyles();
   const zendro = useZendroClient();
 
-  const [count, setCount] = useState<number>(0);
-
-  const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
-  const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
-    []
-  );
-
-  const [associationFilter, setAssociationFilter] = useState<AssociationFilter>(
-    'no-filter'
-  );
-  const [searchText, setSearchText] = useState('');
-  const [pagination, setPagination] = useState<{
-    size: number;
-    page: TablePage;
-  }>({
-    size: 25,
-    page: 'first',
-  });
-  const [order, setOrder] = useState<UseOrderProps>();
-
-  const [selected, setSelected] = useState({
+  // Selected association
+  const [selectedAssoc, setSelectedAssoc] = useState({
     target: associations[0].target,
     name: associations[0].name,
     type: associations[0].type,
   });
 
   const assocTable = useMemo(() => {
-    return getModel(selected.target).schema;
-  }, [selected, getModel]);
+    return getModel(selectedAssoc.target).schema;
+  }, [selectedAssoc, getModel]);
 
+  // Showing records
   const [records, setRecords] = useState<{
     data: DataRecordWithAssoc[];
     pageInfo: PageInfo;
@@ -104,11 +86,23 @@ export default function AssociationsList({
       hasNextPage: false,
     },
   });
+  console.log({ pageInfo: records.pageInfo });
+
+  const [recordsTotal, setRecordsTotal] = useState<number>(0);
+
+  const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
+    'no-filter'
+  );
+  const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
+  const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
+    []
+  );
 
   /* VARIABLES */
 
+  const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
-    associationFilter,
+    associationFilter: recordsFilter,
     attributes: assocTable.attributes,
     primaryKey: assocTable.primaryKey,
     recordsToAdd,
@@ -116,18 +110,18 @@ export default function AssociationsList({
     searchText,
   });
 
+  const [order, setOrder] = useState<UseOrderProps>();
   const tableOrder = useTableOrder({
     sortDirection: order?.sortDirection,
     sortField: order?.sortField,
   });
 
-  const tablePagination = useTablePagination({
-    endCursor: records.pageInfo.endCursor,
-    startCursor: records.pageInfo.startCursor,
-    recordCount: records.data.length,
-    tableLimit: pagination.size,
-    tablePage: pagination.page,
+  const [pagination, setPagination] = useState<UseTablePaginationProps>({
+    limit: 5,
+    position: 'first',
+    cursor: null,
   });
+  const tablePagination = useTablePagination(pagination);
 
   /* QUERIES */
 
@@ -150,15 +144,17 @@ export default function AssociationsList({
   const recordsQuery = useMemo(() => {
     // console.log('USEMEMO - recordsQuery');
     // console.log({ selectedFilter: associationFilter });
-    if (associationView === 'details' || associationFilter === 'associated')
-      return zendro.queries[modelName].withFilter[selected.target].readFiltered;
-    else return zendro.queries[modelName].withFilter[selected.target].readAll;
+    if (associationView === 'details' || recordsFilter === 'associated')
+      return zendro.queries[modelName].withFilter[selectedAssoc.target]
+        .readFiltered;
+    else
+      return zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
   }, [
-    selected.target,
+    selectedAssoc.target,
     associationView,
     modelName,
     zendro.queries,
-    associationFilter,
+    recordsFilter,
   ]);
 
   const parsedRecords = useRecords({
@@ -306,8 +302,8 @@ export default function AssociationsList({
     const assoc = associations.find(
       (association) => association.target === target
     ) as ParsedAssociation;
-    if (target !== selected.target) {
-      setSelected({ target, name, type: assoc.type });
+    if (target !== selectedAssoc.target) {
+      setSelectedAssoc({ target, name, type: assoc.type });
       // setAssociationFilter('no-filter');
       // setSearchText('');
       // setRecordsToAdd([]);
@@ -329,7 +325,7 @@ export default function AssociationsList({
     switch (action) {
       case 'add':
         if (list === 'toAdd') {
-          if (selected.type === 'to_one') {
+          if (selectedAssoc.type === 'to_one') {
             setRecordsToAdd([recordToMark]);
             if (currAssocRecordId)
               setRecordsToRemove((recordsToRemove) => [
@@ -348,7 +344,7 @@ export default function AssociationsList({
       case 'remove':
         if (list === 'toAdd') {
           setRecordsToAdd(recordsToAdd.filter((item) => item !== recordToMark));
-          if (selected.type === 'to_one') {
+          if (selectedAssoc.type === 'to_one') {
             setRecordsToRemove(
               recordsToRemove.filter((item) => item !== currAssocRecordId)
             );
@@ -362,19 +358,19 @@ export default function AssociationsList({
   };
 
   const handleSubmit = async (): Promise<void> => {
-    const { namePlCp, nameCp } = getInflections(selected.name);
-    const mutationName = selected.type === 'to_one' ? nameCp : namePlCp;
+    const { namePlCp, nameCp } = getInflections(selectedAssoc.name);
+    const mutationName = selectedAssoc.type === 'to_one' ? nameCp : namePlCp;
     const assocVariables = {
       [primaryKey]: recordId,
       [`add${mutationName}`]:
         recordsToAdd.length > 0
-          ? selected.type === 'to_one'
+          ? selectedAssoc.type === 'to_one'
             ? recordsToAdd.toString()
             : recordsToAdd
           : undefined,
       [`remove${mutationName}`]:
         recordsToRemove.length > 0
-          ? selected.type === 'to_one'
+          ? selectedAssoc.type === 'to_one'
             ? recordsToRemove.toString()
             : recordsToRemove
           : undefined,
@@ -398,7 +394,7 @@ export default function AssociationsList({
   };
 
   const handleOnAssociationFilterSelect = (filter: string): void => {
-    setAssociationFilter(filter as AssociationFilter);
+    setRecordsFilter(filter as AssociationFilter);
   };
 
   return (
@@ -406,7 +402,7 @@ export default function AssociationsList({
       <div className={classes.toolbar}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <TableSearch
-            placeholder={`Search ${selected.name}`}
+            placeholder={`Search ${selectedAssoc.name}`}
             value={searchText}
             onSearch={(value) => setSearchText(value)}
             // onChange={(event) => setSearchText(event.target.value)}
@@ -415,10 +411,10 @@ export default function AssociationsList({
           {associationView !== 'details' && (
             <StyledSelect
               className={classes.toolbarFilters}
-              onChange={handleOnAssociationFilterSelect}
               id={`${modelName}-association-filters`}
-              label={`Select ${selected.name} filters`}
-              selected={associationFilter}
+              label={`Select ${selectedAssoc.name} filters`}
+              onChange={handleOnAssociationFilterSelect}
+              selected={recordsFilter}
               items={[
                 {
                   id: 'no-filter',
@@ -462,7 +458,7 @@ export default function AssociationsList({
           </IconButton>
           {associationView !== 'details' && (
             <IconButton
-              tooltip={`Save ${selected.target} data`}
+              tooltip={`Save ${selectedAssoc.target} data`}
               onClick={handleSubmit}
               disabled={
                 recordsToAdd.length === 0 && recordsToRemove.length === 0
@@ -482,7 +478,7 @@ export default function AssociationsList({
               icon: type === 'to_many' ? ToManyIcon : ToOneIcon,
             }))}
             onChange={handleOnAsociationSelect}
-            selected={selected.target}
+            selected={selectedAssoc.target}
           />
         </div>
       </div>
@@ -512,22 +508,20 @@ export default function AssociationsList({
           recordsToRemove={recordsToRemove}
         />
         <TablePagination
-          count={count}
+          count={recordsTotal}
           options={[5, 10, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
-          hasFirstPage={
-            records.pageInfo ? records.pageInfo.hasPreviousPage : false
+          hasFirstPage={records.pageInfo.hasPreviousPage}
+          hasLastPage={records.pageInfo.hasNextPage}
+          hasPreviousPage={records.pageInfo.hasPreviousPage}
+          hasNextPage={records.pageInfo.hasNextPage}
+          startCursor={records.pageInfo.startCursor}
+          endCursor={records.pageInfo.endCursor}
+          onPageChange={(position, cursor) =>
+            setPagination((state) => ({ ...state, position, cursor }))
           }
-          hasLastPage={records.pageInfo ? records.pageInfo.hasNextPage : false}
-          hasPreviousPage={
-            records.pageInfo ? records.pageInfo.hasPreviousPage : false
-          }
-          hasNextPage={records.pageInfo ? records.pageInfo.hasNextPage : false}
-          onPageChange={(page) =>
-            setPagination((state) => ({ ...state, page }))
-          }
-          onPageSizeChange={(size) =>
-            setPagination((state) => ({ ...state, size }))
+          onPageSizeChange={(limit) =>
+            setPagination((state) => ({ ...state, limit }))
           }
         />
       </TableContainer>

@@ -18,7 +18,7 @@ import {
   LastPage,
 } from '@material-ui/icons';
 
-import { TablePage } from './hooks/usePagination';
+import { TablePaginationPosition } from './hooks/usePagination';
 
 interface RecordsTablePaginationProps {
   paginationLimit?: number;
@@ -28,8 +28,13 @@ interface RecordsTablePaginationProps {
   hasLastPage: boolean | null;
   hasNextPage: boolean | null;
   hasPreviousPage: boolean | null;
-  onPageChange: (page: TablePage) => void;
-  onPageSizeChange: (size: number) => void;
+  onPageChange: (
+    position: TablePaginationPosition,
+    cursor: string | null
+  ) => void;
+  onPageSizeChange: (limit: number) => void;
+  startCursor: string | null;
+  endCursor: string | null;
 }
 
 export default function RecordsTablePagination({
@@ -40,19 +45,31 @@ export default function RecordsTablePagination({
   hasLastPage,
   hasNextPage,
   hasPreviousPage,
-  onPageChange,
-  onPageSizeChange,
+  startCursor,
+  endCursor,
+  ...props
 }: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
 
-  const handleOnPageChange = (page: TablePage) => () => {
-    if (onPageChange) onPageChange(page);
+  const handleOnPageChange = (position: TablePaginationPosition) => () => {
+    if (!props.onPageChange) return;
+
+    const cursor =
+      position === 'next'
+        ? endCursor
+        : position === 'previous'
+        ? startCursor
+        : null;
+
+    console.log({ position, cursor });
+
+    props.onPageChange(position, cursor);
   };
 
-  const handlePageSizeChange = (
+  const handlePageLimitChange = (
     event: React.ChangeEvent<{ value: number }>
   ): void => {
-    if (onPageSizeChange) onPageSizeChange(event.target.value);
+    if (props.onPageSizeChange) props.onPageSizeChange(event.target.value);
   };
 
   return (
@@ -63,7 +80,7 @@ export default function RecordsTablePagination({
           labelId="pagination"
           variant="standard"
           value={paginationLimit}
-          onChange={handlePageSizeChange}
+          onChange={handlePageLimitChange}
         >
           {options.map((rowValue, index) => (
             <MenuItem value={rowValue} key={index}>

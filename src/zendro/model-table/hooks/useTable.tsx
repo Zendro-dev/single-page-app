@@ -8,7 +8,7 @@ import {
 import { PageInfo } from '@/types/requests';
 
 import useOrder, { UseOrderProps } from './useOrder';
-import usePagination, { UsePaginationProps } from './usePagination';
+import usePagination, { UseTablePaginationProps } from './usePagination';
 import useSearch, { UseSearchProps } from './useSearch';
 
 interface UseTable {
@@ -17,7 +17,7 @@ interface UseTable {
 
 interface UseTableProps
   extends UseOrderProps,
-    UsePaginationProps,
+    UseTablePaginationProps,
     UseSearchProps {
   attributes: ParsedAttribute[];
   recordCount: number;

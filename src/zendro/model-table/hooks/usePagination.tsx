@@ -1,57 +1,50 @@
 import { useEffect, useState } from 'react';
 import { QueryVariablePagination } from '@/types/queries';
-import { PageInfo } from '@/types/requests';
 
-export type TablePage = 'first' | 'last' | 'next' | 'previous';
+export type TablePaginationPosition = 'first' | 'last' | 'next' | 'previous';
 
-export interface UsePaginationProps {
-  recordCount: number;
-  endCursor: string | null;
-  startCursor: string | null;
-  tablePage: TablePage;
-  tableLimit: number;
+export interface UseTablePaginationProps {
+  cursor: string | null;
+  limit: number;
+  position: TablePaginationPosition;
 }
 
 export default function usePagination({
-  recordCount,
-  endCursor,
-  startCursor,
-  tablePage,
-  tableLimit,
-}: UsePaginationProps): QueryVariablePagination {
+  cursor,
+  limit,
+  position,
+}: UseTablePaginationProps): QueryVariablePagination {
   const [pagination, setPagination] = useState<QueryVariablePagination>({
-    first: tableLimit,
+    first: limit,
   });
 
   useEffect(() => {
-    switch (tablePage) {
+    console.log({
+      cursor,
+      limit,
+      position,
+    });
+    switch (position) {
       case 'first':
-        setPagination({ first: tableLimit });
+        setPagination({ first: limit });
         break;
       case 'last':
-        setPagination({ last: tableLimit });
+        setPagination({ last: limit });
         break;
       case 'next':
         setPagination({
-          first: tableLimit,
-          after: recordCount ? endCursor : undefined,
+          first: limit,
+          after: cursor, // endCursor
         });
         break;
       case 'previous':
         setPagination({
-          last: tableLimit,
-          before: recordCount ? startCursor : undefined,
+          last: limit,
+          before: cursor, // startCursor
         });
         break;
     }
-  }, [
-    tableLimit,
-    tablePage,
-    endCursor,
-    startCursor,
-    recordCount,
-    setPagination,
-  ]);
+  }, [cursor, limit, position, setPagination]);
 
   return pagination;
 }
