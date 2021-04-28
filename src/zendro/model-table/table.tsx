@@ -17,7 +17,6 @@ import { usePermissions } from '@/hooks';
 
 export interface TableRecord {
   data: DataRecord;
-  isMarked?: boolean;
   isAssociated?: boolean;
 }
 
