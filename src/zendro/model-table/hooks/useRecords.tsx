@@ -18,12 +18,6 @@ export default function useRecords({
   const [tableRecords, setTableRecords] = useState<TableRecord[]>([]);
 
   useEffect(() => {
-    console.log({
-      assocName,
-      assocPrimaryKey,
-      assocPrimaryKeyValue,
-      records,
-    });
     const tableRecords = records.reduce<TableRecord[]>((acc, record) => {
       const isAssociated =
         assocName && assocPrimaryKey && assocPrimaryKeyValue
