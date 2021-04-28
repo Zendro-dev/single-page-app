@@ -10,12 +10,12 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
+import AssociationsList from '@/components/association-list';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/components/attributes-form';
 import BreadCrumbs from '@/components/navigation/breadcrumbs';
-import AssociationList from '@/components/association-list';
 
 import {
   useDialog,
@@ -33,7 +33,6 @@ import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
-import AssociationsList2 from '@/components/association-list/list';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -355,12 +354,12 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel className={classes.tabPanel} value="associations">
-        <AssociationsList2
+        <AssociationsList
           associationView="update"
           associations={associations}
           attributes={attributes}
           modelName={modelName}
-          recordId={urlQuery.id}
+          recordId={urlQuery.id as string}
           primaryKey={requests.primaryKey}
         />
       </TabPanel>
