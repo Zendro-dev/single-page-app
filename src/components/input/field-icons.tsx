@@ -1,36 +1,56 @@
 import clsx from 'clsx';
+import { ReactElement, ReactNode, PropsWithChildren } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import { SvgIconType } from '@/types/elements';
-import { ReactElement, PropsWithChildren } from 'react';
 
 interface InputContainerProps {
   className?: string;
-  leftIcon?: SvgIconType;
-  rightIcon?: SvgIconType;
+  actionBottom?: ReactNode;
+  actionLeft?: ReactNode;
+  actionRight?: ReactNode;
+  actionTop?: ReactNode;
 }
 
 export type WithIcons<T> = T &
-  Pick<InputContainerProps, 'leftIcon' | 'rightIcon'>;
+  Pick<
+    InputContainerProps,
+    'actionBottom' | 'actionLeft' | 'actionRight' | 'actionTop'
+  >;
 
 export default function InputContainer({
-  leftIcon: LeftIcon,
-  rightIcon: RightIcon,
+  actionBottom: bottomIcon,
+  actionLeft: LeftIcon,
+  actionRight: RightIcon,
+  actionTop: topIcon,
   ...props
 }: PropsWithChildren<InputContainerProps>): ReactElement {
   const classes = useStyles();
 
   return (
     <div className={clsx(classes.root, props.className ?? '')}>
-      {LeftIcon ? (
-        <LeftIcon className={clsx(classes.icon, classes.leftIcon)} />
-      ) : (
-        <span className={classes.iconPlaceholder} />
+      {topIcon && (
+        <div className={clsx(classes.actionY, classes.actionYTop)}>
+          {topIcon}
+        </div>
       )}
+
+      {
+        <div className={clsx(classes.actionXLeft, classes.actionX)}>
+          {LeftIcon || <svg />}
+        </div>
+      }
+
       {props.children}
-      {RightIcon ? (
-        <RightIcon className={clsx(classes.icon, classes.rightIcon)} />
-      ) : (
-        <span className={classes.iconPlaceholder} />
+
+      {
+        <div className={clsx(classes.actionXRight, classes.actionX)}>
+          {RightIcon || <svg />}
+        </div>
+      }
+
+      {bottomIcon && (
+        <div className={clsx(classes.actionY, classes.actionYBottom)}>
+          {bottomIcon}
+        </div>
       )}
     </div>
   );
@@ -39,21 +59,53 @@ export default function InputContainer({
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      position: 'relative',
       display: 'flex',
+      margin: theme.spacing(5, 0, 6, 0),
     },
-    iconPlaceholder: {
-      width: theme.spacing(9.5),
+    actionX: {
+      '& > svg': {
+        marginTop: theme.spacing(4),
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+      },
+      '& > button': {
+        marginTop: theme.spacing(3),
+      },
+      '& > button svg': {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+      },
     },
-    icon: {
-      marginTop: theme.spacing(8),
-      width: theme.spacing(5),
-      height: theme.spacing(5),
-    },
-    leftIcon: {
+    actionXLeft: {
       marginRight: theme.spacing(4),
     },
-    rightIcon: {
+    actionXRight: {
       marginLeft: theme.spacing(4),
+    },
+    actionY: {
+      position: 'absolute',
+      zIndex: 1,
+    },
+    actionYBottom: {
+      backgroundColor: theme.palette.background.default,
+      bottom: '-11px',
+      left: '45%',
+      '& > svg, button': {
+        margin: 0,
+        height: theme.spacing(5),
+        width: theme.spacing(5),
+      },
+    },
+    actionYTop: {
+      backgroundColor: theme.palette.background.default,
+      top: '-12.5px',
+      left: '45%',
+      '& > svg, button': {
+        margin: 0,
+        height: theme.spacing(5),
+        width: theme.spacing(5),
+      },
     },
   })
 );
