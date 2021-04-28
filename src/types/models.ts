@@ -44,6 +44,8 @@ export interface DataRecord {
   [key: string]: AttributeValue;
 }
 
+export type DataRecordWithAssoc = DataRecord & Record<string, DataRecord>;
+
 /* ASSOCIATIONS */
 
 export type AssociationType =
