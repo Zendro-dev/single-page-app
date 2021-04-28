@@ -25,7 +25,7 @@ export interface QueryVariableSearch {
   // TODO operator types
   operator?: string;
   // TODO recursive search
-  search?: QueryVariableSearch[];
+  search?: (QueryVariableSearch | undefined)[];
 }
 
 export type OrderDirection = 'ASC' | 'DESC';

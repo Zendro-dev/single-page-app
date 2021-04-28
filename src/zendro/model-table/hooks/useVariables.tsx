@@ -3,6 +3,7 @@ import {
   QueryModelTableRecordsVariables,
   QueryVariableOrder,
   QueryVariablePagination,
+  QueryVariables,
   QueryVariableSearch,
 } from '@/types/queries';
 import { PageInfo } from '@/types/requests';
@@ -23,9 +24,11 @@ interface UseVariables {
 }
 
 type VariableAction =
-  | { type: 'SET_SEARCH'; payload: QueryVariableSearch }
+  | { type: 'SET_SEARCHFIELD'; payload: QueryVariableSearch }
+  | { type: 'SET_SEARCHFILTER'; payload: QueryVariableSearch }
   | { type: 'SET_ORDER'; payload: QueryVariableOrder }
   | { type: 'SET_PAGINATION'; payload: QueryVariablePagination }
+  | { type: 'SET_VAR'; payload: QueryVariables }
   | { type: 'RESET' };
 
 const initialVariables: QueryModelTableRecordsVariables = {
@@ -33,6 +36,7 @@ const initialVariables: QueryModelTableRecordsVariables = {
   order: undefined,
   pagination: { first: 25 },
   assocPagination: { first: 1 },
+  assocSearch: undefined,
 };
 
 const variablesReducer = (
@@ -45,6 +49,12 @@ const variablesReducer = (
         ...variables,
         search: action.payload,
       };
+    case 'SET_SEARCHFILTER': {
+      return {
+        ...variables,
+        search: combinedSearch,
+      };
+    }
     case 'SET_ORDER':
       return {
         ...variables,
@@ -55,6 +65,13 @@ const variablesReducer = (
         ...variables,
         pagination: action.payload,
       };
+    case 'SET_VAR':
+      return {
+        ...variables,
+        ...action.payload,
+      };
+
+    default:
     case 'RESET':
       return {
         search: undefined,
@@ -68,7 +85,8 @@ const variablesReducer = (
 export default function useVariables(
   attributes: ParsedAttribute[],
   records: TableRecord[],
-  pageInfo: PageInfo
+  pageInfo: PageInfo,
+  filter: AssociatonFilter
 ): UseVariables {
   const [variables, dispatch] = useReducer(variablesReducer, initialVariables);
 

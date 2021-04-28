@@ -33,6 +33,7 @@ import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
+import AssociationsList2 from '@/components/association-list/list2';
 
 interface RecordProps {
   associations: ParsedAssociation[];
@@ -354,7 +355,7 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel className={classes.tabPanel} value="associations">
-        <AssociationList
+        <AssociationsList2
           associationView="update"
           associations={associations}
           attributes={attributes}

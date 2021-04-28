@@ -1,4 +1,4 @@
-import { KeyboardEventHandler, ReactElement, useState } from 'react';
+import { KeyboardEventHandler, ReactElement, useEffect, useState } from 'react';
 import { InputAdornment, TextField } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -9,72 +9,76 @@ import {
 import { IconButton } from '@/components/buttons';
 
 interface SearchFieldProps {
-  onSearchClick: (value: string) => void;
+  onSearch: (value: string) => void;
   placeholder?: string;
+  value?: string;
+  onReset?: () => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 export default function SearchField({
-  onSearchClick,
+  onSearch,
   placeholder,
+  value,
+  onChange,
+  onReset,
 }: SearchFieldProps): ReactElement {
-  const [clearDisabled, setClearDisabled] = useState(true);
-  const [searchValue, setSearchValue] = useState('');
+  const [text, setText] = useState(value);
   const classes = useStyles();
 
-  const searchClick = (): void => {
-    if (searchValue !== '') setClearDisabled(false);
-    onSearchClick(searchValue);
+  useEffect(() => {
+    setText(value);
+  }, [value, setText]);
+
+  const searchIconClick: React.MouseEventHandler<HTMLButtonElement> = (): void => {
+    if (text) search(text);
   };
 
-  const clearClick = (): void => {
-    setSearchValue('');
-    setClearDisabled(true);
-    onSearchClick('');
+  const search = (value: string): void => {
+    onSearch(value);
   };
 
-  const handleEnter: KeyboardEventHandler = (event) => {
+  const searchInputKeyDown: KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
     if (event.key === 'Enter') {
-      searchClick();
+      if (text) search(text);
     }
-  };
-
-  const handleSearchField = (value: string): void => {
-    setSearchValue(value);
   };
 
   return (
     <TextField
       label={placeholder ?? 'Type your search'}
-      value={searchValue}
+      value={text}
       variant="outlined"
       className={classes.searchField}
       InputProps={{
+        onKeyDown: searchInputKeyDown,
         startAdornment: (
           <InputAdornment position="start">
-            <IconButton size="small" tooltip="Search" onClick={searchClick}>
+            <IconButton size="small" tooltip="Search" onClick={searchIconClick}>
               <SearchIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
         ),
-        endAdornment: (
+        endAdornment: onReset && (
           <InputAdornment position="end">
             <IconButton
               component="span"
               size="small"
               tooltip="Clear search"
-              disabled={clearDisabled}
-              onClick={clearClick}
+              disabled={!value}
+              onClick={onReset}
             >
               <ClearIcon
-                color={clearDisabled ? 'disabled' : 'secondary'}
+                color={!value ? 'disabled' : 'secondary'}
                 fontSize="small"
               />
             </IconButton>
           </InputAdornment>
         ),
       }}
-      onKeyPress={(event) => handleEnter(event)}
-      onChange={(event) => handleSearchField(event.target.value)}
+      onChange={(event) => setText(event.target.value)}
     />
   );
 }

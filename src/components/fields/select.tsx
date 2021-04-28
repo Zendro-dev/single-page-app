@@ -25,18 +25,19 @@ interface StyledSelectProps {
   label?: string;
   onChange?: (itemId: string, itemText: string) => void;
   defaultValue?: string;
+  selected: string;
 }
 
 export default function StyledSelect(props: StyledSelectProps): ReactElement {
-  const [selected, setSelected] = useState<string>(
-    props.defaultValue ?? props.items[0].id
-  );
+  // const [selected, setSelected] = useState<string>(
+  //   props.defaultValue ?? props.items[0].id
+  // );
   const classes = useStyles();
 
   const handleOnChange = (
     event: React.ChangeEvent<{ value: string }>
   ): void => {
-    setSelected(event.target.value);
+    // setSelected(event.target.value);
 
     const { id, text } = props.items.find(
       (assoc) => assoc.id === event.target.value
@@ -55,7 +56,7 @@ export default function StyledSelect(props: StyledSelectProps): ReactElement {
         id={props.id}
         label={props.label}
         labelId={`${props.id}-label`}
-        value={selected}
+        value={props.selected}
         onChange={handleOnChange}
         input={<OutlinedInput label={props.label} />}
         MenuProps={{
