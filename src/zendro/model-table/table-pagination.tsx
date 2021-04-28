@@ -18,6 +18,8 @@ import {
   LastPage,
 } from '@material-ui/icons';
 
+import { TablePage } from './hooks/usePagination';
+
 interface RecordsTablePaginationProps {
   paginationLimit?: number;
   count: number;
@@ -26,10 +28,8 @@ interface RecordsTablePaginationProps {
   hasLastPage: boolean | null;
   hasNextPage: boolean | null;
   hasPreviousPage: boolean | null;
-  onPagination: (action: string) => void;
-  onPaginationLimitChange: (
-    event: React.ChangeEvent<{ value: number }>
-  ) => void;
+  onPageChange: (page: TablePage) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
 export default function RecordsTablePagination({
@@ -40,22 +40,21 @@ export default function RecordsTablePagination({
   hasLastPage,
   hasNextPage,
   hasPreviousPage,
-  onPagination,
-  onPaginationLimitChange,
+  onPageChange,
+  onPageSizeChange,
 }: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
-  const handleOnPagination = (action: string) => () => {
-    if (onPagination) {
-      onPagination(action);
-    }
+
+  const handleOnPageChange = (page: TablePage) => () => {
+    if (onPageChange) onPageChange(page);
   };
-  const handlePaginationLimitChange = (
+
+  const handlePageSizeChange = (
     event: React.ChangeEvent<{ value: number }>
   ): void => {
-    if (onPaginationLimitChange) {
-      onPaginationLimitChange(event);
-    }
+    if (onPageSizeChange) onPageSizeChange(event.target.value);
   };
+
   return (
     <Box display="flex" className={classes.pagination}>
       <FormControl className={classes.paginationLimit}>
@@ -64,7 +63,7 @@ export default function RecordsTablePagination({
           labelId="pagination"
           variant="standard"
           value={paginationLimit}
-          onChange={handlePaginationLimitChange}
+          onChange={handlePageSizeChange}
         >
           {options.map((rowValue, index) => (
             <MenuItem value={rowValue} key={index}>
@@ -84,7 +83,7 @@ export default function RecordsTablePagination({
       <Tooltip title="First page" style={{ marginLeft: 'auto' }}>
         <span>
           <IconButton
-            onClick={handleOnPagination('first')}
+            onClick={handleOnPageChange('first')}
             disabled={!hasFirstPage}
           >
             <FirstPage />
@@ -95,7 +94,7 @@ export default function RecordsTablePagination({
       <Tooltip title="Previous page">
         <span>
           <IconButton
-            onClick={handleOnPagination('backward')}
+            onClick={handleOnPageChange('previous')}
             disabled={!hasPreviousPage}
           >
             <KeyboardArrowLeft />
@@ -106,7 +105,7 @@ export default function RecordsTablePagination({
       <Tooltip title="Next page">
         <span>
           <IconButton
-            onClick={handleOnPagination('forward')}
+            onClick={handleOnPageChange('next')}
             disabled={!hasNextPage}
           >
             <KeyboardArrowRight />
@@ -117,7 +116,7 @@ export default function RecordsTablePagination({
       <Tooltip title="Last page">
         <span>
           <IconButton
-            onClick={handleOnPagination('last')}
+            onClick={handleOnPageChange('last')}
             disabled={!hasLastPage}
           >
             <LastPage />

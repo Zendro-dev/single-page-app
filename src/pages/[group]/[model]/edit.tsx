@@ -33,7 +33,7 @@ import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
-import AssociationsList2 from '@/components/association-list/list2';
+import AssociationsList2 from '@/components/association-list/list';
 
 interface RecordProps {
   associations: ParsedAssociation[];

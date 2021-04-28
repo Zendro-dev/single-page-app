@@ -1,7 +1,6 @@
 import { ParsedAttribute } from '@/types/models';
 import { QueryVariableSearch } from '@/types/queries';
 import { createSearch } from '@/utils/search';
-import { and } from 'ajv/dist/compile/codegen';
 import { useEffect, useState } from 'react';
 
 export type AssociationFilter =

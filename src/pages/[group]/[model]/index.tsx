@@ -301,7 +301,7 @@ const Model: PageWithLayout<ModelProps> = ({
   return (
     <TableContainer className={classes.root}>
       <div className={classes.toolbar}>
-        <TableSearch onSearchClick={handleSearch} />
+        <TableSearch onSearch={handleSearch} />
 
         <div className={classes.toolbarActions}>
           <IconButton
@@ -373,13 +373,13 @@ const Model: PageWithLayout<ModelProps> = ({
         primaryKey={attributes[0].name}
       />
       <TablePagination
-        onPagination={handlePagination}
+        onPageChange={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
         paginationLimit={
           variables.pagination.first ?? variables.pagination.last
         }
-        onPaginationLimitChange={handlePaginationLimitChange}
+        onPageSizeChange={handlePaginationLimitChange}
         hasFirstPage={pageInfo.hasPreviousPage}
         hasLastPage={pageInfo.hasNextPage}
         hasPreviousPage={pageInfo.hasPreviousPage}
