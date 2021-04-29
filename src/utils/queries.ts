@@ -139,8 +139,8 @@ export const readOneRecordWithAssoc = (
   /* TO ONE */
   const queryNameToOne = `readOne${nameCp}With${assocName}`;
   const queryToOne = `
-  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
-    ${assocName}{
+  query ${readResolver}(${idArg} $search: search${assocNameCp}Input) { ${readResolver}(${idVar}) {
+    ${assocName}(search: $search){
       ${fields}
     }
   } }
@@ -150,8 +150,8 @@ export const readOneRecordWithAssoc = (
   const queryNameCount = `readOne${nameCp}With${assocNamePlCp}Count`;
   const countResolver = `countFiltered${assocNamePlCp}`;
   const queryCount = `
-  query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
-   ${countResolver}
+  query ${readResolver}(${idArg} $search: search${assocNameCp}Input) { ${readResolver}(${idVar}) {
+   ${countResolver} (search: $search)
   } }
   `;
 
@@ -162,9 +162,11 @@ export const readOneRecordWithAssoc = (
       assocResolver: assocName,
       query: queryToOne,
       transform:
-        ` .${readResolver}` +
-        ` | map({${fields.split(' ').join(',')}}) as $records` +
-        ' | {  $records  }',
+        `.${readResolver}` +
+        ` | (if .${assocName} then map({${fields
+          .split(' ')
+          .join(',')}}) else [] end) as $records ` +
+        ` | { $records }`,
     },
     readOneRecordWithToMany: {
       name: queryNameToMany,
