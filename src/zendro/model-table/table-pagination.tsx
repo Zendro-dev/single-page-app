@@ -24,10 +24,10 @@ interface RecordsTablePaginationProps {
   paginationLimit?: number;
   count: number;
   options: number[];
-  hasFirstPage: boolean | null;
-  hasLastPage: boolean | null;
-  hasNextPage: boolean | null;
-  hasPreviousPage: boolean | null;
+  hasFirstPage?: boolean;
+  hasLastPage?: boolean;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
   onPageChange: (
     position: TablePaginationPosition,
     cursor: string | null
@@ -51,6 +51,12 @@ export default function RecordsTablePagination({
 }: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
 
+  console.log('TablePagination RUNS ========== ');
+  console.log({
+    startCursor: atob(startCursor ?? ''),
+    endCursor: atob(endCursor ?? ''),
+  });
+
   const handleOnPageChange = (position: TablePaginationPosition) => () => {
     if (!props.onPageChange) return;
 
@@ -60,8 +66,6 @@ export default function RecordsTablePagination({
         : position === 'previous'
         ? startCursor
         : null;
-
-    console.log({ position, cursor });
 
     props.onPageChange(position, cursor);
   };
