@@ -43,9 +43,10 @@ export interface QueryVariablePagination {
   includeCursor?: boolean;
 }
 
+// TODO separate into two different interfaces for records/count
 export interface QueryModelTableRecordsVariables extends QueryVariables {
   search?: QueryVariableSearch;
-  pagination: QueryVariablePagination;
+  pagination?: QueryVariablePagination;
   order?: QueryVariableOrder;
   assocSearch?: QueryVariableSearch;
   assocPagination?: QueryVariablePagination;

@@ -33,6 +33,7 @@ import { getInflections } from '@/utils/inflection';
 import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import useRecords from '@/zendro/model-table/hooks/useRecords';
 import { QueryModelTableRecordsVariables } from '@/types/queries';
+import useSWR from 'swr';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -139,6 +140,19 @@ export default function AssociationsList({
     recordsFilter,
   ]);
 
+  const countQuery = useMemo(() => {
+    if (associationView === 'details' || recordsFilter === 'associated')
+      return zendro.queries[modelName].withFilter[selectedAssoc.target]
+        .countFiltered;
+    else return zendro.queries[selectedAssoc.target].countAll;
+  }, [
+    selectedAssoc.target,
+    associationView,
+    modelName,
+    zendro.queries,
+    recordsFilter,
+  ]);
+
   const parsedRecords = useRecords({
     assocName:
       recordsFilter === 'associated' ? undefined : recordsQuery.assocResolver,
@@ -147,109 +161,92 @@ export default function AssociationsList({
     records: records.data,
   });
 
-  // const countQuery = useMemo(() => {
-  //   if (associationView === 'details' || associationFilter === 'associated')
-  //     return zendro.queries[modelName].withFilter[selected.target]
-  //       .countFiltered;
-  //   else return zendro.queries[selected.target].countAll;
-  // }, [selected, associationView, modelName, zendro.queries, associationFilter]);
+  /* FETCH RECORDS */
+  const { mutate: mutateRecords } = useSWR(
+    [recordsQuery, tableSearch, tableOrder, tablePagination],
+    async (): Promise<AssocResponse | undefined> => {
+      let data: AssocResponse;
 
-  // useSWR(
-  //   [recordsQuery, tableSearch, tableOrder, tablePagination],
-  //   async (): Promise<AssocResponse | undefined> => {
-  //     let data: AssocResponse;
+      console.log('fetchTableRecords RUNS ========== ');
+      console.log({ tableSearch });
 
-  //     console.log('fetchTableRecords RUNS ========== ');
-  //     console.log({ tableSearch });
+      const variables: QueryModelTableRecordsVariables = {
+        search: tableSearch,
+        order: tableOrder,
+        pagination: tablePagination,
+        assocPagination: { first: 1 },
+        [primaryKey]: recordId,
+      };
 
-  //     const variables: QueryModelTableRecordsVariables = {
-  //       search: tableSearch,
-  //       order: tableOrder,
-  //       pagination: tablePagination,
-  //       assocPagination: { first: 1 },
-  //       [primaryKey]: recordId,
-  //     };
-
-  //     try {
-  //       if (recordsQuery.transform) {
-  //         data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
-  //           jq: recordsQuery.transform,
-  //           variables,
-  //         });
-  //       } else {
-  //         data = await zendro.request<AssocResponse>(
-  //           recordsQuery.query,
-  //           variables
-  //         );
-  //       }
-  //       return data;
-  //       // console.log({ dataRecords: data.records });
-  //     } catch (error) {
-  //       showSnackbar('There was an error', 'error', error);
-  //     }
-  //   },
-  //   {
-  //     onSuccess: (data) => {
-  //       if (data)
-  //         setRecords({
-  //           data: data.records,
-  //           pageInfo: data.pageInfo,
-  //         });
-  //     },
-  //   }
-  // );
-
-  useEffect(
-    function fetchTableRecords() {
-      const fetchRecords = async (): Promise<void> => {
-        let data: AssocResponse;
-
-        console.log('fetchTableRecords RUNS ========== ');
-        console.log({ tableSearch });
-
-        const variables: QueryModelTableRecordsVariables = {
-          search: tableSearch,
-          order: tableOrder,
-          pagination: tablePagination,
-          assocPagination: { first: 1 },
-          [primaryKey]: recordId,
-        };
-
-        try {
-          if (recordsQuery.transform) {
-            data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
-              jq: recordsQuery.transform,
-              variables,
-            });
-          } else {
-            data = await zendro.request<AssocResponse>(
-              recordsQuery.query,
-              variables
-            );
-          }
-          // console.log({ dataRecords: data.records });
-
+      try {
+        if (recordsQuery.transform) {
+          data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
+            jq: recordsQuery.transform,
+            variables,
+          });
+        } else {
+          data = await zendro.request<AssocResponse>(
+            recordsQuery.query,
+            variables
+          );
+        }
+        return data;
+        // console.log({ dataRecords: data.records });
+      } catch (error) {
+        showSnackbar('There was an error', 'error', error);
+      }
+    },
+    {
+      onSuccess: (data) => {
+        if (data)
           setRecords({
             data: data.records,
             pageInfo: data.pageInfo,
           });
-        } catch (error) {
-          showSnackbar('There was an error', 'error', error);
-        }
+      },
+    }
+  );
+
+  /* FETCH COUNT */
+  const { mutate: mutateCount } = useSWR(
+    [countQuery, tableSearch],
+    async (): Promise<Record<'count', number> | undefined> => {
+      let data: Record<'count', number>;
+
+      const variables: QueryModelTableRecordsVariables = {
+        search: tableSearch,
+        [primaryKey]: recordId,
       };
-      fetchRecords();
+
+      console.log({ countQuery });
+      console.log({ variables });
+
+      if (!countQuery) {
+        return { count: 1 };
+      }
+      try {
+        if (countQuery.transform) {
+          data = await zendro.metaRequest(countQuery.query, {
+            jq: countQuery.transform,
+            variables,
+          });
+          console.log({ data });
+        } else {
+          data = await zendro.request(countQuery.query, variables);
+        }
+        return data;
+        // setRecordsTotal(data.count);
+      } catch (error) {
+        showSnackbar('There was an error', 'error', error);
+      }
     },
-    [
-      primaryKey,
-      recordId,
-      recordsQuery,
-      setRecords,
-      showSnackbar,
-      tableOrder,
-      tablePagination,
-      tableSearch,
-      zendro,
-    ]
+    {
+      onSuccess: (data) => {
+        if (data) {
+          setRecordsTotal(data.count);
+        }
+      },
+    }
   );
 
   const handleOnAsociationSelect = (target: string, name: string): void => {
@@ -328,7 +325,7 @@ export default function AssociationsList({
           : undefined,
     };
     try {
-      const response = await zendro.request<Record<string, DataRecord>>(
+      await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
         assocVariables
       );
@@ -336,11 +333,10 @@ export default function AssociationsList({
     } catch (error) {
       console.error(error);
     }
-    // variablesDispatch({ type: 'RESET' });
     setRecordsToAdd([]);
     setRecordsToRemove([]);
-    // loadAssocData2();
-    // loadAssocCount2();
+    mutateRecords();
+    mutateCount();
   };
 
   const handleOnAssociationFilterSelect = (filter: string): void => {
@@ -400,8 +396,8 @@ export default function AssociationsList({
           <IconButton
             tooltip={`Reload ${modelName} data`}
             onClick={() => {
-              // loadAssocData2();
-              // loadAssocCount2();
+              mutateRecords();
+              mutateCount();
             }}
           >
             <ReloadIcon />
