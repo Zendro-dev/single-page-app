@@ -1,7 +1,7 @@
 import { ParsedAttribute } from '@/types/models';
 import { QueryVariableSearch } from '@/types/queries';
 import { createSearch } from '@/utils/search';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
 export type AssociationFilter =
   | 'associated'
@@ -27,9 +27,7 @@ export default function useSearch({
   attributes,
   primaryKey,
 }: UseSearchProps): QueryVariableSearch | undefined {
-  const [search, setSearch] = useState<QueryVariableSearch>();
-
-  useEffect(() => {
+  const search = useMemo(() => {
     const fieldSearch =
       searchText !== '' ? createSearch(searchText, attributes) : undefined;
     const filterSearch: QueryVariableSearch | undefined =
@@ -57,7 +55,7 @@ export default function useSearch({
         : filterSearch
         ? filterSearch
         : undefined;
-    setSearch(newSearch);
+    return newSearch;
   }, [
     searchText,
     associationFilter,

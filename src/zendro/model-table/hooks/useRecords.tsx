@@ -1,5 +1,5 @@
 import { DataRecordWithAssoc } from '@/types/models';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { TableRecord } from '../table';
 
 export interface UseRecordsProps {
@@ -15,10 +15,8 @@ export default function useRecords({
   assocPrimaryKey,
   assocPrimaryKeyValue,
 }: UseRecordsProps): TableRecord[] {
-  const [tableRecords, setTableRecords] = useState<TableRecord[]>([]);
-
-  useEffect(() => {
-    const tableRecords = records.reduce<TableRecord[]>((acc, record) => {
+  const tableRecords = useMemo(() => {
+    return records.reduce<TableRecord[]>((acc, record) => {
       const isAssociated =
         assocName && assocPrimaryKey && assocPrimaryKeyValue
           ? record[assocName]?.[assocPrimaryKey] === assocPrimaryKeyValue
@@ -31,8 +29,6 @@ export default function useRecords({
 
       return [...acc, parsedRecord];
     }, [] as TableRecord[]);
-
-    setTableRecords(tableRecords);
   }, [records, assocName, assocPrimaryKey, assocPrimaryKeyValue]);
 
   return tableRecords;

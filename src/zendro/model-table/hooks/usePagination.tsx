@@ -19,11 +19,6 @@ export default function usePagination({
   });
 
   useEffect(() => {
-    console.log({
-      cursor,
-      limit,
-      position,
-    });
     switch (position) {
       case 'first':
         setPagination({ first: limit });

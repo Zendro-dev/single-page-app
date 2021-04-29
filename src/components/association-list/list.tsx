@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+// import useSWR from 'swr';
 
 import { TableContainer } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -153,6 +154,51 @@ export default function AssociationsList({
   //   else return zendro.queries[selected.target].countAll;
   // }, [selected, associationView, modelName, zendro.queries, associationFilter]);
 
+  // useSWR(
+  //   [recordsQuery, tableSearch, tableOrder, tablePagination],
+  //   async (): Promise<AssocResponse | undefined> => {
+  //     let data: AssocResponse;
+
+  //     console.log('fetchTableRecords RUNS ========== ');
+  //     console.log({ tableSearch });
+
+  //     const variables: QueryModelTableRecordsVariables = {
+  //       search: tableSearch,
+  //       order: tableOrder,
+  //       pagination: tablePagination,
+  //       assocPagination: { first: 1 },
+  //       [primaryKey]: recordId,
+  //     };
+
+  //     try {
+  //       if (recordsQuery.transform) {
+  //         data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
+  //           jq: recordsQuery.transform,
+  //           variables,
+  //         });
+  //       } else {
+  //         data = await zendro.request<AssocResponse>(
+  //           recordsQuery.query,
+  //           variables
+  //         );
+  //       }
+  //       return data;
+  //       // console.log({ dataRecords: data.records });
+  //     } catch (error) {
+  //       showSnackbar('There was an error', 'error', error);
+  //     }
+  //   },
+  //   {
+  //     onSuccess: (data) => {
+  //       if (data)
+  //         setRecords({
+  //           data: data.records,
+  //           pageInfo: data.pageInfo,
+  //         });
+  //     },
+  //   }
+  // );
+
   useEffect(
     function fetchTableRecords() {
       const fetchRecords = async (): Promise<void> => {
@@ -211,10 +257,11 @@ export default function AssociationsList({
       (association) => association.target === target
     ) as ParsedAssociation;
     if (target !== selectedAssoc.target) {
+      setOrder(undefined);
+      setRecordsToAdd([]);
+      setRecordsToRemove([]);
       setSelectedAssoc({ target, name, type: assoc.type });
       // setAssociationFilter('no-filter');
-      // setRecordsToAdd([]);
-      // setRecordsToRemove([]);
     }
   };
 
