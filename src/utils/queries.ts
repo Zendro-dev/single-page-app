@@ -184,7 +184,7 @@ export const readOneRecordWithAssoc = (
       resolver: readResolver,
       assocResolver: countResolver,
       query: queryCount,
-      transform: `.${readResolver}.${countResolver} as $count | $count`,
+      transform: `.${readResolver}.${countResolver} as $count | { $count }`,
     },
   };
 };
@@ -245,7 +245,7 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
     name: resolver,
     resolver: resolver,
     query,
-    transform: `.${resolver} as $count |  $count`,
+    transform: `.${resolver} as $count |  { $count }`,
   };
 };
 
