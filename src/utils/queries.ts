@@ -167,9 +167,9 @@ export const readOneRecordWithAssoc = (
       assocResolver: assocName,
       query: queryToOne,
       transform:
-        ` .data.${readResolver}` +
+        ` .${readResolver}` +
         ` | map({${fields.split(' ').join(',')}}) as $records` +
-        ' | { data: { $records } }',
+        ' | {  $records  }',
     },
     readOneRecordWithToMany: {
       name: queryNameToMany,
@@ -177,17 +177,17 @@ export const readOneRecordWithAssoc = (
       assocResolver: assocResolverToMany,
       query: queryToMany,
       transform:
-        `.data.${readResolver}.${assocResolverToMany}.pageInfo as $pageInfo` +
-        ` | .data.${readResolver}.${assocResolverToMany}.edges` +
+        `.${readResolver}.${assocResolverToMany}.pageInfo as $pageInfo` +
+        ` | .${readResolver}.${assocResolverToMany}.edges` +
         ' | map(.node) as $records' +
-        ' | { data: { $pageInfo, $records } }',
+        ' | { $pageInfo, $records }',
     },
     readOneRecordWithAssocCount: {
       name: queryNameCount,
       resolver: readResolver,
       assocResolver: countResolver,
       query: queryCount,
-      transform: `.data.${readResolver}.${countResolver} as $count | {data: $count}`,
+      transform: `.${readResolver}.${countResolver} as $count | $count`,
     },
   };
 };
@@ -230,10 +230,10 @@ export const queryRecords = (
     resolver,
     query,
     transform:
-      `.data.${resolver}.pageInfo as $pageInfo` +
-      ` | .data.${resolver}.edges` +
+      `.${resolver}.pageInfo as $pageInfo` +
+      ` | .${resolver}.edges` +
       ' | map(.node) as $records' +
-      ' | { data: { $pageInfo, $records } }',
+      ' | {  $pageInfo, $records  }',
   };
 };
 
@@ -248,7 +248,7 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
     name: resolver,
     resolver: resolver,
     query,
-    transform: `.data.${resolver} as $count | {data: $count}`,
+    transform: `.${resolver} as $count |  $count`,
   };
 };
 
@@ -311,11 +311,11 @@ export const queryRecordsWithToMany = (
     query,
     assocResolver,
     transform:
-      `.data.${modelResolver}.pageInfo as $pageInfo` +
-      ` | .data.${modelResolver}.edges | map(.node)` +
+      `.${modelResolver}.pageInfo as $pageInfo` +
+      ` | .${modelResolver}.edges | map(.node)` +
       ` | map(with_entries(select(.key != "${assocResolver}"))` +
       ` + {${assocResolver}: .${assocResolver}.edges | map(.node)[0]}) as $records` +
-      ' | { data: { $pageInfo, $records } }',
+      ' | {  $pageInfo, $records  }',
   };
 };
 
@@ -368,10 +368,10 @@ export const queryRecordsWithToOne = (
     query,
     assocResolver: assocName,
     transform:
-      `.data.${modelResolver}.pageInfo as $pageInfo` +
-      ` | .data.${modelResolver}.edges` +
+      ` .${modelResolver}.pageInfo as $pageInfo` +
+      ` | .${modelResolver}.edges` +
       ' | map(.node) as $records' +
-      ' | { data: { $pageInfo, $records } }',
+      ' | { $pageInfo, $records }',
   };
 };
 
