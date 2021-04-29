@@ -16,8 +16,6 @@ import { OneOf } from '@/types/utility';
 
 type MetaRequestOptions = {
   variables?: Variables;
-  jq: string;
-  jsonPath: string;
 } & Partial<
   OneOf<{
     jq: string;
