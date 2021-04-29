@@ -52,10 +52,10 @@ export default function RecordsTablePagination({
   const classes = useStyles();
 
   console.log('TablePagination RUNS ========== ');
-  console.log({
-    startCursor: atob(startCursor ?? ''),
-    endCursor: atob(endCursor ?? ''),
-  });
+  // console.log({
+  //   startCursor: atob(startCursor ?? ''),
+  //   endCursor: atob(endCursor ?? ''),
+  // });
 
   const handleOnPageChange = (position: TablePaginationPosition) => () => {
     if (!props.onPageChange) return;
@@ -94,7 +94,7 @@ export default function RecordsTablePagination({
         </Select>
       </FormControl>
 
-      {count && (
+      {count >= 0 && (
         <div>
           <InputLabel shrink>Count</InputLabel>
           <InputBase value={count} disabled={true} />
