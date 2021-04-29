@@ -168,7 +168,6 @@ const Model: PageWithLayout<ModelProps> = ({
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      console.log({ error });
       showSnackbar('There was an error with the request', 'error', error);
     }
   };

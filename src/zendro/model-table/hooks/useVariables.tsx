@@ -103,7 +103,6 @@ export default function useVariables(
 
   /* ORDER */
   const handleOrder = (field: string): void => {
-    console.log({ field });
     const isAsc =
       field === variables.order?.field && variables.order.order === 'ASC';
     const order = isAsc ? 'DESC' : 'ASC';
@@ -114,7 +113,6 @@ export default function useVariables(
   /* PAGINATION */
   const handlePagination = (action: string): void => {
     const limit = variables.pagination.first ?? variables.pagination.last;
-    // console.log({ action, limit, records, pageInfo });
     switch (action) {
       case 'first':
         dispatch({

@@ -102,11 +102,6 @@ export const readOneRecordWithAssoc = (
   readOneRecordWithToOne: AssocQuery;
   readOneRecordWithAssocCount: AssocQuery;
 } => {
-  // console.log({
-  //   modelName,
-  //   assocName,
-  //   assocModelName,
-  // });
   const { nameCp } = getInflections(modelName);
   const {
     nameCp: assocNameCp,
@@ -133,12 +128,12 @@ export const readOneRecordWithAssoc = (
         endCursor
         hasPreviousPage
         hasNextPage
-      } 
+      }
       edges {
         node { ${fields} }
       }
     }
-  } } 
+  } }
   `;
 
   /* TO ONE */
@@ -148,7 +143,7 @@ export const readOneRecordWithAssoc = (
     ${assocName}{
       ${fields}
     }
-  } } 
+  } }
   `;
 
   /* COUNT */
@@ -156,8 +151,8 @@ export const readOneRecordWithAssoc = (
   const countResolver = `countFiltered${assocNamePlCp}`;
   const queryCount = `
   query ${readResolver}(${idArg}) { ${readResolver}(${idVar}) {
-   ${countResolver} 
-  } } 
+   ${countResolver}
+  } }
   `;
 
   return {
