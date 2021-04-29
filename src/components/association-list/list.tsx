@@ -139,7 +139,8 @@ export default function AssociationsList({
   ]);
 
   const parsedRecords = useRecords({
-    assocName: recordsQuery.assocResolver,
+    assocName:
+      recordsFilter === 'associated' ? undefined : recordsQuery.assocResolver,
     assocPrimaryKey: primaryKey,
     assocPrimaryKeyValue: recordId as string,
     records: records.data,
@@ -156,8 +157,8 @@ export default function AssociationsList({
     async (query: string, transform?: string): Promise<void> => {
       let data: AssocResponse;
 
-      console.log('queryAssocRecords RUNS ========== ');
-      console.log({ tablePagination });
+      // console.log('queryAssocRecords RUNS ========== ');
+      // console.log({ tablePagination });
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -176,7 +177,7 @@ export default function AssociationsList({
         } else {
           data = await zendro.request<AssocResponse>(query, variables);
         }
-        console.log({ dataRecords: data.records });
+        // console.log({ dataRecords: data.records });
 
         setRecords({
           data: data.records,
