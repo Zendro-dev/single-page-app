@@ -186,7 +186,16 @@ export default function AssociationsList({
         showSnackbar('There was an error', 'error', error);
       }
     },
-    [setRecords, showSnackbar, tableOrder, tablePagination, tableSearch, zendro]
+    [
+      primaryKey,
+      recordId,
+      setRecords,
+      showSnackbar,
+      tableOrder,
+      tablePagination,
+      tableSearch,
+      zendro,
+    ]
   );
 
   useEffect(() => {
