@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-// import useSWR from 'swr';
+import { useMemo, useState } from 'react';
+import useSWR from 'swr';
 
 import { TableContainer } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -16,24 +16,34 @@ import {
 import { IconButton } from '@/components/buttons';
 import { StyledSelect } from '@/components/fields';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
-import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import {
+  DataRecord,
+  ParsedAssociation,
+  ParsedAttribute,
+  ParsedDataModel2,
+} from '@/types/models';
 import { PageInfo } from '@/types/requests';
 import {
   Table,
+  TableBody,
+  TableColumn,
+  TableHeader,
   TablePagination,
+  TableRow,
   TableRowAssociationHandler,
   TableSearch,
   useTablePagination,
   UseTablePaginationProps,
   useTableSearch,
   useTableOrder,
+  TableRecord,
 } from '@/zendro/model-table';
 import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
 import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import useRecords from '@/zendro/model-table/hooks/useRecords';
 import { QueryModelTableRecordsVariables } from '@/types/queries';
-import useSWR from 'swr';
+import { ParsedPermissions } from '@/types/acl';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -47,6 +57,13 @@ interface AssociationListProps {
 interface AssocResponse {
   pageInfo: PageInfo;
   records: DataRecordWithAssoc[];
+}
+
+interface AssocTable {
+  data: TableRecord[];
+  pageInfo?: PageInfo;
+  permissions: ParsedPermissions;
+  schema: ParsedDataModel2;
 }
 
 type DataRecordWithAssoc = DataRecord & Record<string, DataRecord>;
@@ -71,22 +88,36 @@ export default function AssociationsList({
     type: associations[0].type,
   });
 
-  const assocTable = useMemo(() => {
-    return getModel(selectedAssoc.target).schema;
-  }, [selectedAssoc, getModel]);
+  // const assocTable = useMemo(() => {
+  //   return getModel(selectedAssoc.target);
+  // }, [selectedAssoc, getModel]);
 
-  // Showing records
-  const [records, setRecords] = useState<{
-    data: DataRecordWithAssoc[];
-    pageInfo?: PageInfo;
-  }>({
-    data: [],
-    pageInfo: {
-      startCursor: null,
-      endCursor: null,
-      hasPreviousPage: false,
-      hasNextPage: false,
-    },
+  // // Showing records
+  // const [records, setRecords] = useState<{
+  //   data: DataRecordWithAssoc[];
+  //   pageInfo?: PageInfo;
+  // }>({
+  //   data: [],
+  //   pageInfo: {
+  //     startCursor: null,
+  //     endCursor: null,
+  //     hasPreviousPage: false,
+  //     hasNextPage: false,
+  //   },
+  // });
+
+  const [assocTable, setAssocTable] = useState<AssocTable>(() => {
+    const model = getModel(selectedAssoc.target);
+    return {
+      data: [],
+      pageInfo: {
+        startCursor: null,
+        endCursor: null,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+      ...model,
+    };
   });
 
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
@@ -104,8 +135,8 @@ export default function AssociationsList({
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
     associationFilter: recordsFilter,
-    attributes: assocTable.attributes,
-    primaryKey: assocTable.primaryKey,
+    attributes: assocTable.schema.attributes,
+    primaryKey: assocTable.schema.primaryKey,
     recordsToAdd,
     recordsToRemove,
     searchText,
@@ -153,13 +184,13 @@ export default function AssociationsList({
     recordsFilter,
   ]);
 
-  const parsedRecords = useRecords({
-    assocName:
-      recordsFilter === 'associated' ? undefined : recordsQuery.assocResolver,
-    assocPrimaryKey: primaryKey,
-    assocPrimaryKeyValue: recordId as string,
-    records: records.data,
-  });
+  // const parsedRecords = useRecords({
+  //   assocName:
+  //     recordsFilter === 'associated' ? undefined : recordsQuery.assocResolver,
+  //   assocPrimaryKey: primaryKey,
+  //   assocPrimaryKeyValue: recordId as string,
+  //   records: records.data,
+  // });
 
   /* FETCH RECORDS */
   const { mutate: mutateRecords } = useSWR(
@@ -167,7 +198,7 @@ export default function AssociationsList({
     async (): Promise<AssocResponse | undefined> => {
       let data: AssocResponse;
 
-      console.log('fetchTableRecords RUNS ========== ');
+      console.log(' ========== fetchTableRecords RUNS ========== ');
       console.log({ tableSearch });
 
       const variables: QueryModelTableRecordsVariables = {
@@ -198,11 +229,45 @@ export default function AssociationsList({
     },
     {
       onSuccess: (data) => {
-        if (data)
-          setRecords({
-            data: data.records,
+        if (data) {
+          const assocName =
+            recordsFilter === 'associated'
+              ? undefined
+              : recordsQuery.assocResolver;
+          const assocPrimaryKey = primaryKey;
+          const assocPrimaryKeyValue = recordId as string;
+
+          const parsedRecords = data.records.reduce<TableRecord[]>(
+            (acc, record) => {
+              const isAssociated =
+                assocName && assocPrimaryKey && assocPrimaryKeyValue
+                  ? record[assocName]?.[assocPrimaryKey] ===
+                    assocPrimaryKeyValue
+                  : true;
+
+              const parsedRecord: TableRecord = {
+                data: record,
+                isAssociated,
+              };
+
+              return [...acc, parsedRecord];
+            },
+            [] as TableRecord[]
+          );
+
+          const model = getModel(selectedAssoc.target);
+
+          setAssocTable((state) => ({
+            data: parsedRecords,
             pageInfo: data.pageInfo,
-          });
+            name: selectedAssoc.name,
+            ...model,
+          }));
+        }
+        // setRecords({
+        //   data: data.records,
+        //   pageInfo: data.pageInfo,
+        // });
       },
     }
   );
@@ -218,8 +283,8 @@ export default function AssociationsList({
         [primaryKey]: recordId,
       };
 
-      console.log({ countQuery });
-      console.log({ variables });
+      // console.log({ countQuery });
+      // console.log({ variables });
 
       if (!countQuery) {
         return { count: 1 };
@@ -230,7 +295,7 @@ export default function AssociationsList({
             jq: countQuery.transform,
             variables,
           });
-          console.log({ data });
+          // console.log({ data });
         } else {
           data = await zendro.request(countQuery.query, variables);
         }
@@ -267,9 +332,12 @@ export default function AssociationsList({
     list,
     action
   ) => {
-    const currAssocRecord = records.data.find((record) => record.isAssociated);
+    // const currAssocRecord = parsedRecords.find((record) => record.isAssociated);
+    const currAssocRecord = assocTable.data.find(
+      (record) => record.isAssociated
+    );
     const currAssocRecordId = currAssocRecord
-      ? (currAssocRecord.data[assocTable.primaryKey] as string | number)
+      ? (currAssocRecord.data[assocTable.schema.primaryKey] as string | number)
       : undefined;
     switch (action) {
       case 'add':
@@ -431,38 +499,81 @@ export default function AssociationsList({
 
       <TableContainer className={classes.table}>
         <Table
-          associationView={associationView}
-          attributes={assocTable.attributes}
-          records={parsedRecords}
-          activeOrder={order?.sortField ?? assocTable.primaryKey}
-          orderDirection={order?.sortDirection ?? 'ASC'}
-          onSetOrder={(field) =>
-            setOrder((state) => ({
-              ...state,
-              sortField: field,
-              sortDirection: !state?.sortDirection
-                ? 'ASC'
-                : state.sortDirection === 'ASC'
-                ? 'DESC'
-                : 'ASC',
-            }))
-          }
-          onAssociate={handleOnMarkForAssociationClick}
-          isValidatingRecords={false}
-          primaryKey={assocTable.primaryKey}
-          recordsToAdd={recordsToAdd}
-          recordsToRemove={recordsToRemove}
-        />
+        // associationView={associationView}
+        // attributes={assocTable.attributes}
+        // records={parsedRecords}
+        // activeOrder={order?.sortField ?? assocTable.primaryKey}
+        // orderDirection={order?.sortDirection ?? 'ASC'}
+        // onSetOrder={(field) =>
+        //   setOrder((state) => ({
+        //     ...state,
+        //     sortField: field,
+        //     sortDirection: !state?.sortDirection
+        //       ? 'ASC'
+        //       : state.sortDirection === 'ASC'
+        //       ? 'DESC'
+        //       : 'ASC',
+        //   }))
+        // }
+        // onAssociate={handleOnMarkForAssociationClick}
+        // isValidatingRecords={false}
+        // primaryKey={assocTable.primaryKey}
+        // recordsToAdd={recordsToAdd}
+        // recordsToRemove={recordsToRemove}
+        >
+          <TableHeader
+            actionsColSpan={1}
+            attributes={assocTable.schema.attributes}
+            onSortLabelClick={(field) =>
+              setOrder((state) => ({
+                ...state,
+                sortField: field,
+                sortDirection: !state?.sortDirection
+                  ? 'ASC'
+                  : state.sortDirection === 'ASC'
+                  ? 'DESC'
+                  : 'ASC',
+              }))
+            }
+            activeOrder={order?.sortField ?? assocTable.schema.primaryKey}
+            orderDirection={order?.sortDirection ?? 'ASC'}
+          />
+
+          <TableBody>
+            {/* {parsedRecords.map((record) => { */}
+            {assocTable.data.map((record) => {
+              const recordPK = assocTable.schema.primaryKey;
+              const recordId = record.data[recordPK] as string | number;
+              return (
+                <TableRow
+                  attributes={assocTable.schema.attributes}
+                  record={record.data}
+                  key={recordId}
+                  isMarked={
+                    recordsToAdd &&
+                    recordsToRemove &&
+                    recordsToAdd.concat(recordsToRemove).includes(recordId)
+                  }
+                  isAssociated={record.isAssociated}
+                  actions={{
+                    associationHandler: handleOnMarkForAssociationClick,
+                  }}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+
         <TablePagination
           count={recordsTotal}
           options={[2, 5, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
-          hasFirstPage={records.pageInfo?.hasPreviousPage}
-          hasLastPage={records.pageInfo?.hasNextPage}
-          hasPreviousPage={records.pageInfo?.hasPreviousPage}
-          hasNextPage={records.pageInfo?.hasNextPage}
-          startCursor={records.pageInfo?.startCursor ?? null}
-          endCursor={records.pageInfo?.endCursor ?? null}
+          hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
+          hasLastPage={assocTable.pageInfo?.hasNextPage}
+          hasPreviousPage={assocTable.pageInfo?.hasPreviousPage}
+          hasNextPage={assocTable.pageInfo?.hasNextPage}
+          startCursor={assocTable.pageInfo?.startCursor ?? null}
+          endCursor={assocTable.pageInfo?.endCursor ?? null}
           onPageChange={(position, cursor) => {
             setPagination((state) => ({ ...state, position, cursor }));
           }}

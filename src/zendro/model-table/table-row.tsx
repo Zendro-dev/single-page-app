@@ -1,12 +1,11 @@
 import React, { PropsWithChildren, ReactElement, useMemo } from 'react';
 import {
-  TableRow,
-  TableCell,
-  Tooltip,
-  makeStyles,
   IconButton,
-  createStyles,
+  TableRow as MuiTableRow,
+  TableCell as MuiTableCell,
+  Tooltip,
 } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   DeleteOutline as DeleteIcon,
   Edit as EditIcon,
@@ -44,23 +43,23 @@ interface EnhancedTableRowProps {
   isAssociated?: boolean;
 }
 
-function EnhancedTableRowIcon({
+function TableRowIcon({
   label,
   onClick,
   children,
 }: PropsWithChildren<EnhancedTableRowIconProps>): ReactElement {
   return (
-    <TableCell padding="checkbox" align="center">
+    <MuiTableCell padding="checkbox" align="center">
       <Tooltip title={label} disableInteractive={true} arrow={true}>
         <IconButton color="default" onClick={onClick}>
           {children}
         </IconButton>
       </Tooltip>
-    </TableCell>
+    </MuiTableCell>
   );
 }
 
-export default function EnhancedTableRow({
+export default function TableRow({
   record,
   attributes,
   actions,
@@ -98,7 +97,7 @@ export default function EnhancedTableRow({
   return (
     // ? accomodate associations
 
-    <TableRow
+    <MuiTableRow
       hover
       role="checkbox"
       onDoubleClick={
@@ -110,7 +109,7 @@ export default function EnhancedTableRow({
       }
     >
       {actions.associationHandler && (
-        <EnhancedTableRowIcon
+        <TableRowIcon
           label={
             isAssociated
               ? isMarked
@@ -140,40 +139,40 @@ export default function EnhancedTableRow({
           ) : (
             <LinkOffIcon fontSize="small" />
           )}
-        </EnhancedTableRowIcon>
+        </TableRowIcon>
       )}
       {actions.read && (
-        <EnhancedTableRowIcon
+        <TableRowIcon
           label="detail"
           onClick={handleOnAction({
             handler: actions.read,
           })}
         >
           <DetailIcon fontSize="small" className={classes.iconDetail} />
-        </EnhancedTableRowIcon>
+        </TableRowIcon>
       )}
       {actions.update && (
-        <EnhancedTableRowIcon
+        <TableRowIcon
           label="edit"
           onClick={handleOnAction({
             handler: actions.update,
           })}
         >
           <EditIcon fontSize="small" className={classes.iconEdit} />
-        </EnhancedTableRowIcon>
+        </TableRowIcon>
       )}
       {actions.delete && (
-        <EnhancedTableRowIcon
+        <TableRowIcon
           label="delete"
           onClick={handleOnAction({
             handler: actions.delete,
           })}
         >
           <DeleteIcon fontSize="small" className={classes.iconDelete} />
-        </EnhancedTableRowIcon>
+        </TableRowIcon>
       )}
       {attributes.map((attribute, index) => (
-        <TableCell
+        <MuiTableCell
           key={`${attribute.name}-${index}`}
           align={
             attribute.type.includes('Int') || attribute.type.includes('Float')
@@ -184,9 +183,9 @@ export default function EnhancedTableRow({
           {String(
             record[attribute.name] !== null ? record[attribute.name] : ''
           )}
-        </TableCell>
+        </MuiTableCell>
       ))}
-    </TableRow>
+    </MuiTableRow>
   );
 }
 
