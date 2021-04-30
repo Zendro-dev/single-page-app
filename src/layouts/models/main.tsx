@@ -1,12 +1,23 @@
 import clsx from 'clsx';
+import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import {
+  AddCircle as NewIcon,
+  BubbleChart as ModelIcon,
+  Edit as EditIcon,
+  VisibilityTwoTone as DetailsIcon,
+} from '@material-ui/icons';
 
-import { AppRoutes } from '@/types/routes';
+import { Breadcrumbs, Breadcrumb } from '@/components/navigation';
 import useAuth from '@/hooks/useAuth';
+import { AppRoutes, RecordUrlQuery } from '@/types/routes';
+import { getPathRequest } from '@/utils/router';
+
 import Restricted from './restricted';
 import Navigation from './navigation';
+import { Divider } from '@material-ui/core';
 
 export interface ModelsProps {
   routes: AppRoutes;
@@ -20,6 +31,50 @@ export default function Models({
 }: PropsWithChildren<ModelsProps>): ReactElement {
   const { auth } = useAuth();
   const classes = useStyles();
+  const router = useRouter();
+
+  const { group, model, id } = router.query as RecordUrlQuery;
+  const request = getPathRequest(router.asPath, model);
+  const crumbs: Breadcrumb[] = [];
+
+  if (group) {
+    crumbs.push({
+      text: group,
+      icon: ModelIcon,
+    });
+  }
+
+  if (model)
+    crumbs.push({
+      text: model,
+      href: `/${group}/${model}`,
+    });
+
+  if (request)
+    crumbs.push({
+      text:
+        request === 'read'
+          ? 'details'
+          : request === 'update'
+          ? 'edit'
+          : request === 'create'
+          ? 'new'
+          : request,
+      icon:
+        request === 'read'
+          ? DetailsIcon
+          : request === 'update'
+          ? EditIcon
+          : request === 'create'
+          ? NewIcon
+          : undefined,
+    });
+
+  if (id)
+    crumbs.push({
+      text: id,
+      href: `/${group}/${model}/edit/?id=${id}`,
+    });
 
   return (
     <div className={classes.mainContainer}>
@@ -35,6 +90,12 @@ export default function Models({
           [classes.mainContentShift]: showNav,
         })}
       >
+        <Breadcrumbs
+          id="app-breadcrumbs"
+          className={classes.breadcrumbs}
+          crumbs={crumbs}
+        />
+        <Divider />
         <Restricted>{props.children}</Restricted>
       </main>
     </div>
@@ -43,30 +104,20 @@ export default function Models({
 
 const useStyles = makeStyles((theme) => {
   return createStyles({
+    breadcrumbs: {
+      alignItems: 'center',
+      backgroundColor: theme.palette.action.hover,
+      display: 'flex',
+      height: theme.spacing(14),
+      padding: theme.spacing(0, 4),
+    },
     mainContainer: {
       display: 'flex',
       height: `calc(100% - ${theme.spacing(18)})`,
     },
-    navDrawer: {
-      width: '100%',
-      borderRight: '2px solid',
-      borderRightColor: theme.palette.grey[500],
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.standard,
-        easing: theme.transitions.easing.sharp,
-      }),
-      [theme.breakpoints.up('md')]: {
-        width: theme.spacing(72),
-      },
-    },
-    navDrawerClosed: {
-      borderRight: 0,
-      width: 0,
-    },
     mainContent: {
       display: 'flex',
       flexDirection: 'column',
-      // padding: theme.spacing(3),
       width: '100%',
       transition: theme.transitions.create(['width'], {
         duration: theme.transitions.duration.standard,
@@ -89,12 +140,29 @@ const useStyles = makeStyles((theme) => {
         }),
       },
       [theme.breakpoints.up('md')]: {
-        width: `calc(100% - ${theme.spacing(72)})`,
+        width: `calc(100% - ${theme.spacing(62)})`,
         transition: theme.transitions.create(['width'], {
           duration: theme.transitions.duration.standard,
           easing: theme.transitions.easing.sharp,
         }),
       },
+    },
+    navDrawer: {
+      backgroundColor: theme.palette.action.hover,
+      borderRight: '1px solid',
+      borderRightColor: theme.palette.divider,
+      width: '100%',
+      transition: theme.transitions.create(['width'], {
+        duration: theme.transitions.duration.standard,
+        easing: theme.transitions.easing.sharp,
+      }),
+      [theme.breakpoints.up('md')]: {
+        width: theme.spacing(62),
+      },
+    },
+    navDrawerClosed: {
+      borderRight: 0,
+      width: 0,
     },
   });
 });

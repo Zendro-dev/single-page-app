@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import useSWR from 'swr';
 
-import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
-import { BubbleChart as ModelIcon, Edit as EditIcon } from '@material-ui/icons';
+import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import { getStaticModel } from '@/build/models';
@@ -15,7 +14,6 @@ import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/components/attributes-form';
-import BreadCrumbs from '@/components/navigation/breadcrumbs';
 
 import {
   useDialog,
@@ -302,40 +300,20 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <TabContext value={currentTab}>
-      <Box className={classes.tabNav}>
-        <BreadCrumbs
-          id={`${modelName}-association-breadcrumbs`}
-          crumbs={[
-            {
-              text: modelName,
-              icon: ModelIcon,
-              href: `/${urlQuery.group}/${urlQuery.model}`,
-            },
-            {
-              text: 'Edit',
-              icon: EditIcon,
-            },
-            {
-              text: urlQuery.id as string,
-              href: `/${urlQuery.group}/${urlQuery.model}/edit/?id=${urlQuery.id}`,
-            },
-          ]}
+      <TabList
+        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
+        className={classes.tabList}
+        onChange={handleOnTabChange}
+        variant="fullWidth"
+      >
+        <Tab label="Attributes" value="attributes" />
+        <Tab
+          label="Associations"
+          value="associations"
+          disabled={associations.length === 0}
         />
-
-        <TabList
-          aria-label="record attributes and associations"
-          className={classes.tabList}
-          onChange={handleOnTabChange}
-        >
-          <Tab label="Attributes" value="attributes" />
-          <Tab
-            label="Associations"
-            value="associations"
-            disabled={associations.length === 0}
-          />
-        </TabList>
-      </Box>
-      <TabPanel value="attributes">
+      </TabList>
+      <TabPanel value="attributes" className={classes.panelForm}>
         <AttributesForm
           attributes={attributes}
           className={classes.form}
@@ -353,7 +331,7 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel className={classes.tabPanel} value="associations">
+      <TabPanel className={classes.panelTable} value="associations">
         <AssociationsTable
           associationView="update"
           associations={associations}
@@ -373,27 +351,18 @@ const useStyles = makeStyles((theme) =>
       border: '2px solid',
       borderRadius: 10,
       borderColor: theme.palette.grey[300],
-      margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
     },
-    tabNav: {
-      display: 'flex',
-      alignItems: 'center',
-      marginTop: theme.spacing(3),
-      padding: theme.spacing(0, 4),
-      borderBottom: '1px solid',
-      borderBottomColor: theme.palette.divider,
+    panelForm: {
+      margin: theme.spacing(10, 0),
     },
-    tabList: {
-      marginLeft: theme.spacing(20),
-      '& .MuiTab-root': {
-        textTransform: 'capitalize',
-        fontSize: theme.spacing(5),
-      },
-    },
-    tabPanel: {
+    panelTable: {
       display: 'flex',
       flexGrow: 1,
+      margin: theme.spacing(5, 2),
+    },
+    tabList: {
+      margin: theme.spacing(0, 4),
     },
   })
 );

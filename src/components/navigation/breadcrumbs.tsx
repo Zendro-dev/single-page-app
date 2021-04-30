@@ -9,15 +9,16 @@ import {
 import { SvgIconType } from '@/types/elements';
 import clsx from 'clsx';
 
-interface Breadcrumb {
+export interface Breadcrumb {
   href?: string;
   icon?: SvgIconType;
   text: string;
 }
 
 interface BreadcrumbsProps {
-  id: string;
+  className?: string;
   crumbs: Breadcrumb[];
+  id: string;
 }
 
 export default function Breadcrumbs(
@@ -25,7 +26,7 @@ export default function Breadcrumbs(
 ): React.ReactElement {
   const classes = useStyles();
   return (
-    <MuiBreadcrumbs aria-label="breadcrumb">
+    <MuiBreadcrumbs aria-label="breadcrumb" className={props.className}>
       {props.crumbs.map(({ href, icon: Icon, text }) =>
         href ? (
           <NextLink key={text} href={href} passHref>
@@ -34,13 +35,13 @@ export default function Breadcrumbs(
               underline="none"
               color="inherit"
             >
-              {Icon && <Icon sx={{ mr: 0.5 }} fontSize="inherit" />}
-              {text}
+              {Icon && <Icon className={classes.icon} fontSize="inherit" />}
+              <span>{text}</span>
             </MuiLink>
           </NextLink>
         ) : (
           <Typography key={text} className={classes.crumb} color="inherit">
-            {Icon && <Icon sx={{ mr: 0.5 }} fontSize="inherit" />}
+            {Icon && <Icon className={classes.icon} fontSize="inherit" />}
             {text}
           </Typography>
         )
@@ -54,13 +55,20 @@ const useStyles = makeStyles((theme) =>
     crumb: {
       display: 'flex',
       alignItems: 'center',
-      textTransform: 'capitalize',
-      fontSize: theme.spacing(5),
+      fontSize: theme.spacing(4),
+      textTransform: 'uppercase',
+      '&:hover': {
+        fontWeight: 'bold',
+      },
     },
     link: {
       '&:hover': {
         color: theme.palette.primary.main,
+        textDecoration: 'underline',
       },
+    },
+    icon: {
+      marginRight: theme.spacing(2),
     },
   })
 );

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+import React, { useState } from 'react';
 
-import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
+import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import { getStaticModel } from '@/build/models';
@@ -146,17 +146,20 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
-          <Tab label="Attributes" value="attributes" />
-          <Tab
-            label="Associations"
-            value="associations"
-            disabled={associations.length === 0}
-          />
-        </TabList>
-      </Box>
-      <TabPanel value="attributes">
+      <TabList
+        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
+        className={classes.tabList}
+        onChange={handleOnTabChange}
+        variant="fullWidth"
+      >
+        <Tab label="Attributes" value="attributes" />
+        <Tab
+          label="Associations"
+          value="associations"
+          disabled={associations.length === 0}
+        />
+      </TabList>
+      <TabPanel value="attributes" className={classes.panelForm}>
         <AttributesForm
           attributes={attributes}
           className={classes.form}
@@ -172,7 +175,7 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel value="associations" className={classes.tabPanel}>
+      <TabPanel value="associations" className={classes.panelTable}>
         <AssociationsTable
           associationView="details"
           associations={associations}
@@ -192,12 +195,20 @@ const useStyles = makeStyles((theme) =>
       border: '2px solid',
       borderRadius: 10,
       borderColor: theme.palette.grey[300],
-      margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
     },
-    tabPanel: {
+    panelForm: {
+      margin: theme.spacing(10, 0),
+    },
+    panelTable: {
       display: 'flex',
       flexGrow: 1,
+      margin: theme.spacing(5, 2),
+    },
+    tabList: {
+      margin: theme.spacing(0, 4),
+      // borderBottom: '1px solid',
+      // borderBottomColor: theme.palette.divider,
     },
   })
 );
