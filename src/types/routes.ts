@@ -20,7 +20,7 @@ export interface ModelUrlQuery extends GroupUrlQuery {
   id?: string;
 }
 
-export interface RecordUrlQuery extends GroupUrlQuery {
+export interface RecordUrlQuery extends ModelUrlQuery {
   request: string;
   id?: string;
 }
