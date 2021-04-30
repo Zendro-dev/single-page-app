@@ -178,7 +178,7 @@ const Record: PageWithLayout<RecordProps> = ({
           associations={associations}
           attributes={attributes}
           modelName={modelName}
-          recordId={model.id}
+          recordId={model.id as string}
           primaryKey={attributes[0].name}
         />
       </TabPanel>
