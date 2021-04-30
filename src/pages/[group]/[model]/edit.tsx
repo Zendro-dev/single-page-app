@@ -10,7 +10,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
-import AssociationsList from '@/components/association-list';
+import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
@@ -354,7 +354,7 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel className={classes.tabPanel} value="associations">
-        <AssociationsList
+        <AssociationsTable
           associationView="update"
           associations={associations}
           attributes={attributes}

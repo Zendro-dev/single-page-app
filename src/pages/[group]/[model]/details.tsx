@@ -10,7 +10,7 @@ import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
-import AssociationList from '@/components/association-list';
+import AssociationsTable from '@/zendro/associations-table';
 
 import { usePermissions, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
@@ -173,7 +173,7 @@ const Record: PageWithLayout<RecordProps> = ({
         />
       </TabPanel>
       <TabPanel value="associations" className={classes.tabPanel}>
-        <AssociationList
+        <AssociationsTable
           associationView="details"
           associations={associations}
           attributes={attributes}

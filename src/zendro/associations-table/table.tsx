@@ -44,7 +44,7 @@ import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
 
-interface AssociationListProps {
+interface AssociationsTableProps {
   associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
   modelName: string;
@@ -67,14 +67,14 @@ interface AssocTable {
 
 type DataRecordWithAssoc = DataRecord & Record<string, DataRecord>;
 
-export default function AssociationsList({
+export default function AssociationsTable({
   associations,
   attributes,
   modelName,
   recordId,
   primaryKey,
   associationView,
-}: AssociationListProps): React.ReactElement {
+}: AssociationsTableProps): React.ReactElement {
   const { showSnackbar } = useToastNotification();
   const getModel = useModel();
   const classes = useStyles();
@@ -200,6 +200,9 @@ export default function AssociationsList({
               assocName && assocPrimaryKey && assocPrimaryKeyValue
                 ? record[assocName]?.[assocPrimaryKey] === assocPrimaryKeyValue
                 : true;
+
+            console.log({ record });
+            console.log({ assocPrimaryKeyValue, assocName, assocPrimaryKey });
 
             const parsedRecord: TableRecord = {
               data: record,
@@ -432,7 +435,6 @@ export default function AssociationsList({
             placeholder={`Search ${selectedAssoc.name}`}
             value={searchText}
             onSearch={(value) => setSearchText(value)}
-            // onChange={(event) => setSearchText(event.target.value)}
             onReset={() => setSearchText('')}
           />
           {associationView !== 'details' && (
