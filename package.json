@@ -60,7 +60,7 @@
     "@types/redux-logger": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
-    "ajv": "^7.2.3",
+    "ajv": "^7.2.4",
     "babel-plugin-istanbul": "^6.0.0",
     "cypress": "^6.8.0",
     "eslint": "^7.20.0",

@@ -1,73 +1,24 @@
 import { ReactElement } from 'react';
-import { Overwrite } from 'utility-types';
 
 import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
 
 import {
-  BoolField,
-  DateTimeField,
   FieldIcons,
-  FloatField,
-  IntField,
-  StringField,
-  TextFieldProps,
   WithIcons,
+  InputField,
+  InputFieldProps,
 } from '@/components/input';
-
-import {
-  AttributeArrayType,
-  AttributeScalarType,
-  AttributeValue,
-} from '@/types/models';
-
-type InputFieldProps = Overwrite<
-  TextFieldProps,
-  {
-    onChange?: (value: AttributeValue) => void;
-    onError?: (value?: string) => void;
-    type: AttributeScalarType | AttributeArrayType;
-    value: AttributeValue;
-  }
->;
-
-const InputField = ({
-  onError,
-  type,
-  value,
-  ...props
-}: Overwrite<TextFieldProps, InputFieldProps>): ReactElement => {
-  switch (type) {
-    case 'Boolean':
-      return <BoolField {...props} value={value as boolean | null} />;
-    case 'DateTime':
-      return <DateTimeField {...props} value={value as Date | null} />;
-
-    case 'Float':
-      return (
-        <FloatField
-          {...props}
-          onError={onError}
-          value={value as number | null}
-        />
-      );
-    case 'Int':
-      return (
-        <IntField {...props} onError={onError} value={value as number | null} />
-      );
-    case 'String':
-      return <StringField {...props} value={value as string | null} />;
-    default:
-      return <StringField {...props} value={value as string | null} />;
-  }
-};
+import { AttributeValue, AttributeArrayValue } from '@/types/models';
 
 export default function AttributeField({
-  leftIcon,
-  rightIcon,
+  actionLeft: leftIcon,
+  actionRight: rightIcon,
   ...props
 }: WithIcons<InputFieldProps>): ReactElement {
-  const handleOnChange = (value: AttributeValue): void => {
+  const handleOnChange = (
+    value: AttributeValue | AttributeArrayValue
+  ): void => {
     if (props.onChange) props.onChange(value);
   };
 
@@ -78,7 +29,7 @@ export default function AttributeField({
   };
 
   return (
-    <FieldIcons leftIcon={leftIcon} rightIcon={rightIcon}>
+    <FieldIcons actionLeft={leftIcon} actionRight={rightIcon}>
       <InputField
         {...props}
         onChange={props.onChange ? handleOnChange : undefined}

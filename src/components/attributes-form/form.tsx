@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 
-import { Box, Tooltip, SvgIconProps } from '@material-ui/core';
+import { Box, Tooltip } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   Cached as Reload,
@@ -161,7 +161,7 @@ export default function AttributesForm({
   };
 
   return (
-    <Box position="relative" width="100%">
+    <Box position="relative" className={className}>
       <Box
         position="absolute"
         display="flex"
@@ -255,7 +255,7 @@ export default function AttributesForm({
         </div>
       </Box>
 
-      <form id={formId} className={className}>
+      <form id={formId} className={classes.form}>
         <FormHeader
           locked={disabled}
           prefix={formView}
@@ -295,28 +295,20 @@ export default function AttributesForm({
                   : undefined
               }
               label={name}
-              leftIcon={
-                primaryKey
-                  ? (props: SvgIconProps): ReactElement => (
-                      <Tooltip title={`${name} is the primary key`}>
-                        <KeyIcon {...props} fontSize="small" color="action" />
-                      </Tooltip>
-                    )
-                  : undefined
+              actionLeft={
+                primaryKey && (
+                  <Tooltip title={`${name} is the primary key`}>
+                    <KeyIcon fontSize="small" color="action" />
+                  </Tooltip>
+                )
               }
               readOnly={readOnly}
-              rightIcon={
-                readOnly
-                  ? (props: SvgIconProps): ReactElement => (
-                      <Tooltip title="This field cannot be modified">
-                        <LockIcon
-                          {...props}
-                          fontSize="small"
-                          color="secondary"
-                        />
-                      </Tooltip>
-                    )
-                  : undefined
+              actionRight={
+                readOnly && (
+                  <Tooltip title="This field cannot be modified">
+                    <LockIcon fontSize="small" color="secondary" />
+                  </Tooltip>
+                )
               }
               onChange={!disabled ? handleOnChange(name) : undefined}
               onError={!disabled ? handleOnError(name) : undefined}
@@ -331,6 +323,9 @@ export default function AttributesForm({
 
 const useStyles = makeStyles((theme) =>
   createStyles({
+    form: {
+      marginTop: theme.spacing(6),
+    },
     actions: {
       '& > button, a': {
         width: theme.spacing(12),
