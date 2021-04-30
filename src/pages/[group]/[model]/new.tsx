@@ -81,9 +81,9 @@ const Record: PageWithLayout<RecordProps> = ({
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = (formData, formStats) => {
-    if (formStats.unset > 0) {
+    if (formStats.unset < formData.length) {
       return dialog.openConfirm({
-        title: 'Some fields have been added.',
+        title: 'Some fields have been modified.',
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
