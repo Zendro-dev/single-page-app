@@ -130,10 +130,17 @@ export default function AssociationsList({
   const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
     'no-filter'
   );
-  const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
-  const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
-    []
-  );
+  const [selectedRecords, setSelectedRecords] = useState<{
+    toAdd: (string | number)[];
+    toRemove: (string | number)[];
+  }>({
+    toAdd: [],
+    toRemove: [],
+  });
+  // const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
+  // const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
+  //   []
+  // );
 
   /* VARIABLES */
 
@@ -142,8 +149,7 @@ export default function AssociationsList({
     associationFilter: recordsFilter,
     attributes: selectedAssoc.attributes,
     primaryKey: selectedAssoc.primaryKey,
-    recordsToAdd,
-    recordsToRemove,
+    selectedRecords,
     searchText,
   });
 
@@ -346,8 +352,12 @@ export default function AssociationsList({
     ) as ParsedAssociation;
     if (target !== selectedAssoc.target) {
       setOrder(undefined);
-      setRecordsToAdd([]);
-      setRecordsToRemove([]);
+      setSelectedRecords({
+        toAdd: [],
+        toRemove: [],
+      });
+      // setRecordsToAdd([]);
+      // setRecordsToRemove([]);
 
       const model = getModel(target);
       setSelectedAssoc({
@@ -370,40 +380,68 @@ export default function AssociationsList({
     const currAssocRecord = assocTable.data.find(
       (record) => record.isAssociated
     );
+
     const currAssocRecordId = currAssocRecord
       ? (currAssocRecord.data[assocTable.schema.primaryKey] as string | number)
       : undefined;
+
     switch (action) {
       case 'add':
         if (list === 'toAdd') {
           if (selectedAssoc.type === 'to_one') {
-            setRecordsToAdd([recordToMark]);
-            if (currAssocRecordId)
-              setRecordsToRemove((recordsToRemove) => [
-                ...recordsToRemove,
-                currAssocRecordId,
-              ]);
+            setSelectedRecords(({ toRemove }) => ({
+              toAdd: [recordToMark],
+              toRemove: currAssocRecordId
+                ? [...toRemove, currAssocRecordId]
+                : toRemove,
+            }));
+            // if (currAssocRecordId)
+            //   setRecordsToRemove((recordsToRemove) => [
+            //     ...recordsToRemove,
+            //     currAssocRecordId,
+            //   ]);
           } else {
-            setRecordsToAdd((recordsToAdd) => [...recordsToAdd, recordToMark]);
+            setSelectedRecords(({ toAdd, toRemove }) => ({
+              toAdd: [...toAdd, recordToMark],
+              toRemove,
+            }));
+            // setRecordsToAdd((recordsToAdd) => [...recordsToAdd, recordToMark]);
           }
         } else
-          setRecordsToRemove((recordsToRemove) => [
-            ...recordsToRemove,
-            recordToMark,
-          ]);
+          setSelectedRecords(({ toAdd, toRemove }) => ({
+            toAdd,
+            toRemove: [...toRemove, recordToMark],
+          }));
+        // setRecordsToRemove((recordsToRemove) => [
+        //   ...recordsToRemove,
+        //   recordToMark,
+        // ]);
         break;
       case 'remove':
         if (list === 'toAdd') {
-          setRecordsToAdd(recordsToAdd.filter((item) => item !== recordToMark));
+          setSelectedRecords(({ toAdd, toRemove }) => ({
+            toAdd: toAdd.filter((item) => item !== recordToMark),
+            toRemove,
+          }));
+          // setRecordsToAdd(recordsToAdd.filter((item) => item !== recordToMark));
           if (selectedAssoc.type === 'to_one') {
-            setRecordsToRemove(
-              recordsToRemove.filter((item) => item !== currAssocRecordId)
-            );
+            // setRecordsToRemove(
+            //   recordsToRemove.filter((item) => item !== currAssocRecordId)
+            // );
+            setSelectedRecords(({ toAdd, toRemove }) => ({
+              toAdd,
+              toRemove: toRemove.filter((item) => item !== currAssocRecordId),
+            }));
           }
-        } else
-          setRecordsToRemove(
-            recordsToRemove.filter((item) => item !== recordToMark)
-          );
+        }
+        // setRecordsToRemove(
+        //   recordsToRemove.filter((item) => item !== recordToMark)
+        // );
+        else
+          setSelectedRecords(({ toAdd, toRemove }) => ({
+            toAdd,
+            toRemove: toRemove.filter((item) => item !== recordToMark),
+          }));
         break;
     }
   };
@@ -412,18 +450,17 @@ export default function AssociationsList({
     const { namePlCp, nameCp } = getInflections(selectedAssoc.name);
     const mutationName = selectedAssoc.type === 'to_one' ? nameCp : namePlCp;
     const assocVariables = {
-      [primaryKey]: recordId,
       [`add${mutationName}`]:
-        recordsToAdd.length > 0
+        selectedRecords.toAdd.length > 0
           ? selectedAssoc.type === 'to_one'
-            ? recordsToAdd.toString()
-            : recordsToAdd
+            ? selectedRecords.toAdd.toString()
+            : selectedRecords.toAdd
           : undefined,
       [`remove${mutationName}`]:
-        recordsToRemove.length > 0
+        selectedRecords.toRemove.length > 0
           ? selectedAssoc.type === 'to_one'
-            ? recordsToRemove.toString()
-            : recordsToRemove
+            ? selectedRecords.toRemove.toString()
+            : selectedRecords.toRemove
           : undefined,
     };
     try {
@@ -435,8 +472,12 @@ export default function AssociationsList({
     } catch (error) {
       console.error(error);
     }
-    setRecordsToAdd([]);
-    setRecordsToRemove([]);
+    setSelectedRecords({
+      toAdd: [],
+      toRemove: [],
+    });
+    // setRecordsToAdd([]);
+    // setRecordsToRemove([]);
     mutateRecords();
     mutateCount();
   };
@@ -509,7 +550,8 @@ export default function AssociationsList({
               tooltip={`Save ${selectedAssoc.target} data`}
               onClick={handleSubmit}
               disabled={
-                recordsToAdd.length === 0 && recordsToRemove.length === 0
+                selectedRecords.toAdd.length === 0 &&
+                selectedRecords.toRemove.length === 0
               }
             >
               <SaveIcon />
@@ -583,11 +625,10 @@ export default function AssociationsList({
                   attributes={assocTable.schema.attributes}
                   record={record.data}
                   key={recordId}
-                  isMarked={
-                    recordsToAdd &&
-                    recordsToRemove &&
-                    recordsToAdd.concat(recordsToRemove).includes(recordId)
-                  }
+                  isMarked={[
+                    ...selectedRecords.toAdd,
+                    ...selectedRecords.toRemove,
+                  ].includes(recordId)}
                   isAssociated={record.isAssociated}
                   actions={{
                     associationHandler: handleOnMarkForAssociationClick,

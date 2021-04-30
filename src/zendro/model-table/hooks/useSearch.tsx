@@ -13,19 +13,20 @@ export type AssociationFilter =
 export interface UseSearchProps {
   searchText: string;
   associationFilter: AssociationFilter;
-  recordsToAdd: (string | number)[];
-  recordsToRemove: (string | number)[];
+  selectedRecords: {
+    toAdd: (string | number)[];
+    toRemove: (string | number)[];
+  };
   attributes: ParsedAttribute[];
   primaryKey: string;
 }
 
 export default function useSearch({
-  searchText,
   associationFilter,
-  recordsToAdd,
-  recordsToRemove,
   attributes,
+  searchText,
   primaryKey,
+  selectedRecords,
 }: UseSearchProps): QueryVariableSearch | undefined {
   const search = useMemo(() => {
     const fieldSearch =
@@ -34,14 +35,14 @@ export default function useSearch({
       associationFilter === 'records-to-add'
         ? {
             field: primaryKey,
-            value: recordsToAdd.toString(),
+            value: selectedRecords.toAdd.toString(),
             valueType: 'Array',
             operator: 'in',
           }
         : associationFilter === 'records-to-remove'
         ? {
             field: primaryKey,
-            value: recordsToRemove.toString(),
+            value: selectedRecords.toRemove.toString(),
             valueType: 'Array',
             operator: 'in',
           }
@@ -56,14 +57,7 @@ export default function useSearch({
         ? filterSearch
         : undefined;
     return newSearch;
-  }, [
-    searchText,
-    associationFilter,
-    recordsToAdd,
-    recordsToRemove,
-    attributes,
-    primaryKey,
-  ]);
+  }, [associationFilter, attributes, primaryKey, searchText, selectedRecords]);
 
   return search;
 }
