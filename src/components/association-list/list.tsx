@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 
-import { TableContainer } from '@material-ui/core';
+import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   FilterAltOutlined as FilterIcon,
@@ -26,7 +26,6 @@ import { PageInfo } from '@/types/requests';
 import {
   Table,
   TableBody,
-  TableColumn,
   TableHeader,
   TablePagination,
   TableRow,
@@ -41,7 +40,6 @@ import {
 import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
 import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
-import useRecords from '@/zendro/model-table/hooks/useRecords';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
@@ -514,7 +512,9 @@ export default function AssociationsList({
       </div>
 
       <TableContainer className={classes.table}>
-        <Table>
+        <Table
+          caption={`${selectedAssoc.name} associations table for ${modelName}`}
+        >
           <TableHeader
             actionsColSpan={1}
             attributes={assocTable.schema.attributes}
@@ -537,20 +537,55 @@ export default function AssociationsList({
             {assocTable.data.map((record) => {
               const recordPK = assocTable.schema.primaryKey;
               const recordId = record.data[recordPK] as string | number;
+              const isSelected =
+                selectedRecords.toAdd.includes(recordId) ||
+                selectedRecords.toRemove.includes(recordId);
               return (
                 <TableRow
+                  key={recordId}
+                  hover
                   attributes={assocTable.schema.attributes}
                   record={record.data}
-                  key={recordId}
-                  isMarked={[
-                    ...selectedRecords.toAdd,
-                    ...selectedRecords.toRemove,
-                  ].includes(recordId)}
-                  isAssociated={record.isAssociated}
-                  actions={{
-                    associationHandler: handleOnMarkForAssociationClick,
-                  }}
-                />
+                >
+                  <MuiTableCell align="center">
+                    <IconButton
+                      tooltip={
+                        record.isAssociated
+                          ? isSelected
+                            ? 'marked to be disassociated, click to reset'
+                            : 'click to disassociate'
+                          : isSelected
+                          ? 'marked to be associated, click to reset'
+                          : 'click to associate'
+                      }
+                      onClick={() =>
+                        handleOnMarkForAssociationClick(
+                          recordId,
+                          record.isAssociated ? 'toRemove' : 'toAdd',
+                          isSelected ? 'remove' : 'add'
+                        )
+                      }
+                    >
+                      {record.isAssociated ? (
+                        isSelected ? (
+                          <LinkOffIcon
+                            fontSize="small"
+                            className={classes.iconLinkOffMarked}
+                          />
+                        ) : (
+                          <LinkIcon fontSize="small" />
+                        )
+                      ) : isSelected ? (
+                        <LinkIcon
+                          fontSize="small"
+                          className={classes.iconLinkMarked}
+                        />
+                      ) : (
+                        <LinkOffIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </MuiTableCell>
+                </TableRow>
               );
             })}
           </TableBody>
@@ -611,6 +646,27 @@ const useStyles = makeStyles((theme) =>
     },
     toolbarAssocSelect: {
       marginLeft: theme.spacing(4),
+    },
+    iconDetail: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
+    },
+    iconEdit: {
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
+    },
+    iconDelete: {
+      '&:hover': {
+        color: theme.palette.secondary.main,
+      },
+    },
+    iconLinkMarked: {
+      color: 'green',
+    },
+    iconLinkOffMarked: {
+      color: 'red',
     },
   })
 );

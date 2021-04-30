@@ -35,6 +35,7 @@ export interface TableRecord {
 // }
 
 interface ZendroTableProps extends MuiTableProps {
+  caption: string;
   isEmpty?: boolean;
   isLoading?: boolean;
 }
@@ -47,11 +48,14 @@ export default function ZendroTable({
   const classes = useStyles();
   return (
     <div className={classes.tableWrapper}>
-      <MuiTable {...props}>{props.children}</MuiTable>
+      <MuiTable {...props}>
+        <caption hidden>{props.caption}</caption>
+        {props.children}
+      </MuiTable>
       {isLoading && (
         <div className={classes.tablePlaceholder}>
           <Fade in={isLoading}>
-            <CircularProgress color="primary" disableShrink={true} />
+            <CircularProgress color="primary" disableShrink />
           </Fade>
         </div>
       )}
