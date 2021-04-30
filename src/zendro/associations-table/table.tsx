@@ -163,9 +163,6 @@ export default function AssociationsTable({
 
       let data: AssocResponse;
 
-      console.log(' ========== fetchTableRecords RUNS ========== ');
-      console.log({ tableSearch });
-
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
         order: tableOrder,
@@ -205,9 +202,6 @@ export default function AssociationsTable({
               assocName && assocPrimaryKey && assocPrimaryKeyValue
                 ? record[assocName]?.[assocPrimaryKey] === assocPrimaryKeyValue
                 : true;
-
-            console.log({ record });
-            console.log({ assocPrimaryKeyValue, assocName, assocPrimaryKey });
 
             const parsedRecord: TableRecord = {
               data: record,

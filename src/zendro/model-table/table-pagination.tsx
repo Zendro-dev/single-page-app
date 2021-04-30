@@ -51,12 +51,6 @@ export default function RecordsTablePagination({
 }: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
 
-  // console.log('TablePagination RUNS ========== ');
-  // console.log({
-  //   startCursor: atob(startCursor ?? ''),
-  //   endCursor: atob(endCursor ?? ''),
-  // });
-
   const handleOnPageChange = (position: TablePaginationPosition) => () => {
     if (!props.onPageChange) return;
 
