@@ -172,6 +172,11 @@ export default function AssociationsTable({
         pagination: tablePagination,
         assocPagination: { first: 1 },
         [primaryKey]: recordId,
+        assocSearch: {
+          field: primaryKey,
+          value: recordId as string,
+          operator: 'eq',
+        },
       };
 
       if (recordsQuery.transform) {
