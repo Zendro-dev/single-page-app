@@ -134,7 +134,7 @@ const Model: PageWithLayout<ModelProps> = ({
   });
 
   const [pagination, setPagination] = useState<UseTablePaginationProps>({
-    limit: 5,
+    limit: 25,
     position: 'first',
     cursor: null,
   });

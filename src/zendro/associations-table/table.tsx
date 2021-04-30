@@ -137,7 +137,7 @@ export default function AssociationsTable({
   });
 
   const [pagination, setPagination] = useState<UseTablePaginationProps>({
-    limit: 5,
+    limit: 25,
     position: 'first',
     cursor: null,
   });
@@ -604,7 +604,7 @@ export default function AssociationsTable({
 
         <TablePagination
           count={recordsTotal}
-          options={[2, 5, 15, 20, 25, 50]}
+          options={[5, 10, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
           hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
           hasLastPage={assocTable.pageInfo?.hasNextPage}
