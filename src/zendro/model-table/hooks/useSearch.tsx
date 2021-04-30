@@ -12,8 +12,8 @@ export type AssociationFilter =
 
 export interface UseSearchProps {
   searchText: string;
-  associationFilter: AssociationFilter;
-  selectedRecords: {
+  associationFilter?: AssociationFilter;
+  selectedRecords?: {
     toAdd: (string | number)[];
     toRemove: (string | number)[];
   };
@@ -32,14 +32,14 @@ export default function useSearch({
     const fieldSearch =
       searchText !== '' ? createSearch(searchText, attributes) : undefined;
     const filterSearch: QueryVariableSearch | undefined =
-      associationFilter === 'records-to-add'
+      associationFilter === 'records-to-add' && selectedRecords
         ? {
             field: primaryKey,
             value: selectedRecords.toAdd.toString(),
             valueType: 'Array',
             operator: 'in',
           }
-        : associationFilter === 'records-to-remove'
+        : associationFilter === 'records-to-remove' && selectedRecords
         ? {
             field: primaryKey,
             value: selectedRecords.toRemove.toString(),

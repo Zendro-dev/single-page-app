@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import useSWR from 'swr';
 
-import { TableContainer } from '@material-ui/core';
+import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   AddCircleOutline as AddIcon,
@@ -11,6 +11,9 @@ import {
   Download as ExportIcon,
   SaveAlt as ImportTemplateIcon,
   Upload as ImportIcon,
+  DeleteOutline as DeleteIcon,
+  Edit as EditIcon,
+  VisibilityTwoTone as DetailsIcon,
 } from '@material-ui/icons';
 
 import { getStaticModel } from '@/build/models';
@@ -28,21 +31,32 @@ import {
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
-import { QueryVariables, RawQuery } from '@/types/queries';
+import {
+  QueryVariableOrder,
+  QueryVariablePagination,
+  QueryVariables,
+  QueryVariableSearch,
+} from '@/types/queries';
 import { ModelUrlQuery } from '@/types/routes';
 import { DataRecord, ParsedAttribute } from '@/types/models';
 import { PageInfo, ReadManyResponse } from '@/types/requests';
 
 import { getAttributeList } from '@/utils/models';
-import { queryRecord, queryRecords, queryRecordsCount } from '@/utils/queries';
 import { isNullorEmpty } from '@/utils/validation';
 
 import {
   Table,
+  TableBody,
+  TableHeader,
   TablePagination,
   TableRecord,
+  TableRow,
   TableSearch,
-  useVariables,
+  UseOrderProps,
+  useTableOrder,
+  useTablePagination,
+  UseTablePaginationProps,
+  useTableSearch,
 } from '@/zendro/model-table';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -62,19 +76,13 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
   const dataModel = await getStaticModel(modelName);
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const read = queryRecords(modelName, attributes);
-  const recordQueries = queryRecord(modelName, attributes);
-  const count = queryRecordsCount(modelName);
+  const primaryKey = attributes[0].name;
 
   return {
     props: {
       modelName,
       attributes,
-      requests: {
-        read,
-        delete: recordQueries.delete,
-        count,
-      },
+      primaryKey,
       key: modelName,
     },
   };
@@ -83,17 +91,13 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 export interface ModelProps {
   modelName: string;
   attributes: ParsedAttribute[];
-  requests: {
-    read: RawQuery;
-    delete: RawQuery;
-    count: RawQuery;
-  };
+  primaryKey: string;
 }
 
 const Model: PageWithLayout<ModelProps> = ({
   modelName,
   attributes,
-  requests,
+  primaryKey,
 }) => {
   /* STATE */
 
@@ -115,17 +119,29 @@ const Model: PageWithLayout<ModelProps> = ({
   const { showSnackbar } = useToastNotification();
   const dialog = useDialog();
   const zendro = useZendroClient();
-  const {
-    variables,
-    handleOrder,
-    handleSearch,
-    handlePagination,
-    handlePaginationLimitChange,
-  } = useVariables(attributes, records, pageInfo);
 
-  const query = router.query as ModelUrlQuery;
+  const [searchText, setSearchText] = useState('');
+  const tableSearch = useTableSearch({
+    attributes: attributes,
+    primaryKey: primaryKey,
+    searchText,
+  });
 
-  const { query: readAll, transform } = zendro.queries[modelName].readAll;
+  const [order, setOrder] = useState<UseOrderProps>();
+  const tableOrder = useTableOrder({
+    sortDirection: order?.sortDirection,
+    sortField: order?.sortField,
+  });
+
+  const [pagination, setPagination] = useState<UseTablePaginationProps>({
+    limit: 5,
+    position: 'first',
+    cursor: null,
+  });
+  const tablePagination = useTablePagination(pagination);
+
+  const urlQuery = router.query as ModelUrlQuery;
+
   /* TOOLBAR ACTIONS */
 
   const handleImportCsv = async (
@@ -175,15 +191,15 @@ const Model: PageWithLayout<ModelProps> = ({
   /* HANDLERS */
 
   const handleOnCreate = (): void => {
-    router.push(`/${query.group}/${modelName}/new`);
+    router.push(`/${urlQuery.group}/${modelName}/new`);
   };
 
   const handleOnRead = (primaryKey: string | number): void => {
-    router.push(`/${query.group}/${modelName}/details?id=${primaryKey}`);
+    router.push(`/${urlQuery.group}/${modelName}/details?id=${primaryKey}`);
   };
 
   const handleOnUpdate = (primaryKey: string | number): void => {
-    router.push(`/${query.group}/${modelName}/edit?id=${primaryKey}`);
+    router.push(`/${urlQuery.group}/${modelName}/edit?id=${primaryKey}`);
   };
 
   const handleOnDelete = (primaryKey: string | number): void => {
@@ -195,7 +211,7 @@ const Model: PageWithLayout<ModelProps> = ({
       onOk: async () => {
         const idField = attributes[0].name;
         try {
-          await zendro.request(requests.delete.query, {
+          await zendro.request(zendro.queries[modelName].deleteOne.query, {
             [idField]: primaryKey,
           });
           mutateRecords();
@@ -210,9 +226,19 @@ const Model: PageWithLayout<ModelProps> = ({
   /* DATA FETCHING */
 
   // Records
-  const { mutate: mutateRecords, isValidating: isValidatingRecords } = useSWR(
-    [readAll, variables],
-    (query: string, variables: QueryVariables) => {
+  const { mutate: mutateRecords } = useSWR(
+    [tableSearch, tableOrder, tablePagination],
+    (
+      tableSearch: QueryVariableSearch,
+      tableOrder: QueryVariableOrder,
+      tablePagination: QueryVariablePagination
+    ) => {
+      const { query, transform } = zendro.queries[modelName].readAll;
+      const variables: QueryVariables = {
+        search: tableSearch,
+        order: tableOrder,
+        pagination: tablePagination,
+      };
       if (transform) {
         return zendro.metaRequest<{
           pageInfo: PageInfo;
@@ -262,16 +288,26 @@ const Model: PageWithLayout<ModelProps> = ({
 
   // Count
   const { mutate: mutateCount } = useSWR<
-    Record<string, number>,
-    ExtendedClientError<Record<string, number>> | Error
+    Record<'count', number>,
+    ExtendedClientError<Record<'count', number>> | Error
   >(
-    [requests.count.query, variables],
-    (query: string, variables: QueryVariables) =>
-      zendro.request(query, variables),
+    [tableSearch],
+    (tableSearch: QueryVariableSearch) => {
+      const { query, transform } = zendro.queries[modelName].countAll;
+      const variables: QueryVariables = { search: tableSearch };
+      if (transform) {
+        return zendro.metaRequest(query, {
+          jq: transform,
+          variables,
+        });
+      } else {
+        return zendro.request(query, variables);
+      }
+    },
     {
       onSuccess: (data) => {
         if (!isNullorEmpty(data)) {
-          setCount(data[requests.count.resolver]);
+          setCount(data.count);
         }
       },
       onError: (error) => {
@@ -300,7 +336,13 @@ const Model: PageWithLayout<ModelProps> = ({
   return (
     <TableContainer className={classes.root}>
       <div className={classes.toolbar}>
-        <TableSearch onSearch={handleSearch} />
+        <TableSearch
+          placeholder={`Search ${modelName}`}
+          value={searchText}
+          onSearch={(value) => setSearchText(value)}
+          // onChange={(event) => setSearchText(event.target.value)}
+          onReset={() => setSearchText('')}
+        />
 
         <div className={classes.toolbarActions}>
           <IconButton
@@ -358,31 +400,90 @@ const Model: PageWithLayout<ModelProps> = ({
           </a>
         </div>
       </div>
+      <Table caption={`records table for ${modelName}`}>
+        <TableHeader
+          actionsColSpan={
+            Object.keys(model.permissions).filter(
+              (action) => action !== 'create'
+            ).length
+          }
+          attributes={attributes}
+          onSortLabelClick={(field) =>
+            setOrder((state) => ({
+              ...state,
+              sortField: field,
+              sortDirection: !state?.sortDirection
+                ? 'ASC'
+                : state.sortDirection === 'ASC'
+                ? 'DESC'
+                : 'ASC',
+            }))
+          }
+          activeOrder={order?.sortField ?? primaryKey}
+          orderDirection={order?.sortDirection ?? 'ASC'}
+        />
 
-      <Table
-        attributes={attributes}
-        records={records}
-        activeOrder={variables.order?.field ?? attributes[0].name}
-        orderDirection={variables.order?.order ?? 'ASC'}
-        onRead={handleOnRead}
-        onUpdate={handleOnUpdate}
-        onDelete={handleOnDelete}
-        onSetOrder={handleOrder}
-        isValidatingRecords={isValidatingRecords}
-        primaryKey={attributes[0].name}
-      />
+        <TableBody>
+          {records.map((record) => {
+            const recordId = record.data[primaryKey] as string | number;
+            return (
+              <TableRow
+                attributes={attributes}
+                record={record.data}
+                key={recordId}
+                onDoubleClick={() => handleOnRead(recordId)}
+                hover
+              >
+                <MuiTableCell padding="checkbox">
+                  <IconButton
+                    tooltip={`View ${recordId}`}
+                    onClick={() => handleOnRead(recordId)}
+                  >
+                    <DetailsIcon fontSize="small" />
+                  </IconButton>
+                </MuiTableCell>
+                {model.permissions.update && (
+                  <MuiTableCell padding="checkbox">
+                    <IconButton
+                      tooltip={`Edit ${recordId}`}
+                      onClick={() => handleOnUpdate(recordId)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </MuiTableCell>
+                )}
+                {model.permissions.delete && (
+                  <MuiTableCell padding="checkbox">
+                    <IconButton
+                      tooltip={`Delete ${recordId}`}
+                      onClick={() => handleOnDelete(recordId)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </MuiTableCell>
+                )}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
       <TablePagination
-        onPageChange={handlePagination}
         count={count}
         options={[5, 10, 15, 20, 25, 50]}
-        paginationLimit={
-          variables.pagination.first ?? variables.pagination.last
-        }
-        onPageSizeChange={handlePaginationLimitChange}
+        paginationLimit={tablePagination.first ?? tablePagination.last}
         hasFirstPage={pageInfo.hasPreviousPage}
         hasLastPage={pageInfo.hasNextPage}
         hasPreviousPage={pageInfo.hasPreviousPage}
         hasNextPage={pageInfo.hasNextPage}
+        startCursor={pageInfo.startCursor ?? null}
+        endCursor={pageInfo.endCursor ?? null}
+        onPageChange={(position, cursor) => {
+          setPagination((state) => ({ ...state, position, cursor }));
+        }}
+        onPageSizeChange={(limit) => {
+          setPagination((state) => ({ ...state, limit }));
+        }}
       />
     </TableContainer>
   );
