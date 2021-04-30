@@ -175,69 +175,61 @@ export default function AssociationsList({
         [primaryKey]: recordId,
       };
 
-      try {
-        if (recordsQuery.transform) {
-          data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
-            jq: recordsQuery.transform,
-            variables,
-          });
-        } else {
-          data = await zendro.request<AssocResponse>(
-            recordsQuery.query,
-            variables
-          );
-        }
+      if (recordsQuery.transform) {
+        data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
+          jq: recordsQuery.transform,
+          variables,
+        });
+      } else {
+        data = await zendro.request<AssocResponse>(
+          recordsQuery.query,
+          variables
+        );
+      }
 
-        if (data) {
-          const assocName =
-            recordsFilter === 'associated'
-              ? undefined
-              : recordsQuery.assocResolver;
-          const assocPrimaryKey = primaryKey;
-          const assocPrimaryKeyValue = recordId as string;
+      if (data) {
+        const assocName =
+          recordsFilter === 'associated'
+            ? undefined
+            : recordsQuery.assocResolver;
+        const assocPrimaryKey = primaryKey;
+        const assocPrimaryKeyValue = recordId as string;
 
-          const parsedRecords = data.records.reduce<TableRecord[]>(
-            (acc, record) => {
-              const isAssociated =
-                assocName && assocPrimaryKey && assocPrimaryKeyValue
-                  ? record[assocName]?.[assocPrimaryKey] ===
-                    assocPrimaryKeyValue
-                  : true;
+        const parsedRecords = data.records.reduce<TableRecord[]>(
+          (acc, record) => {
+            const isAssociated =
+              assocName && assocPrimaryKey && assocPrimaryKeyValue
+                ? record[assocName]?.[assocPrimaryKey] === assocPrimaryKeyValue
+                : true;
 
-              const parsedRecord: TableRecord = {
-                data: record,
-                isAssociated,
-              };
+            const parsedRecord: TableRecord = {
+              data: record,
+              isAssociated,
+            };
 
-              return [...acc, parsedRecord];
-            },
-            [] as TableRecord[]
-          );
+            return [...acc, parsedRecord];
+          },
+          [] as TableRecord[]
+        );
 
-          return {
-            records: parsedRecords,
-            pageInfo: data.pageInfo,
-          };
-        }
-      } catch (error) {
-        showSnackbar('There was an error', 'error', error);
+        return {
+          records: parsedRecords,
+          pageInfo: data.pageInfo,
+        };
       }
     },
     {
       onSuccess: (data) => {
-        if (data) {
-          const model = getModel(selectedAssoc.target);
+        const model = getModel(selectedAssoc.target);
 
-          setAssocTable({
-            data: data.records,
-            pageInfo: data.pageInfo,
-            ...model,
-          });
-        }
-        // setRecords({
-        //   data: data.records,
-        //   pageInfo: data.pageInfo,
-        // });
+        setAssocTable({
+          data: data?.records ?? [],
+          pageInfo: data?.pageInfo,
+          ...model,
+        });
+      },
+      onError: (error) => {
+        showSnackbar('There was an error', 'error', error);
       },
     }
   );
@@ -262,25 +254,24 @@ export default function AssociationsList({
       if (!countQuery) {
         return { count: 1 };
       }
-      try {
-        if (countQuery.transform) {
-          data = await zendro.metaRequest(countQuery.query, {
-            jq: countQuery.transform,
-            variables,
-          });
-        } else {
-          data = await zendro.request(countQuery.query, variables);
-        }
-        return data;
-      } catch (error) {
-        showSnackbar('There was an error', 'error', error);
+      if (countQuery.transform) {
+        data = await zendro.metaRequest(countQuery.query, {
+          jq: countQuery.transform,
+          variables,
+        });
+      } else {
+        data = await zendro.request(countQuery.query, variables);
       }
+      return data;
     },
     {
       onSuccess: (data) => {
         if (data) {
           setRecordsTotal(data.count);
         }
+      },
+      onError: (error) => {
+        showSnackbar('There was an error', 'error', error);
       },
     }
   );
@@ -366,7 +357,8 @@ export default function AssociationsList({
   const handleSubmit = async (): Promise<void> => {
     const { namePlCp, nameCp } = getInflections(selectedAssoc.name);
     const mutationName = selectedAssoc.type === 'to_one' ? nameCp : namePlCp;
-    const assocVariables = {
+    const variables = {
+      [primaryKey]: recordId,
       [`add${mutationName}`]:
         selectedRecords.toAdd.length > 0
           ? selectedAssoc.type === 'to_one'
@@ -383,11 +375,11 @@ export default function AssociationsList({
     try {
       await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
-        assocVariables
+        variables
       );
       showSnackbar('Associations updated successfully', 'success');
     } catch (error) {
-      console.error(error);
+      showSnackbar('There was an error', 'error', error);
     }
     setSelectedRecords({
       toAdd: [],
