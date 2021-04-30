@@ -18,7 +18,7 @@ export default function IconButton({
   return (
     <>
       {tooltip ? (
-        <Tooltip title={tooltip} disableInteractive>
+        <Tooltip title={tooltip} arrow disableInteractive>
           <MuiIconButton
             component={props.disabled ? 'span' : props.component ?? 'button'}
             {...props}
