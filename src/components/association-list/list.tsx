@@ -42,7 +42,7 @@ import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
 import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import useRecords from '@/zendro/model-table/hooks/useRecords';
-import { QueryModelTableRecordsVariables } from '@/types/queries';
+import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 
 interface AssociationListProps {
@@ -82,10 +82,15 @@ export default function AssociationsList({
   const zendro = useZendroClient();
 
   // Selected association
-  const [selectedAssoc, setSelectedAssoc] = useState({
-    target: associations[0].target,
-    name: associations[0].name,
-    type: associations[0].type,
+  const [selectedAssoc, setSelectedAssoc] = useState(() => {
+    const model = getModel(associations[0].target);
+    return {
+      target: associations[0].target,
+      name: associations[0].name,
+      type: associations[0].type,
+      attributes: model.schema.attributes,
+      primaryKey: model.schema.primaryKey,
+    };
   });
 
   // const assocTable = useMemo(() => {
@@ -135,8 +140,8 @@ export default function AssociationsList({
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
     associationFilter: recordsFilter,
-    attributes: assocTable.schema.attributes,
-    primaryKey: assocTable.schema.primaryKey,
+    attributes: selectedAssoc.attributes,
+    primaryKey: selectedAssoc.primaryKey,
     recordsToAdd,
     recordsToRemove,
     searchText,
@@ -157,19 +162,19 @@ export default function AssociationsList({
 
   /* QUERIES */
 
-  const recordsQuery = useMemo(() => {
-    if (associationView === 'details' || recordsFilter === 'associated')
-      return zendro.queries[modelName].withFilter[selectedAssoc.target]
-        .readFiltered;
-    else
-      return zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
-  }, [
-    selectedAssoc.target,
-    associationView,
-    modelName,
-    zendro.queries,
-    recordsFilter,
-  ]);
+  // const recordsQuery = useMemo(() => {
+  //   if (associationView === 'details' || recordsFilter === 'associated')
+  //     return zendro.queries[modelName].withFilter[selectedAssoc.target]
+  //       .readFiltered;
+  //   else
+  //     return zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
+  // }, [
+  //   selectedAssoc.target,
+  //   associationView,
+  //   modelName,
+  //   zendro.queries,
+  //   recordsFilter,
+  // ]);
 
   const countQuery = useMemo(() => {
     if (associationView === 'details' || recordsFilter === 'associated')
@@ -194,8 +199,22 @@ export default function AssociationsList({
 
   /* FETCH RECORDS */
   const { mutate: mutateRecords } = useSWR(
-    [recordsQuery, tableSearch, tableOrder, tablePagination],
-    async (): Promise<AssocResponse | undefined> => {
+    [
+      recordsFilter,
+      selectedAssoc.name,
+      tableSearch,
+      tableOrder,
+      tablePagination,
+    ],
+    async (): Promise<
+      { records: TableRecord[]; pageInfo?: PageInfo } | undefined
+    > => {
+      const recordsQuery: AssocQuery =
+        associationView === 'details' || recordsFilter === 'associated'
+          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+              .readFiltered
+          : zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
+
       let data: AssocResponse;
 
       console.log(' ========== fetchTableRecords RUNS ========== ');
@@ -221,14 +240,7 @@ export default function AssociationsList({
             variables
           );
         }
-        return data;
-        // console.log({ dataRecords: data.records });
-      } catch (error) {
-        showSnackbar('There was an error', 'error', error);
-      }
-    },
-    {
-      onSuccess: (data) => {
+
         if (data) {
           const assocName =
             recordsFilter === 'associated'
@@ -255,14 +267,28 @@ export default function AssociationsList({
             [] as TableRecord[]
           );
 
+          return {
+            records: parsedRecords,
+            pageInfo: data.pageInfo,
+          };
+        }
+
+        return data;
+        // console.log({ dataRecords: data.records });
+      } catch (error) {
+        showSnackbar('There was an error', 'error', error);
+      }
+    },
+    {
+      onSuccess: (data) => {
+        if (data) {
           const model = getModel(selectedAssoc.target);
 
-          setAssocTable((state) => ({
-            data: parsedRecords,
+          setAssocTable({
+            data: data.records,
             pageInfo: data.pageInfo,
-            name: selectedAssoc.name,
             ...model,
-          }));
+          });
         }
         // setRecords({
         //   data: data.records,
@@ -322,7 +348,15 @@ export default function AssociationsList({
       setOrder(undefined);
       setRecordsToAdd([]);
       setRecordsToRemove([]);
-      setSelectedAssoc({ target, name, type: assoc.type });
+
+      const model = getModel(target);
+      setSelectedAssoc({
+        target,
+        name,
+        type: assoc.type,
+        attributes: model.schema.attributes,
+        primaryKey: model.schema.primaryKey,
+      });
       // setAssociationFilter('no-filter');
     }
   };
