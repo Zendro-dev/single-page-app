@@ -516,7 +516,7 @@ export default function AssociationsList({
           caption={`${selectedAssoc.name} associations table for ${modelName}`}
         >
           <TableHeader
-            actionsColSpan={1}
+            actionsColSpan={associationView !== 'details' ? 1 : 0}
             attributes={assocTable.schema.attributes}
             onSortLabelClick={(field) =>
               setOrder((state) => ({
@@ -547,44 +547,46 @@ export default function AssociationsList({
                   attributes={assocTable.schema.attributes}
                   record={record.data}
                 >
-                  <MuiTableCell align="center">
-                    <IconButton
-                      tooltip={
-                        record.isAssociated
-                          ? isSelected
-                            ? 'marked to be disassociated, click to reset'
-                            : 'click to disassociate'
-                          : isSelected
-                          ? 'marked to be associated, click to reset'
-                          : 'click to associate'
-                      }
-                      onClick={() =>
-                        handleOnMarkForAssociationClick(
-                          recordId,
-                          record.isAssociated ? 'toRemove' : 'toAdd',
-                          isSelected ? 'remove' : 'add'
-                        )
-                      }
-                    >
-                      {record.isAssociated ? (
-                        isSelected ? (
-                          <LinkOffIcon
+                  {associationView !== 'details' && (
+                    <MuiTableCell align="center">
+                      <IconButton
+                        tooltip={
+                          record.isAssociated
+                            ? isSelected
+                              ? 'marked to be disassociated, click to reset'
+                              : 'click to disassociate'
+                            : isSelected
+                            ? 'marked to be associated, click to reset'
+                            : 'click to associate'
+                        }
+                        onClick={() =>
+                          handleOnMarkForAssociationClick(
+                            recordId,
+                            record.isAssociated ? 'toRemove' : 'toAdd',
+                            isSelected ? 'remove' : 'add'
+                          )
+                        }
+                      >
+                        {record.isAssociated ? (
+                          isSelected ? (
+                            <LinkOffIcon
+                              fontSize="small"
+                              className={classes.iconLinkOffMarked}
+                            />
+                          ) : (
+                            <LinkIcon fontSize="small" />
+                          )
+                        ) : isSelected ? (
+                          <LinkIcon
                             fontSize="small"
-                            className={classes.iconLinkOffMarked}
+                            className={classes.iconLinkMarked}
                           />
                         ) : (
-                          <LinkIcon fontSize="small" />
-                        )
-                      ) : isSelected ? (
-                        <LinkIcon
-                          fontSize="small"
-                          className={classes.iconLinkMarked}
-                        />
-                      ) : (
-                        <LinkOffIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </MuiTableCell>
+                          <LinkOffIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </MuiTableCell>
+                  )}
                 </TableRow>
               );
             })}
