@@ -13,14 +13,12 @@ interface SearchFieldProps {
   placeholder?: string;
   value?: string;
   onReset?: () => void;
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 export default function SearchField({
   onSearch,
   placeholder,
   value,
-  onChange,
   onReset,
 }: SearchFieldProps): ReactElement {
   const [text, setText] = useState(value);
