@@ -182,18 +182,18 @@ export default function AssociationsList({
   //   recordsFilter,
   // ]);
 
-  const countQuery = useMemo(() => {
-    if (associationView === 'details' || recordsFilter === 'associated')
-      return zendro.queries[modelName].withFilter[selectedAssoc.target]
-        .countFiltered;
-    else return zendro.queries[selectedAssoc.target].countAll;
-  }, [
-    selectedAssoc.target,
-    associationView,
-    modelName,
-    zendro.queries,
-    recordsFilter,
-  ]);
+  // const countQuery = useMemo(() => {
+  //   if (associationView === 'details' || recordsFilter === 'associated')
+  //     return zendro.queries[modelName].withFilter[selectedAssoc.target]
+  //       .countFiltered;
+  //   else return zendro.queries[selectedAssoc.target].countAll;
+  // }, [
+  //   selectedAssoc.target,
+  //   associationView,
+  //   modelName,
+  //   zendro.queries,
+  //   recordsFilter,
+  // ]);
 
   // const parsedRecords = useRecords({
   //   assocName:
@@ -306,8 +306,14 @@ export default function AssociationsList({
 
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR(
-    [countQuery, tableSearch],
+    [recordsFilter, selectedAssoc.target, tableSearch],
     async (): Promise<Record<'count', number> | undefined> => {
+      const countQuery =
+        associationView === 'details' || recordsFilter === 'associated'
+          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+              .countFiltered
+          : zendro.queries[selectedAssoc.target].countAll;
+
       let data: Record<'count', number>;
 
       const variables: QueryModelTableRecordsVariables = {
