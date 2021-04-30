@@ -228,6 +228,12 @@ export default function AssociationsTable({
           pageInfo: data?.pageInfo,
           ...model,
         });
+
+        // If association type is to_one the count can be directly derive from the data
+        // since its either 0 or 1. Since there is on resolver the useSWR for count won't fire
+        if (selectedAssoc.type === 'to_one') {
+          setRecordsTotal(data?.records.length ?? 0);
+        }
       },
       onError: (error) => {
         // TODO check clientError.response.data
@@ -253,13 +259,17 @@ export default function AssociationsTable({
 
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR(
-    [recordsFilter, selectedAssoc.target, tableSearch],
+    selectedAssoc.type !== 'to_one'
+      ? [recordsFilter, selectedAssoc.target, tableSearch]
+      : null,
     async (): Promise<Record<'count', number> | undefined> => {
       const countQuery =
         associationView === 'details' || recordsFilter === 'associated'
           ? zendro.queries[modelName].withFilter[selectedAssoc.target]
               .countFiltered
           : zendro.queries[selectedAssoc.target].countAll;
+
+      if (!countQuery) return;
 
       let data: Record<'count', number>;
 
@@ -268,9 +278,6 @@ export default function AssociationsTable({
         [primaryKey]: recordId,
       };
 
-      if (!countQuery) {
-        return { count: 1 };
-      }
       if (countQuery.transform) {
         data = await zendro.metaRequest(countQuery.query, {
           jq: countQuery.transform,
@@ -515,6 +522,7 @@ export default function AssociationsTable({
       <TableContainer className={classes.table}>
         <Table
           caption={`${selectedAssoc.name} associations table for ${modelName}`}
+          isEmpty={assocTable.data.length === 0}
         >
           <TableHeader
             actionsColSpan={associationView !== 'details' ? 1 : 0}
