@@ -93,24 +93,6 @@ export default function AssociationsList({
     };
   });
 
-  // const assocTable = useMemo(() => {
-  //   return getModel(selectedAssoc.target);
-  // }, [selectedAssoc, getModel]);
-
-  // // Showing records
-  // const [records, setRecords] = useState<{
-  //   data: DataRecordWithAssoc[];
-  //   pageInfo?: PageInfo;
-  // }>({
-  //   data: [],
-  //   pageInfo: {
-  //     startCursor: null,
-  //     endCursor: null,
-  //     hasPreviousPage: false,
-  //     hasNextPage: false,
-  //   },
-  // });
-
   const [assocTable, setAssocTable] = useState<AssocTable>(() => {
     const model = getModel(selectedAssoc.target);
     return {
@@ -137,10 +119,6 @@ export default function AssociationsList({
     toAdd: [],
     toRemove: [],
   });
-  // const [recordsToAdd, setRecordsToAdd] = useState<(string | number)[]>([]);
-  // const [recordsToRemove, setRecordsToRemove] = useState<(string | number)[]>(
-  //   []
-  // );
 
   /* VARIABLES */
 
@@ -165,43 +143,6 @@ export default function AssociationsList({
     cursor: null,
   });
   const tablePagination = useTablePagination(pagination);
-
-  /* QUERIES */
-
-  // const recordsQuery = useMemo(() => {
-  //   if (associationView === 'details' || recordsFilter === 'associated')
-  //     return zendro.queries[modelName].withFilter[selectedAssoc.target]
-  //       .readFiltered;
-  //   else
-  //     return zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
-  // }, [
-  //   selectedAssoc.target,
-  //   associationView,
-  //   modelName,
-  //   zendro.queries,
-  //   recordsFilter,
-  // ]);
-
-  // const countQuery = useMemo(() => {
-  //   if (associationView === 'details' || recordsFilter === 'associated')
-  //     return zendro.queries[modelName].withFilter[selectedAssoc.target]
-  //       .countFiltered;
-  //   else return zendro.queries[selectedAssoc.target].countAll;
-  // }, [
-  //   selectedAssoc.target,
-  //   associationView,
-  //   modelName,
-  //   zendro.queries,
-  //   recordsFilter,
-  // ]);
-
-  // const parsedRecords = useRecords({
-  //   assocName:
-  //     recordsFilter === 'associated' ? undefined : recordsQuery.assocResolver,
-  //   assocPrimaryKey: primaryKey,
-  //   assocPrimaryKeyValue: recordId as string,
-  //   records: records.data,
-  // });
 
   /* FETCH RECORDS */
   const { mutate: mutateRecords } = useSWR(
@@ -278,9 +219,6 @@ export default function AssociationsList({
             pageInfo: data.pageInfo,
           };
         }
-
-        return data;
-        // console.log({ dataRecords: data.records });
       } catch (error) {
         showSnackbar('There was an error', 'error', error);
       }
@@ -321,9 +259,6 @@ export default function AssociationsList({
         [primaryKey]: recordId,
       };
 
-      // console.log({ countQuery });
-      // console.log({ variables });
-
       if (!countQuery) {
         return { count: 1 };
       }
@@ -333,12 +268,10 @@ export default function AssociationsList({
             jq: countQuery.transform,
             variables,
           });
-          // console.log({ data });
         } else {
           data = await zendro.request(countQuery.query, variables);
         }
         return data;
-        // setRecordsTotal(data.count);
       } catch (error) {
         showSnackbar('There was an error', 'error', error);
       }
@@ -362,8 +295,6 @@ export default function AssociationsList({
         toAdd: [],
         toRemove: [],
       });
-      // setRecordsToAdd([]);
-      // setRecordsToRemove([]);
 
       const model = getModel(target);
       setSelectedAssoc({
@@ -373,7 +304,6 @@ export default function AssociationsList({
         attributes: model.schema.attributes,
         primaryKey: model.schema.primaryKey,
       });
-      // setAssociationFilter('no-filter');
     }
   };
 
@@ -382,7 +312,6 @@ export default function AssociationsList({
     list,
     action
   ) => {
-    // const currAssocRecord = parsedRecords.find((record) => record.isAssociated);
     const currAssocRecord = assocTable.data.find(
       (record) => record.isAssociated
     );
@@ -401,27 +330,17 @@ export default function AssociationsList({
                 ? [...toRemove, currAssocRecordId]
                 : toRemove,
             }));
-            // if (currAssocRecordId)
-            //   setRecordsToRemove((recordsToRemove) => [
-            //     ...recordsToRemove,
-            //     currAssocRecordId,
-            //   ]);
           } else {
             setSelectedRecords(({ toAdd, toRemove }) => ({
               toAdd: [...toAdd, recordToMark],
               toRemove,
             }));
-            // setRecordsToAdd((recordsToAdd) => [...recordsToAdd, recordToMark]);
           }
         } else
           setSelectedRecords(({ toAdd, toRemove }) => ({
             toAdd,
             toRemove: [...toRemove, recordToMark],
           }));
-        // setRecordsToRemove((recordsToRemove) => [
-        //   ...recordsToRemove,
-        //   recordToMark,
-        // ]);
         break;
       case 'remove':
         if (list === 'toAdd') {
@@ -429,21 +348,13 @@ export default function AssociationsList({
             toAdd: toAdd.filter((item) => item !== recordToMark),
             toRemove,
           }));
-          // setRecordsToAdd(recordsToAdd.filter((item) => item !== recordToMark));
           if (selectedAssoc.type === 'to_one') {
-            // setRecordsToRemove(
-            //   recordsToRemove.filter((item) => item !== currAssocRecordId)
-            // );
             setSelectedRecords(({ toAdd, toRemove }) => ({
               toAdd,
               toRemove: toRemove.filter((item) => item !== currAssocRecordId),
             }));
           }
-        }
-        // setRecordsToRemove(
-        //   recordsToRemove.filter((item) => item !== recordToMark)
-        // );
-        else
+        } else
           setSelectedRecords(({ toAdd, toRemove }) => ({
             toAdd,
             toRemove: toRemove.filter((item) => item !== recordToMark),
@@ -482,8 +393,6 @@ export default function AssociationsList({
       toAdd: [],
       toRemove: [],
     });
-    // setRecordsToAdd([]);
-    // setRecordsToRemove([]);
     mutateRecords();
     mutateCount();
   };
@@ -580,29 +489,7 @@ export default function AssociationsList({
       </div>
 
       <TableContainer className={classes.table}>
-        <Table
-        // associationView={associationView}
-        // attributes={assocTable.attributes}
-        // records={parsedRecords}
-        // activeOrder={order?.sortField ?? assocTable.primaryKey}
-        // orderDirection={order?.sortDirection ?? 'ASC'}
-        // onSetOrder={(field) =>
-        //   setOrder((state) => ({
-        //     ...state,
-        //     sortField: field,
-        //     sortDirection: !state?.sortDirection
-        //       ? 'ASC'
-        //       : state.sortDirection === 'ASC'
-        //       ? 'DESC'
-        //       : 'ASC',
-        //   }))
-        // }
-        // onAssociate={handleOnMarkForAssociationClick}
-        // isValidatingRecords={false}
-        // primaryKey={assocTable.primaryKey}
-        // recordsToAdd={recordsToAdd}
-        // recordsToRemove={recordsToRemove}
-        >
+        <Table>
           <TableHeader
             actionsColSpan={1}
             attributes={assocTable.schema.attributes}
@@ -622,7 +509,6 @@ export default function AssociationsList({
           />
 
           <TableBody>
-            {/* {parsedRecords.map((record) => { */}
             {assocTable.data.map((record) => {
               const recordPK = assocTable.schema.primaryKey;
               const recordId = record.data[recordPK] as string | number;
