@@ -637,13 +637,11 @@ const useStyles = makeStyles((theme) =>
       width: '100%',
       flexGrow: 1,
       overflow: 'auto',
-      padding: theme.spacing(2, 0),
     },
     toolbar: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: theme.spacing(2),
     },
     toolbarFilters: {
       marginLeft: theme.spacing(4),
@@ -657,21 +655,6 @@ const useStyles = makeStyles((theme) =>
     },
     toolbarAssocSelect: {
       marginLeft: theme.spacing(4),
-    },
-    iconDetail: {
-      '&:hover': {
-        color: theme.palette.primary.main,
-      },
-    },
-    iconEdit: {
-      '&:hover': {
-        color: theme.palette.primary.main,
-      },
-    },
-    iconDelete: {
-      '&:hover': {
-        color: theme.palette.secondary.main,
-      },
     },
     iconLinkMarked: {
       color: 'green',

@@ -438,6 +438,7 @@ const Model: PageWithLayout<ModelProps> = ({
                   <IconButton
                     tooltip={`View ${recordId}`}
                     onClick={() => handleOnRead(recordId)}
+                    className={classes.rowActionPrimary}
                   >
                     <DetailsIcon fontSize="small" />
                   </IconButton>
@@ -447,6 +448,7 @@ const Model: PageWithLayout<ModelProps> = ({
                     <IconButton
                       tooltip={`Edit ${recordId}`}
                       onClick={() => handleOnUpdate(recordId)}
+                      className={classes.rowActionPrimary}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -457,6 +459,7 @@ const Model: PageWithLayout<ModelProps> = ({
                     <IconButton
                       tooltip={`Delete ${recordId}`}
                       onClick={() => handleOnDelete(recordId)}
+                      className={classes.rowActionSecondary}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -498,12 +501,24 @@ const useStyles = makeStyles((theme) =>
       flexGrow: 1,
       overflow: 'auto',
       padding: theme.spacing(2, 4),
+      marginTop: theme.spacing(8),
+    },
+    rowActionPrimary: {
+      '&:hover': {
+        backgroundColor: 'transparent',
+        color: theme.palette.primary.main,
+      },
+    },
+    rowActionSecondary: {
+      '&:hover': {
+        backgroundColor: 'transparent',
+        color: theme.palette.secondary.main,
+      },
     },
     toolbar: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: theme.spacing(8),
     },
     toolbarActions: {
       display: 'flex',
