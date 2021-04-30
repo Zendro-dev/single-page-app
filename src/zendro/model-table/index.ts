@@ -5,15 +5,10 @@ import TableHeader from './table-header';
 import TableRow from './table-row';
 import TablePagination from './table-pagination';
 import TableSearch from './table-search';
-//
+
 import useTableOrder from './hooks/useOrder';
 import useTablePagination from './hooks/usePagination';
 import useTableSearch from './hooks/useSearch';
-
-/* DEPRECATED */
-import useVariables from './hooks/useVariables';
-import useTable from './hooks/useTable';
-/* END DEPRECATED */
 
 export * from './table';
 export * from './table-row';
@@ -32,7 +27,4 @@ export {
   useTableOrder,
   useTablePagination,
   useTableSearch,
-  // DEPRECATED
-  useTable,
-  useVariables,
 };

@@ -2,20 +2,18 @@ import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
+import { createStyles, makeStyles } from '@material-ui/core';
 
 import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
 import AttributesForm, { ActionHandler } from '@/components/attributes-form';
-import AssociationList from '@/components/association-list';
 
 import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
-import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
 import { parseGraphqlErrors } from '@/utils/errors';
@@ -24,7 +22,6 @@ import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {
-  associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
   modelName: string;
   requests: ReturnType<typeof queryRecord>;
@@ -63,7 +60,6 @@ export const getStaticProps: GetStaticProps<
 };
 
 const Record: PageWithLayout<RecordProps> = ({
-  associations,
   attributes,
   modelName,
   requests,
@@ -78,9 +74,6 @@ const Record: PageWithLayout<RecordProps> = ({
   /* STATE */
 
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
-  );
 
   /* ACTION HANDLERS */
 
@@ -180,55 +173,19 @@ const Record: PageWithLayout<RecordProps> = ({
 
   /* EVENT HANDLERS */
 
-  /**
-   * Set the tab index to a new value.
-   * @param event change tab event
-   * @param value new tab value
-   */
-  const handleOnTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: typeof currentTab
-  ): void => {
-    setCurrentTab(value);
-  };
-
   return (
-    <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
-          <Tab label="Attributes" value="attributes" />
-          <Tab
-            label="Associations"
-            value="associations"
-            disabled={associations.length === 0}
-          />
-        </TabList>
-      </Box>
-      <TabPanel value="attributes">
-        <AttributesForm
-          attributes={attributes}
-          className={classes.form}
-          errors={ajvErrors}
-          formId={router.asPath}
-          formView="create"
-          modelName={modelName}
-          actions={{
-            cancel: handleOnCancel,
-            submit: handleOnSubmit,
-          }}
-        />
-      </TabPanel>
-      <TabPanel value="associations" className={classes.tabPanel}>
-        <AssociationList
-          associationView="new"
-          associations={associations}
-          attributes={attributes}
-          modelName={modelName}
-          recordId={urlQuery.id}
-          primaryKey={attributes[0].name}
-        />
-      </TabPanel>
-    </TabContext>
+    <AttributesForm
+      attributes={attributes}
+      className={classes.form}
+      errors={ajvErrors}
+      formId={router.asPath}
+      formView="create"
+      modelName={modelName}
+      actions={{
+        cancel: handleOnCancel,
+        submit: handleOnSubmit,
+      }}
+    />
   );
 };
 
@@ -240,13 +197,6 @@ const useStyles = makeStyles((theme) =>
       borderColor: theme.palette.grey[300],
       margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
-    },
-    tabPanel: {
-      display: 'flex',
-      flexGrow: 1,
-      width: '100%',
-      padding: 0,
-      // padding: theme.spacing(4, 0),
     },
   })
 );
