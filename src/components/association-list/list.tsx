@@ -44,6 +44,7 @@ import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import useRecords from '@/zendro/model-table/hooks/useRecords';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
+import { ExtendedClientError } from '@/types/errors';
 
 interface AssociationListProps {
   associations: ParsedAssociation[];
@@ -229,8 +230,24 @@ export default function AssociationsList({
         });
       },
       onError: (error) => {
-        showSnackbar('There was an error', 'error', error);
+        // TODO check clientError.response.data
+        const clientError = error as ExtendedClientError<AssocResponse>;
+
+        if (!clientError.response) {
+          showSnackbar((error as Error).message, 'error');
+          return;
+        }
+
+        const genericError = clientError.response.error;
+        const graphqlErrors = clientError.response.errors;
+
+        if (graphqlErrors)
+          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+
+        if (genericError)
+          showSnackbar('Error in request to server', 'error', genericError);
       },
+      shouldRetryOnError: false,
     }
   );
 
@@ -271,7 +288,23 @@ export default function AssociationsList({
         }
       },
       onError: (error) => {
-        showSnackbar('There was an error', 'error', error);
+        const clientError = error as ExtendedClientError<
+          Record<'count', number>
+        >;
+
+        if (!clientError.response) {
+          showSnackbar((error as Error).message, 'error');
+          return;
+        }
+
+        const genericError = clientError.response.error;
+        const graphqlErrors = clientError.response.errors;
+
+        if (graphqlErrors)
+          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+
+        if (genericError)
+          showSnackbar('Error in request to server', 'error', genericError);
       },
     }
   );
