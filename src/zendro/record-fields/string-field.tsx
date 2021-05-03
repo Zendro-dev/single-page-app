@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
-import TextField, { TextFieldProps } from './text-field';
+import { TextInput, TextInputProps } from '@/components/inputs';
 
 type StringFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: string | null) => void;
     value: string | null;
@@ -23,5 +23,5 @@ export default function StringField({
     }
   };
 
-  return <TextField {...props} onChange={handleOnChange} value={value ?? ''} />;
+  return <TextInput {...props} onChange={handleOnChange} value={value ?? ''} />;
 }

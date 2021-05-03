@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   Divider,
@@ -28,7 +28,7 @@ interface StyledSelectProps {
   selected: string;
 }
 
-export default function StyledSelect(props: StyledSelectProps): ReactElement {
+export default function SelectInput(props: StyledSelectProps): ReactElement {
   // const [selected, setSelected] = useState<string>(
   //   props.defaultValue ?? props.items[0].id
   // );

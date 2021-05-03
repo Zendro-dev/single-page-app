@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { ReactElement, ReactNode, PropsWithChildren } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-interface InputContainerProps {
+interface InputActionsProps {
   className?: string;
   actionBottom?: ReactNode;
   actionLeft?: ReactNode;
@@ -10,19 +10,19 @@ interface InputContainerProps {
   actionTop?: ReactNode;
 }
 
-export type WithIcons<T> = T &
+export type WithActions<T> = T &
   Pick<
-    InputContainerProps,
+    InputActionsProps,
     'actionBottom' | 'actionLeft' | 'actionRight' | 'actionTop'
   >;
 
-export default function InputContainer({
+export default function InputActions({
   actionBottom: bottomIcon,
   actionLeft: LeftIcon,
   actionRight: RightIcon,
   actionTop: topIcon,
   ...props
-}: PropsWithChildren<InputContainerProps>): ReactElement {
+}: PropsWithChildren<InputActionsProps>): ReactElement {
   const classes = useStyles();
 
   return (

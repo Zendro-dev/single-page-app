@@ -7,7 +7,7 @@ import {
   AttributeScalarValue,
 } from '@/types/models';
 
-import { TextFieldProps } from './text-field';
+import { TextInputProps } from '@/components/inputs';
 
 import BoolField from './bool-field';
 import DateTimeField from './datetime-field';
@@ -17,7 +17,7 @@ import StringField from './string-field';
 import ArrayField from './array-field';
 
 export type InputFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: AttributeScalarValue | AttributeArrayValue) => void;
     onError?: (value?: string) => void;
@@ -31,7 +31,7 @@ export default function InputField({
   type,
   value,
   ...props
-}: Overwrite<TextFieldProps, InputFieldProps>): ReactElement {
+}: Overwrite<TextInputProps, InputFieldProps>): ReactElement {
   switch (type) {
     case 'Boolean':
       return <BoolField {...props} value={value as boolean | null} />;

@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
-import TextField, { TextFieldProps } from './text-field';
+import { TextInput, TextInputProps } from '@/components/inputs';
 
 type IntFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: number | null) => void;
     onError?: (value?: string) => void;
@@ -45,7 +45,7 @@ export default function IntField({
   };
 
   return (
-    <TextField
+    <TextInput
       {...props}
       onChange={handleOnChange}
       onKeyDown={handleOnKeyDown}

@@ -7,8 +7,6 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
-import AttributesForm, { ActionHandler } from '@/components/attributes-form';
-
 import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
@@ -20,6 +18,8 @@ import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
+
+import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
   attributes: ParsedAttribute[];

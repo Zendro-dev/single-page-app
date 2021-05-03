@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
-import EmailField from '../input/login-field';
-import PasswordField from '../input/password-field';
+import EmailField from './login-field';
+import PasswordField from './password-field';
 
 import {
   AccountCircleOutlined as AccountCircleIcon,

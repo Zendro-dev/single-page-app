@@ -9,9 +9,6 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
-import AttributesForm, { ActionHandler } from '@/components/attributes-form';
-import AssociationsTable from '@/zendro/associations-table';
-
 import { usePermissions, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
@@ -21,6 +18,9 @@ import { ModelUrlQuery } from '@/types/routes';
 
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
+
+import AssociationsTable from '@/zendro/associations-table';
+import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
   associations: ParsedAssociation[];

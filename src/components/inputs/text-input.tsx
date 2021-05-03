@@ -8,19 +8,19 @@ import {
   OutlinedInputProps,
 } from '@material-ui/core';
 
-export interface TextFieldProps extends OutlinedInputProps {
+export interface TextInputProps extends OutlinedInputProps {
   helperText?: {
     component?: React.ElementType;
     node: ReactNode;
   };
 }
 
-export default function TextField({
+export default function TextInput({
   error,
   helperText,
   label,
   ...props
-}: TextFieldProps): ReactElement {
+}: TextInputProps): ReactElement {
   const classes = useStyles();
 
   return (

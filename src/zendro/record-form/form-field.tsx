@@ -3,19 +3,15 @@ import { ReactElement } from 'react';
 import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
 
-import {
-  FieldIcons,
-  WithIcons,
-  InputField,
-  InputFieldProps,
-} from '@/components/input';
+import { InputActions, WithActions } from '@/components/inputs';
 import { AttributeValue, AttributeArrayValue } from '@/types/models';
+import { InputField, InputFieldProps } from '@/zendro/record-fields';
 
 export default function AttributeField({
   actionLeft: leftIcon,
   actionRight: rightIcon,
   ...props
-}: WithIcons<InputFieldProps>): ReactElement {
+}: WithActions<InputFieldProps>): ReactElement {
   const handleOnChange = (
     value: AttributeValue | AttributeArrayValue
   ): void => {
@@ -29,7 +25,7 @@ export default function AttributeField({
   };
 
   return (
-    <FieldIcons actionLeft={leftIcon} actionRight={rightIcon}>
+    <InputActions actionLeft={leftIcon} actionRight={rightIcon}>
       <InputField
         {...props}
         onChange={props.onChange ? handleOnChange : undefined}
@@ -47,6 +43,6 @@ export default function AttributeField({
           )
         }
       />
-    </FieldIcons>
+    </InputActions>
   );
 }

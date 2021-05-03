@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
 
@@ -9,8 +10,8 @@ import {
   Delete as DeleteIcon,
 } from '@material-ui/icons';
 
-import { FieldIcons, InputField, TextFieldProps } from '@/components/input';
-import IconButton from '@/components/buttons/icon-button';
+import { IconButton } from '@/components/buttons';
+import { InputActions, TextInputProps } from '@/components/inputs';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -23,10 +24,10 @@ import {
   AttributeScalarType,
   AttributeScalarValue,
 } from '@/types/models';
-import clsx from 'clsx';
+import { InputField } from '@/zendro/record-fields';
 
 type ArrayFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: AttributeArrayValue) => void;
     onError?: (value?: string) => void;
@@ -108,7 +109,7 @@ export default function ArrayField({
             arrayValue.length > 0 &&
             arrayValue.map(
               (scalarValue: AttributeScalarValue, index: number) => (
-                <FieldIcons
+                <InputActions
                   key={index}
                   className={classes.fieldContainer}
                   actionBottom={
@@ -163,7 +164,7 @@ export default function ArrayField({
                       )
                     }
                   />
-                </FieldIcons>
+                </InputActions>
               )
             )}
         </fieldset>

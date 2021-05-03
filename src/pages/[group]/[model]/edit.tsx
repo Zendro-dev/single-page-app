@@ -13,7 +13,7 @@ import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
-} from '@/components/attributes-form';
+} from '@/zendro/record-form';
 
 import {
   useDialog,

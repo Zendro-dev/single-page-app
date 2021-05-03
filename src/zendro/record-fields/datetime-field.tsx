@@ -1,13 +1,13 @@
 import { useReducer } from 'react';
 import { enUS as en, es, de } from 'date-fns/locale';
 import { Overwrite } from 'utility-types';
+import { InputBaseComponentProps } from '@material-ui/core';
 import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
-import TextField, { TextFieldProps } from './text-field';
-import { InputBaseComponentProps } from '@material-ui/core';
+import { TextInput, TextInputProps } from '@/components/inputs';
 
 type DateTimeFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: Date | null) => void;
     value: Date | null;
@@ -45,7 +45,7 @@ export default function DateTimePicker({
             'color'
           >;
           return (
-            <TextField
+            <TextInput
               {...inputProps}
               {...props}
               endAdornment={showAdornment ? props.endAdornment : undefined}

@@ -7,10 +7,10 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@material-ui/core';
-import { TextFieldProps } from './text-field';
+import { TextInputProps } from '@/components/inputs';
 
 type BoolFieldProps = Overwrite<
-  TextFieldProps,
+  TextInputProps,
   {
     onChange?: (value: boolean | null) => void;
     value: boolean | null;

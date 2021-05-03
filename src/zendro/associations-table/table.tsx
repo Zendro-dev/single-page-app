@@ -14,7 +14,7 @@ import {
 } from '@material-ui/icons';
 
 import { IconButton } from '@/components/buttons';
-import { StyledSelect } from '@/components/fields';
+import { SelectInput } from '@/components/inputs';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import {
   DataRecord,
@@ -444,7 +444,7 @@ export default function AssociationsTable({
             onReset={() => setSearchText('')}
           />
           {associationView !== 'details' && (
-            <StyledSelect
+            <SelectInput
               className={classes.toolbarFilters}
               id={`${modelName}-association-filters`}
               label={`Select ${selectedAssoc.name} filters`}
@@ -504,7 +504,7 @@ export default function AssociationsTable({
             </IconButton>
           )}
 
-          <StyledSelect
+          <SelectInput
             className={classes.toolbarAssocSelect}
             id={`${modelName}-association-select`}
             label={`Select ${modelName} association`}
