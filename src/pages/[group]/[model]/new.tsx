@@ -2,27 +2,26 @@ import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
+import { createStyles, makeStyles } from '@material-ui/core';
 
-import AttributesForm, { ActionHandler } from '@/components/attributes-form';
-import AssociationList from '@/components/association-list';
+import { getStaticModel } from '@/build/models';
+import { getStaticModelPaths } from '@/build/routes';
 
 import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
-import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
+import { DataRecord, ParsedAttribute } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
 import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
 
+import AttributesForm, { ActionHandler } from '@/zendro/record-form';
+
 interface RecordProps {
-  associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
   modelName: string;
   requests: ReturnType<typeof queryRecord>;
@@ -47,7 +46,7 @@ export const getStaticProps: GetStaticProps<
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes);
+  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
@@ -61,7 +60,6 @@ export const getStaticProps: GetStaticProps<
 };
 
 const Record: PageWithLayout<RecordProps> = ({
-  associations,
   attributes,
   modelName,
   requests,
@@ -76,9 +74,6 @@ const Record: PageWithLayout<RecordProps> = ({
   /* STATE */
 
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
-  );
 
   /* ACTION HANDLERS */
 
@@ -86,9 +81,9 @@ const Record: PageWithLayout<RecordProps> = ({
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = (formData, formStats) => {
-    if (formStats.unset > 0) {
+    if (formStats.unset < formData.length) {
       return dialog.openConfirm({
-        title: 'Some fields have been added.',
+        title: 'Some fields have been modified.',
         message: 'Do you want to leave anyway?',
         okText: 'Yes',
         cancelText: 'No',
@@ -107,16 +102,20 @@ const Record: PageWithLayout<RecordProps> = ({
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
-
+    const primaryKey = attributes[0].name;
     const submit = async (): Promise<void> => {
       try {
         const { create } = requests;
-        await zendro.request<Record<string, DataRecord>>(
+        const response = await zendro.request<Record<string, DataRecord>>(
           create.query,
           dataRecord
         );
 
-        router.push(`/${urlQuery.group}/${modelName}`);
+        router.push(
+          `/${urlQuery.group}/${modelName}/edit?id=${
+            response[create.resolver][primaryKey]
+          }`
+        );
       } catch (error) {
         setAjvErrors(undefined);
         const clientError = error as ExtendedClientError<
@@ -174,48 +173,19 @@ const Record: PageWithLayout<RecordProps> = ({
 
   /* EVENT HANDLERS */
 
-  /**
-   * Set the tab index to a new value.
-   * @param event change tab event
-   * @param value new tab value
-   */
-  const handleOnTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: typeof currentTab
-  ): void => {
-    setCurrentTab(value);
-  };
-
   return (
-    <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
-          <Tab label="Attributes" value="attributes" />
-          <Tab
-            label="Associations"
-            value="associations"
-            disabled={associations.length === 0}
-          />
-        </TabList>
-      </Box>
-      <TabPanel value="attributes">
-        <AttributesForm
-          attributes={attributes}
-          className={classes.form}
-          errors={ajvErrors}
-          formId={router.asPath}
-          formView="create"
-          modelName={modelName}
-          actions={{
-            cancel: handleOnCancel,
-            submit: handleOnSubmit,
-          }}
-        />
-      </TabPanel>
-      <TabPanel value="associations">
-        <AssociationList modelName={modelName} associations={associations} />
-      </TabPanel>
-    </TabContext>
+    <AttributesForm
+      attributes={attributes}
+      className={classes.form}
+      errors={ajvErrors}
+      formId={router.asPath}
+      formView="create"
+      modelName={modelName}
+      actions={{
+        cancel: handleOnCancel,
+        submit: handleOnSubmit,
+      }}
+    />
   );
 };
 

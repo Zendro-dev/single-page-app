@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 
 import {
   Collapse,
@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListProps,
   Typography,
 } from '@material-ui/core';
 
@@ -17,7 +18,7 @@ import {
 
 import { SvgIconType } from '@/types/elements';
 
-export interface NavGroupProps {
+export interface NavGroupProps extends ListProps {
   icon: SvgIconType;
   label: string;
 }
@@ -26,10 +27,11 @@ export default function NavGroup({
   icon: Icon,
   label,
   children,
-}: PropsWithChildren<NavGroupProps>): ReactElement {
+  ...props
+}: NavGroupProps): ReactElement {
   const [showGroup, setShowGroup] = useState(true);
   return (
-    <List disablePadding>
+    <List {...props} disablePadding>
       <Divider />
       <ListItem
         component="button"

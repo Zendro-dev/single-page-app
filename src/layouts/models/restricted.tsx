@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, useEffect } from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { useModel, useCoundown } from '@/hooks';
+import { usePermissions, useCoundown } from '@/hooks';
 import { hasValues } from '@/utils/validation';
 import ModelInfo from './model-info';
 
@@ -18,7 +18,7 @@ export default function Restricted(
   props: PropsWithChildren<RestrictedProps>
 ): ReactElement {
   const router = useRouter();
-  const model = useModel();
+  const model = usePermissions();
   const classes = useStyles();
 
   const { resetTimer, startTimer, timer } = useCoundown(10);

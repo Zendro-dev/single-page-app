@@ -1,17 +1,18 @@
-import { ParsedAttribute, AttributeScalarType } from '@/types/models';
+import { AttributeScalarType } from '@/types/models';
 
 export interface QueryVariables {
   [key: string]: unknown;
 }
 
 export interface RawQuery {
-  resolver: string;
+  name: string;
   query: string;
+  resolver: string;
+  transform?: string;
 }
 
-export interface ComposedQuery<V = QueryVariables | null | undefined>
-  extends RawQuery {
-  variables: V;
+export interface AssocQuery extends RawQuery {
+  assocResolver: string;
 }
 
 /**
@@ -24,7 +25,7 @@ export interface QueryVariableSearch {
   // TODO operator types
   operator?: string;
   // TODO recursive search
-  search?: QueryVariableSearch[];
+  search?: (QueryVariableSearch | undefined)[];
 }
 
 export type OrderDirection = 'ASC' | 'DESC';
@@ -42,37 +43,11 @@ export interface QueryVariablePagination {
   includeCursor?: boolean;
 }
 
+// TODO separate into two different interfaces for records/count
 export interface QueryModelTableRecordsVariables extends QueryVariables {
   search?: QueryVariableSearch;
-  pagination: QueryVariablePagination;
+  pagination?: QueryVariablePagination;
   order?: QueryVariableOrder;
+  assocSearch?: QueryVariableSearch;
+  assocPagination?: QueryVariablePagination;
 }
-
-export interface QueryModelTableRecordsCountVariables {
-  search?: QueryVariableSearch;
-}
-
-export type QueryModelTableRecords = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-) => RawQuery;
-
-export type QueryModelTableRecordsCount = (modelName: string) => RawQuery;
-
-export type QueryCsvTemplate = (modelName: string) => RawQuery;
-
-export type QueryBulkCreate = (modelName: string) => RawQuery;
-
-/**
- * RECORD
- */
-export type QueryRecord = (
-  modelName: string,
-  attributes: ParsedAttribute[]
-) => {
-  primaryKey: string;
-  create: RawQuery;
-  read: RawQuery;
-  update: RawQuery;
-  delete: RawQuery;
-};

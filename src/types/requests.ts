@@ -19,8 +19,8 @@ export interface EdgePageInfo {
 export interface PageInfo {
   startCursor: null | string;
   endCursor: null | string;
-  hasPreviousPage: null | boolean;
-  hasNextPage: null | boolean;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 export type CrudRequest = 'create' | 'read' | 'update' | 'delete';

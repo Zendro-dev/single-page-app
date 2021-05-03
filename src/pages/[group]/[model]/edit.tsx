@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import useSWR from 'swr';
 
-import { Box, createStyles, makeStyles, Tab } from '@material-ui/core';
+import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
+import { getStaticModel } from '@/build/models';
+import { getStaticModelPaths } from '@/build/routes';
+
+import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
-} from '@/components/attributes-form';
-import AssociationList from '@/components/association-list';
+} from '@/zendro/record-form';
 
 import {
   useDialog,
-  useModel,
+  usePermissions,
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
@@ -27,7 +30,6 @@ import { ModelUrlQuery } from '@/types/routes';
 import { parseGraphqlErrors } from '@/utils/errors';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import { queryRecord } from '@/utils/queries';
-import { getStaticModelPaths, getStaticModel } from '@/utils/static';
 import { isEmptyObject } from '@/utils/validation';
 
 interface RecordProps {
@@ -56,7 +58,7 @@ export const getStaticProps: GetStaticProps<
 
   const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
   const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes);
+  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
@@ -76,7 +78,7 @@ const Record: PageWithLayout<RecordProps> = ({
   requests,
 }) => {
   const dialog = useDialog();
-  const { permissions } = useModel();
+  const { permissions } = usePermissions();
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
@@ -298,17 +300,20 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <TabContext value={currentTab}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleOnTabChange} aria-label="lab API tabs example">
-          <Tab label="Attributes" value="attributes" />
-          <Tab
-            label="Associations"
-            value="associations"
-            disabled={associations.length === 0}
-          />
-        </TabList>
-      </Box>
-      <TabPanel value="attributes">
+      <TabList
+        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
+        className={classes.tabList}
+        onChange={handleOnTabChange}
+        variant="fullWidth"
+      >
+        <Tab label="Attributes" value="attributes" />
+        <Tab
+          label="Associations"
+          value="associations"
+          disabled={associations.length === 0}
+        />
+      </TabList>
+      <TabPanel value="attributes" className={classes.panelForm}>
         <AttributesForm
           attributes={attributes}
           className={classes.form}
@@ -326,8 +331,15 @@ const Record: PageWithLayout<RecordProps> = ({
           }}
         />
       </TabPanel>
-      <TabPanel value="associations">
-        <AssociationList modelName={modelName} associations={associations} />
+      <TabPanel className={classes.panelTable} value="associations">
+        <AssociationsTable
+          associationView="update"
+          associations={associations}
+          attributes={attributes}
+          modelName={modelName}
+          recordId={urlQuery.id as string}
+          primaryKey={requests.primaryKey}
+        />
       </TabPanel>
     </TabContext>
   );
@@ -339,8 +351,18 @@ const useStyles = makeStyles((theme) =>
       border: '2px solid',
       borderRadius: 10,
       borderColor: theme.palette.grey[300],
-      margin: theme.spacing(10, 4),
       padding: theme.spacing(12, 10),
+    },
+    panelForm: {
+      margin: theme.spacing(10, 0),
+    },
+    panelTable: {
+      display: 'flex',
+      flexGrow: 1,
+      margin: theme.spacing(5, 2),
+    },
+    tabList: {
+      margin: theme.spacing(0, 4),
     },
   })
 );
