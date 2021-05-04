@@ -126,7 +126,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center',
       flexWrap: 'wrap',
-      maxWidth: theme.breakpoints.width('md'),
+      maxWidth: theme.breakpoints.values.md,
     },
     card: {
       padding: theme.spacing(8),
