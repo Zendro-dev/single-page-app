@@ -51,7 +51,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.0",
     "@babel/preset-env": "^7.14.1",
-    "@cypress/code-coverage": "^3.9.2",
+    "@cypress/code-coverage": "^3.9.5",
     "@types/inflection": "^1.5.28",
     "@types/node": "^15.0.1",
     "@types/prettier": "^2.2.3",
@@ -63,7 +63,7 @@
     "@typescript-eslint/parser": "^4.22.0",
     "ajv": "^7.2.4",
     "babel-plugin-istanbul": "^6.0.0",
-    "cypress": "^6.8.0",
+    "cypress": "^7.2.0",
     "eslint": "^7.25.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
