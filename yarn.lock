@@ -6091,9 +6091,9 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
 notistack@^1.0.6-next.0:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.6.tgz#3d726ea98d9e2b314ea1a34d0b1a5f58d39494ef"
-  integrity sha512-/p7W9b3r3/LDXUpUjNgZqnYj+NYG3/4htZcyucOFftrDKEpveEMPFdPlvmoT9+N1L4GgcKEY9Vr9+Dxyk2FQcQ==
+  version "1.0.6-next.0"
+  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.6-next.0.tgz#80b769b91b9e4361720c46d160ba89a9c0d037e6"
+  integrity sha512-Se2Y1TYNyi57OFpy/XfV9gJVcOGsFwK+vJct/0Fy1Y24CiXdsP/FbcfETRKyRRRYgChHSRgIce8HxqHRcsfw9w==
   dependencies:
     clsx "^1.1.0"
     hoist-non-react-statics "^3.3.0"
