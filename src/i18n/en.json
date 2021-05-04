@@ -1,0 +1,9 @@
+{
+  "model-table": {
+    "search": "Search {{ modelName }}"
+  },
+  "toolbar": {
+    "change-language": "Change language",
+    "logout": "Logout"
+  }
+}
