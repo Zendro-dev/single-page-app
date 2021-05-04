@@ -8,7 +8,7 @@ describe('The Login Page', () => {
     cy.dataCy('login-form-login').click();
 
     // check the url
-    cy.url().should('include', '/home');
+    cy.url().should('include', '/models');
   });
 });
 

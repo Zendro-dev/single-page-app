@@ -69,7 +69,6 @@ export default function SelectInput(props: StyledSelectProps): ReactElement {
             vertical: 'top',
             horizontal: 'left',
           },
-          getContentAnchorEl: null,
         }}
       >
         {props.items.map((item) => [
