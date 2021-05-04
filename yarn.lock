@@ -6801,10 +6801,10 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-notistack@^1.0.6-alpha.0:
-  version "1.0.6-alpha.0"
-  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.6-alpha.0.tgz#00029eb81bf829e6287c05d29c982283d7c26c29"
-  integrity sha512-4CyCreUrTZla3o9jtFAKnG0bYNoz1VccFh7eW9Xc4oVpJSbs3dLcFq3kCCy/IR3ZCxZzkJu5bQnBxTIs4nr17g==
+notistack@^1.0.6-next.0:
+  version "1.0.6-next.0"
+  resolved "https://registry.yarnpkg.com/notistack/-/notistack-1.0.6-next.0.tgz#80b769b91b9e4361720c46d160ba89a9c0d037e6"
+  integrity sha512-Se2Y1TYNyi57OFpy/XfV9gJVcOGsFwK+vJct/0Fy1Y24CiXdsP/FbcfETRKyRRRYgChHSRgIce8HxqHRcsfw9w==
   dependencies:
     clsx "^1.1.0"
     hoist-non-react-statics "^3.3.0"
