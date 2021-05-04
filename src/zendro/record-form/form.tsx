@@ -174,7 +174,7 @@ export default function AttributesForm({
         <div className={clsx(classes.actions, classes.leftActions)}>
           {actions?.cancel && (
             <ActionButton
-              color="secondary"
+              className={classes.actionSecondary}
               form={formId}
               onClick={handleOnAction({
                 action: 'cancel',
@@ -187,7 +187,7 @@ export default function AttributesForm({
 
           {actions?.read && (
             <ActionButton
-              color="primary"
+              className={classes.actionSupport}
               form={formId}
               icon={ReadIcon}
               onClick={handleOnAction({
@@ -200,7 +200,7 @@ export default function AttributesForm({
 
           {actions?.update && (
             <ActionButton
-              color="primary"
+              className={classes.actionSupport}
               form={formId}
               icon={EditIcon}
               onClick={handleOnAction({
@@ -215,7 +215,7 @@ export default function AttributesForm({
         <div className={clsx(classes.actions, classes.rightActions)}>
           {actions?.delete && (
             <ActionButton
-              color="secondary"
+              className={classes.actionSecondary}
               form={formId}
               icon={DeleteIcon}
               onClick={handleOnAction({
@@ -228,7 +228,7 @@ export default function AttributesForm({
 
           {actions?.reload && (
             <ActionButton
-              color="primary"
+              className={classes.actionSupport}
               form={formId}
               icon={Reload}
               tooltip="Reload data"
@@ -241,7 +241,7 @@ export default function AttributesForm({
 
           {actions?.submit && (
             <ActionButton
-              color="primary"
+              className={classes.actionPrimary}
               form={formId}
               icon={SaveIcon}
               tooltip="Submit changes"
@@ -346,6 +346,19 @@ const useStyles = makeStyles((theme) =>
         width: theme.spacing(14),
         height: theme.spacing(14),
       },
+    },
+    actionPrimary: {
+      color: theme.palette.grey[100],
+      backgroundColor: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+    },
+    actionSecondary: {
+      color: theme.palette.secondary.main,
+    },
+    actionSupport: {
+      color: theme.palette.primary.main,
     },
   })
 );

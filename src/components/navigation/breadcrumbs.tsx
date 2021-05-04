@@ -57,13 +57,10 @@ const useStyles = makeStyles((theme) =>
       alignItems: 'center',
       fontSize: theme.spacing(4),
       textTransform: 'uppercase',
-      '&:hover': {
-        fontWeight: 'bold',
-      },
     },
     link: {
+      color: theme.palette.primary.main,
       '&:hover': {
-        color: theme.palette.primary.main,
         textDecoration: 'underline',
       },
     },

@@ -2,7 +2,8 @@ import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
 
-import { Box, createStyles, makeStyles } from '@material-ui/core';
+import { Box } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   BubbleChart as ModelsIcon,
   Home as HomeIcon,
@@ -105,14 +106,11 @@ const useStyles = makeStyles((theme) => {
         paddingLeft: theme.spacing(18),
       },
       '& a:hover:not(.active), ul > button:hover': {
-        backgroundColor: theme.palette.action.focus,
-        '& .MuiTypography-root': {
-          fontWeight: 'bold',
-        },
+        backgroundColor: theme.palette.primary.light,
       },
       '& a.active': {
-        color: theme.palette.getContrastText(theme.palette.action.active),
-        backgroundColor: theme.palette.action.active,
+        color: theme.palette.getContrastText(theme.palette.primary.main),
+        backgroundColor: theme.palette.primary.main,
         '& .MuiTypography-root': {
           fontWeight: 'bold',
         },
