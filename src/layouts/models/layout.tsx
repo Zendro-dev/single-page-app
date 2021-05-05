@@ -3,6 +3,7 @@ import React, {
   PropsWithChildren,
   ReactElement,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -16,6 +17,7 @@ import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';
 import Toolbar from './toolbar';
+import { useRouter } from 'next/router';
 const Models = dynamic(() => import('./main'), { ssr: false });
 
 export interface ModelsDesktopLayoutProps {
@@ -29,11 +31,29 @@ export default function ModelsLayout({
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
   const classes = useStyles();
+  const router = useRouter();
+  const routePath = useRef(router.asPath);
   const [showNav, setShowNav] = useState(false);
   const theme = useTheme();
-
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
-  useEffect(() => setShowNav(isLargeScreen), [isLargeScreen]);
+
+  useEffect(
+    function hideNavOnSmallScreen() {
+      setShowNav(isLargeScreen);
+    },
+    [isLargeScreen, setShowNav]
+  );
+
+  useEffect(
+    function hideNavOnRouteChange() {
+      const routeHasChanged = routePath.current !== router.asPath;
+      if (routeHasChanged && !isLargeScreen) {
+        routePath.current = router.asPath;
+        setShowNav(false);
+      }
+    },
+    [routePath, isLargeScreen, router]
+  );
 
   return (
     <div className={classes.root}>
