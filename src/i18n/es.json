@@ -1,9 +1,109 @@
 {
   "model-table": {
-    "search": "Buscar {{ modelName }}"
+    "search-label": "Buscar {{ modelName }}",
+    "reload": "",
+    "add": "",
+    "import": "",
+    "download-data": "",
+    "download-template":"",
+    "caption": "",
+    "view": "",
+    "edit": "",
+    "delete": "",
+    "no-data": "",
+    "search-label-default":"",
+    "search-tooltip":"",
+    "search-clear": "",
+    "pagination-rows": "",
+    "pagination-count": "",
+    "pagination-first": "",
+    "pagination-previous": "",
+    "pagination-next": "",
+    "pagination-last": "",
+    "header-actions": "",
+    "header-id-tooltip": ""
+  },
+  "associations": {
+    "filter-select": "",
+    "filter-no-filter": "",
+    "filter-associated": "",
+    "filter-not-associated": "",
+    "filter-to-add": "",
+    "filter-to-remove": "",
+    "save": "",
+    "assoc-select": "",
+    "mark-to-associate": "",
+    "click-to-associate": "",
+    "mark-to-disassociate": "",
+    "click-to-disassociate": ""
   },
   "toolbar": {
     "change-language": "Cambiar idioma",
-    "logout": "Salir"
-  }
+    "logout": "Salir",
+    "login": ""
+  },
+  "record-fields": {
+    "array-add": "",
+    "array-delete": "",
+    "array-unset": "",
+    "primary-key": "",
+    "read-only": "",
+    "unset": ""
+  },
+  "record-form": {
+    "read-only": "",
+    "action-exit": "",
+    "action-read": "",
+    "action-update": "",
+    "action-delete": "",
+    "action-reload": "",
+    "action-submit": "",
+    "completed": "",
+    "tab-attributes": "",
+    "tab-associations": "",
+    "update": "",
+    "create": "",
+    "read": ""
+  },
+  "home": {
+    "documentation": "",
+    "documenation-info": "",
+    "github-info": ""
+  },
+  "login-form": {
+    "login": "",
+    "cancel": "",
+    "password": "",
+    "hide-password": "",
+    "show-password": ""
+  },
+  "models-layout": {
+    "read": "",
+    "update": "",
+    "create": "",
+    "models": "",
+    "admin": "",
+    "home": ""
+  },
+  "model-info": {
+    "model": "",
+    "request": "",
+    "record": "",
+    "accordion-label": "",
+    "accordion-text": ""
+  },
+  "dialogs": {
+    "ok-text": "",
+    "cancel-text": "",
+    "modified-info": "",
+    "leave-confirm": "",
+    "delete-confirm": "",
+    "delete-info": "",
+    "validation-title": "",
+    "validation-info": "",
+    "submit-empty-info": "",
+    "submit-empty-confirm": "",
+    "reload-confirm": ""
+  },
+  "errors": {}
 }

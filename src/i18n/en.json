@@ -1,9 +1,109 @@
 {
   "model-table": {
-    "search": "Search {{ modelName }}"
+    "search-label": "Search {{ modelName }}",
+    "reload": "Reload {{ modelName }} data",
+    "add": "Add new {{ modelName }}",
+    "import": "Import {{ modelName }} data from csv",
+    "download-data": "Download {{ modelName }} data as CSV",
+    "download-template":"Download {{ modelName }} CSV template",
+    "caption": "records table for {{ modelName }}",
+    "view": "View {{ recordId }}",
+    "edit": "Edit {{ recordId }}",
+    "delete": "Delete {{ recordId }}",
+    "no-data": "No data to display",
+    "search-label-default": "Type your search",
+    "search-tooltip": "Search",
+    "search-clear": "Clear search",
+    "pagination-rows": "Rows",
+    "pagination-count": "Count",
+    "pagination-first": "First page",
+    "pagination-previous": "Previous page",
+    "pagination-next": "Next page",
+    "pagination-last": "Last page",
+    "header-actions": "Actions",
+    "header-id-tooltip": "Unique Identifier"
+  }, 
+  "associations": {
+    "filter-select": "Select {{ assocName }} filters",
+    "filter-no-filter": "No filters",
+    "filter-associated": "Associated",
+    "filter-not-associated": "Not Associated",
+    "filter-to-add": "Marked for Association",
+    "filter-to-remove": "Marked for Disassociation",
+    "save": "Save {{ assocName }} data",
+    "assoc-select": "Select {{ modelName }} association",
+    "mark-to-associate": "Marked to be associated, click to reset",
+    "click-to-associate": "Click to associate",
+    "mark-to-disassociate": "Marked to be disassociated, click to reset",
+    "click-to-disassociate": "Click to disassociate"
   },
   "toolbar": {
     "change-language": "Change language",
-    "logout": "Logout"
-  }
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "record-fields": {
+    "array-add": "Add New Item",
+    "array-delete": "Delete item",
+    "array-unset": "Unset item",
+    "primary-key": "{{ name }} is the primary key",
+    "read-only": "This field cannot be modified",
+    "unset": "Unset value"
+  },
+  "record-form": {
+    "read-only": "The form is in read-only mode",
+    "action-exit": "Exit form",
+    "action-read": "View record details",
+    "action-update": "Edit Record",
+    "action-delete": "Delete record",
+    "action-reload": "Reload data",
+    "action-submit": "Submit changes",
+    "completed": "Completed",
+    "tab-attributes": "Attributes",
+    "tab-associations": "Associations",
+    "update": "Update",
+    "create": "Create",
+    "read": "Read"
+  },
+  "home": {
+    "documentation": "Documentation",
+    "documenation-info": "Find in-depth information about Zendro features and API.",
+    "github-info": "Contribute with pull requests, issues, and feedback."
+  },
+  "login-form": {
+    "login": "Login",
+    "cancel": "Cancel",
+    "password": "Password",
+    "hide-password": "Hide Password",
+    "show-password": "Show Password"
+  },
+  "models-layout": {
+    "read": "details",
+    "update": "edit",
+    "create": "new",
+    "models": "models",
+    "admin": "admin",
+    "home": "Home"
+  },
+  "model-info": {
+    "model": "model",
+    "request": "request",
+    "record": "record",
+    "accordion-label": "Information",
+    "accordion-text": "Click to expand"
+  },
+  "dialogs": {
+    "ok-text": "Yes",
+    "cancel-text": "No",
+    "modified-info": "Some fields have been modified.",
+    "leave-confirm": "Do you want to leave anyway?",
+    "delete-confirm": "Are you sure you want to delete this item?",
+    "delete-info": "Item with id {{ recordId }} in model {{ modelName }}.",
+    "validation-title": "Validation errors",
+    "validation-info": "Please fix client side validation errors",
+    "submit-empty-info": "Some fields are empty. {{ idMsg }}",
+    "submit-empty-confirm": "Do you want to continue anyway?",
+    "reload-confirm": "Do you want to reload anyway?"
+  },
+  "errors": {}
 }

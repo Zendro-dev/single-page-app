@@ -1,9 +1,109 @@
  {
   "model-table": {
-    "search": "Suche {{ modelName }}"
+    "search-label": "Suche {{ modelName }}",
+    "reload": "Aktualisiere {{ modelName }} Daten",
+    "add": "{{ modelName }} hinzufügen",
+    "import": "{{ modelName }} Daten aus csv importieren",
+    "download-data": "{{ modelName }} Daten als csv herunterladen",
+    "download-template":"{{ modelName }} csv template herunterladen",
+    "caption": "Tabelle für {{ modelName }}",
+    "view": "{{ recordId }} anzeigen",
+    "edit": "{{ recordId }} bearbeiten",
+    "delete": "{{ recordId }} löschen",
+    "no-data": "Keine Daten verfügbar",
+    "search-label-default": "Suche eingeben",
+    "search-tooltip": "Suche",
+    "search-clear": "Suche löschen",
+    "pagination-rows": "Reihen",
+    "pagination-count": "Anzahl",
+    "pagination-first": "Erste Seite",
+    "pagination-previous": "Vorige Seite",
+    "pagination-next": "Nächste Seite",
+    "pagination-last": "Letzte Seite",
+    "header-actions": "Operationen",
+    "header-id-tooltip": "Eindeutige Id"
+  },
+  "associations": {
+    "filter-select": "{{ assocName }} Filter auswählen",
+    "filter-no-filter": "Keine Filter",
+    "filter-associated": "Assoziiert",
+    "filter-not-associated": "Nicht Assoziiert",
+    "filter-to-add": "Für Assoziation markiert",
+    "filter-to-remove": "Für Disassoziation markiert",
+    "save": "{{ assocName }} Daten speichern",
+    "assoc-select": "{{ modelName }} Assoziaton auswählen",
+    "mark-to-associate": "Markiert für Assoziation, zum zurücksetzen klicken",
+    "click-to-associate": "Zum assoziieren klicken",
+    "mark-to-disassociate": "Markiert für Disassoziation, zum zurücksetzen klicken",
+    "click-to-disassociate": "Zum disassoziieren klicken"
   },
   "toolbar": {
     "change-language": "Sprache ändern",
-    "logout": "Ausloggen"
-  }
+    "logout": "Ausloggen",
+    "login": "Einloggen"
+  },
+  "record-fields": {
+    "array-add": "Element hinzufügen",
+    "array-delete": "Element löschen",
+    "array-unset": "Element zurücksetzen",
+    "primary-key": "{{ name }} ist der primary key",
+    "read-only": "Dieses Feld kann nicht modifiziert werden",
+    "unset": "Wert zurücksetzen"
+  },
+  "record-form": {
+    "read-only": "Das Formular ist schreibgeschützt",
+    "action-exit": "Formular verlassen",
+    "action-read": "Details anzeigen",
+    "action-update": "Eintrag bearbeiten",
+    "action-delete": "Eintrag löschen",
+    "action-reload": "Daten aktualisieren",
+    "action-submit": "Änderungen speichern",
+    "completed": "Abgeschlossen",
+    "tab-attributes": "Attribute",
+    "tab-associations": "Assoziationen",
+    "update": "Aktualisieren",
+    "create": "Anlegen",
+    "read": "Lesen"
+  },
+  "home": {
+    "documentation": "Dokumentation",
+    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "github-info": "Hilf mit bei über pull request, issues und Feedback."
+  },
+  "login-form": {
+    "login": "Einloggen",
+    "cancel": "Abbrechen",
+    "password": "Passwort",
+    "hide-password": "Passwort verstecken",
+    "show-password": "Passwort anzeigen"
+  },
+  "models-layout": {
+    "read": "Details",
+    "update": "Bearbeiten",
+    "create": "Neu",
+    "models": "Modelle",
+    "admin": "Admin",
+    "home": "Home"
+  },
+  "model-info": {
+    "model": "Model",
+    "request": "Anfrage",
+    "record": "Eintrag",
+    "accordion-label": "Information",
+    "accordion-text": "Anklicken um zu erweitern"
+  },
+  "dialogs": {
+    "ok-text": "Ja",
+    "cancel-text": "Nein",
+    "modified-info": "Einige Felder wurden modifiziert",
+    "leave-confirm": "Trotzdem verlassen?",
+    "delete-confirm": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+    "delete-info": "Element mit Id {{ recordId }} in Model {{ modelName }}",
+    "validation-title": "Validierungs Fehler",
+    "validation-info": "Bitte beseitigen sie die Client-side Validierungs Fehler",
+    "submit-empty-info": "Einige Felder sind leer. {{ idMsg }}",
+    "submit-empty-confirm": "Trotzdem fortfahren?",
+    "reload-confirm": "Trotzdem aktualisieren?"
+  },
+  "errors": {}
 }
