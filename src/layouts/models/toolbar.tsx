@@ -15,7 +15,7 @@ export default function Toolbar({
   const classes = useStyles();
 
   return (
-    <header className={classes.root}>
+    <header className={classes.header}>
       {props.children}
 
       <Link href="/" passHref>
@@ -23,8 +23,8 @@ export default function Toolbar({
       </Link>
 
       <div className={classes.menus}>
-        <LanguageSwitcher />
-        <LogoutButton />
+        <LanguageSwitcher className={classes.langButton} />
+        <LogoutButton color="inherit" disableElevation />
       </div>
     </header>
   );
@@ -32,7 +32,14 @@ export default function Toolbar({
 
 const useStyles = makeStyles((theme) => {
   return createStyles({
-    root: {
+    brand: {
+      marginLeft: theme.spacing(4),
+      ...theme.typography.h5,
+      [theme.breakpoints.up('sm')]: {
+        ...theme.typography.h4,
+      },
+    },
+    header: {
       display: 'flex',
       alignItems: 'center',
       width: '100%',
@@ -42,12 +49,8 @@ const useStyles = makeStyles((theme) => {
       backgroundColor: theme.palette.primary.main,
       boxShadow: theme.shadows[3],
     },
-    brand: {
-      marginLeft: theme.spacing(4),
-      ...theme.typography.h5,
-      [theme.breakpoints.up('sm')]: {
-        ...theme.typography.h4,
-      },
+    langButton: {
+      marginRight: theme.spacing(3),
     },
     menus: {
       marginLeft: 'auto',

@@ -3,15 +3,16 @@ import { useRef, useState } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
-  Tooltip,
+  IconButtonProps,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import Translate from '@material-ui/icons/TranslateRounded';
 import i18n from '../../i18n';
 
-export default function LanguageSwitcher(): ReactElement {
+export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   const classes = useStyles();
 
   const translations = useRef([
@@ -46,6 +47,7 @@ export default function LanguageSwitcher(): ReactElement {
       {/* Translate.icon */}
       <Tooltip title="Change language">
         <IconButton
+          {...props}
           id={'MainPanel-iconButton-translate'}
           color="inherit"
           onClick={handleTranslationIconClick}
@@ -60,6 +62,8 @@ export default function LanguageSwitcher(): ReactElement {
         keepMounted
         open={Boolean(translationAnchorEl)}
         onClose={handleTranslationMenuClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
         {translations.current.map((translation, index) => (
           <MenuItem
