@@ -6,27 +6,20 @@ import React, { useState } from 'react';
 import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
-import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
-import { usePermissions, useToastNotification, useZendroClient } from '@/hooks';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
-import { DataRecord, ParsedAssociation, ParsedAttribute } from '@/types/models';
-import { ModelUrlQuery } from '@/types/routes';
-
-import { getAttributeList, parseAssociations } from '@/utils/models';
-import { queryRecord } from '@/utils/queries';
+import { DataRecord } from '@/types/models';
+import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
 
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
-  associations: ParsedAssociation[];
-  attributes: ParsedAttribute[];
   modelName: string;
-  requests: ReturnType<typeof queryRecord>;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -42,51 +35,49 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-
   const modelName = params.model;
-  const dataModel = await getStaticModel(modelName);
-
-  const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes, associations);
 
   return {
     props: {
-      key: modelName,
+      key: modelName + '/details',
       modelName,
-      attributes,
-      associations,
-      requests,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({
-  associations,
-  attributes,
-  modelName,
-  requests,
-}) => {
-  const model = usePermissions();
+const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
+  const model = useModel(modelName);
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
 
+  /* STATE */
+
+  const [recordData, setRecordData] = useState<DataRecord>();
+  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
+    'attributes'
+  );
+
   /* REQUEST */
 
-  const urlQuery = router.query as ModelUrlQuery;
+  const urlQuery = router.query as RecordUrlQuery;
 
   /**
    * Query data from the GraphQL endpoint.
    */
   const { mutate: mutateRecord } = useSWR<
-    Record<string, DataRecord>,
+    DataRecord | undefined,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    urlQuery.id ? [requests.read.query, urlQuery.id] : null,
-    (query: string, id: string) =>
-      zendro.request(query, { [requests.primaryKey]: id }),
+    urlQuery.id ? [zendro.queries[modelName].readOne.query, urlQuery.id] : null,
+    async (query: string, id: string) => {
+      const request = zendro.queries[modelName].readOne;
+      const response = await zendro.request<Record<string, DataRecord>>(query, {
+        [model.schema.primaryKey]: id,
+      });
+      if (response) return response[request.resolver];
+    },
     {
       shouldRetryOnError: false,
       onSuccess: (data) => setRecordData(data),
@@ -98,13 +89,6 @@ const Record: PageWithLayout<RecordProps> = ({
         );
       },
     }
-  );
-
-  /* STATE */
-
-  const [recordData, setRecordData] = useState<Record<string, DataRecord>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
   );
 
   /* ACTION HANDLERS */
@@ -156,14 +140,14 @@ const Record: PageWithLayout<RecordProps> = ({
         <Tab
           label="Associations"
           value="associations"
-          disabled={associations.length === 0}
+          disabled={model.schema.associations?.length === 0}
         />
       </TabList>
       <TabPanel value="attributes" className={classes.panelForm}>
         <AttributesForm
-          attributes={attributes}
+          attributes={model.schema.attributes}
           className={classes.form}
-          data={recordData?.[requests.read.resolver]}
+          data={recordData}
           disabled
           formId={router.asPath}
           formView="read"
@@ -178,11 +162,11 @@ const Record: PageWithLayout<RecordProps> = ({
       <TabPanel value="associations" className={classes.panelTable}>
         <AssociationsTable
           associationView="details"
-          associations={associations}
-          attributes={attributes}
+          associations={model.schema.associations ?? []}
+          attributes={model.schema.attributes}
           modelName={modelName}
-          recordId={model.id as string}
-          primaryKey={attributes[0].name}
+          recordId={urlQuery.id as string}
+          primaryKey={model.schema.primaryKey}
         />
       </TabPanel>
     </TabContext>
