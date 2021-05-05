@@ -7,9 +7,13 @@ import React, {
 } from 'react';
 import { Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { InfoOutlined as InfoIcon } from '@material-ui/icons';
-import { useModel } from '@/hooks';
+import {
+  InfoOutlined as InfoIcon,
+  WarningAmber as WarningIcon,
+} from '@material-ui/icons';
+import { useAuth, useModel } from '@/hooks';
 import { RecordUrlQuery } from '@/types/routes';
+import clsx from 'clsx';
 
 interface RestrictedProps {
   info?: Record<string, string | undefined>;
@@ -22,15 +26,19 @@ interface RestrictedProps {
 export default function Restricted(
   props: PropsWithChildren<RestrictedProps>
 ): ReactElement {
+  const auth = useAuth();
   const router = useRouter();
   const urlQuery = router.query as Partial<RecordUrlQuery>;
   const getModel = useModel();
   const classes = useStyles();
 
   const [allowed, setAllowed] = useState(false);
+  const [tokenIsValid, setTokenIsValid] = useState(false);
 
   useLayoutEffect(
     function checkResourcePermissions() {
+      if (!auth.auth.user || !auth.auth.user.token) return;
+
       if (urlQuery.model) {
         const model = getModel(urlQuery.model);
         if (model.permissions.read) setAllowed(true);
@@ -38,35 +46,57 @@ export default function Restricted(
         setAllowed(true);
       }
     },
-    [getModel, urlQuery]
+    [auth, getModel, urlQuery]
   );
+
+  useLayoutEffect(
+    function checkTokenValidity() {
+      if (auth.auth.user && auth.auth.user.isValid) setTokenIsValid(true);
+      else setTokenIsValid(false);
+    },
+    [auth]
+  );
+
+  if (!allowed) {
+    return (
+      <Box
+        display="flex"
+        width="100%"
+        height="100%"
+        flexDirection="column"
+        alignItems="center"
+        padding={4}
+      >
+        <Box className={clsx(classes.card, classes.cardInfo)}>
+          <InfoIcon />
+          <Box>
+            <h1>Access to this page is restricted.</h1>
+            <p>
+              It appears you do not have sufficient permissions to access this
+              page. If you think this is a mistake, please contact your
+              administrator.
+            </p>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <>
-      {allowed ? (
-        props.children
-      ) : (
-        <Box
-          display="flex"
-          width="100%"
-          height="100%"
-          flexDirection="column"
-          alignItems="center"
-          padding={4}
-        >
-          <Box className={classes.card}>
-            <InfoIcon />
-            <Box>
-              <h1>Access to this page is restricted.</h1>
-              <p>
-                It appears you do not have sufficient permissions to access this
-                page. If you think this is a mistake, please contact your
-                administrator.
-              </p>
-            </Box>
+      {!tokenIsValid && (
+        <Box className={clsx(classes.card, classes.cardWarning)}>
+          <WarningIcon />
+          <Box>
+            <h1>Your session has expired</h1>
+            <p>
+              It appears your current session has expired. Please, re-validate
+              your identity using the sign-in button in the top right corner.
+            </p>
           </Box>
         </Box>
       )}
+      {props.children}
     </>
   );
 }
@@ -82,17 +112,14 @@ const useStyles = makeStyles((theme) =>
       // Layout : larger viewport
       [theme.breakpoints.up('sm')]: {
         flexDirection: 'row',
-        alignItems: 'start',
+        alignItems: 'unset',
       },
 
       // Spacing
-      marginTop: theme.spacing(8),
       padding: theme.spacing(6),
 
       // Background & border styles
-      backgroundColor: theme.color.blue[50],
       border: '2px solid',
-      borderColor: theme.color.blue[500],
       borderRadius: 10,
 
       // Content container
@@ -107,21 +134,70 @@ const useStyles = makeStyles((theme) =>
       '& h1': {
         padding: 0,
         margin: 0,
-        fontSize: theme.spacing(6),
+        fontSize: theme.spacing(5),
+        textAlign: 'center',
+        [theme.breakpoints.up('sm')]: {
+          textAlign: 'revert',
+        },
+      },
+
+      // Message
+      '& p': {
+        margin: theme.spacing(2, 0, 0, 0),
+        textAlign: 'center',
+        [theme.breakpoints.up('sm')]: {
+          textAlign: 'revert',
+        },
+      },
+
+      // Icon
+      '& svg': {
+        width: theme.spacing(10),
+        height: theme.spacing(10),
+        [theme.breakpoints.up('sm')]: {
+          margin: theme.spacing(0, 0, 0, 0),
+          width: theme.spacing(8),
+          height: theme.spacing(8),
+        },
+      },
+    },
+    cardInfo: {
+      backgroundColor: theme.palette.primary.background,
+      borderColor: theme.palette.primary.main,
+
+      // Heading
+      '& h1': {
         color: theme.palette.primary.dark,
       },
 
       // Message
       '& p': {
         color: theme.palette.primary.main,
-        margin: theme.spacing(2, 0, 0, 0),
       },
 
       // Icon
       '& svg': {
         color: theme.palette.primary.main,
-        width: theme.spacing(10),
-        height: theme.spacing(10),
+      },
+    },
+    cardWarning: {
+      backgroundColor: theme.palette.warning.background,
+      borderColor: theme.palette.warning.main,
+      borderRadius: 0,
+
+      // Heading
+      '& h1': {
+        color: theme.palette.warning.dark,
+      },
+
+      // Message
+      '& p': {
+        color: theme.palette.warning.main,
+      },
+
+      // Icon
+      '& svg': {
+        color: theme.palette.warning.main,
       },
     },
   })
