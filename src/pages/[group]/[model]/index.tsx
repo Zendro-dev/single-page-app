@@ -44,6 +44,9 @@ import { PageInfo, ReadManyResponse } from '@/types/requests';
 import { getAttributeList } from '@/utils/models';
 import { isNullorEmpty } from '@/utils/validation';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 import {
   Table,
   TableBody,
@@ -115,6 +118,7 @@ const Model: PageWithLayout<ModelProps> = ({
   /* HOOKS */
 
   const classes = useStyles();
+  const { t } = useTranslation();
   const router = useRouter();
   const { showSnackbar } = useToastNotification();
   const dialog = useDialog();
@@ -153,7 +157,6 @@ const Model: PageWithLayout<ModelProps> = ({
 
     // Support selecting the same file
     event.target.value = '';
-
     // Send request
     const query = zendro.queries[modelName].bulkAddCsv.query;
     try {
@@ -204,10 +207,10 @@ const Model: PageWithLayout<ModelProps> = ({
 
   const handleOnDelete = (primaryKey: string | number): void => {
     dialog.openConfirm({
-      title: 'Are you sure you want to delete this item?',
-      message: `Item with id ${primaryKey} in model ${modelName}.`,
-      okText: 'YES',
-      cancelText: 'NO',
+      title: t('dialogs.delete-confirm'),
+      message: t('dialogs.delete-info', { recordId: primaryKey, modelName }),
+      okText: t('dialogs.ok-text'),
+      cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
         const idField = attributes[0].name;
         try {
@@ -337,7 +340,7 @@ const Model: PageWithLayout<ModelProps> = ({
     <TableContainer className={classes.root}>
       <div className={classes.toolbar}>
         <TableSearch
-          placeholder={`Search ${modelName}`}
+          placeholder={t('model-table.search-label', { modelName })}
           value={searchText}
           onSearch={(value) => setSearchText(value)}
           // onChange={(event) => setSearchText(event.target.value)}
@@ -346,7 +349,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
         <div className={classes.toolbarActions}>
           <IconButton
-            tooltip={`Reload ${modelName} data`}
+            tooltip={t('model-table.reload', { modelName })}
             onClick={() => mutateRecords()}
           >
             <ReloadIcon />
@@ -354,7 +357,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
           {model.permissions.create && (
             <IconButton
-              tooltip={`Add new ${modelName}`}
+              tooltip={t('model-table.add', { modelName })}
               onClick={handleOnCreate}
             >
               <AddIcon />
@@ -364,7 +367,7 @@ const Model: PageWithLayout<ModelProps> = ({
           {model.permissions.create && (
             <IconButton
               component="label"
-              tooltip={`Import ${modelName} data from csv`}
+              tooltip={t('model-table.import', { modelName })}
             >
               <input
                 style={{ display: 'none' }}
@@ -380,7 +383,7 @@ const Model: PageWithLayout<ModelProps> = ({
             <input type="hidden" name="model" value={modelName} />
             <IconButton
               type="submit"
-              tooltip={`Download ${modelName} data as CSV`}
+              tooltip={t('model-table.download-data', { modelName })}
             >
               <ExportIcon />
             </IconButton>
@@ -392,7 +395,7 @@ const Model: PageWithLayout<ModelProps> = ({
           >
             <IconButton
               component="label"
-              tooltip={`Download ${modelName} CSV template`}
+              tooltip={t('model-table.download-template', { modelName })}
               onClick={handleExportTableTemplate}
             >
               <ImportTemplateIcon />
@@ -400,7 +403,7 @@ const Model: PageWithLayout<ModelProps> = ({
           </a>
         </div>
       </div>
-      <Table caption={`records table for ${modelName}`}>
+      <Table caption={t('model-table.caption', { modelName })}>
         <TableHeader
           actionsColSpan={
             Object.keys(model.permissions).filter(
@@ -436,7 +439,7 @@ const Model: PageWithLayout<ModelProps> = ({
               >
                 <MuiTableCell padding="checkbox">
                   <IconButton
-                    tooltip={`View ${recordId}`}
+                    tooltip={t('model-table.view', { recordId })}
                     onClick={() => handleOnRead(recordId)}
                     className={classes.rowActionPrimary}
                   >
@@ -446,7 +449,7 @@ const Model: PageWithLayout<ModelProps> = ({
                 {model.permissions.update && (
                   <MuiTableCell padding="checkbox">
                     <IconButton
-                      tooltip={`Edit ${recordId}`}
+                      tooltip={t('model-table.edit', { recordId })}
                       onClick={() => handleOnUpdate(recordId)}
                       className={classes.rowActionPrimary}
                     >
@@ -457,7 +460,7 @@ const Model: PageWithLayout<ModelProps> = ({
                 {model.permissions.delete && (
                   <MuiTableCell padding="checkbox">
                     <IconButton
-                      tooltip={`Delete ${recordId}`}
+                      tooltip={t('model-table.delete', { recordId })}
                       onClick={() => handleOnDelete(recordId)}
                       className={classes.rowActionSecondary}
                     >

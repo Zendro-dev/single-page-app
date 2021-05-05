@@ -8,11 +8,16 @@ import {
 
 import LoginField, { LoginFieldProps } from './login-field';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface State {
   showPassword: boolean;
 }
 
 export default function PasswordField(props: LoginFieldProps): ReactElement {
+  const { t } = useTranslation();
+
   const [state, setState] = useState<State>({
     showPassword: false,
   });
@@ -36,7 +41,11 @@ export default function PasswordField(props: LoginFieldProps): ReactElement {
         endAdornment: (
           <InputAdornment position="end">
             <Tooltip
-              title={state.showPassword ? 'Hide Password' : 'Show Password'}
+              title={
+                state.showPassword
+                  ? t('login-form.hide-password')
+                  : t('login-form.show-password')
+              }
             >
               <IconButton
                 onClick={handleClickShowPassword}

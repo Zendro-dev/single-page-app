@@ -14,9 +14,14 @@ import {
 
 import LanguageSwitcher from '@/components/toolbar/lang-switcher';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 const Home: NextPage = () => {
   const classes = useStyles();
   const { auth } = useAuth();
+  const { t } = useTranslation();
+
   const [loginRoute, setLoginRoute] = useState('/login');
 
   useEffect(() => {
@@ -36,7 +41,7 @@ const Home: NextPage = () => {
             <LanguageSwitcher />
             <Link href={loginRoute} passHref>
               <Button className={classes.loginButton} component="a">
-                Login
+                {t('toolbar.login')}
               </Button>
             </Link>
           </div>
@@ -53,8 +58,8 @@ const Home: NextPage = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Zendro features and API.</p>
+            <h3>{t('home.documentation')} &rarr;</h3>
+            <p>{t('home.documenation-info')}</p>
           </a>
 
           <a
@@ -64,7 +69,7 @@ const Home: NextPage = () => {
             rel="noopener noreferrer"
           >
             <h3>Github &rarr;</h3>
-            <p>Contribute with pull requests, issues, and feedback</p>
+            <p>{t('home.github-info')}</p>
           </a>
         </div>
       </main>

@@ -21,6 +21,9 @@ import { isEmptyObject } from '@/utils/validation';
 
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface RecordProps {
   attributes: ParsedAttribute[];
   modelName: string;
@@ -70,6 +73,7 @@ const Record: PageWithLayout<RecordProps> = ({
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const urlQuery = router.query as ModelUrlQuery;
+  const { t } = useTranslation();
 
   /* STATE */
 
@@ -83,10 +87,10 @@ const Record: PageWithLayout<RecordProps> = ({
   const handleOnCancel: ActionHandler = (formData, formStats) => {
     if (formStats.unset < formData.length) {
       return dialog.openConfirm({
-        title: 'Some fields have been modified.',
-        message: 'Do you want to leave anyway?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: t('dialogs.modified-info'),
+        message: t('dialogs.leave-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
       });
     }
@@ -153,17 +157,17 @@ const Record: PageWithLayout<RecordProps> = ({
 
     if (formStats.clientErrors > 0) {
       return dialog.openMessage({
-        title: 'Validation errors',
-        message: 'Please fix client side validation errors',
+        title: t('dialogs.validation-title'),
+        message: t('dialogs.validation-info'),
       });
     }
 
     if (formStats.unset > 0) {
       return dialog.openConfirm({
-        title: `Some fields are empty.`,
-        message: 'Do you want to continue anyway?',
-        okText: 'YES',
-        cancelText: 'NO',
+        title: t('dialogs.submit-empty-info'),
+        message: t('dialogs.submit-empty-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: submit,
       });
     }

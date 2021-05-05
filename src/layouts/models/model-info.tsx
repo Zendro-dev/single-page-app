@@ -7,6 +7,9 @@ import {
 } from '@material-ui/core';
 import { Accordion } from '@/components/containers';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface ModelInfoProps {
   model: {
     id?: string;
@@ -18,6 +21,8 @@ interface ModelInfoProps {
 export default function ModelInfo({
   model,
 }: ModelInfoProps): React.ReactElement {
+  const { t } = useTranslation();
+
   const modelInfo = [];
   if (model.name) modelInfo.push({ label: 'model', value: model.name });
   if (model.request) modelInfo.push({ label: 'request', value: model.request });
@@ -36,7 +41,9 @@ export default function ModelInfo({
                     fontWeight="bold"
                     color="GrayText"
                   >
-                    {label}
+                    {t(
+                      (`model-info.${label}` as unknown) as TemplateStringsArray
+                    )}
                   </Typography>
                   <Typography fontSize="large" fontWeight="bold" marginLeft={4}>
                     {value}

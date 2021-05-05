@@ -9,10 +9,13 @@ import {
   Typography,
 } from '@material-ui/core';
 import Translate from '@material-ui/icons/TranslateRounded';
-import i18n from '../../i18n';
+import { useTranslation } from 'react-i18next';
+import '@/i18n';
+// import i18n from '../../i18n/i18n';
 
 export default function LanguageSwitcher(): ReactElement {
   const classes = useStyles();
+  const { t, i18n } = useTranslation();
 
   const translations = useRef([
     { language: 'Español', lcode: 'es-MX' },
@@ -40,11 +43,10 @@ export default function LanguageSwitcher(): ReactElement {
   > = (): void => {
     setTranslationAnchorEl(undefined);
   };
-
   return (
     <>
       {/* Translate.icon */}
-      <Tooltip title="Change language">
+      <Tooltip title={t('toolbar.change-language')}>
         <IconButton
           id={'MainPanel-iconButton-translate'}
           color="inherit"

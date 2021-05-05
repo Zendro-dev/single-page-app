@@ -10,6 +10,9 @@ import TableColumn from './table-column';
 import { ParsedAttribute } from '@/types/models';
 import { OrderDirection } from '@/types/queries';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface TableHeaderProps {
   attributes: ParsedAttribute[];
   actionsColSpan: number;
@@ -25,6 +28,8 @@ export default function TableHeader({
   orderDirection,
   actionsColSpan,
 }: TableHeaderProps): ReactElement {
+  const { t } = useTranslation();
+
   return (
     <MuiTableHead>
       <MuiTableRow>
@@ -41,7 +46,7 @@ export default function TableHeader({
               variant="caption"
               width="9rem"
             >
-              Actions
+              {t('model-table.header-actions')}
             </Typography>
           </MuiTableCell>
         )}
@@ -49,7 +54,11 @@ export default function TableHeader({
           <TableColumn
             label={attribute.name}
             icon={attribute.primaryKey ? KeyIcon : undefined}
-            tooltip={attribute.primaryKey ? 'Unique Identifier' : undefined}
+            tooltip={
+              attribute.primaryKey
+                ? t('model-table.header-id-tooltip')
+                : undefined
+            }
             align={
               attribute.type.includes('Int') || attribute.type.includes('Float')
                 ? 'right'

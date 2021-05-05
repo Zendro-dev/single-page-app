@@ -22,6 +22,9 @@ import { queryRecord } from '@/utils/queries';
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface RecordProps {
   associations: ParsedAssociation[];
   attributes: ParsedAttribute[];
@@ -72,6 +75,7 @@ const Record: PageWithLayout<RecordProps> = ({
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
+  const { t } = useTranslation();
 
   /* REQUEST */
 
@@ -152,9 +156,9 @@ const Record: PageWithLayout<RecordProps> = ({
         onChange={handleOnTabChange}
         variant="fullWidth"
       >
-        <Tab label="Attributes" value="attributes" />
+        <Tab label={t('record-form.tab-attributes')} value="attributes" />
         <Tab
-          label="Associations"
+          label={t('record-form.tab-associations')}
           value="associations"
           disabled={associations.length === 0}
         />

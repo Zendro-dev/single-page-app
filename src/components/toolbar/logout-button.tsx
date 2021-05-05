@@ -16,7 +16,7 @@ export default function LogoutButton(): ReactElement {
 
   return (
     <Button color="inherit" onClick={handleLogoutButtonClick}>
-      {t('toolBar.logout')}
+      {t('toolbar.logout')}
     </Button>
   );
 }

@@ -26,6 +26,9 @@ import {
 } from '@/types/models';
 import { InputField } from '@/zendro/record-fields';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 type ArrayFieldProps = Overwrite<
   TextInputProps,
   {
@@ -47,6 +50,7 @@ export default function ArrayField({
   ...props
 }: ArrayFieldProps): ReactElement {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleOnChange = (index: number) => (
     v: AttributeScalarValue | AttributeArrayValue
@@ -101,7 +105,7 @@ export default function ArrayField({
 
           {/* INSERT AT POSITION=0 */}
           <Button className={classes.actionAddNew} onClick={addItem(-1)}>
-            <AddIcon /> Add New Item
+            <AddIcon /> {t('record-fields.array-add')}
           </Button>
 
           {/* ARRAY FIELD */}
@@ -130,7 +134,7 @@ export default function ArrayField({
                       <IconButton
                         className={clsx(classes.actionDelete)}
                         size="small"
-                        tooltip="Delete item"
+                        tooltip={t('record-fields.array-delete')}
                         onClick={() => deleteItem(index)}
                       >
                         <DeleteIcon />
@@ -155,7 +159,7 @@ export default function ArrayField({
                         <InputAdornment position="end">
                           <IconButton
                             className={classes.actionClear}
-                            tooltip="Unset item"
+                            tooltip={t('record-fields.array-unset')}
                             onClick={() => handleOnClear(index)}
                           >
                             <ClearIcon />

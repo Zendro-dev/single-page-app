@@ -43,6 +43,7 @@ import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
+import { useTranslation } from 'react-i18next';
 
 interface AssociationsTableProps {
   associations: ParsedAssociation[];
@@ -79,6 +80,7 @@ export default function AssociationsTable({
   const getModel = useModel();
   const classes = useStyles();
   const zendro = useZendroClient();
+  const { t } = useTranslation();
 
   // Selected association
   const [selectedAssoc, setSelectedAssoc] = useState(() => {
@@ -438,7 +440,9 @@ export default function AssociationsTable({
       <div className={classes.toolbar}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <TableSearch
-            placeholder={`Search ${selectedAssoc.name}`}
+            placeholder={t('model-table.search-label', {
+              modelName: selectedAssoc.name,
+            })}
             value={searchText}
             onSearch={(value) => setSearchText(value)}
             onReset={() => setSearchText('')}
@@ -447,33 +451,35 @@ export default function AssociationsTable({
             <SelectInput
               className={classes.toolbarFilters}
               id={`${modelName}-association-filters`}
-              label={`Select ${selectedAssoc.name} filters`}
+              label={t('associations.filter-select', {
+                assocName: selectedAssoc.name,
+              })}
               onChange={handleOnAssociationFilterSelect}
               selected={recordsFilter}
               items={[
                 {
                   id: 'no-filter',
-                  text: 'No Filters',
+                  text: t('associations.filter-no-filter'),
                   icon: FilterIcon,
                 },
                 {
                   id: 'associated',
-                  text: 'Associated',
+                  text: t('associations.filter-associated'),
                   icon: LinkIcon,
                 },
                 {
                   id: 'not-associated',
-                  text: 'Not Associated',
+                  text: t('associations.filter-not-associated'),
                   icon: LinkOffIcon,
                 },
                 {
                   id: 'records-to-add',
-                  text: 'Marked For Association',
+                  text: t('associations.filter-to-add'),
                   icon: LinkIcon,
                 },
                 {
                   id: 'records-to-remove',
-                  text: 'Marked for Disassociation',
+                  text: t('associations.filter-to-remove'),
                   icon: LinkOffIcon,
                 },
               ]}
@@ -483,7 +489,9 @@ export default function AssociationsTable({
 
         <div className={classes.toolbarActions}>
           <IconButton
-            tooltip={`Reload ${modelName} data`}
+            tooltip={t('model-table.reload', {
+              modelName: selectedAssoc.target,
+            })}
             onClick={() => {
               mutateRecords();
               mutateCount();
@@ -493,7 +501,10 @@ export default function AssociationsTable({
           </IconButton>
           {associationView !== 'details' && (
             <IconButton
-              tooltip={`Save ${selectedAssoc.target} data`}
+              // tooltip={`Save ${selectedAssoc.target} data`}
+              tooltip={t('associations.save', {
+                assocName: selectedAssoc.target,
+              })}
               onClick={handleSubmit}
               disabled={
                 selectedRecords.toAdd.length === 0 &&
@@ -507,7 +518,8 @@ export default function AssociationsTable({
           <SelectInput
             className={classes.toolbarAssocSelect}
             id={`${modelName}-association-select`}
-            label={`Select ${modelName} association`}
+            // label={`Select ${modelName} association`}
+            label={t('associations.assoc-select', { modelName })}
             items={associations.map(({ name, target, type }) => ({
               id: target,
               text: name,
@@ -562,11 +574,11 @@ export default function AssociationsTable({
                         tooltip={
                           record.isAssociated
                             ? isSelected
-                              ? 'marked to be disassociated, click to reset'
-                              : 'click to disassociate'
+                              ? t('associations.mark-to-disassociate')
+                              : t('associations.click-to-disassociate')
                             : isSelected
-                            ? 'marked to be associated, click to reset'
-                            : 'click to associate'
+                            ? t('associations.mark-to-associate')
+                            : t('associations.click-to-associate')
                         }
                         onClick={() =>
                           handleOnMarkForAssociationClick(
