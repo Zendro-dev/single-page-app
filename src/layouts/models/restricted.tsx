@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, {
   PropsWithChildren,
@@ -13,7 +14,6 @@ import {
 } from '@material-ui/icons';
 import { useAuth, useModel } from '@/hooks';
 import { RecordUrlQuery } from '@/types/routes';
-import clsx from 'clsx';
 
 interface RestrictedProps {
   info?: Record<string, string | undefined>;
