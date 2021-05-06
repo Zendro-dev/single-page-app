@@ -1,46 +1,86 @@
- {
-  "model-table": {
-    "search-label": "Suche {{ modelName }}",
-    "reload": "Aktualisiere {{ modelName }} Daten",
-    "add": "{{ modelName }} hinzufügen",
-    "import": "{{ modelName }} Daten aus csv importieren",
-    "download-data": "{{ modelName }} Daten als csv herunterladen",
-    "download-template":"{{ modelName }} csv template herunterladen",
-    "caption": "Tabelle für {{ modelName }}",
-    "view": "{{ recordId }} anzeigen",
-    "edit": "{{ recordId }} bearbeiten",
-    "delete": "{{ recordId }} löschen",
-    "no-data": "Keine Daten verfügbar",
-    "search-label-default": "Suche eingeben",
-    "search-tooltip": "Suche",
-    "search-clear": "Suche löschen",
-    "pagination-rows": "Reihen",
-    "pagination-count": "Anzahl",
-    "pagination-first": "Erste Seite",
-    "pagination-previous": "Vorige Seite",
-    "pagination-next": "Nächste Seite",
-    "pagination-last": "Letzte Seite",
-    "header-actions": "Operationen",
-    "header-id-tooltip": "Eindeutige Id"
-  },
+{
   "associations": {
-    "filter-select": "{{ assocName }} Filter auswählen",
-    "filter-no-filter": "Keine Filter",
+    "assoc-select": "{{ modelName }} Assoziaton auswählen",
+    "click-to-associate": "Zum assoziieren klicken",
+    "click-to-disassociate": "Zum disassoziieren klicken",
     "filter-associated": "Assoziiert",
+    "filter-no-filter": "Keine Filter",
     "filter-not-associated": "Nicht Assoziiert",
+    "filter-select": "{{ assocName }} Filter auswählen",
     "filter-to-add": "Für Assoziation markiert",
     "filter-to-remove": "Für Disassoziation markiert",
-    "save": "{{ assocName }} Daten speichern",
-    "assoc-select": "{{ modelName }} Assoziaton auswählen",
     "mark-to-associate": "Markiert für Assoziation, zum zurücksetzen klicken",
-    "click-to-associate": "Zum assoziieren klicken",
     "mark-to-disassociate": "Markiert für Disassoziation, zum zurücksetzen klicken",
-    "click-to-disassociate": "Zum disassoziieren klicken"
+    "save": "{{ assocName }} Daten speichern"
   },
-  "toolbar": {
-    "change-language": "Sprache ändern",
-    "logout": "Ausloggen",
-    "login": "Einloggen"
+  "dialogs": {
+    "cancel-text": "Nein",
+    "delete-confirm": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+    "delete-info": "Element mit Id {{ recordId }} in Model {{ modelName }}",
+    "leave-confirm": "Trotzdem verlassen?",
+    "modified-info": "Einige Felder wurden modifiziert",
+    "ok-text": "Ja",
+    "reload-confirm": "Trotzdem aktualisieren?",
+    "submit-empty-confirm": "Trotzdem fortfahren?",
+    "submit-empty-info": "Einige Felder sind leer. {{ idMsg }}",
+    "validation-info": "Bitte beseitigen sie die Client-side Validierungs Fehler",
+    "validation-title": "Validierungs Fehler"
+  },
+  "errors": {
+    "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator.",
+    "login-failed": "Anmeldung fehlgeschlagen",
+    "server-error": "Fehler {{ status }} in Anfrage zum Server"
+  },
+  "home": {
+    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "documentation": "Dokumentation",
+    "github-info": "Hilf mit bei über pull request, issues und Feedback."
+  },
+  "login-form": {
+    "cancel": "Abbrechen",
+    "hide-password": "Passwort verstecken",
+    "login": "Einloggen",
+    "password": "Passwort",
+    "show-password": "Passwort anzeigen"
+  },
+  "model-info": {
+    "accordion-label": "Information",
+    "accordion-text": "Anklicken um zu erweitern",
+    "model": "Model",
+    "record": "Eintrag",
+    "request": "Anfrage"
+  },
+  "model-table": {
+    "add": "{{ modelName }} hinzufügen",
+    "caption": "Tabelle für {{ modelName }}",
+    "delete": "{{ recordId }} löschen",
+    "download-data": "{{ modelName }} Daten als csv herunterladen",
+    "download-template": "{{ modelName }} csv template herunterladen",
+    "edit": "{{ recordId }} bearbeiten",
+    "header-actions": "Operationen",
+    "header-id-tooltip": "Eindeutige Id",
+    "import": "{{ modelName }} Daten aus csv importieren",
+    "no-data": "Keine Daten verfügbar",
+    "pagination-count": "Anzahl",
+    "pagination-first": "Erste Seite",
+    "pagination-last": "Letzte Seite",
+    "pagination-next": "Nächste Seite",
+    "pagination-previous": "Vorige Seite",
+    "pagination-rows": "Reihen",
+    "reload": "Aktualisiere {{ modelName }} Daten",
+    "search-clear": "Suche löschen",
+    "search-label": "Suche {{ modelName }}",
+    "search-label-default": "Suche eingeben",
+    "search-tooltip": "Suche",
+    "view": "{{ recordId }} anzeigen"
+  },
+  "models-layout": {
+    "admin": "Admin",
+    "create": "Neu",
+    "home": "Home",
+    "models": "Modelle",
+    "read": "Details",
+    "update": "Bearbeiten"
   },
   "record-fields": {
     "array-add": "Element hinzufügen",
@@ -51,67 +91,27 @@
     "unset": "Wert zurücksetzen"
   },
   "record-form": {
-    "read-only": "Das Formular ist schreibgeschützt",
+    "action-delete": "Eintrag löschen",
     "action-exit": "Formular verlassen",
     "action-read": "Details anzeigen",
-    "action-update": "Eintrag bearbeiten",
-    "action-delete": "Eintrag löschen",
     "action-reload": "Daten aktualisieren",
     "action-submit": "Änderungen speichern",
+    "action-update": "Eintrag bearbeiten",
     "completed": "Abgeschlossen",
-    "tab-attributes": "Attribute",
-    "tab-associations": "Assoziationen",
-    "update": "Aktualisieren",
     "create": "Anlegen",
-    "read": "Lesen"
-  },
-  "home": {
-    "documentation": "Dokumentation",
-    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
-    "github-info": "Hilf mit bei über pull request, issues und Feedback."
-  },
-  "login-form": {
-    "login": "Einloggen",
-    "cancel": "Abbrechen",
-    "password": "Passwort",
-    "hide-password": "Passwort verstecken",
-    "show-password": "Passwort anzeigen"
-  },
-  "models-layout": {
-    "read": "Details",
-    "update": "Bearbeiten",
-    "create": "Neu",
-    "models": "Modelle",
-    "admin": "Admin",
-    "home": "Home"
-  },
-  "model-info": {
-    "model": "Model",
-    "request": "Anfrage",
-    "record": "Eintrag",
-    "accordion-label": "Information",
-    "accordion-text": "Anklicken um zu erweitern"
-  },
-  "dialogs": {
-    "ok-text": "Ja",
-    "cancel-text": "Nein",
-    "modified-info": "Einige Felder wurden modifiziert",
-    "leave-confirm": "Trotzdem verlassen?",
-    "delete-confirm": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
-    "delete-info": "Element mit Id {{ recordId }} in Model {{ modelName }}",
-    "validation-title": "Validierungs Fehler",
-    "validation-info": "Bitte beseitigen sie die Client-side Validierungs Fehler",
-    "submit-empty-info": "Einige Felder sind leer. {{ idMsg }}",
-    "submit-empty-confirm": "Trotzdem fortfahren?",
-    "reload-confirm": "Trotzdem aktualisieren?"
-  },
-  "errors": {
-    "server-error": "Fehler {{ status }} in Anfrage zum Server",
-    "login-failed": "Anmeldung fehlgeschlagen",
-    "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator."
+    "read": "Lesen",
+    "read-only": "Das Formular ist schreibgeschützt",
+    "tab-associations": "Assoziationen",
+    "tab-attributes": "Attribute",
+    "update": "Aktualisieren"
   },
   "success": {
-    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt.",
-    "assoc-update": "Assoziation erfolgreich aktualisiert"
+    "assoc-update": "Assoziation erfolgreich aktualisiert",
+    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt."
+  },
+  "toolbar": {
+    "change-language": "Sprache ändern",
+    "login": "Einloggen",
+    "logout": "Ausloggen"
   }
 }
