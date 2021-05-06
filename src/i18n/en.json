@@ -105,5 +105,13 @@
     "submit-empty-confirm": "Do you want to continue anyway?",
     "reload-confirm": "Do you want to reload anyway?"
   },
-  "errors": {}
+  "errors": {
+    "server-error": "Error {{ status }} in request to server",
+    "login-failed": "Login failed",
+    "csv-import": "An error occurred while trying to import the CSV file. Please contact your administrator."
+  },
+  "success": {
+    "csv-import": "The data has been sent. A report with the status of the import process will be sent to your email.",
+    "assoc-update": "Associations updated successfully"
+  }
 }

@@ -161,16 +161,9 @@ const Model: PageWithLayout<ModelProps> = ({
     const query = zendro.queries[modelName].bulkAddCsv.query;
     try {
       await zendro.legacyRequest(query, { csv_file: csvFile });
-      showSnackbar(
-        'The data has been sent. A report with the status of the import process will be sent to your email.',
-        'success'
-      );
+      showSnackbar(t('success.csv-import'), 'success');
     } catch (error) {
-      showSnackbar(
-        'An error occurred while trying to import the CSV file. Please contact your administrator.',
-        'error',
-        error
-      );
+      showSnackbar(t('errors.csv-import'), 'error', error);
     }
   };
 
@@ -187,7 +180,7 @@ const Model: PageWithLayout<ModelProps> = ({
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      showSnackbar('There was an error with the request', 'error', error);
+      showSnackbar(t('errors.server-error'), 'error', error);
     }
   };
 
@@ -220,7 +213,7 @@ const Model: PageWithLayout<ModelProps> = ({
           mutateRecords();
           mutateCount();
         } catch (error) {
-          showSnackbar('Error in request to server', 'error', error);
+          showSnackbar(t('errors.server-error'), 'error', error);
         }
       },
     });
@@ -280,10 +273,18 @@ const Model: PageWithLayout<ModelProps> = ({
         const graphqlErrors = clientError.response.errors;
 
         if (graphqlErrors)
-          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            graphqlErrors
+          );
 
         if (genericError)
-          showSnackbar('Error in request to server', 'error', genericError);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            genericError
+          );
       },
       shouldRetryOnError: false,
     }
@@ -327,10 +328,18 @@ const Model: PageWithLayout<ModelProps> = ({
         const graphqlErrors = clientError.response.errors;
 
         if (graphqlErrors)
-          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            graphqlErrors
+          );
 
         if (genericError)
-          showSnackbar('Error in request to server', 'error', genericError);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            genericError
+          );
       },
       shouldRetryOnError: false,
     }

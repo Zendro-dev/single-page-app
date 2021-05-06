@@ -130,7 +130,7 @@ const Record: PageWithLayout<RecordProps> = ({
 
         if (genericError) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
+            t('errors.server-error', { status: clientError.response.status }),
             'error',
             clientError
           );
@@ -144,8 +144,8 @@ const Record: PageWithLayout<RecordProps> = ({
         // Send generic GraphQL errors to the notification queue
         if (nonValidationErrors.length > 0) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
-            `error`,
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
             nonValidationErrors
           );
         }

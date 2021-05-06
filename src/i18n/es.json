@@ -105,5 +105,13 @@
     "submit-empty-confirm": "",
     "reload-confirm": ""
   },
-  "errors": {}
+  "errors": {
+    "server-error": "",
+    "login-failed": "",
+    "csv-import": ""
+  },
+  "success": {
+    "csv-import": "",
+    "assoc-update": ""
+  }
 }

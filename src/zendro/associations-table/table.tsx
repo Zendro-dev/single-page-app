@@ -250,10 +250,18 @@ export default function AssociationsTable({
         const graphqlErrors = clientError.response.errors;
 
         if (graphqlErrors)
-          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            graphqlErrors
+          );
 
         if (genericError)
-          showSnackbar('Error in request to server', 'error', genericError);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            genericError
+          );
       },
       shouldRetryOnError: false,
     }
@@ -310,10 +318,18 @@ export default function AssociationsTable({
         const graphqlErrors = clientError.response.errors;
 
         if (graphqlErrors)
-          showSnackbar('Error in Graphql response', 'error', graphqlErrors);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            graphqlErrors
+          );
 
         if (genericError)
-          showSnackbar('Error in request to server', 'error', genericError);
+          showSnackbar(
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
+            genericError
+          );
       },
     }
   );
@@ -419,9 +435,9 @@ export default function AssociationsTable({
         zendro.queries[modelName].updateOne.query,
         variables
       );
-      showSnackbar('Associations updated successfully', 'success');
+      showSnackbar(t('success.assoc-update'), 'success');
     } catch (error) {
-      showSnackbar('There was an error', 'error', error);
+      showSnackbar(t('errors.server-error'), 'error', error);
     }
     setSelectedRecords({
       toAdd: [],

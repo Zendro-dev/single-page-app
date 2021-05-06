@@ -95,11 +95,7 @@ const Record: PageWithLayout<RecordProps> = ({
       shouldRetryOnError: false,
       onSuccess: (data) => setRecordData(data),
       onError: (error) => {
-        showSnackbar(
-          'There was an error in the server request',
-          'error',
-          error
-        );
+        showSnackbar(t('errors.server-error'), 'error', error);
       },
     }
   );

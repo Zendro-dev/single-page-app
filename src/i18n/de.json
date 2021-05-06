@@ -105,5 +105,13 @@
     "submit-empty-confirm": "Trotzdem fortfahren?",
     "reload-confirm": "Trotzdem aktualisieren?"
   },
-  "errors": {}
+  "errors": {
+    "server-error": "Fehler {{ status }} in Anfrage zum Server",
+    "login-failed": "Anmeldung fehlgeschlagen",
+    "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator."
+  },
+  "success": {
+    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt.",
+    "assoc-update": "Assoziation erfolgreich aktualisiert"
+  }
 }
