@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { useRouter } from 'next/router';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
@@ -14,6 +13,7 @@ import {
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
+  onCancel?: () => void;
 }
 
 interface LoginFormState {
@@ -21,9 +21,8 @@ interface LoginFormState {
   password: string;
 }
 
-export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
+export default function LoginForm(props: LoginFormProps): ReactElement {
   const classes = useStyles();
-  const router = useRouter();
   const [state, setState] = useState<LoginFormState>({
     email: '',
     password: '',
@@ -37,12 +36,12 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (onSubmit) onSubmit(state.email, state.password);
+    props.onSubmit(state.email, state.password);
   };
 
   const handleCancel = (event: React.FormEvent<HTMLButtonElement>): void => {
     event.preventDefault();
-    router.back();
+    if (props.onCancel) props.onCancel();
   };
 
   return (
@@ -76,15 +75,17 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
         >
           Login
         </Button>
-        <Button
-          className={classes.button}
-          size="medium"
-          variant="outlined"
-          color="secondary"
-          onClick={handleCancel}
-        >
-          Cancel
-        </Button>
+        {props.onCancel && (
+          <Button
+            className={classes.button}
+            size="medium"
+            variant="outlined"
+            color="secondary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+        )}
       </div>
     </form>
   );

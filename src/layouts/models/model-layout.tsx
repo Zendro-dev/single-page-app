@@ -3,17 +3,17 @@ import { useRouter } from 'next/router';
 import React, {
   PropsWithChildren,
   ReactElement,
-  useLayoutEffect,
+  useEffect,
   useRef,
   useState,
 } from 'react';
 
-import { Box, Fab, useMediaQuery, Zoom } from '@material-ui/core';
+import { Fab, useMediaQuery, Zoom } from '@material-ui/core';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import { useTheme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';
@@ -30,20 +30,21 @@ export default function ModelsLayout({
   routes,
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
+  const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
   const [showNav, setShowNav] = useState(false);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  useLayoutEffect(
+  useEffect(
     function hideNavOnSmallScreen() {
       setShowNav(isLargeScreen);
     },
     [isLargeScreen, setShowNav]
   );
 
-  useLayoutEffect(
+  useEffect(
     function hideNavOnRouteChange() {
       const routeHasChanged = routePath.current !== router.asPath;
       if (routeHasChanged && !isLargeScreen) {
@@ -58,11 +59,12 @@ export default function ModelsLayout({
     <AppLayout
       action={
         <Zoom in={true} timeout={500}>
-          <Box>
-            <Fab size="small" onClick={() => setShowNav((state) => !state)}>
-              {showNav ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </Fab>
-          </Box>
+          <Fab
+            className={classes.fab}
+            onClick={() => setShowNav((state) => !state)}
+          >
+            {showNav ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </Fab>
         </Zoom>
       }
     >
@@ -72,3 +74,12 @@ export default function ModelsLayout({
     </AppLayout>
   );
 }
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    fab: {
+      width: theme.spacing(9),
+      height: theme.spacing(3),
+    },
+  })
+);

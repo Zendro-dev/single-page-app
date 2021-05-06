@@ -9,7 +9,7 @@ import {
   Tooltip,
   Typography,
 } from '@material-ui/core';
-import Translate from '@material-ui/icons/TranslateRounded';
+import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
 import i18n from '../../i18n';
 
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
@@ -48,17 +48,24 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
       <Tooltip title="Change language">
         <IconButton
           {...props}
-          id={'MainPanel-iconButton-translate'}
-          color="inherit"
+          id="language-switcher-button"
+          aria-controls="language-switcher-menu"
+          aria-haspopup="true"
+          aria-expanded={translationAnchorEl ? 'true' : undefined}
           onClick={handleTranslationIconClick}
         >
-          <Translate fontSize="small" />
+          <TranslateIcon />
         </IconButton>
       </Tooltip>
 
       {/* Translate.menu */}
       <Menu
+        id="language-switcher-menu"
+        MenuListProps={{
+          'aria-labelledby': 'language-switcher-button',
+        }}
         anchorEl={translationAnchorEl}
+        className={classes.translationMenu}
         keepMounted
         open={Boolean(translationAnchorEl)}
         onClose={handleTranslationMenuClose}
@@ -84,8 +91,11 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    translationMenu: {
+      marginTop: theme.spacing(2),
+    },
     translationMenuItem: {
-      margin: theme.spacing(1),
+      margin: theme.spacing(1, 1, 1, 1),
     },
   })
 );
