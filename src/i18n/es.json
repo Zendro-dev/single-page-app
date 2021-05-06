@@ -43,13 +43,6 @@
     "password": "",
     "show-password": ""
   },
-  "model-info": {
-    "accordion-label": "",
-    "accordion-text": "",
-    "model": "",
-    "record": "",
-    "request": ""
-  },
   "model-table": {
     "add": "",
     "caption": "",

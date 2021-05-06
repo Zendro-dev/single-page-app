@@ -43,13 +43,6 @@
     "password": "Password",
     "show-password": "Show Password"
   },
-  "model-info": {
-    "accordion-label": "Information",
-    "accordion-text": "Click to expand",
-    "model": "model",
-    "record": "record",
-    "request": "request"
-  },
   "model-table": {
     "add": "Add new {{ modelName }}",
     "caption": "records table for {{ modelName }}",
