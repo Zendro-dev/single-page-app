@@ -35,6 +35,12 @@ export default function Navigation({
       permissions[route.name]?.find((x) => x === 'read' || x === '*')
   );
 
+  const canAccessModelRoutes = routes.models.some(
+    (route) =>
+      permissions &&
+      permissions[route.name]?.find((x) => x === 'read' || x === '*')
+  );
+
   const canAccessRoute = (name: string): boolean | undefined => {
     return (
       permissions &&
@@ -56,7 +62,7 @@ export default function Navigation({
         }}
       />
 
-      {routes && (
+      {canAccessModelRoutes && (
         <NavGroup icon={ModelsIcon} label="Models">
           {routes.models.map(
             ({ name, href }) =>
