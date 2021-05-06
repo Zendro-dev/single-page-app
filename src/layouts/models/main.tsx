@@ -109,9 +109,10 @@ export default function Models({
 const useStyles = makeStyles((theme) => {
   return createStyles({
     breadcrumbs: {
-      alignItems: 'center',
-      backgroundColor: theme.palette.action.hover,
       display: 'flex',
+      alignItems: 'center',
+      flexShrink: 0,
+      backgroundColor: theme.palette.action.hover,
       height: theme.spacing(14),
       padding: theme.spacing(0, 4),
     },

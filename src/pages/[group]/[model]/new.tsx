@@ -4,19 +4,21 @@ import { useRouter } from 'next/router';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 
-import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
-import { useDialog, useToastNotification, useZendroClient } from '@/hooks';
+import {
+  useDialog,
+  useModel,
+  useToastNotification,
+  useZendroClient,
+} from '@/hooks';
 import { ModelsLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
-import { DataRecord, ParsedAttribute } from '@/types/models';
+import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
 import { parseGraphqlErrors } from '@/utils/errors';
-import { getAttributeList, parseAssociations } from '@/utils/models';
-import { queryRecord } from '@/utils/queries';
 import { isEmptyObject } from '@/utils/validation';
 
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
@@ -25,9 +27,7 @@ import '@/i18n';
 import { useTranslation } from 'react-i18next';
 
 interface RecordProps {
-  attributes: ParsedAttribute[];
   modelName: string;
-  requests: ReturnType<typeof queryRecord>;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -43,31 +43,18 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-
   const modelName = params.model;
-  const dataModel = await getStaticModel(modelName);
-
-  const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const associations = parseAssociations(dataModel);
-  const requests = queryRecord(modelName, attributes, associations);
-
   return {
     props: {
-      key: modelName,
+      key: modelName + '/new',
       modelName,
-      attributes,
-      associations,
-      requests,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({
-  attributes,
-  modelName,
-  requests,
-}) => {
+const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const dialog = useDialog();
+  const model = useModel(modelName);
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
@@ -106,18 +93,17 @@ const Record: PageWithLayout<RecordProps> = ({
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
-    const primaryKey = attributes[0].name;
     const submit = async (): Promise<void> => {
       try {
-        const { create } = requests;
+        const createOne = zendro.queries[modelName].createOne;
         const response = await zendro.request<Record<string, DataRecord>>(
-          create.query,
+          createOne.query,
           dataRecord
         );
 
         router.push(
           `/${urlQuery.group}/${modelName}/edit?id=${
-            response[create.resolver][primaryKey]
+            response[createOne.resolver][model.schema.primaryKey]
           }`
         );
       } catch (error) {
@@ -179,7 +165,7 @@ const Record: PageWithLayout<RecordProps> = ({
 
   return (
     <AttributesForm
-      attributes={attributes}
+      attributes={model.schema.attributes}
       className={classes.form}
       errors={ajvErrors}
       formId={router.asPath}
