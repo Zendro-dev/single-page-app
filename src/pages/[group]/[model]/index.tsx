@@ -403,8 +403,8 @@ const Model: PageWithLayout<ModelProps> = ({
       <Table caption={`records table for ${modelName}`}>
         <TableHeader
           actionsColSpan={
-            Object.keys(model.permissions).filter(
-              (action) => action !== 'create'
+            Object.entries(model.permissions).filter(
+              ([action, allowed]) => allowed && action !== 'create'
             ).length
           }
           attributes={attributes}
@@ -434,15 +434,17 @@ const Model: PageWithLayout<ModelProps> = ({
                 onDoubleClick={() => handleOnRead(recordId)}
                 hover
               >
-                <MuiTableCell padding="checkbox">
-                  <IconButton
-                    tooltip={`View ${recordId}`}
-                    onClick={() => handleOnRead(recordId)}
-                    className={classes.rowActionPrimary}
-                  >
-                    <DetailsIcon fontSize="small" />
-                  </IconButton>
-                </MuiTableCell>
+                {model.permissions.read && (
+                  <MuiTableCell padding="checkbox">
+                    <IconButton
+                      tooltip={`View ${recordId}`}
+                      onClick={() => handleOnRead(recordId)}
+                      className={classes.rowActionPrimary}
+                    >
+                      <DetailsIcon fontSize="small" />
+                    </IconButton>
+                  </MuiTableCell>
+                )}
                 {model.permissions.update && (
                   <MuiTableCell padding="checkbox">
                     <IconButton
