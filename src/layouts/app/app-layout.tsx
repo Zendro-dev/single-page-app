@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -20,8 +21,17 @@ export default function ModelsLayout({
   brand,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
-  const classes = useStyles();
   const { auth } = useAuth();
+  const router = useRouter();
+  const classes = useStyles();
+
+  const handleOnLoginAction = (): void => {
+    if (router.asPath === '/') router.push('/models');
+  };
+
+  const handleOnLogoutAction = (): void => {
+    router.push('/');
+  };
 
   return (
     <div className={classes.root}>
@@ -55,6 +65,8 @@ export default function ModelsLayout({
               }
               color="inherit"
               size="small"
+              onLogin={handleOnLoginAction}
+              onLogout={handleOnLogoutAction}
             >
               <LoginIcon />
             </LoginButton>
