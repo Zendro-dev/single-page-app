@@ -9,6 +9,9 @@ import {
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { DataRecord } from '@/types/models';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 export interface TableRecord {
   data: DataRecord;
   isAssociated?: boolean;
@@ -46,6 +49,7 @@ export default function ZendroTable({
   ...props
 }: ZendroTableProps): ReactElement {
   const classes = useStyles();
+  const { t } = useTranslation();
   return (
     <div className={classes.tableWrapper}>
       <MuiTable {...props}>
@@ -61,7 +65,7 @@ export default function ZendroTable({
       )}
       {!isLoading && isEmpty && (
         <div className={classes.tablePlaceholder}>
-          <Typography variant="body1">No data to display</Typography>
+          <Typography variant="body1">{t('model-table.no-data')}</Typography>
         </div>
       )}
     </div>

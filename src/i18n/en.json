@@ -1,0 +1,116 @@
+{
+  "associations": {
+    "assoc-select": "Select {{ modelName }} association",
+    "click-to-associate": "Click to associate",
+    "click-to-disassociate": "Click to disassociate",
+    "filter-associated": "Associated",
+    "filter-no-filter": "No filters",
+    "filter-not-associated": "Not Associated",
+    "filter-select": "Select {{ assocName }} filters",
+    "filter-to-add": "Marked for Association",
+    "filter-to-remove": "Marked for Disassociation",
+    "mark-to-associate": "Marked to be associated, click to reset",
+    "mark-to-disassociate": "Marked to be disassociated, click to reset",
+    "save": "Save {{ assocName }} data"
+  },
+  "dialogs": {
+    "cancel-text": "No",
+    "delete-confirm": "Are you sure you want to delete this item?",
+    "delete-info": "Item with id {{ recordId }} in model {{ modelName }}.",
+    "leave-confirm": "Do you want to leave anyway?",
+    "modified-info": "Some fields have been modified.",
+    "ok-text": "Yes",
+    "reload-confirm": "Do you want to reload anyway?",
+    "submit-empty-confirm": "Do you want to continue anyway?",
+    "submit-empty-info": "Some fields are empty. {{ idMsg }}",
+    "validation-info": "Please fix client side validation errors",
+    "validation-title": "Validation errors"
+  },
+  "errors": {
+    "csv-import": "An error occurred while trying to import the CSV file. Please contact your administrator.",
+    "login-failed": "Login failed",
+    "server-error": "Error {{ status }} in request to server"
+  },
+  "home": {
+    "documenation-info": "Find in-depth information about Zendro features and API.",
+    "documentation": "Documentation",
+    "github-info": "Contribute with pull requests, issues, and feedback."
+  },
+  "login-form": {
+    "cancel": "Cancel",
+    "hide-password": "Hide Password",
+    "login": "Login",
+    "password": "Password",
+    "show-password": "Show Password"
+  },
+  "model-table": {
+    "add": "Add new {{ modelName }}",
+    "caption": "records table for {{ modelName }}",
+    "delete": "Delete {{ recordId }}",
+    "download-data": "Download {{ modelName }} data as CSV",
+    "download-template": "Download {{ modelName }} CSV template",
+    "edit": "Edit {{ recordId }}",
+    "header-actions": "Actions",
+    "header-id-tooltip": "Unique Identifier",
+    "import": "Import {{ modelName }} data from csv",
+    "no-data": "No data to display",
+    "pagination-count": "Count",
+    "pagination-first": "First page",
+    "pagination-last": "Last page",
+    "pagination-next": "Next page",
+    "pagination-previous": "Previous page",
+    "pagination-rows": "Rows",
+    "reload": "Reload {{ modelName }} data",
+    "search-clear": "Clear search",
+    "search-label": "Search {{ modelName }}",
+    "search-label-default": "Type your search",
+    "search-tooltip": "Search",
+    "view": "View {{ recordId }}"
+  },
+  "models-layout": {
+    "admin": "admin",
+    "create": "new",
+    "home": "Home",
+    "models": "models",
+    "read": "details",
+    "update": "edit"
+  },
+  "record-fields": {
+    "array-add": "Add New Item",
+    "array-delete": "Delete item",
+    "array-unset": "Unset item",
+    "primary-key": "{{ name }} is the primary key",
+    "read-only": "This field cannot be modified",
+    "unset": "Unset value"
+  },
+  "record-form": {
+    "action-delete": "Delete record",
+    "action-exit": "Exit form",
+    "action-read": "View record details",
+    "action-reload": "Reload data",
+    "action-submit": "Submit changes",
+    "action-update": "Edit Record",
+    "completed": "Completed",
+    "create": "Create",
+    "read": "Read",
+    "read-only": "The form is in read-only mode",
+    "tab-associations": "Associations",
+    "tab-attributes": "Attributes",
+    "update": "Update"
+  },
+  "restricted": {
+    "permissions-header": "Access to this page is restricted.",
+    "permissions-info": "It appears you do not have sufficient permissions to access this page. If you think this is a mistake, please contact your administrator.",
+    "token-exp-header": "Your session has expired",
+    "token-exp-info": " It appears your current session has expired. Please re-validate your identity using the sign-in button in the top right corner."
+  },
+  "success": {
+    "assoc-update": "Associations updated successfully",
+    "csv-import": "The data has been sent. A report with the status of the import process will be sent to your email."
+  },
+  "toolbar": {
+    "change-language": "Change language",
+    "login": "Login",
+    "logout": "Logout"
+  }
+}

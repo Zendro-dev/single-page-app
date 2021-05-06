@@ -23,6 +23,8 @@ import { ModelUrlQuery } from '@/types/routes';
 import { parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, {
   ActionHandler,
@@ -62,6 +64,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
+  const { t } = useTranslation();
 
   /* REQUEST */
 
@@ -90,11 +93,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         setAjvErrors(undefined);
       },
       onError: (error) => {
-        showSnackbar(
-          'There was an error in the server request',
-          'error',
-          error
-        );
+        showSnackbar(t('errors.server-error'), 'error', error);
       },
     }
   );
@@ -121,10 +120,10 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     if (diffs > 0) {
       return dialog.openConfirm({
-        title: 'Some fields have been modified.',
-        message: 'Do you want to leave anyway?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: t('dialogs.modified-info'),
+        message: t('dialogs.leave-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
       });
     }
@@ -137,10 +136,10 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
    */
   const handleOnDelete: ActionHandler = () => {
     dialog.openConfirm({
-      title: 'Are you sure you want to delete this item?',
-      message: `Item with id ${urlQuery.id} in model ${modelName}.`,
-      okText: 'YES',
-      cancelText: 'NO',
+      title: t('dialogs.delete-confirm'),
+      message: t('dialogs.delete-info', { recordId: urlQuery.id, modelName }),
+      okText: t('dialogs.ok-text'),
+      cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
         if (!recordData) return;
 
@@ -152,7 +151,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           await zendro.request(query, variables);
           router.push(`/${urlQuery.group}/${modelName}`);
         } catch (error) {
-          showSnackbar('Error in request to server', 'error', error);
+          showSnackbar(t('errors.server-error'), 'error', error);
         }
       },
     });
@@ -181,10 +180,10 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     if (diffs > 0)
       dialog.openConfirm({
-        title: 'Some fields have been modified.',
-        message: 'Do you want to reload anyway?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: t('dialogs.modified-info'),
+        message: t('dialogs.reload-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: revalidateData,
       });
     else {
@@ -221,7 +220,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
         if (genericError) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
+            t('errors.server-error', { status: clientError.response.status }),
             'error',
             clientError
           );
@@ -235,8 +234,8 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         // Send generic GraphQL errors to the notification queue
         if (nonValidationErrors.length > 0) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
-            `error`,
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
             nonValidationErrors
           );
         }
@@ -248,18 +247,18 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     if (formStats.clientErrors > 0) {
       return dialog.openMessage({
-        title: 'Validation errors',
-        message: 'Please fix client side validation errors',
+        title: t('dialogs.validation-title'),
+        message: t('dialogs.validation-info'),
       });
     }
 
     if (formStats.unset > 0) {
       const idMsg = urlQuery.id ? ` (id: ${urlQuery.id})` : '';
       return dialog.openConfirm({
-        title: `Some fields are empty.${idMsg}`,
-        message: 'Do you want to continue anyway?',
-        okText: 'YES',
-        cancelText: 'NO',
+        title: t('dialogs.submit-empty-info', { idMsg }),
+        message: t('dialogs.submit-empty-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: submit,
       });
     }
@@ -289,9 +288,9 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         onChange={handleOnTabChange}
         variant="fullWidth"
       >
-        <Tab label="Attributes" value="attributes" />
+        <Tab label={t('record-form.tab-attributes')} value="attributes" />
         <Tab
-          label="Associations"
+          label={t('record-form.tab-associations')}
           value="associations"
           disabled={model.schema.associations?.length === 0}
         />

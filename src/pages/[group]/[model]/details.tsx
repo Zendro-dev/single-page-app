@@ -18,6 +18,9 @@ import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface RecordProps {
   modelName: string;
 }
@@ -51,6 +54,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
+  const { t } = useTranslation();
 
   /* STATE */
 
@@ -82,11 +86,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       shouldRetryOnError: false,
       onSuccess: (data) => setRecordData(data),
       onError: (error) => {
-        showSnackbar(
-          'There was an error in the server request',
-          'error',
-          error
-        );
+        showSnackbar(t('errors.server-error'), 'error', error);
       },
     }
   );
@@ -136,9 +136,9 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         onChange={handleOnTabChange}
         variant="fullWidth"
       >
-        <Tab label="Attributes" value="attributes" />
+        <Tab label={t('record-form.tab-attributes')} value="attributes" />
         <Tab
-          label="Associations"
+          label={t('record-form.tab-associations')}
           value="associations"
           disabled={model.schema.associations?.length === 0}
         />

@@ -14,6 +14,9 @@ import { NavGroup, NavLink } from '@/components/navigation';
 import { AuthPermissions } from '@/types/auth';
 import { AppRoutes, ModelUrlQuery } from '@/types/routes';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface AppDrawerProps {
   className?: string;
   permissions?: AuthPermissions;
@@ -28,6 +31,7 @@ export default function Navigation({
   const classes = useStyles();
   const router = useRouter();
   const urlQuery = router.query as ModelUrlQuery;
+  const { t } = useTranslation();
 
   const canAccessAdminRoutes = routes.admin.some(
     (route) =>
@@ -56,14 +60,14 @@ export default function Navigation({
         className={classes.homeLink}
         href="/models"
         icon={HomeIcon}
-        text="Home"
+        text={t('models-layout.home')}
         textProps={{
           fontWeight: 'bold',
         }}
       />
 
       {canAccessModelRoutes && (
-        <NavGroup icon={ModelsIcon} label="Models">
+        <NavGroup icon={ModelsIcon} label={t('models-layout.models')}>
           {routes.models.map(
             ({ name, href }) =>
               canAccessRoute(name) && (
@@ -81,7 +85,7 @@ export default function Navigation({
       )}
 
       {canAccessAdminRoutes && (
-        <NavGroup icon={AdminIcon} label="Admin">
+        <NavGroup icon={AdminIcon} label={t('models-layout.admin')}>
           {routes.admin.map(
             ({ name, href }) =>
               canAccessRoute(name) && (

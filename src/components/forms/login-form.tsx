@@ -12,6 +12,9 @@ import {
   LockOutlined as LockIcon,
 } from '@material-ui/icons';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
 }
@@ -24,6 +27,8 @@ interface LoginFormState {
 export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
   const classes = useStyles();
   const router = useRouter();
+  const { t } = useTranslation();
+
   const [state, setState] = useState<LoginFormState>({
     email: '',
     password: '',
@@ -59,7 +64,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
 
       <PasswordField
         icon={LockIcon}
-        label="Password"
+        label={t('login-form.password')}
         onChange={onFieldChange('password')}
         value={state?.password}
         data-cy="login-form-password"
@@ -74,7 +79,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
           type="submit"
           data-cy="login-form-login"
         >
-          Login
+          {t('login-form.login')}
         </Button>
         <Button
           className={classes.button}
@@ -83,7 +88,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
           color="secondary"
           onClick={handleCancel}
         >
-          Cancel
+          {t('login-form.cancel')}
         </Button>
       </div>
     </form>

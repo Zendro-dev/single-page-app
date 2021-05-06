@@ -30,6 +30,9 @@ import FormHeader from './form-header';
 import FormField from './form-field';
 import { formAttributesReducer, computeStats, initForm } from './form-utils';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
 export type ActionHandler = (
   data: FormAttribute[],
@@ -76,6 +79,7 @@ export default function AttributesForm({
   modelName,
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   /* STATE */
 
@@ -181,7 +185,7 @@ export default function AttributesForm({
                 handler: actions.cancel,
               })}
               icon={CancelIcon}
-              tooltip="Exit form"
+              tooltip={t('record-form.action-exit')}
             />
           )}
 
@@ -194,7 +198,7 @@ export default function AttributesForm({
                 action: 'read',
                 handler: actions.read,
               })}
-              tooltip="View record details"
+              tooltip={t('record-form.action-read')}
             />
           )}
 
@@ -207,7 +211,7 @@ export default function AttributesForm({
                 action: 'update',
                 handler: actions.update,
               })}
-              tooltip="Edit Record"
+              tooltip={t('record-form.action-update')}
             />
           )}
         </div>
@@ -222,7 +226,7 @@ export default function AttributesForm({
                 action: 'delete',
                 handler: actions.delete,
               })}
-              tooltip="Delete record"
+              tooltip={t('record-form.action-delete')}
             />
           )}
 
@@ -231,7 +235,7 @@ export default function AttributesForm({
               className={classes.actionSupport}
               form={formId}
               icon={Reload}
-              tooltip="Reload data"
+              tooltip={t('record-form.action-reload')}
               onClick={handleOnAction({
                 action: 'reload',
                 handler: actions.reload,
@@ -244,7 +248,7 @@ export default function AttributesForm({
               className={classes.actionPrimary}
               form={formId}
               icon={SaveIcon}
-              tooltip="Submit changes"
+              tooltip={t('record-form.action-submit')}
               type="submit"
               onClick={handleOnAction({
                 action: 'submit',
@@ -258,11 +262,13 @@ export default function AttributesForm({
       <form id={formId} className={classes.form}>
         <FormHeader
           locked={disabled}
-          prefix={formView}
+          prefix={t(
+            (`record-form.${formView}` as unknown) as TemplateStringsArray
+          )}
           title={modelName}
-          subtitle={`Completed ${formAttributes.length - formStats.unset} / ${
-            formAttributes.length
-          }`}
+          subtitle={`${t('record-form.completed')} ${
+            formAttributes.length - formStats.unset
+          } / ${formAttributes.length}`}
         />
 
         {formAttributes.map((attribute) => {
@@ -297,7 +303,7 @@ export default function AttributesForm({
               label={name}
               actionLeft={
                 primaryKey && (
-                  <Tooltip title={`${name} is the primary key`}>
+                  <Tooltip title={t('record-fields.primary-key', { name })}>
                     <KeyIcon fontSize="small" color="action" />
                   </Tooltip>
                 )
@@ -305,7 +311,7 @@ export default function AttributesForm({
               readOnly={readOnly}
               actionRight={
                 readOnly && (
-                  <Tooltip title="This field cannot be modified">
+                  <Tooltip title={t('record-fields.read-only')}>
                     <LockIcon fontSize="small" color="secondary" />
                   </Tooltip>
                 )

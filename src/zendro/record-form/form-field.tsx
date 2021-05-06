@@ -7,11 +7,16 @@ import { InputActions, WithActions } from '@/components/inputs';
 import { AttributeValue, AttributeArrayValue } from '@/types/models';
 import { InputField, InputFieldProps } from '@/zendro/record-fields';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 export default function AttributeField({
   actionLeft: leftIcon,
   actionRight: rightIcon,
   ...props
 }: WithActions<InputFieldProps>): ReactElement {
+  const { t } = useTranslation();
+
   const handleOnChange = (
     value: AttributeValue | AttributeArrayValue
   ): void => {
@@ -32,7 +37,7 @@ export default function AttributeField({
         endAdornment={
           props.onChange && (
             <InputAdornment position="end">
-              <Tooltip title="Unset value">
+              <Tooltip title={t('record-fields.unset')}>
                 <span>
                   <IconButton tabIndex="-1" onClick={handleOnClear}>
                     <ClearIcon />

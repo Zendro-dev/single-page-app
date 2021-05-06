@@ -2,9 +2,21 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 //import resources
-import { TRANSLATIONS_EN } from './en';
-import { TRANSLATIONS_ES } from './es';
-import { TRANSLATIONS_DE } from './de';
+import TRANSLATIONS_EN from './en.json';
+import TRANSLATIONS_ES from './es.json';
+import TRANSLATIONS_DE from './de.json';
+
+export const resources = {
+  en: {
+    translation: TRANSLATIONS_EN,
+  },
+  es: {
+    translation: TRANSLATIONS_ES,
+  },
+  de: {
+    translation: TRANSLATIONS_DE,
+  },
+} as const;
 
 i18n
   // detect user language
@@ -17,22 +29,10 @@ i18n
   .init({
     fallbackLng: 'en',
     //debug: true,
-    resources: {
-      en: {
-        translation: TRANSLATIONS_EN,
-      },
-      es: {
-        translation: TRANSLATIONS_ES,
-      },
-
-      de: {
-        translation: TRANSLATIONS_DE,
-      },
-    },
-
+    resources,
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
   });
 
-export default i18n;
+// export default i18n;
