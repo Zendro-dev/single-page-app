@@ -21,7 +21,7 @@ interface LogoutButtonProps extends IconButtonProps {
   onLogout?: () => void;
 }
 
-export default function LogoutButton({
+export default function LoginButton({
   onLogin,
   onLogout,
   ...props
@@ -41,8 +41,7 @@ export default function LogoutButton({
       if (
         auth.status === 'failed' ||
         auth.status === 'idle' ||
-        !auth.user ||
-        !auth.user.isValid
+        auth.status === 'expired'
       ) {
         // t('toolBar.logout')
       } else if (auth.status === 'success') {
@@ -50,13 +49,13 @@ export default function LogoutButton({
         if (onLogin) onLogin();
       }
     },
-    [auth, onLogin]
+    [auth.status, onLogin]
   );
 
   /* TOOLBAR EVENTS */
 
   const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-    if (auth.user && auth.user.isValid) {
+    if (auth.user && auth.status === 'success') {
       logout();
       if (onLogout) onLogout();
     } else {

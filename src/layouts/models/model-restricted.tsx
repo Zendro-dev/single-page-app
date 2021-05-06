@@ -1,11 +1,6 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
@@ -32,32 +27,11 @@ export default function Restricted(
   const getModel = useModel();
   const classes = useStyles();
 
-  const [allowed, setAllowed] = useState(false);
-  const [tokenIsValid, setTokenIsValid] = useState(false);
+  const isNotLoggedIn = auth.auth.user === undefined;
+  const isNotAllowed =
+    urlQuery.model && !getModel(urlQuery.model).permissions.read;
 
-  useLayoutEffect(
-    function checkResourcePermissions() {
-      if (!auth.auth.user || !auth.auth.user.token) return;
-
-      if (urlQuery.model) {
-        const model = getModel(urlQuery.model);
-        if (model.permissions.read) setAllowed(true);
-      } else {
-        setAllowed(true);
-      }
-    },
-    [auth, getModel, urlQuery]
-  );
-
-  useLayoutEffect(
-    function checkTokenValidity() {
-      if (auth.auth.user && auth.auth.user.isValid) setTokenIsValid(true);
-      else setTokenIsValid(false);
-    },
-    [auth]
-  );
-
-  if (!allowed) {
+  if (isNotLoggedIn || isNotAllowed) {
     return (
       <Box
         display="flex"
@@ -70,12 +44,26 @@ export default function Restricted(
         <Box className={clsx(classes.card, classes.cardInfo)}>
           <InfoIcon />
           <Box>
-            <h1>Access to this page is restricted.</h1>
-            <p>
-              It appears you do not have sufficient permissions to access this
-              page. If you think this is an error, please contact your
-              administrator.
-            </p>
+            {isNotLoggedIn && (
+              <>
+                <h1>You are not logged in.</h1>
+                <p>
+                  It appears you are trying to access a protected page and have
+                  not signed into the application Please, login using button at
+                  the top right corner so we can verify your permissions.
+                </p>
+              </>
+            )}
+            {!isNotLoggedIn && isNotAllowed && (
+              <>
+                <h1>Access to this page is restricted.</h1>
+                <p>
+                  It appears you do not have sufficient permissions to access
+                  this page. If you think this is an error, please contact your
+                  administrator.
+                </p>
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -84,7 +72,7 @@ export default function Restricted(
 
   return (
     <>
-      {!tokenIsValid && (
+      {auth.auth.status === 'expired' && (
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box>

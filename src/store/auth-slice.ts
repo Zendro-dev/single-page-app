@@ -61,6 +61,12 @@ const authSlice = createSlice({
         status: 'cancelled',
       };
     },
+    expireUser: (state) => {
+      return {
+        ...state,
+        status: 'expired',
+      };
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(logUserIn.pending, (state) => {
@@ -89,7 +95,7 @@ const authSlice = createSlice({
 /**
  * Synchronous dispatch action to logout the user.
  */
-export const { logUserOut, cancelLogin } = authSlice.actions;
+export const { cancelLogin, expireUser, logUserOut } = authSlice.actions;
 
 /**
  * Selector variable to use in components via the **useSelector** hook.

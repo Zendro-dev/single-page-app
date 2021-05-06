@@ -10,7 +10,6 @@ import { SiteLink } from '@/components/links';
 import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
 import { ClientOnly } from '@/components/wrappers';
 import { useAuth } from '@/hooks';
-import clsx from 'clsx';
 
 export interface AppLayoutProps {
   brand?: string;
@@ -37,7 +36,7 @@ export default function ModelsLayout({
           </SiteLink>
 
           <ClientOnly>
-            {auth.user?.isValid && (
+            {auth.user && (
               <SiteLink href="/models" className={classes.navlink}>
                 <ModelsIcon />
                 <span>Models</span>
@@ -51,8 +50,9 @@ export default function ModelsLayout({
           <LanguageSwitcher color="inherit" size="small" />
           <ClientOnly>
             <LoginButton
-              // color={auth.user?.isValid ? 'inherit' : 'secondary'}
-              className={auth.user?.isValid ? 'login-normal' : 'login-warning'}
+              className={
+                auth.status === 'success' ? 'login-normal' : 'login-warning'
+              }
               color="inherit"
               size="small"
             >
