@@ -1,27 +1,10 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { NextPage } from 'next';
-import Link from 'next/link';
-import useAuth from '@/hooks/useAuth';
-import {
-  AppBar,
-  Toolbar,
-  makeStyles,
-  createStyles,
-  Theme,
-  Button,
-} from '@material-ui/core';
+import { makeStyles, createStyles, Theme } from '@material-ui/core';
 
-import LanguageSwitcher from '@/components/toolbar/lang-switcher';
+import { AppLayout, PageWithLayout } from '@/layouts';
 
-const Home: NextPage = () => {
+const Home: PageWithLayout = () => {
   const classes = useStyles();
-  const { auth } = useAuth();
-  const [loginRoute, setLoginRoute] = useState('/login');
-
-  useEffect(() => {
-    if (auth.user?.isValid) setLoginRoute('/models');
-  }, [auth]);
 
   return (
     <div className={classes.container}>
@@ -29,19 +12,6 @@ const Home: NextPage = () => {
         <title>Zendro App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <AppBar position="fixed">
-        <Toolbar>
-          <div className={classes.appBarRightButtonsContainer}>
-            <LanguageSwitcher />
-            <Link href={loginRoute} passHref>
-              <Button className={classes.loginButton} component="a">
-                Login
-              </Button>
-            </Link>
-          </div>
-        </Toolbar>
-      </AppBar>
 
       <main className={classes.main}>
         <img className={classes.banner} src="/banner.png" alt="zendro banner" />
@@ -91,6 +61,7 @@ const Home: NextPage = () => {
   );
 };
 
+Home.layout = AppLayout;
 export default Home;
 
 const useStyles = makeStyles((theme: Theme) =>

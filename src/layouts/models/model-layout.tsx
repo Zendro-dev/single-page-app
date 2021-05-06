@@ -1,8 +1,9 @@
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, {
   PropsWithChildren,
   ReactElement,
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -12,13 +13,13 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core/styles';
 
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';
-import Toolbar from './toolbar';
-import { useRouter } from 'next/router';
-const Models = dynamic(() => import('./main'), { ssr: false });
+
+import AppLayout from '../app/app-layout';
+const Models = dynamic(() => import('./model-main'), { ssr: false });
 
 export interface ModelsDesktopLayoutProps {
   brand?: string;
@@ -26,25 +27,23 @@ export interface ModelsDesktopLayoutProps {
 }
 
 export default function ModelsLayout({
-  brand,
   routes,
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
-  const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
   const [showNav, setShowNav] = useState(false);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  useEffect(
+  useLayoutEffect(
     function hideNavOnSmallScreen() {
       setShowNav(isLargeScreen);
     },
     [isLargeScreen, setShowNav]
   );
 
-  useEffect(
+  useLayoutEffect(
     function hideNavOnRouteChange() {
       const routeHasChanged = routePath.current !== router.asPath;
       if (routeHasChanged && !isLargeScreen) {
@@ -56,8 +55,8 @@ export default function ModelsLayout({
   );
 
   return (
-    <div className={classes.root}>
-      <Toolbar brand={brand ?? ''}>
+    <AppLayout
+      action={
         <Zoom in={true} timeout={500}>
           <Box>
             <Fab size="small" onClick={() => setShowNav((state) => !state)}>
@@ -65,20 +64,11 @@ export default function ModelsLayout({
             </Fab>
           </Box>
         </Zoom>
-      </Toolbar>
-
+      }
+    >
       <Models showNav={showNav} routes={routes ?? appRoutes}>
         {children}
       </Models>
-    </div>
+    </AppLayout>
   );
 }
-
-const useStyles = makeStyles(() => {
-  return createStyles({
-    root: {
-      height: '100%',
-      overflowX: 'hidden',
-    },
-  });
-});

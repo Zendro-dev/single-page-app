@@ -17,7 +17,8 @@ interface ZendroProps extends AppProps {
 }
 
 function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
-  const Layout = Component.layout ?? (({ children }) => <>{children}</>);
+  const Layout = Component.layout;
+  const withLayout = Component.withLayout;
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -29,9 +30,15 @@ function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
           }}
         >
           <DialogProvider>
-            <Layout brand="Zendro">
+            {withLayout ? (
+              withLayout(<Component {...pageProps} />)
+            ) : Layout ? (
+              <Layout brand="Zendro">
+                <Component {...pageProps} />
+              </Layout>
+            ) : (
               <Component {...pageProps} />
-            </Layout>
+            )}
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>

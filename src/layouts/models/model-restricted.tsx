@@ -73,7 +73,7 @@ export default function Restricted(
             <h1>Access to this page is restricted.</h1>
             <p>
               It appears you do not have sufficient permissions to access this
-              page. If you think this is a mistake, please contact your
+              page. If you think this is an error, please contact your
               administrator.
             </p>
           </Box>

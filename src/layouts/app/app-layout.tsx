@@ -1,37 +1,47 @@
-import { PropsWithChildren, ReactElement } from 'react';
 import Link from 'next/link';
+import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+
 import LanguageSwitcher from '@/components/toolbar/lang-switcher';
 import LogoutButton from '@/components/toolbar/logout-button';
 
-export interface AppBarProps {
-  brand: string;
+export interface AppLayoutProps {
+  brand?: string;
+  action?: ReactNode;
 }
 
-export default function Toolbar({
+export default function ModelsLayout({
   brand,
   ...props
-}: PropsWithChildren<AppBarProps>): ReactElement {
+}: PropsWithChildren<AppLayoutProps>): ReactElement {
   const classes = useStyles();
 
   return (
-    <header className={classes.header}>
+    <div className={classes.root}>
+      <header className={classes.header}>
+        {props.action}
+
+        <Link href="/" passHref>
+          <a className={classes.brand}>{brand ?? 'Zendro'}</a>
+        </Link>
+
+        <div className={classes.menus}>
+          <LanguageSwitcher className={classes.langButton} />
+          <LogoutButton color="inherit" disableElevation />
+        </div>
+      </header>
+
       {props.children}
-
-      <Link href="/" passHref>
-        <a className={classes.brand}>{brand}</a>
-      </Link>
-
-      <div className={classes.menus}>
-        <LanguageSwitcher className={classes.langButton} />
-        <LogoutButton color="inherit" disableElevation />
-      </div>
-    </header>
+    </div>
   );
 }
 
 const useStyles = makeStyles((theme) => {
   return createStyles({
+    root: {
+      height: '100%',
+      overflowX: 'hidden',
+    },
     brand: {
       marginLeft: theme.spacing(4),
       ...theme.typography.h5,

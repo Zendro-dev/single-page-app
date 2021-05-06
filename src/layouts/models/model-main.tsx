@@ -15,8 +15,8 @@ import useAuth from '@/hooks/useAuth';
 import { AppRoutes, RecordUrlQuery } from '@/types/routes';
 import { getPathRequest } from '@/utils/router';
 
-import Restricted from './restricted';
-import Navigation from './navigation';
+import Restricted from './model-restricted';
+import Navigation from './model-navigation';
 import { Divider } from '@material-ui/core';
 
 export interface ModelsProps {
