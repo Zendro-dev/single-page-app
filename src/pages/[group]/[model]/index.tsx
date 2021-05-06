@@ -226,9 +226,15 @@ const Model: PageWithLayout<ModelProps> = ({
   /* DATA FETCHING */
 
   // Records
-  const { mutate: mutateRecords } = useSWR(
-    [tableSearch, tableOrder, tablePagination],
-    (
+  const { mutate: mutateRecords } = useSWR<
+    | {
+        records: TableRecord[];
+        pageInfo: PageInfo;
+      }
+    | undefined
+  >(
+    [tableSearch, tableOrder, tablePagination, zendro],
+    async (
       tableSearch: QueryVariableSearch,
       tableOrder: QueryVariableOrder,
       tablePagination: QueryVariablePagination
@@ -239,29 +245,27 @@ const Model: PageWithLayout<ModelProps> = ({
         order: tableOrder,
         pagination: tablePagination,
       };
-      if (transform) {
-        return zendro.metaRequest<{
-          pageInfo: PageInfo;
-          records: DataRecord[];
-        }>(query, {
-          jq: transform,
-          variables,
-        });
-      } else {
-        return zendro.request<{
-          pageInfo: PageInfo;
-          records: DataRecord[];
-        }>(query, variables);
-      }
+      const data = await zendro.request<{
+        pageInfo: PageInfo;
+        records: DataRecord[];
+      }>(query, {
+        jq: transform,
+        variables,
+      });
+
+      const records = data.records.map((record) => {
+        return { data: record };
+      }) as TableRecord[];
+
+      return {
+        records,
+        pageInfo: data.pageInfo,
+      };
     },
     {
       onSuccess: (data) => {
-        if (!isNullorEmpty(data)) {
-          // const connection = unwrapConnection(data, requests.read.resolver);
-          const recordData = data.records.map((record) => {
-            return { data: record };
-          }) as TableRecord[];
-          setRecords(recordData);
+        if (data) {
+          setRecords(data.records);
           setPageInfo(data.pageInfo);
         }
       },
@@ -295,14 +299,10 @@ const Model: PageWithLayout<ModelProps> = ({
     (tableSearch: QueryVariableSearch) => {
       const { query, transform } = zendro.queries[modelName].countAll;
       const variables: QueryVariables = { search: tableSearch };
-      if (transform) {
-        return zendro.metaRequest(query, {
-          jq: transform,
-          variables,
-        });
-      } else {
-        return zendro.request(query, variables);
-      }
+      return zendro.request(query, {
+        jq: transform,
+        variables,
+      });
     },
     {
       onSuccess: (data) => {

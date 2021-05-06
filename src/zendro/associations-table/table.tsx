@@ -144,7 +144,9 @@ export default function AssociationsTable({
   const tablePagination = useTablePagination(pagination);
 
   /* FETCH RECORDS */
-  const { mutate: mutateRecords } = useSWR(
+  const { mutate: mutateRecords } = useSWR<
+    { records: TableRecord[]; pageInfo?: PageInfo } | undefined
+  >(
     [
       recordsFilter,
       selectedAssoc.name,
@@ -152,16 +154,12 @@ export default function AssociationsTable({
       tableOrder,
       tablePagination,
     ],
-    async (): Promise<
-      { records: TableRecord[]; pageInfo?: PageInfo } | undefined
-    > => {
+    async () => {
       const recordsQuery: AssocQuery =
         associationView === 'details' || recordsFilter === 'associated'
           ? zendro.queries[modelName].withFilter[selectedAssoc.target]
               .readFiltered
           : zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
-
-      let data: AssocResponse;
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -176,17 +174,10 @@ export default function AssociationsTable({
         },
       };
 
-      if (recordsQuery.transform) {
-        data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
-          jq: recordsQuery.transform,
-          variables,
-        });
-      } else {
-        data = await zendro.request<AssocResponse>(
-          recordsQuery.query,
-          variables
-        );
-      }
+      const data = await zendro.request<AssocResponse>(recordsQuery.query, {
+        jq: recordsQuery.transform,
+        variables,
+      });
 
       if (data) {
         const assocName =
@@ -258,11 +249,11 @@ export default function AssociationsTable({
   );
 
   /* FETCH COUNT */
-  const { mutate: mutateCount } = useSWR(
+  const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     selectedAssoc.type !== 'to_one'
       ? [recordsFilter, selectedAssoc.target, tableSearch]
       : null,
-    async (): Promise<Record<'count', number> | undefined> => {
+    async () => {
       const countQuery =
         associationView === 'details' || recordsFilter === 'associated'
           ? zendro.queries[modelName].withFilter[selectedAssoc.target]
@@ -271,22 +262,15 @@ export default function AssociationsTable({
 
       if (!countQuery) return;
 
-      let data: Record<'count', number>;
-
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
         [primaryKey]: recordId,
       };
 
-      if (countQuery.transform) {
-        data = await zendro.metaRequest(countQuery.query, {
-          jq: countQuery.transform,
-          variables,
-        });
-      } else {
-        data = await zendro.request(countQuery.query, variables);
-      }
-      return data;
+      return await zendro.request(countQuery.query, {
+        jq: countQuery.transform,
+        variables,
+      });
     },
     {
       onSuccess: (data) => {
@@ -418,15 +402,15 @@ export default function AssociationsTable({
         variables
       );
       showSnackbar('Associations updated successfully', 'success');
+      setSelectedRecords({
+        toAdd: [],
+        toRemove: [],
+      });
+      mutateRecords();
+      mutateCount();
     } catch (error) {
       showSnackbar('There was an error', 'error', error);
     }
-    setSelectedRecords({
-      toAdd: [],
-      toRemove: [],
-    });
-    mutateRecords();
-    mutateCount();
   };
 
   const handleOnAssociationFilterSelect = (filter: string): void => {
