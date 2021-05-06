@@ -105,6 +105,12 @@
     "tab-attributes": "Attributes",
     "update": "Update"
   },
+  "restricted": {
+    "permissions-header": "Access to this page is restricted.",
+    "permissions-info": "It appears you do not have sufficient permissions to access this page. If you think this is a mistake, please contact your administrator.",
+    "token-exp-header": "Your session has expired",
+    "token-exp-info": " It appears your current session has expired. Please re-validate your identity using the sign-in button in the top right corner."
+  },
   "success": {
     "assoc-update": "Associations updated successfully",
     "csv-import": "The data has been sent. A report with the status of the import process will be sent to your email."

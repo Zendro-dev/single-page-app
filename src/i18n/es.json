@@ -105,6 +105,12 @@
     "tab-attributes": "",
     "update": ""
   },
+  "restricted": {
+    "permissions-header": "",
+    "permissions-info": "",
+    "token-exp-header": "",
+    "token-exp-info": ""
+  },
   "success": {
     "assoc-update": "",
     "csv-import": ""

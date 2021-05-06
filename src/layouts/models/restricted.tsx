@@ -15,6 +15,9 @@ import {
 import { useAuth, useModel } from '@/hooks';
 import { RecordUrlQuery } from '@/types/routes';
 
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
+
 interface RestrictedProps {
   info?: Record<string, string | undefined>;
   redirect?: {
@@ -31,6 +34,7 @@ export default function Restricted(
   const urlQuery = router.query as Partial<RecordUrlQuery>;
   const getModel = useModel();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const [allowed, setAllowed] = useState(false);
   const [tokenIsValid, setTokenIsValid] = useState(false);
@@ -70,12 +74,8 @@ export default function Restricted(
         <Box className={clsx(classes.card, classes.cardInfo)}>
           <InfoIcon />
           <Box>
-            <h1>Access to this page is restricted.</h1>
-            <p>
-              It appears you do not have sufficient permissions to access this
-              page. If you think this is a mistake, please contact your
-              administrator.
-            </p>
+            <h1>{t('restricted.permissions-header')}</h1>
+            <p>{t('restricted.permissions-info')}</p>
           </Box>
         </Box>
       </Box>
@@ -88,11 +88,8 @@ export default function Restricted(
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box>
-            <h1>Your session has expired</h1>
-            <p>
-              It appears your current session has expired. Please, re-validate
-              your identity using the sign-in button in the top right corner.
-            </p>
+            <h1>{t('restricted.token-exp-header')}</h1>
+            <p>{t('restricted.token-exp-info')}</p>
           </Box>
         </Box>
       )}

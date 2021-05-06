@@ -105,6 +105,12 @@
     "tab-attributes": "Attribute",
     "update": "Aktualisieren"
   },
+  "restricted": {
+    "permissions-header": "Zugriff zu dieser Seite ist gesperrt",
+    "permissions-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
+    "token-exp-header": "Ihre Sitzung ist abgelaufen",
+    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke."
+  },
   "success": {
     "assoc-update": "Assoziation erfolgreich aktualisiert",
     "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt."
