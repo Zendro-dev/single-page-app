@@ -17,8 +17,7 @@ type AuthValid = () => boolean;
 type AuthLogin = (email: string, password: string) => void;
 type AuthLogout = () => void;
 
-interface UseAuth {
-  auth: AuthState;
+interface UseAuth extends AuthState {
   checkValidToken: AuthValid;
   login: AuthLogin;
   logout: AuthLogout;
@@ -96,5 +95,5 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     return true;
   }, [auth.user, dispatch]);
 
-  return { auth, checkValidToken, login, logout };
+  return { ...auth, checkValidToken, login, logout };
 }

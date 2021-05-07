@@ -27,7 +27,7 @@ export default function Restricted(
   const getModel = useModel();
   const classes = useStyles();
 
-  const isNotLoggedIn = auth.auth.user === undefined;
+  const isNotLoggedIn = auth.user === undefined;
   const isNotAllowed =
     urlQuery.model && !getModel(urlQuery.model).permissions.read;
 
@@ -77,7 +77,7 @@ export default function Restricted(
 
   return (
     <>
-      {auth.auth.status === 'expired' && (
+      {auth.status === 'expired' && (
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box className={classes.cardContent}>

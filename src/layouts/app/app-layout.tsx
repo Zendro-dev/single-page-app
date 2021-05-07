@@ -21,7 +21,7 @@ export default function ModelsLayout({
   brand,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
-  const { auth } = useAuth();
+  const auth = useAuth();
   const router = useRouter();
   const classes = useStyles();
 

@@ -29,7 +29,7 @@ export default function Models({
   showNav,
   ...props
 }: PropsWithChildren<ModelsProps>): ReactElement {
-  const { auth } = useAuth();
+  const auth = useAuth();
   const classes = useStyles();
   const router = useRouter();
 

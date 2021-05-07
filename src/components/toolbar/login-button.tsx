@@ -26,7 +26,7 @@ export default function LoginButton({
   onLogout,
   ...props
 }: LogoutButtonProps): ReactElement {
-  const { auth, logout, login } = useAuth();
+  const auth = useAuth();
   const classes = useStyles();
   // const { t } = useTranslation();
   const theme = useTheme();
@@ -56,7 +56,7 @@ export default function LoginButton({
 
   const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
     if (auth.user && auth.status === 'success') {
-      logout();
+      auth.logout();
       if (onLogout) onLogout();
     } else {
       setIsFormOpen(true);
@@ -70,7 +70,7 @@ export default function LoginButton({
   };
 
   const handleOnLogin = (email: string, password: string): void => {
-    if (email && password) login(email, password);
+    if (email && password) auth.login(email, password);
   };
 
   return (
