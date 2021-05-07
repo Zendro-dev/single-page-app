@@ -42,7 +42,7 @@ import { getInflections } from '@/utils/inflection';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
-import { isTokenExpiredError } from '@/utils/errors';
+import { hasTokenExpiredErrors } from '@/utils/errors';
 import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
@@ -240,7 +240,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -293,7 +293,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -411,7 +411,10 @@ export default function AssociationsTable({
       mutateRecords();
       mutateCount();
     } catch (error) {
-      if (error.response?.errors && !isTokenExpiredError(error.response.errors))
+      if (
+        error.response?.errors &&
+        !hasTokenExpiredErrors(error.response.errors)
+      )
         showSnackbar('There was an error', 'error', error);
     }
   };

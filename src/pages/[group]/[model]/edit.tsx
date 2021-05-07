@@ -20,7 +20,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { isTokenExpiredError, parseGraphqlErrors } from '@/utils/errors';
+import { hasTokenExpiredErrors, parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
 import AssociationsTable from '@/zendro/associations-table';
@@ -109,7 +109,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       onError: (error) => {
         if (
           error.response?.errors &&
-          !isTokenExpiredError(error.response.errors)
+          !hasTokenExpiredErrors(error.response.errors)
         )
           showSnackbar(
             'There was an error in the server request',
@@ -167,7 +167,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         } catch (error) {
           if (
             error.response?.errors &&
-            !isTokenExpiredError(error.response.errors)
+            !hasTokenExpiredErrors(error.response.errors)
           )
             showSnackbar('Error in request to server', 'error', error);
         }

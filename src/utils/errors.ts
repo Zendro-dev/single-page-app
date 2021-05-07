@@ -39,10 +39,10 @@ export function parseGraphqlErrors(
   }, parsedErrors);
 }
 
-export function isTokenExpiredError(errors: GraphQLError[]): boolean {
-  const hasTokenExpiredError = errors.find(
+export function hasTokenExpiredErrors(errors: GraphQLError[]): boolean {
+  const foundTokenExpiredError = errors.find(
     ({ message }) => message === 'TokenExpiredError: jwt expired'
   );
 
-  return hasTokenExpiredError !== undefined;
+  return foundTokenExpiredError !== undefined;
 }

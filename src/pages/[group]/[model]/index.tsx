@@ -58,7 +58,7 @@ import {
   UseTablePaginationProps,
   useTableSearch,
 } from '@/zendro/model-table';
-import { isTokenExpiredError } from '@/utils/errors';
+import { hasTokenExpiredErrors } from '@/utils/errors';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
@@ -168,7 +168,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
       if (
         clientError.response?.errors &&
-        !isTokenExpiredError(clientError.response.errors)
+        !hasTokenExpiredErrors(clientError.response.errors)
       )
         showSnackbar(
           'An error occurred while trying to import the CSV file. Please contact your administrator.',
@@ -195,7 +195,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
       if (
         clientError.response?.errors &&
-        !isTokenExpiredError(clientError.response.errors)
+        !hasTokenExpiredErrors(clientError.response.errors)
       )
         showSnackbar('There was an error with the request', 'error', error);
     }
@@ -235,7 +235,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
           if (
             clientError.response?.errors &&
-            !isTokenExpiredError(clientError.response.errors)
+            !hasTokenExpiredErrors(clientError.response.errors)
           )
             showSnackbar('Error in request to server', 'error', error);
         }
@@ -297,7 +297,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -341,7 +341,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)

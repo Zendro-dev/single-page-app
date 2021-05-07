@@ -15,7 +15,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
 
-import { isTokenExpiredError } from '@/utils/errors';
+import { hasTokenExpiredErrors } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
@@ -95,7 +95,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       onError: (error) => {
         if (
           error.response?.errors &&
-          !isTokenExpiredError(error.response.errors)
+          !hasTokenExpiredErrors(error.response.errors)
         )
           showSnackbar(
             'There was an error in the server request',
