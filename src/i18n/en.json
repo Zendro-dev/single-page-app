@@ -72,10 +72,10 @@
     "view": "View {{ recordId }}"
   },
   "models-layout": {
-    "admin": "admin",
+    "admin": "Admin",
     "create": "new",
     "home": "Home",
-    "models": "models",
+    "models": "Models",
     "read": "details",
     "update": "edit"
   },
