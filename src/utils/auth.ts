@@ -14,6 +14,7 @@ import {
   AUTH_TOKEN_NOT_FOUND,
   AuthPermissions,
   AUTH_PERMISSIONS_NOT_FOUND,
+  AUTH_TOKEN_EXPIRED,
 } from '@/types/auth';
 
 import { localStorage } from '@/utils/storage';
@@ -78,6 +79,10 @@ export function authenticateFromToken(): AuthResponse {
     if (!token) throw new AuthError(AUTH_TOKEN_NOT_FOUND, 'Token not found');
     const decodedToken = decode(token) as AuthToken;
 
+    const hasValidToken = isTokenValid(decodedToken);
+    if (!hasValidToken)
+      throw new AuthError(AUTH_TOKEN_EXPIRED, 'Token expired');
+
     const permissions = localStorage.getItem('permissions');
     if (!permissions)
       throw new AuthError(AUTH_PERMISSIONS_NOT_FOUND, 'Permissions not found');
@@ -127,6 +132,18 @@ export function createUser(
     token,
     ...decodedToken,
   };
+}
+
+/**
+ * Check whether the token expiration date is still valid.
+ * @param token decoded auth token
+ * @returns whether the token is valid
+ */
+export function isTokenValid(token: AuthToken): boolean {
+  const currDate = new Date();
+  const expDate = new Date(token.exp * 1000);
+  if (currDate > expDate) return false;
+  return true;
 }
 
 export async function getUserPermissions(
