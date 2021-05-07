@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -5,7 +6,7 @@ import React, {
   useMemo,
   useReducer,
 } from 'react';
-import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import { Box, Tooltip } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -29,9 +30,6 @@ import FormErrors from './form-errors';
 import FormHeader from './form-header';
 import FormField from './form-field';
 import { formAttributesReducer, computeStats, initForm } from './form-utils';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
 export type ActionHandler = (

@@ -1,20 +1,31 @@
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { GraphQLClient } from 'graphql-request';
 import {
   ClientError,
   GraphQLResponse,
-  RequestDocument,
   Variables,
 } from 'graphql-request/dist/types';
+import { useCallback, useMemo } from 'react';
+
 import { GRAPHQL_URL, METAQUERY_URL } from '@/config/globals';
 import queries from '@/build/queries.preval';
 import { StaticQueries } from '@/types/static';
-import useAuth from './useAuth';
-import { useCallback, useMemo } from 'react';
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ExtendedClientError } from '@/types/errors';
 import { OneOf } from '@/types/utility';
 
-type MetaRequestOptions = {
+import useAuth from './useAuth';
+
+type LegacyRequest = <T = unknown>(
+  query: string,
+  requestData: Record<string, string | Blob>
+) => Promise<T>;
+
+type GraphQLRequest = <T = unknown>(
+  query: string,
+  options?: GraphQLRequestOptions
+) => Promise<T>;
+
+type GraphQLRequestOptions = {
   variables?: Variables;
 } & Partial<
   OneOf<{
@@ -23,66 +34,52 @@ type MetaRequestOptions = {
   }>
 >;
 
-type LegacyRequest = <T = unknown>(
-  query: string,
-  requestData: Record<string, string | Blob>
-) => Promise<T>;
-
-type MetaQueryRequest = <T = unknown>(
-  query: string,
-  options: MetaRequestOptions
-) => Promise<T>;
-
-type GraphQLRequest = <T = any>(
-  document: RequestDocument,
-  variables?: Variables
-) => Promise<T>;
-
 interface UseZendroClient {
   legacyRequest: LegacyRequest;
-  metaRequest: MetaQueryRequest;
   request: GraphQLRequest;
   queries: Record<string, StaticQueries>;
 }
 
 export default function useZendroClient(): UseZendroClient {
-  const { auth } = useAuth();
+  const { user, checkValidToken } = useAuth();
 
   const client = useMemo(
     () =>
       new GraphQLClient(GRAPHQL_URL, {
         headers: {
-          authorization: 'Bearer ' + auth.user?.token,
+          authorization: 'Bearer ' + user?.token,
         },
       }),
-    [auth.user?.token]
+    [user?.token]
   );
 
   const metaClient = useMemo(
     () =>
       new GraphQLClient(METAQUERY_URL, {
         headers: {
-          authorization: 'Bearer ' + auth.user?.token,
+          authorization: 'Bearer ' + user?.token,
         },
       }),
-    [auth.user?.token]
+    [user?.token]
   );
 
   const request: GraphQLRequest = useCallback(
-    (document, variables) => {
-      return client.request(document, variables);
-    },
-    [client]
-  );
+    (query, options) => {
+      if (user) checkValidToken();
 
-  const metaRequest: MetaQueryRequest = useCallback(
-    (query, { variables, jq, jsonPath }) => {
-      if (jq) return metaClient.request(query, variables, { jq });
-      else if (jsonPath)
+      const variables = options?.variables;
+      const jq = options?.jq;
+      const jsonPath = options?.jsonPath;
+
+      if (jq) {
+        return metaClient.request(query, variables, { jq });
+      } else if (jsonPath) {
         return metaClient.request(query, variables, { jsonPath });
-      else return metaClient.request(query, variables);
+      } else {
+        return client.request(query, variables);
+      }
     },
-    [metaClient]
+    [client, metaClient, user, checkValidToken]
   );
 
   const legacyRequest: LegacyRequest = useCallback(
@@ -102,7 +99,7 @@ export default function useZendroClient(): UseZendroClient {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json;charset=UTF-8',
-            Authorization: `Bearer ${auth.user?.token}`,
+            Authorization: `Bearer ${user?.token}`,
           },
           data: formData,
         });
@@ -133,12 +130,11 @@ export default function useZendroClient(): UseZendroClient {
 
       return response.data.data;
     },
-    [auth.user?.token]
+    [user?.token]
   );
 
-  return useMemo(() => ({ legacyRequest, metaRequest, queries, request }), [
+  return useMemo(() => ({ legacyRequest, queries, request }), [
     legacyRequest,
-    metaRequest,
     request,
   ]);
 }

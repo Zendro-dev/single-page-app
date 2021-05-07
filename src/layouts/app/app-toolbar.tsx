@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactElement } from 'react';
 import Link from 'next/link';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import LanguageSwitcher from '@/components/toolbar/lang-switcher';
-import LogoutButton from '@/components/toolbar/logout-button';
+import LoginButton from '@/components/toolbar/login-button';
 
 export interface AppBarProps {
   brand: string;
@@ -24,7 +24,7 @@ export default function Toolbar({
 
       <div className={classes.menus}>
         <LanguageSwitcher className={classes.langButton} />
-        <LogoutButton color="inherit" disableElevation />
+        <LoginButton color="inherit" />
       </div>
     </header>
   );

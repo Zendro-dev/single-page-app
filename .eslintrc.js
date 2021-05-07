@@ -66,6 +66,9 @@ module.exports = {
         // Override prettier/recommended to show errors as warnings
         'prettier/prettier': ['warn'],
 
+        // Disable display-name errors in static layout trees
+        'react/display-name': 'off',
+
         // We will use TypeScript's types for component props instead
         'react/prop-types': 'off',
 

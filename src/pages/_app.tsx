@@ -11,13 +11,15 @@ import { PageWithLayout } from '@/layouts';
 import store from '@/store';
 import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
+import '@/i18n';
 
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;
 }
 
 function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
-  const Layout = Component.layout ?? (({ children }) => <>{children}</>);
+  const Layout = Component.layout;
+  const withLayout = Component.withLayout;
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -29,9 +31,15 @@ function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
           }}
         >
           <DialogProvider>
-            <Layout brand="Zendro">
+            {withLayout ? (
+              withLayout(<Component {...pageProps} />)
+            ) : Layout ? (
+              <Layout brand="Zendro">
+                <Component {...pageProps} />
+              </Layout>
+            ) : (
               <Component {...pageProps} />
-            </Layout>
+            )}
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>

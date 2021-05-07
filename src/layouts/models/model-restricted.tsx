@@ -1,12 +1,8 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import React, {
-  PropsWithChildren,
-  ReactElement,
-  useLayoutEffect,
-  useState,
-} from 'react';
-import { Box } from '@material-ui/core';
+import React, { PropsWithChildren, ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Box, Button } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   InfoOutlined as InfoIcon,
@@ -14,9 +10,6 @@ import {
 } from '@material-ui/icons';
 import { useAuth, useModel } from '@/hooks';
 import { RecordUrlQuery } from '@/types/routes';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface RestrictedProps {
   info?: Record<string, string | undefined>;
@@ -36,32 +29,16 @@ export default function Restricted(
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const [allowed, setAllowed] = useState(false);
-  const [tokenIsValid, setTokenIsValid] = useState(false);
+  const isNotLoggedIn = auth.user === undefined;
+  const isNotAllowed =
+    urlQuery.model && !getModel(urlQuery.model).permissions.read;
 
-  useLayoutEffect(
-    function checkResourcePermissions() {
-      if (!auth.auth.user || !auth.auth.user.token) return;
+  const handleTerminateSession = (): void => {
+    router.push('/');
+    auth.logout();
+  };
 
-      if (urlQuery.model) {
-        const model = getModel(urlQuery.model);
-        if (model.permissions.read) setAllowed(true);
-      } else {
-        setAllowed(true);
-      }
-    },
-    [auth, getModel, urlQuery]
-  );
-
-  useLayoutEffect(
-    function checkTokenValidity() {
-      if (auth.auth.user && auth.auth.user.isValid) setTokenIsValid(true);
-      else setTokenIsValid(false);
-    },
-    [auth]
-  );
-
-  if (!allowed) {
+  if (isNotLoggedIn || isNotAllowed) {
     return (
       <Box
         display="flex"
@@ -74,8 +51,18 @@ export default function Restricted(
         <Box className={clsx(classes.card, classes.cardInfo)}>
           <InfoIcon />
           <Box>
-            <h1>{t('restricted.permissions-header')}</h1>
-            <p>{t('restricted.permissions-info')}</p>
+            {isNotLoggedIn && (
+              <>
+                <h1>{t('restricted.not-logged-header')}</h1>
+                <p>{t('restricted.not-logged-info')}</p>
+              </>
+            )}
+            {!isNotLoggedIn && isNotAllowed && (
+              <>
+                <h1>{t('restricted.not-allowed-header')}</h1>
+                <p>{t('restricted.not-allowed-info')}</p>
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -84,12 +71,15 @@ export default function Restricted(
 
   return (
     <>
-      {!tokenIsValid && (
+      {auth.status === 'expired' && (
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
-          <Box>
+          <Box className={classes.cardContent}>
             <h1>{t('restricted.token-exp-header')}</h1>
             <p>{t('restricted.token-exp-info')}</p>
+            <Button size="small" onClick={handleTerminateSession}>
+              {t('toolbar.logout')}
+            </Button>
           </Box>
         </Box>
       )}
@@ -158,6 +148,14 @@ const useStyles = makeStyles((theme) =>
         },
       },
     },
+    cardContent: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      [theme.breakpoints.up('sm')]: {
+        alignItems: 'start',
+      },
+    },
     cardInfo: {
       backgroundColor: theme.palette.primary.background,
       borderColor: theme.palette.primary.main,
@@ -195,6 +193,17 @@ const useStyles = makeStyles((theme) =>
       // Icon
       '& svg': {
         color: theme.palette.warning.main,
+      },
+
+      // Logout button
+      '& button': {
+        marginTop: theme.spacing(4),
+
+        fontWeight: 'bold',
+
+        border: '1px solid',
+        borderColor: theme.palette.warning.main,
+        color: theme.palette.warning.dark,
       },
     },
   })

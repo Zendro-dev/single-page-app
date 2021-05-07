@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CircularProgress,
   Fade,
@@ -9,33 +10,10 @@ import {
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { DataRecord } from '@/types/models';
 
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
-
 export interface TableRecord {
   data: DataRecord;
   isAssociated?: boolean;
 }
-
-// export interface EnhancedTableProps {
-//   attributes: ParsedAttribute[];
-//   filterID?: string | number;
-//   onRead?: (primaryKey: string | number) => void;
-//   onUpdate?: (primaryKey: string | number) => void;
-//   onDelete?: (primaryKey: string | number) => void;
-//   onSetOrder: (field: string) => void;
-
-//   records: TableRecord[];
-//   activeOrder: string;
-//   orderDirection: 'ASC' | 'DESC';
-//   isValidatingRecords: boolean;
-
-//   onAssociate?: TableRowAssociationHandler;
-//   associationView?: 'details' | 'update' | 'new';
-//   primaryKey: string;
-//   recordsToAdd?: (string | number)[];
-//   recordsToRemove?: (string | number)[];
-// }
 
 interface ZendroTableProps extends MuiTableProps {
   caption: string;

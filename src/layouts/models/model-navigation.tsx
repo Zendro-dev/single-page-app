@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Box } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -13,9 +14,6 @@ import {
 import { NavGroup, NavLink } from '@/components/navigation';
 import { AuthPermissions } from '@/types/auth';
 import { AppRoutes, ModelUrlQuery } from '@/types/routes';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface AppDrawerProps {
   className?: string;

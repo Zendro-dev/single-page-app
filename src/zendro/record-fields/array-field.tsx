@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Overwrite } from 'utility-types';
 
 import { Button, FormHelperText, InputAdornment } from '@material-ui/core';
@@ -25,9 +26,6 @@ import {
   AttributeScalarValue,
 } from '@/types/models';
 import { InputField } from '@/zendro/record-fields';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 type ArrayFieldProps = Overwrite<
   TextInputProps,

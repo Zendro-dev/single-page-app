@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
 import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
@@ -39,11 +40,11 @@ import {
 } from '@/zendro/model-table';
 import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
-import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
-import { useTranslation } from 'react-i18next';
+import { hasTokenExpiredErrors } from '@/utils/errors';
+import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
   associations: ParsedAssociation[];
@@ -146,24 +147,23 @@ export default function AssociationsTable({
   const tablePagination = useTablePagination(pagination);
 
   /* FETCH RECORDS */
-  const { mutate: mutateRecords } = useSWR(
+  const { mutate: mutateRecords } = useSWR<
+    { records: TableRecord[]; pageInfo?: PageInfo } | undefined
+  >(
     [
       recordsFilter,
       selectedAssoc.name,
       tableSearch,
       tableOrder,
       tablePagination,
+      zendro,
     ],
-    async (): Promise<
-      { records: TableRecord[]; pageInfo?: PageInfo } | undefined
-    > => {
+    async () => {
       const recordsQuery: AssocQuery =
         associationView === 'details' || recordsFilter === 'associated'
           ? zendro.queries[modelName].withFilter[selectedAssoc.target]
               .readFiltered
           : zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
-
-      let data: AssocResponse;
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -178,17 +178,10 @@ export default function AssociationsTable({
         },
       };
 
-      if (recordsQuery.transform) {
-        data = await zendro.metaRequest<AssocResponse>(recordsQuery.query, {
-          jq: recordsQuery.transform,
-          variables,
-        });
-      } else {
-        data = await zendro.request<AssocResponse>(
-          recordsQuery.query,
-          variables
-        );
-      }
+      const data = await zendro.request<AssocResponse>(recordsQuery.query, {
+        jq: recordsQuery.transform,
+        variables,
+      });
 
       if (data) {
         const assocName =
@@ -231,8 +224,8 @@ export default function AssociationsTable({
           ...model,
         });
 
-        // If association type is to_one the count can be directly derive from the data
-        // since its either 0 or 1. Since there is on resolver the useSWR for count won't fire
+        // If association type is "to_one", the count must be directly derived
+        // from the data (no count resolver exists). The count should be 0 or 1.
         if (selectedAssoc.type === 'to_one') {
           setRecordsTotal(data?.records.length ?? 0);
         }
@@ -249,7 +242,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar(
             t('errors.server-error', { status: clientError.response.status }),
             'error',
@@ -268,11 +261,11 @@ export default function AssociationsTable({
   );
 
   /* FETCH COUNT */
-  const { mutate: mutateCount } = useSWR(
+  const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     selectedAssoc.type !== 'to_one'
-      ? [recordsFilter, selectedAssoc.target, tableSearch]
+      ? [recordsFilter, selectedAssoc.target, tableSearch, zendro]
       : null,
-    async (): Promise<Record<'count', number> | undefined> => {
+    async () => {
       const countQuery =
         associationView === 'details' || recordsFilter === 'associated'
           ? zendro.queries[modelName].withFilter[selectedAssoc.target]
@@ -281,22 +274,15 @@ export default function AssociationsTable({
 
       if (!countQuery) return;
 
-      let data: Record<'count', number>;
-
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
         [primaryKey]: recordId,
       };
 
-      if (countQuery.transform) {
-        data = await zendro.metaRequest(countQuery.query, {
-          jq: countQuery.transform,
-          variables,
-        });
-      } else {
-        data = await zendro.request(countQuery.query, variables);
-      }
-      return data;
+      return await zendro.request(countQuery.query, {
+        jq: countQuery.transform,
+        variables,
+      });
     },
     {
       onSuccess: (data) => {
@@ -317,7 +303,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar(
             t('errors.server-error', { status: clientError.response.status }),
             'error',
@@ -433,18 +419,22 @@ export default function AssociationsTable({
     try {
       await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
-        variables
+        { variables }
       );
       showSnackbar(t('success.assoc-update'), 'success');
+      setSelectedRecords({
+        toAdd: [],
+        toRemove: [],
+      });
+      mutateRecords();
+      mutateCount();
     } catch (error) {
-      showSnackbar(t('errors.server-error'), 'error', error);
+      if (
+        error.response?.errors &&
+        !hasTokenExpiredErrors(error.response.errors)
+      )
+        showSnackbar(t('errors.server-error'), 'error', error);
     }
-    setSelectedRecords({
-      toAdd: [],
-      toRemove: [],
-    });
-    mutateRecords();
-    mutateCount();
   };
 
   const handleOnAssociationFilterSelect = (filter: string): void => {

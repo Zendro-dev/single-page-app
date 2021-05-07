@@ -1,4 +1,5 @@
 import { ReactElement, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
 
 import {
@@ -7,9 +8,6 @@ import {
 } from '@material-ui/icons';
 
 import LoginField, { LoginFieldProps } from './login-field';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface State {
   showPassword: boolean;

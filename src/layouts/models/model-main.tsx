@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -15,12 +16,9 @@ import useAuth from '@/hooks/useAuth';
 import { AppRoutes, RecordUrlQuery } from '@/types/routes';
 import { getPathRequest } from '@/utils/router';
 
-import Restricted from './restricted';
-import Navigation from './navigation';
+import Restricted from './model-restricted';
+import Navigation from './model-navigation';
 import { Divider } from '@material-ui/core';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 export interface ModelsProps {
   routes: AppRoutes;
@@ -32,7 +30,7 @@ export default function Models({
   showNav,
   ...props
 }: PropsWithChildren<ModelsProps>): ReactElement {
-  const { auth } = useAuth();
+  const auth = useAuth();
   const classes = useStyles();
   const router = useRouter();
   const { t } = useTranslation();

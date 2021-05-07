@@ -36,6 +36,10 @@
     "documentation": "Dokumentation",
     "github-info": "Hilf mit via pull request, issues und Feedback."
   },
+  "login-dialog": {
+    "title": "Login Formular",
+    "content": "Um sich auf der Website anzumelden, geben Sie bitte ihre E-Mail-Adresse und Passwort ein."
+  },
   "login-form": {
     "cancel": "Abbrechen",
     "hide-password": "Passwort verstecken",
@@ -99,10 +103,12 @@
     "update": "Aktualisieren"
   },
   "restricted": {
-    "permissions-header": "Zugriff zu dieser Seite ist gesperrt",
-    "permissions-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
+    "not-logged-header": "Sie sind nicht eingeloggt",
+    "not-logged-info": "Es scheint sie versuchen eine geschützte Seite zu erreichen und sind nicht eingeloggt. Nutzten sie den Login in der oberen rechten Ecke um ihre Nutzerdaten und Berechtigungen zu verifizieren.",
+    "not-allowed-header": "Zugriff zu dieser Seite ist gepserrt",
+    "not-allowed-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
     "token-exp-header": "Ihre Sitzung ist abgelaufen",
-    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke."
+    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke. Um die aktuelle Sitzung zu beenden nutzen sie den Logout."
   },
   "success": {
     "assoc-update": "Assoziation erfolgreich aktualisiert",

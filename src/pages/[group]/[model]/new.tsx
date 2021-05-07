@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 
@@ -22,9 +23,6 @@ import { parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface RecordProps {
   modelName: string;
@@ -93,12 +91,13 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
+
     const submit = async (): Promise<void> => {
       try {
         const createOne = zendro.queries[modelName].createOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           createOne.query,
-          dataRecord
+          { variables: dataRecord }
         );
 
         router.push(

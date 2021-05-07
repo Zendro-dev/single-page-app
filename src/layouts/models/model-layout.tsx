@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -7,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 
-import { Box, Fab, useMediaQuery, Zoom } from '@material-ui/core';
+import { Fab, useMediaQuery, Zoom } from '@material-ui/core';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
@@ -16,9 +17,9 @@ import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';
-import Toolbar from './toolbar';
-import { useRouter } from 'next/router';
-const Models = dynamic(() => import('./main'), { ssr: false });
+
+import AppLayout from '../app/app-layout';
+const Models = dynamic(() => import('./model-main'), { ssr: false });
 
 export interface ModelsDesktopLayoutProps {
   brand?: string;
@@ -26,7 +27,6 @@ export interface ModelsDesktopLayoutProps {
 }
 
 export default function ModelsLayout({
-  brand,
   routes,
   children,
 }: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
@@ -56,29 +56,30 @@ export default function ModelsLayout({
   );
 
   return (
-    <div className={classes.root}>
-      <Toolbar brand={brand ?? ''}>
+    <AppLayout
+      action={
         <Zoom in={true} timeout={500}>
-          <Box>
-            <Fab size="small" onClick={() => setShowNav((state) => !state)}>
-              {showNav ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </Fab>
-          </Box>
+          <Fab
+            className={classes.fab}
+            onClick={() => setShowNav((state) => !state)}
+          >
+            {showNav ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </Fab>
         </Zoom>
-      </Toolbar>
-
+      }
+    >
       <Models showNav={showNav} routes={routes ?? appRoutes}>
         {children}
       </Models>
-    </div>
+    </AppLayout>
   );
 }
 
-const useStyles = makeStyles(() => {
-  return createStyles({
-    root: {
-      height: '100%',
-      overflowX: 'hidden',
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    fab: {
+      width: theme.spacing(9),
+      height: theme.spacing(3),
     },
-  });
-});
+  })
+);
