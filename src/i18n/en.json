@@ -108,7 +108,7 @@
     "not-allowed-header": "Access to this page is restricted",
     "not-allowed-info": "It appears you do not have sufficient permissions to access this page. If you think this is an error, please contact your administrator.",
     "token-exp-header": "Your session has expired",
-    "token-exp-info": "It appears your current session has expired. This page will not function until you re-validate your identity. You can do so using the sign-in button in the top right corner. You may also exit the current session by clicking on the Logout button below."
+    "token-exp-info": "It appears your current session has expired. This page will not function until you re-validate your identity. You can do so using the sign-in button in the top right corner. You may also exit the current session by closing this window."
   },
   "success": {
     "assoc-update": "Associations updated successfully",
@@ -116,7 +116,6 @@
   },
   "toolbar": {
     "change-language": "Change language",
-    "login": "Login",
-    "logout": "Logout"
+    "login": "Login"
   }
 }
