@@ -54,8 +54,9 @@ export default function Restricted(
                 <h1>You are not logged in.</h1>
                 <p>
                   It appears you are trying to access a protected page and have
-                  not signed into the application Please, login using button at
-                  the top right corner so we can verify your permissions.
+                  not signed into the application. Please, login using the
+                  button at the top right corner so we can verify your
+                  permissions.
                 </p>
               </>
             )}
@@ -83,10 +84,10 @@ export default function Restricted(
           <Box className={classes.cardContent}>
             <h1>Your session has expired</h1>
             <p>
-              It appears your current session has expired. Please, re-validate
-              your identity using the sign-in button in the top right corner.
-              You may also terminate the current session by clicking on the
-              Logout button below.
+              It appears your current session has expired. This page will not
+              function until you re-validate your identity. You can do so using
+              the sign-in button in the top right corner. You may also exit the
+              current session by clicking on the Logout button below.
             </p>
             <Button size="small" onClick={handleTerminateSession}>
               Logout
