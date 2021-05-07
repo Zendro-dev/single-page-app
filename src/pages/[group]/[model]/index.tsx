@@ -20,6 +20,7 @@ import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
 import { IconButton } from '@/components/buttons';
+import Buffer from '@/components/data-loading/buffer';
 import { EXPORT_URL } from '@/config/globals';
 
 import {
@@ -222,7 +223,7 @@ const Model: PageWithLayout<ModelProps> = ({
   /* DATA FETCHING */
 
   // Records
-  const { mutate: mutateRecords } = useSWR(
+  const { mutate: mutateRecords, isValidating: isLoadingRecords } = useSWR(
     [tableSearch, tableOrder, tablePagination],
     (
       tableSearch: QueryVariableSearch,
@@ -357,6 +358,10 @@ const Model: PageWithLayout<ModelProps> = ({
         />
 
         <div className={classes.toolbarActions}>
+          <Buffer
+            date={new Date().toLocaleTimeString()}
+            isLoading={isLoadingRecords}
+          />
           <IconButton
             tooltip={t('model-table.reload', { modelName })}
             onClick={() => mutateRecords()}
