@@ -20,7 +20,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { parseGraphqlErrors } from '@/utils/errors';
+import { isTokenExpiredError, parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
 import AssociationsTable from '@/zendro/associations-table';
@@ -59,13 +59,22 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const dialog = useDialog();
   const model = useModel(modelName);
   const router = useRouter();
+  const urlQuery = router.query as ModelUrlQuery;
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
 
-  /* REQUEST */
+  /* STATE */
 
-  const urlQuery = router.query as ModelUrlQuery;
+  const [recordData, setRecordData] = useState<DataRecord>({
+    [model.schema.primaryKey]: urlQuery.id ?? null,
+  });
+  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
+  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
+    'attributes'
+  );
+
+  /* REQUEST */
 
   /**
    * Query data from the GraphQL endpoint.
@@ -74,37 +83,41 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
     DataRecord | undefined,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    urlQuery.id ? [zendro.queries[modelName].readOne.query, urlQuery.id] : null,
-    async (query: string, id: string) => {
+    [zendro, urlQuery.id],
+    async () => {
       const request = zendro.queries[modelName].readOne;
-      const response = await zendro.request<Record<string, DataRecord>>(query, {
-        [model.schema.primaryKey]: id,
-      });
+      const variables = {
+        [model.schema.primaryKey]: urlQuery.id,
+      };
+      const response = await zendro.request<Record<string, DataRecord>>(
+        request.query,
+        { variables }
+      );
       if (response) return response[request.resolver];
     },
     {
       revalidateOnFocus: false,
       shouldRetryOnError: false,
       onSuccess: (data) => {
-        setRecordData(data);
+        setRecordData(
+          data ?? {
+            [model.schema.primaryKey]: urlQuery.id ?? null,
+          }
+        );
         setAjvErrors(undefined);
       },
       onError: (error) => {
-        showSnackbar(
-          'There was an error in the server request',
-          'error',
-          error
-        );
+        if (
+          error.response?.errors &&
+          !isTokenExpiredError(error.response.errors)
+        )
+          showSnackbar(
+            'There was an error in the server request',
+            'error',
+            error
+          );
       },
     }
-  );
-
-  /* STATE */
-
-  const [recordData, setRecordData] = useState<DataRecord>();
-  const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
   );
 
   /* ACTION HANDLERS */
@@ -149,10 +162,14 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           const variables = {
             [model.schema.primaryKey]: recordData[model.schema.primaryKey],
           };
-          await zendro.request(query, variables);
+          await zendro.request(query, { variables });
           router.push(`/${urlQuery.group}/${modelName}`);
         } catch (error) {
-          showSnackbar('Error in request to server', 'error', error);
+          if (
+            error.response?.errors &&
+            !isTokenExpiredError(error.response.errors)
+          )
+            showSnackbar('Error in request to server', 'error', error);
         }
       },
     });
@@ -206,7 +223,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         const request = zendro.queries[modelName].updateOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           request.query,
-          dataRecord
+          { variables: dataRecord }
         );
 
         mutateRecord(response[request.resolver]);

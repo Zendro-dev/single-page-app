@@ -58,6 +58,7 @@ import {
   UseTablePaginationProps,
   useTableSearch,
 } from '@/zendro/model-table';
+import { isTokenExpiredError } from '@/utils/errors';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
@@ -163,11 +164,17 @@ const Model: PageWithLayout<ModelProps> = ({
         'success'
       );
     } catch (error) {
-      showSnackbar(
-        'An error occurred while trying to import the CSV file. Please contact your administrator.',
-        'error',
-        error
-      );
+      const clientError = error as ExtendedClientError;
+
+      if (
+        clientError.response?.errors &&
+        !isTokenExpiredError(clientError.response.errors)
+      )
+        showSnackbar(
+          'An error occurred while trying to import the CSV file. Please contact your administrator.',
+          'error',
+          error
+        );
     }
   };
 
@@ -184,7 +191,13 @@ const Model: PageWithLayout<ModelProps> = ({
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      showSnackbar('There was an error with the request', 'error', error);
+      const clientError = error as ExtendedClientError;
+
+      if (
+        clientError.response?.errors &&
+        !isTokenExpiredError(clientError.response.errors)
+      )
+        showSnackbar('There was an error with the request', 'error', error);
     }
   };
 
@@ -209,15 +222,22 @@ const Model: PageWithLayout<ModelProps> = ({
       okText: 'YES',
       cancelText: 'NO',
       onOk: async () => {
-        const idField = attributes[0].name;
+        const query = zendro.queries[modelName].deleteOne.query;
+        const variables = {
+          [model.schema.primaryKey]: primaryKey,
+        };
         try {
-          await zendro.request(zendro.queries[modelName].deleteOne.query, {
-            [idField]: primaryKey,
-          });
+          await zendro.request(query, { variables });
           mutateRecords();
           mutateCount();
         } catch (error) {
-          showSnackbar('Error in request to server', 'error', error);
+          const clientError = error as ExtendedClientError;
+
+          if (
+            clientError.response?.errors &&
+            !isTokenExpiredError(clientError.response.errors)
+          )
+            showSnackbar('Error in request to server', 'error', error);
         }
       },
     });
@@ -227,11 +247,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
   // Records
   const { mutate: mutateRecords } = useSWR<
-    | {
-        records: TableRecord[];
-        pageInfo: PageInfo;
-      }
-    | undefined
+    { records: TableRecord[]; pageInfo: PageInfo } | undefined
   >(
     [tableSearch, tableOrder, tablePagination, zendro],
     async (
@@ -245,6 +261,7 @@ const Model: PageWithLayout<ModelProps> = ({
         order: tableOrder,
         pagination: tablePagination,
       };
+
       const data = await zendro.request<{
         pageInfo: PageInfo;
         records: DataRecord[];
@@ -280,7 +297,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -295,10 +312,11 @@ const Model: PageWithLayout<ModelProps> = ({
     Record<'count', number>,
     ExtendedClientError<Record<'count', number>> | Error
   >(
-    [tableSearch],
+    [tableSearch, zendro],
     (tableSearch: QueryVariableSearch) => {
       const { query, transform } = zendro.queries[modelName].countAll;
       const variables: QueryVariables = { search: tableSearch };
+
       return zendro.request(query, {
         jq: transform,
         variables,
@@ -323,7 +341,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)

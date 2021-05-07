@@ -39,10 +39,11 @@ import {
 } from '@/zendro/model-table';
 import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
-import { UseOrderProps } from '@/zendro/model-table/hooks/useOrder';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
+import { isTokenExpiredError } from '@/utils/errors';
+import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
   associations: ParsedAssociation[];
@@ -153,6 +154,7 @@ export default function AssociationsTable({
       tableSearch,
       tableOrder,
       tablePagination,
+      zendro,
     ],
     async () => {
       const recordsQuery: AssocQuery =
@@ -220,8 +222,8 @@ export default function AssociationsTable({
           ...model,
         });
 
-        // If association type is to_one the count can be directly derive from the data
-        // since its either 0 or 1. Since there is on resolver the useSWR for count won't fire
+        // If association type is "to_one", the count must be directly derived
+        // from the data (no count resolver exists). The count should be 0 or 1.
         if (selectedAssoc.type === 'to_one') {
           setRecordsTotal(data?.records.length ?? 0);
         }
@@ -238,7 +240,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -251,7 +253,7 @@ export default function AssociationsTable({
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     selectedAssoc.type !== 'to_one'
-      ? [recordsFilter, selectedAssoc.target, tableSearch]
+      ? [recordsFilter, selectedAssoc.target, tableSearch, zendro]
       : null,
     async () => {
       const countQuery =
@@ -291,7 +293,7 @@ export default function AssociationsTable({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !isTokenExpiredError(graphqlErrors))
           showSnackbar('Error in Graphql response', 'error', graphqlErrors);
 
         if (genericError)
@@ -399,7 +401,7 @@ export default function AssociationsTable({
     try {
       await zendro.request<Record<string, DataRecord>>(
         zendro.queries[modelName].updateOne.query,
-        variables
+        { variables }
       );
       showSnackbar('Associations updated successfully', 'success');
       setSelectedRecords({
@@ -409,7 +411,8 @@ export default function AssociationsTable({
       mutateRecords();
       mutateCount();
     } catch (error) {
-      showSnackbar('There was an error', 'error', error);
+      if (error.response?.errors && !isTokenExpiredError(error.response.errors))
+        showSnackbar('There was an error', 'error', error);
     }
   };
 

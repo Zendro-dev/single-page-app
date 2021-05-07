@@ -89,12 +89,13 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
+
     const submit = async (): Promise<void> => {
       try {
         const createOne = zendro.queries[modelName].createOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           createOne.query,
-          dataRecord
+          { variables: dataRecord }
         );
 
         router.push(
