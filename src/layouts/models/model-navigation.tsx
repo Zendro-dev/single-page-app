@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Box } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -28,6 +29,7 @@ export default function Navigation({
   const classes = useStyles();
   const router = useRouter();
   const urlQuery = router.query as ModelUrlQuery;
+  const { t } = useTranslation();
 
   const canAccessAdminRoutes = routes.admin.some(
     (route) =>
@@ -56,14 +58,14 @@ export default function Navigation({
         className={classes.homeLink}
         href="/models"
         icon={HomeIcon}
-        text="Home"
+        text={t('models-layout.home')}
         textProps={{
           fontWeight: 'bold',
         }}
       />
 
       {canAccessModelRoutes && (
-        <NavGroup icon={ModelsIcon} label="Models">
+        <NavGroup icon={ModelsIcon} label={t('models-layout.models')}>
           {routes.models.map(
             ({ name, href }) =>
               canAccessRoute(name) && (
@@ -81,7 +83,7 @@ export default function Navigation({
       )}
 
       {canAccessAdminRoutes && (
-        <NavGroup icon={AdminIcon} label="Admin">
+        <NavGroup icon={AdminIcon} label={t('models-layout.admin')}>
           {routes.admin.map(
             ({ name, href }) =>
               canAccessRoute(name) && (

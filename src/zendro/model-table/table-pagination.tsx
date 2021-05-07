@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -50,6 +51,7 @@ export default function RecordsTablePagination({
   ...props
 }: RecordsTablePaginationProps): ReactElement {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleOnPageChange = (position: TablePaginationPosition) => () => {
     if (!props.onPageChange) return;
@@ -73,7 +75,9 @@ export default function RecordsTablePagination({
   return (
     <Box display="flex" className={classes.pagination}>
       <FormControl className={classes.paginationLimit}>
-        <InputLabel id="pagination">Rows</InputLabel>
+        <InputLabel id="pagination">
+          {t('model-table.pagination-rows')}
+        </InputLabel>
         <Select
           labelId="pagination"
           variant="standard"
@@ -90,12 +94,15 @@ export default function RecordsTablePagination({
 
       {count >= 0 && (
         <div>
-          <InputLabel shrink>Count</InputLabel>
+          <InputLabel shrink>{t('model-table.pagination-count')}</InputLabel>
           <InputBase value={count} disabled={true} />
         </div>
       )}
 
-      <Tooltip title="First page" style={{ marginLeft: 'auto' }}>
+      <Tooltip
+        title={t('model-table.pagination-first')}
+        style={{ marginLeft: 'auto' }}
+      >
         <span>
           <IconButton
             onClick={handleOnPageChange('first')}
@@ -106,7 +113,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title="Previous page">
+      <Tooltip title={t('model-table.pagination-previous')}>
         <span>
           <IconButton
             onClick={handleOnPageChange('previous')}
@@ -117,7 +124,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title="Next page">
+      <Tooltip title={t('model-table.pagination-next')}>
         <span>
           <IconButton
             onClick={handleOnPageChange('next')}
@@ -128,7 +135,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title="Last page">
+      <Tooltip title={t('model-table.pagination-last')}>
         <span>
           <IconButton
             onClick={handleOnPageChange('last')}

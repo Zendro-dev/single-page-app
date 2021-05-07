@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Button } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
@@ -26,6 +27,7 @@ export default function Restricted(
   const urlQuery = router.query as Partial<RecordUrlQuery>;
   const getModel = useModel();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const isNotLoggedIn = auth.user === undefined;
   const isNotAllowed =
@@ -51,23 +53,14 @@ export default function Restricted(
           <Box>
             {isNotLoggedIn && (
               <>
-                <h1>You are not logged in.</h1>
-                <p>
-                  It appears you are trying to access a protected page and have
-                  not signed into the application. Please, login using the
-                  button at the top right corner so we can verify your
-                  permissions.
-                </p>
+                <h1>{t('restricted.not-logged-header')}</h1>
+                <p>{t('restricted.not-logged-info')}</p>
               </>
             )}
             {!isNotLoggedIn && isNotAllowed && (
               <>
-                <h1>Access to this page is restricted.</h1>
-                <p>
-                  It appears you do not have sufficient permissions to access
-                  this page. If you think this is an error, please contact your
-                  administrator.
-                </p>
+                <h1>{t('restricted.not-allowed-header')}</h1>
+                <p>{t('restricted.not-allowed-info')}</p>
               </>
             )}
           </Box>
@@ -82,15 +75,10 @@ export default function Restricted(
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box className={classes.cardContent}>
-            <h1>Your session has expired</h1>
-            <p>
-              It appears your current session has expired. This page will not
-              function until you re-validate your identity. You can do so using
-              the sign-in button in the top right corner. You may also exit the
-              current session by clicking on the Logout button below.
-            </p>
+            <h1>{t('restricted.token-exp-header')}</h1>
+            <p>{t('restricted.token-exp-info')}</p>
             <Button size="small" onClick={handleTerminateSession}>
-              Logout
+              {t('toolbar.logout')}
             </Button>
           </Box>
         </Box>

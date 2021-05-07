@@ -11,6 +11,7 @@ import { PageWithLayout } from '@/layouts';
 import store from '@/store';
 import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
+import '@/i18n';
 
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;

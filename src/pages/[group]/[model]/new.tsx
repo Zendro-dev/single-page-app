@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 
@@ -57,6 +58,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const urlQuery = router.query as ModelUrlQuery;
+  const { t } = useTranslation();
 
   /* STATE */
 
@@ -70,10 +72,10 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const handleOnCancel: ActionHandler = (formData, formStats) => {
     if (formStats.unset < formData.length) {
       return dialog.openConfirm({
-        title: 'Some fields have been modified.',
-        message: 'Do you want to leave anyway?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: t('dialogs.modified-info'),
+        message: t('dialogs.leave-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
       });
     }
@@ -113,7 +115,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
         if (genericError) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
+            t('errors.server-error', { status: clientError.response.status }),
             'error',
             clientError
           );
@@ -127,8 +129,8 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         // Send generic GraphQL errors to the notification queue
         if (nonValidationErrors.length > 0) {
           showSnackbar(
-            `The server returned a ${clientError.response.status} error`,
-            `error`,
+            t('errors.server-error', { status: clientError.response.status }),
+            'error',
             nonValidationErrors
           );
         }
@@ -140,17 +142,17 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     if (formStats.clientErrors > 0) {
       return dialog.openMessage({
-        title: 'Validation errors',
-        message: 'Please fix client side validation errors',
+        title: t('dialogs.validation-title'),
+        message: t('dialogs.validation-info'),
       });
     }
 
     if (formStats.unset > 0) {
       return dialog.openConfirm({
-        title: `Some fields are empty.`,
-        message: 'Do you want to continue anyway?',
-        okText: 'YES',
-        cancelText: 'NO',
+        title: t('dialogs.submit-empty-info'),
+        message: t('dialogs.submit-empty-confirm'),
+        okText: t('dialogs.ok-text'),
+        cancelText: t('dialogs.cancel-text'),
         onOk: submit,
       });
     }

@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   createStyles,
   Dialog,
@@ -28,7 +28,7 @@ export default function LoginButton({
 }: LogoutButtonProps): ReactElement {
   const auth = useAuth();
   const classes = useStyles();
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -88,7 +88,7 @@ export default function LoginButton({
       >
         <DialogTitle id="login-form-dialog">
           <Typography component="span" variant="h6" fontWeight="bold">
-            Login Form
+            {t('login-dialog.title')}
           </Typography>
           <IconButton
             aria-label="close"
@@ -100,8 +100,7 @@ export default function LoginButton({
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="login-form-dialog-description">
-            To log into this website, please enter your email address and
-            password below.
+            {t('login-dialog.content')}
           </DialogContentText>
           <LoginForm onSubmit={handleOnLogin} />
         </DialogContent>

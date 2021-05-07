@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -32,6 +33,7 @@ export default function Models({
   const auth = useAuth();
   const classes = useStyles();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { group, model, id } = router.query as RecordUrlQuery;
   const request = getPathRequest(router.asPath, model);
@@ -39,7 +41,7 @@ export default function Models({
 
   if (group) {
     crumbs.push({
-      text: group,
+      text: t((`models-layout.${group}` as unknown) as TemplateStringsArray),
       icon: ModelIcon,
     });
   }
@@ -54,11 +56,11 @@ export default function Models({
     crumbs.push({
       text:
         request === 'read'
-          ? 'details'
+          ? t('models-layout.read')
           : request === 'update'
-          ? 'edit'
+          ? t('models-layout.update')
           : request === 'create'
-          ? 'new'
+          ? t('models-layout.create')
           : request,
       icon:
         request === 'read'

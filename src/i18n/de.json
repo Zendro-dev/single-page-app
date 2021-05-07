@@ -1,0 +1,122 @@
+{
+  "associations": {
+    "assoc-select": "{{ modelName }} Assoziaton auswählen",
+    "click-to-associate": "Zum assoziieren klicken",
+    "click-to-disassociate": "Zum disassoziieren klicken",
+    "filter-associated": "Assoziiert",
+    "filter-no-filter": "Keine Filter",
+    "filter-not-associated": "Nicht Assoziiert",
+    "filter-select": "{{ assocName }} Filter auswählen",
+    "filter-to-add": "Für Assoziation markiert",
+    "filter-to-remove": "Für Disassoziation markiert",
+    "mark-to-associate": "Markiert für Assoziation, zum zurücksetzen klicken",
+    "mark-to-disassociate": "Markiert für Disassoziation, zum zurücksetzen klicken",
+    "save": "{{ assocName }} Daten speichern"
+  },
+  "dialogs": {
+    "cancel-text": "Nein",
+    "delete-confirm": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+    "delete-info": "Element mit Id {{ recordId }} in Model {{ modelName }}",
+    "leave-confirm": "Trotzdem verlassen?",
+    "modified-info": "Einige Felder wurden modifiziert",
+    "ok-text": "Ja",
+    "reload-confirm": "Trotzdem aktualisieren?",
+    "submit-empty-confirm": "Trotzdem fortfahren?",
+    "submit-empty-info": "Einige Felder sind leer. {{ idMsg }}",
+    "validation-info": "Bitte beseitigen sie die Client-side Validierungs Fehler",
+    "validation-title": "Validierungs Fehler"
+  },
+  "errors": {
+    "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator.",
+    "login-failed": "Anmeldung fehlgeschlagen",
+    "server-error": "Fehler {{ status }} in Anfrage zum Server"
+  },
+  "home": {
+    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "documentation": "Dokumentation",
+    "github-info": "Hilf mit via pull request, issues und Feedback."
+  },
+  "login-dialog": {
+    "title": "Login Formular",
+    "content": "Um sich auf der Website anzumelden, geben Sie bitte ihre E-Mail-Adresse und Passwort ein."
+  },
+  "login-form": {
+    "cancel": "Abbrechen",
+    "hide-password": "Passwort verstecken",
+    "login": "Einloggen",
+    "password": "Passwort",
+    "show-password": "Passwort anzeigen"
+  },
+  "model-table": {
+    "add": "{{ modelName }} hinzufügen",
+    "caption": "Tabelle für {{ modelName }}",
+    "delete": "{{ recordId }} löschen",
+    "download-data": "{{ modelName }} Daten als csv herunterladen",
+    "download-template": "{{ modelName }} csv template herunterladen",
+    "edit": "{{ recordId }} bearbeiten",
+    "header-actions": "Operationen",
+    "header-id-tooltip": "Eindeutige Id",
+    "import": "{{ modelName }} Daten aus csv importieren",
+    "no-data": "Keine Daten verfügbar",
+    "pagination-count": "Anzahl",
+    "pagination-first": "Erste Seite",
+    "pagination-last": "Letzte Seite",
+    "pagination-next": "Nächste Seite",
+    "pagination-previous": "Vorige Seite",
+    "pagination-rows": "Reihen",
+    "reload": "Aktualisiere {{ modelName }} Daten",
+    "search-clear": "Suche löschen",
+    "search-label": "Suche {{ modelName }}",
+    "search-label-default": "Suche eingeben",
+    "search-tooltip": "Suche",
+    "view": "{{ recordId }} anzeigen"
+  },
+  "models-layout": {
+    "admin": "Admin",
+    "create": "Neu",
+    "home": "Home",
+    "models": "Modelle",
+    "read": "Details",
+    "update": "Bearbeiten"
+  },
+  "record-fields": {
+    "array-add": "Element hinzufügen",
+    "array-delete": "Element löschen",
+    "array-unset": "Element zurücksetzen",
+    "primary-key": "{{ name }} ist der primary key",
+    "read-only": "Dieses Feld kann nicht modifiziert werden",
+    "unset": "Wert zurücksetzen"
+  },
+  "record-form": {
+    "action-delete": "Eintrag löschen",
+    "action-exit": "Formular verlassen",
+    "action-read": "Details anzeigen",
+    "action-reload": "Daten aktualisieren",
+    "action-submit": "Änderungen speichern",
+    "action-update": "Eintrag bearbeiten",
+    "completed": "Abgeschlossen",
+    "create": "Anlegen",
+    "read": "Lesen",
+    "read-only": "Das Formular ist schreibgeschützt",
+    "tab-associations": "Assoziationen",
+    "tab-attributes": "Attribute",
+    "update": "Aktualisieren"
+  },
+  "restricted": {
+    "not-logged-header": "Sie sind nicht eingeloggt",
+    "not-logged-info": "Es scheint sie versuchen eine geschützte Seite zu erreichen und sind nicht eingeloggt. Nutzten sie den Login in der oberen rechten Ecke um ihre Nutzerdaten und Berechtigungen zu verifizieren.",
+    "not-allowed-header": "Zugriff zu dieser Seite ist gepserrt",
+    "not-allowed-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
+    "token-exp-header": "Ihre Sitzung ist abgelaufen",
+    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke. Um die aktuelle Sitzung zu beenden nutzen sie den Logout."
+  },
+  "success": {
+    "assoc-update": "Assoziation erfolgreich aktualisiert",
+    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt."
+  },
+  "toolbar": {
+    "change-language": "Sprache ändern",
+    "login": "Einloggen",
+    "logout": "Ausloggen"
+  }
+}

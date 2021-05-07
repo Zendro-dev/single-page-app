@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { useRef, useState } from 'react';
+import { ReactElement, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -10,10 +10,11 @@ import {
   Typography,
 } from '@material-ui/core';
 import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
-import i18n from '../../i18n';
+import { ClientOnly } from '../wrappers';
 
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   const classes = useStyles();
+  const { t, i18n } = useTranslation();
 
   const translations = useRef([
     { language: 'Español', lcode: 'es-MX' },
@@ -41,22 +42,23 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   > = (): void => {
     setTranslationAnchorEl(undefined);
   };
-
   return (
     <>
       {/* Translate.icon */}
-      <Tooltip title="Change language">
-        <IconButton
-          {...props}
-          id="language-switcher-button"
-          aria-controls="language-switcher-menu"
-          aria-haspopup="true"
-          aria-expanded={translationAnchorEl ? 'true' : undefined}
-          onClick={handleTranslationIconClick}
-        >
-          <TranslateIcon />
-        </IconButton>
-      </Tooltip>
+      <ClientOnly>
+        <Tooltip title={t('toolbar.change-language')}>
+          <IconButton
+            {...props}
+            id="language-switcher-button"
+            aria-controls="language-switcher-menu"
+            aria-haspopup="true"
+            aria-expanded={translationAnchorEl ? 'true' : undefined}
+            onClick={handleTranslationIconClick}
+          >
+            <TranslateIcon />
+          </IconButton>
+        </Tooltip>
+      </ClientOnly>
 
       {/* Translate.menu */}
       <Menu

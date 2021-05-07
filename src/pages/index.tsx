@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import { makeStyles, createStyles, Theme } from '@material-ui/core';
-
 import { AppLayout, PageWithLayout } from '@/layouts';
+import { useTranslation } from 'react-i18next';
+import { ClientOnly } from '@/components/wrappers';
 
 const Home: PageWithLayout = () => {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   return (
     <div className={classes.container}>
@@ -16,27 +18,29 @@ const Home: PageWithLayout = () => {
       <main className={classes.main}>
         <img className={classes.banner} src="/banner.png" alt="zendro banner" />
 
-        <div className={classes.cardContainer}>
-          <a
-            className={classes.card}
-            href="https://zendro-dev.github.io"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Zendro features and API.</p>
-          </a>
+        <ClientOnly>
+          <div className={classes.cardContainer}>
+            <a
+              className={classes.card}
+              href="https://zendro-dev.github.io"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h3>{t('home.documentation')} &rarr;</h3>
+              <p>{t('home.documenation-info')}</p>
+            </a>
 
-          <a
-            className={classes.card}
-            href="https://github.com/Zendro-dev"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3>Github &rarr;</h3>
-            <p>Contribute with pull requests, issues, and feedback</p>
-          </a>
-        </div>
+            <a
+              className={classes.card}
+              href="https://github.com/Zendro-dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h3>Github &rarr;</h3>
+              <p>{t('home.github-info')}</p>
+            </a>
+          </div>
+        </ClientOnly>
       </main>
 
       <footer className={classes.footer}>

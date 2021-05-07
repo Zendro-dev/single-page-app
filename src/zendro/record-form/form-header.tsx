@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { Box, Tooltip, Typography } from '@material-ui/core';
 import { Lock as LockIcon } from '@material-ui/icons';
@@ -17,6 +18,7 @@ export default function FormHeader({
   title,
 }: FormHeaderProps): ReactElement {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -28,7 +30,7 @@ export default function FormHeader({
     >
       <Box display="flex" alignItems="center">
         {locked && (
-          <Tooltip title="The form is in read-only mode">
+          <Tooltip title={t('record-form.read-only')}>
             <LockIcon color="secondary" className={classes.lockedFormIcon} />
           </Tooltip>
         )}

@@ -1,4 +1,5 @@
 import { KeyboardEventHandler, ReactElement, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InputAdornment, TextField } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -23,6 +24,7 @@ export default function SearchField({
 }: SearchFieldProps): ReactElement {
   const [text, setText] = useState(value);
   const classes = useStyles();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setText(value);
@@ -46,7 +48,7 @@ export default function SearchField({
 
   return (
     <TextField
-      label={placeholder ?? 'Type your search'}
+      label={placeholder ?? t('model-table.search-label-default')}
       value={text}
       variant="outlined"
       className={classes.searchField}
@@ -54,7 +56,11 @@ export default function SearchField({
         onKeyDown: searchInputKeyDown,
         startAdornment: (
           <InputAdornment position="start">
-            <IconButton size="small" tooltip="Search" onClick={searchIconClick}>
+            <IconButton
+              size="small"
+              tooltip={t('model-table.search-tooltip')}
+              onClick={searchIconClick}
+            >
               <SearchIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
@@ -64,7 +70,7 @@ export default function SearchField({
             <IconButton
               component="span"
               size="small"
-              tooltip="Clear search"
+              tooltip={t('model-table.search-clear')}
               disabled={!value}
               onClick={onReset}
             >

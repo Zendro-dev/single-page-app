@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -54,6 +55,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
+  const { t } = useTranslation();
 
   /* STATE */
 
@@ -97,11 +99,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           error.response?.errors &&
           !hasTokenExpiredErrors(error.response.errors)
         )
-          showSnackbar(
-            'There was an error in the server request',
-            'error',
-            error
-          );
+          showSnackbar(t('errors.server-error'), 'error', error);
       },
     }
   );
@@ -151,9 +149,9 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         onChange={handleOnTabChange}
         variant="fullWidth"
       >
-        <Tab label="Attributes" value="attributes" />
+        <Tab label={t('record-form.tab-attributes')} value="attributes" />
         <Tab
-          label="Associations"
+          label={t('record-form.tab-associations')}
           value="associations"
           disabled={model.schema.associations?.length === 0}
         />

@@ -1,0 +1,122 @@
+{
+  "associations": {
+    "assoc-select": "",
+    "click-to-associate": "",
+    "click-to-disassociate": "",
+    "filter-associated": "",
+    "filter-no-filter": "",
+    "filter-not-associated": "",
+    "filter-select": "",
+    "filter-to-add": "",
+    "filter-to-remove": "",
+    "mark-to-associate": "",
+    "mark-to-disassociate": "",
+    "save": ""
+  },
+  "dialogs": {
+    "cancel-text": "",
+    "delete-confirm": "",
+    "delete-info": "",
+    "leave-confirm": "",
+    "modified-info": "",
+    "ok-text": "",
+    "reload-confirm": "",
+    "submit-empty-confirm": "",
+    "submit-empty-info": "",
+    "validation-info": "",
+    "validation-title": ""
+  },
+  "errors": {
+    "csv-import": "",
+    "login-failed": "",
+    "server-error": ""
+  },
+  "home": {
+    "documenation-info": "",
+    "documentation": "",
+    "github-info": ""
+  },
+  "login-dialog": {
+    "title": "",
+    "content": ""
+  },
+  "login-form": {
+    "cancel": "",
+    "hide-password": "",
+    "login": "",
+    "password": "",
+    "show-password": ""
+  },
+  "model-table": {
+    "add": "",
+    "caption": "",
+    "delete": "",
+    "download-data": "",
+    "download-template": "",
+    "edit": "",
+    "header-actions": "",
+    "header-id-tooltip": "",
+    "import": "",
+    "no-data": "",
+    "pagination-count": "",
+    "pagination-first": "",
+    "pagination-last": "",
+    "pagination-next": "",
+    "pagination-previous": "",
+    "pagination-rows": "",
+    "reload": "",
+    "search-clear": "",
+    "search-label": "Buscar {{ modelName }}",
+    "search-label-default": "",
+    "search-tooltip": "",
+    "view": ""
+  },
+  "models-layout": {
+    "admin": "",
+    "create": "",
+    "home": "",
+    "models": "",
+    "read": "",
+    "update": ""
+  },
+  "record-fields": {
+    "array-add": "",
+    "array-delete": "",
+    "array-unset": "",
+    "primary-key": "",
+    "read-only": "",
+    "unset": ""
+  },
+  "record-form": {
+    "action-delete": "",
+    "action-exit": "",
+    "action-read": "",
+    "action-reload": "",
+    "action-submit": "",
+    "action-update": "",
+    "completed": "",
+    "create": "",
+    "read": "",
+    "read-only": "",
+    "tab-associations": "",
+    "tab-attributes": "",
+    "update": ""
+  },
+  "restricted": {
+    "not-logged-header": "",
+    "not-logged-info": "",
+    "not-allowed-header": "",
+    "not-allowed-info": "",
+    "token-exp-header": "",
+    "token-exp-info": ""
+  },
+  "success": {
+    "assoc-update": "",
+    "csv-import": ""
+  },
+  "toolbar": {
+    "change-language": "Cambiar idioma",
+    "login": "",
+    "logout": "Salir"
+  }
+}
