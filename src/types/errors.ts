@@ -11,8 +11,9 @@ export type GraphQLError = GraphQLFormattedError<{
 }>;
 
 export interface ParsedGraphQLErrors {
-  validationErrors: Record<string, string[]>;
   nonValidationErrors: GraphQLError[];
+  validationErrors: Record<string, string[]>;
+  tokenExpiredErrors: GraphQLError[];
 }
 
 export interface ExtendedClientError<T = unknown> {

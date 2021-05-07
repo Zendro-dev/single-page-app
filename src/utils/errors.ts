@@ -9,6 +9,7 @@ export function parseGraphqlErrors(
   errors: GraphQLError[]
 ): ParsedGraphQLErrors {
   const parsedErrors: ParsedGraphQLErrors = {
+    tokenExpiredErrors: [],
     nonValidationErrors: [],
     validationErrors: {},
   };
@@ -16,7 +17,11 @@ export function parseGraphqlErrors(
   return errors.reduce((acc, error) => {
     // If no extensions, store the full GraphQLError (unknown error)
     if (!error.extensions?.validationErrors) {
-      acc.nonValidationErrors.push(error);
+      if (error.message === 'TokenExpiredError: jwt expired') {
+        acc.tokenExpiredErrors.push(error);
+      } else {
+        acc.nonValidationErrors.push(error);
+      }
       return acc;
     }
 
@@ -32,4 +37,12 @@ export function parseGraphqlErrors(
 
     return acc;
   }, parsedErrors);
+}
+
+export function isTokenExpiredError(errors: GraphQLError[]): boolean {
+  const hasTokenExpiredError = errors.find(
+    ({ message }) => message === 'TokenExpiredError: jwt expired'
+  );
+
+  return hasTokenExpiredError !== undefined;
 }
