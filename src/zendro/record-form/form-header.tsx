@@ -1,10 +1,8 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { Box, Tooltip, Typography } from '@material-ui/core';
 import { Lock as LockIcon } from '@material-ui/icons';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface FormHeaderProps {
   locked?: boolean;

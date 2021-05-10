@@ -30,8 +30,8 @@ const SiteLink = (
     as={as}
     href={href}
     locale={locale}
+    passHref
     prefetch={prefetch}
-    passHref={true}
     replace={replace}
     scroll={scroll}
     shallow={shallow}

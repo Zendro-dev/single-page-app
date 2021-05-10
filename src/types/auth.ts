@@ -19,7 +19,7 @@ export interface AuthResponse {
 }
 
 export interface AuthState extends AuthResponse {
-  status: 'idle' | 'loading' | 'success' | 'failed' | 'cancelled';
+  status: 'cancelled' | 'expired' | 'failed' | 'idle' | 'loading' | 'success';
 }
 
 export interface AuthToken {
@@ -34,7 +34,6 @@ export interface AuthPermissions {
 }
 
 export interface User extends AuthToken {
-  isValid: boolean;
   token: string;
   permissions: AuthPermissions;
 }

@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
 import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
@@ -45,9 +46,6 @@ import { PageInfo, ReadManyResponse } from '@/types/requests';
 import { getAttributeList } from '@/utils/models';
 import { isNullorEmpty } from '@/utils/validation';
 
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
-
 import {
   Table,
   TableBody,
@@ -62,6 +60,7 @@ import {
   UseTablePaginationProps,
   useTableSearch,
 } from '@/zendro/model-table';
+import { hasTokenExpiredErrors } from '@/utils/errors';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
@@ -164,7 +163,13 @@ const Model: PageWithLayout<ModelProps> = ({
       await zendro.legacyRequest(query, { csv_file: csvFile });
       showSnackbar(t('success.csv-import'), 'success');
     } catch (error) {
-      showSnackbar(t('errors.csv-import'), 'error', error);
+      const clientError = error as ExtendedClientError;
+
+      if (
+        clientError.response?.errors &&
+        !hasTokenExpiredErrors(clientError.response.errors)
+      )
+        showSnackbar(t('errors.csv-import'), 'error', error);
     }
   };
 
@@ -181,7 +186,13 @@ const Model: PageWithLayout<ModelProps> = ({
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      showSnackbar(t('errors.server-error'), 'error', error);
+      const clientError = error as ExtendedClientError;
+
+      if (
+        clientError.response?.errors &&
+        !hasTokenExpiredErrors(clientError.response.errors)
+      )
+        showSnackbar(t('errors.server-error'), 'error', error);
     }
   };
 
@@ -206,15 +217,22 @@ const Model: PageWithLayout<ModelProps> = ({
       okText: t('dialogs.ok-text'),
       cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
-        const idField = attributes[0].name;
+        const query = zendro.queries[modelName].deleteOne.query;
+        const variables = {
+          [model.schema.primaryKey]: primaryKey,
+        };
         try {
-          await zendro.request(zendro.queries[modelName].deleteOne.query, {
-            [idField]: primaryKey,
-          });
+          await zendro.request(query, { variables });
           mutateRecords();
           mutateCount();
         } catch (error) {
-          showSnackbar(t('errors.server-error'), 'error', error);
+          const clientError = error as ExtendedClientError;
+
+          if (
+            clientError.response?.errors &&
+            !hasTokenExpiredErrors(clientError.response.errors)
+          )
+            showSnackbar(t('errors.server-error'), 'error', error);
         }
       },
     });
@@ -223,9 +241,11 @@ const Model: PageWithLayout<ModelProps> = ({
   /* DATA FETCHING */
 
   // Records
-  const { mutate: mutateRecords, isValidating: isLoadingRecords } = useSWR(
-    [tableSearch, tableOrder, tablePagination],
-    (
+  const { mutate: mutateRecords, isValidating: isLoadingRecords } = useSWR<
+    { records: TableRecord[]; pageInfo: PageInfo } | undefined
+  >(
+    [tableSearch, tableOrder, tablePagination, zendro],
+    async (
       tableSearch: QueryVariableSearch,
       tableOrder: QueryVariableOrder,
       tablePagination: QueryVariablePagination
@@ -236,29 +256,28 @@ const Model: PageWithLayout<ModelProps> = ({
         order: tableOrder,
         pagination: tablePagination,
       };
-      if (transform) {
-        return zendro.metaRequest<{
-          pageInfo: PageInfo;
-          records: DataRecord[];
-        }>(query, {
-          jq: transform,
-          variables,
-        });
-      } else {
-        return zendro.request<{
-          pageInfo: PageInfo;
-          records: DataRecord[];
-        }>(query, variables);
-      }
+
+      const data = await zendro.request<{
+        pageInfo: PageInfo;
+        records: DataRecord[];
+      }>(query, {
+        jq: transform,
+        variables,
+      });
+
+      const records = data.records.map((record) => {
+        return { data: record };
+      }) as TableRecord[];
+
+      return {
+        records,
+        pageInfo: data.pageInfo,
+      };
     },
     {
       onSuccess: (data) => {
-        if (!isNullorEmpty(data)) {
-          // const connection = unwrapConnection(data, requests.read.resolver);
-          const recordData = data.records.map((record) => {
-            return { data: record };
-          }) as TableRecord[];
-          setRecords(recordData);
+        if (data) {
+          setRecords(data.records);
           setPageInfo(data.pageInfo);
         }
       },
@@ -273,7 +292,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar(
             t('errors.server-error', { status: clientError.response.status }),
             'error',
@@ -296,18 +315,15 @@ const Model: PageWithLayout<ModelProps> = ({
     Record<'count', number>,
     ExtendedClientError<Record<'count', number>> | Error
   >(
-    [tableSearch],
+    [tableSearch, zendro],
     (tableSearch: QueryVariableSearch) => {
       const { query, transform } = zendro.queries[modelName].countAll;
       const variables: QueryVariables = { search: tableSearch };
-      if (transform) {
-        return zendro.metaRequest(query, {
-          jq: transform,
-          variables,
-        });
-      } else {
-        return zendro.request(query, variables);
-      }
+
+      return zendro.request(query, {
+        jq: transform,
+        variables,
+      });
     },
     {
       onSuccess: (data) => {
@@ -328,7 +344,7 @@ const Model: PageWithLayout<ModelProps> = ({
         const genericError = clientError.response.error;
         const graphqlErrors = clientError.response.errors;
 
-        if (graphqlErrors)
+        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
           showSnackbar(
             t('errors.server-error', { status: clientError.response.status }),
             'error',
@@ -420,8 +436,8 @@ const Model: PageWithLayout<ModelProps> = ({
       <Table caption={t('model-table.caption', { modelName })}>
         <TableHeader
           actionsColSpan={
-            Object.keys(model.permissions).filter(
-              (action) => action !== 'create'
+            Object.entries(model.permissions).filter(
+              ([action, allowed]) => allowed && action !== 'create'
             ).length
           }
           attributes={attributes}
@@ -451,15 +467,17 @@ const Model: PageWithLayout<ModelProps> = ({
                 onDoubleClick={() => handleOnRead(recordId)}
                 hover
               >
-                <MuiTableCell padding="checkbox">
-                  <IconButton
-                    tooltip={t('model-table.view', { recordId })}
-                    onClick={() => handleOnRead(recordId)}
-                    className={classes.rowActionPrimary}
-                  >
-                    <DetailsIcon fontSize="small" />
-                  </IconButton>
-                </MuiTableCell>
+                {model.permissions.read && (
+                  <MuiTableCell padding="checkbox">
+                    <IconButton
+                      tooltip={t('model-table.view', { recordId })}
+                      onClick={() => handleOnRead(recordId)}
+                      className={classes.rowActionPrimary}
+                    >
+                      <DetailsIcon fontSize="small" />
+                    </IconButton>
+                  </MuiTableCell>
+                )}
                 {model.permissions.update && (
                   <MuiTableCell padding="checkbox">
                     <IconButton

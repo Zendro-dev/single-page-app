@@ -41,6 +41,19 @@ const yellow = {
   900: '#8d2b0b',
 };
 
+const green = {
+  50: '#effcf6',
+  100: '#c6f7e2',
+  200: '#8eedc7',
+  300: '#65d6ad',
+  400: '#3ebd94',
+  500: '#27ab83',
+  600: '#199473',
+  700: '#147d64',
+  800: '#0c6b58',
+  900: '#014d40',
+};
+
 export const theme = createMuiTheme({
   spacing: (value: number) => defaultTheme.typography.pxToRem(value / 0.25),
   // spacing: (value: number) => `${0.25 * value}rem`,
@@ -62,6 +75,12 @@ export const theme = createMuiTheme({
       light: yellow[100],
       main: yellow[600],
       dark: yellow[700],
+    },
+    success: {
+      background: green[50],
+      light: green[100],
+      main: green[600],
+      dark: green[700],
     },
   },
   color: {

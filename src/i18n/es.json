@@ -36,6 +36,10 @@
     "documentation": "",
     "github-info": ""
   },
+  "login-dialog": {
+    "title": "",
+    "content": ""
+  },
   "login-form": {
     "cancel": "",
     "hide-password": "",
@@ -99,8 +103,10 @@
     "update": ""
   },
   "restricted": {
-    "permissions-header": "",
-    "permissions-info": "",
+    "not-logged-header": "",
+    "not-logged-info": "",
+    "not-allowed-header": "",
+    "not-allowed-info": "",
     "token-exp-header": "",
     "token-exp-info": ""
   },

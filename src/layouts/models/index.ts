@@ -1,11 +1,4 @@
-import Layout from './layout';
-import Navigation from './navigation';
-import Toolbar from './toolbar';
-
-export * from './layout';
-export * from './navigation';
-export * from './toolbar';
-
-export { Navigation, Toolbar };
+import Layout from './model-layout';
+export * from './model-layout';
 
 export default Layout;

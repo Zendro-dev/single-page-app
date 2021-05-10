@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { useRouter } from 'next/router';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
@@ -12,11 +11,11 @@ import {
   LockOutlined as LockIcon,
 } from '@material-ui/icons';
 
-import '@/i18n';
 import { useTranslation } from 'react-i18next';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
+  onCancel?: () => void;
 }
 
 interface LoginFormState {
@@ -24,9 +23,8 @@ interface LoginFormState {
   password: string;
 }
 
-export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
+export default function LoginForm(props: LoginFormProps): ReactElement {
   const classes = useStyles();
-  const router = useRouter();
   const { t } = useTranslation();
 
   const [state, setState] = useState<LoginFormState>({
@@ -42,12 +40,12 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (onSubmit) onSubmit(state.email, state.password);
+    props.onSubmit(state.email, state.password);
   };
 
   const handleCancel = (event: React.FormEvent<HTMLButtonElement>): void => {
     event.preventDefault();
-    router.back();
+    if (props.onCancel) props.onCancel();
   };
 
   return (
@@ -81,15 +79,17 @@ export default function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
         >
           {t('login-form.login')}
         </Button>
-        <Button
-          className={classes.button}
-          size="medium"
-          variant="outlined"
-          color="secondary"
-          onClick={handleCancel}
-        >
-          {t('login-form.cancel')}
-        </Button>
+        {props.onCancel && (
+          <Button
+            className={classes.button}
+            size="medium"
+            variant="outlined"
+            color="secondary"
+            onClick={handleCancel}
+          >
+            {t('login-form.cancel')}
+          </Button>
+        )}
       </div>
     </form>
   );

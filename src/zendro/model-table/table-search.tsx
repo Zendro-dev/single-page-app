@@ -1,4 +1,5 @@
 import { KeyboardEventHandler, ReactElement, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InputAdornment, TextField } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
@@ -7,9 +8,6 @@ import {
 } from '@material-ui/icons';
 
 import { IconButton } from '@/components/buttons';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface SearchFieldProps {
   onSearch: (value: string) => void;

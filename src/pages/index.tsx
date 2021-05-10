@@ -1,32 +1,12 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { NextPage } from 'next';
-import Link from 'next/link';
-import useAuth from '@/hooks/useAuth';
-import {
-  AppBar,
-  Toolbar,
-  makeStyles,
-  createStyles,
-  Theme,
-  Button,
-} from '@material-ui/core';
-
-import LanguageSwitcher from '@/components/toolbar/lang-switcher';
-
-import '@/i18n';
+import { makeStyles, createStyles, Theme } from '@material-ui/core';
+import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
+import { ClientOnly } from '@/components/wrappers';
 
-const Home: NextPage = () => {
+const Home: PageWithLayout = () => {
   const classes = useStyles();
-  const { auth } = useAuth();
   const { t } = useTranslation();
-
-  const [loginRoute, setLoginRoute] = useState('/login');
-
-  useEffect(() => {
-    if (auth.user?.isValid) setLoginRoute('/models');
-  }, [auth]);
 
   return (
     <div className={classes.container}>
@@ -35,43 +15,32 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <AppBar position="fixed">
-        <Toolbar>
-          <div className={classes.appBarRightButtonsContainer}>
-            <LanguageSwitcher />
-            <Link href={loginRoute} passHref>
-              <Button className={classes.loginButton} component="a">
-                {t('toolbar.login')}
-              </Button>
-            </Link>
-          </div>
-        </Toolbar>
-      </AppBar>
-
       <main className={classes.main}>
         <img className={classes.banner} src="/banner.png" alt="zendro banner" />
 
-        <div className={classes.cardContainer}>
-          <a
-            className={classes.card}
-            href="https://zendro-dev.github.io"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3>{t('home.documentation')} &rarr;</h3>
-            <p>{t('home.documenation-info')}</p>
-          </a>
+        <ClientOnly>
+          <div className={classes.cardContainer}>
+            <a
+              className={classes.card}
+              href="https://zendro-dev.github.io"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h3>{t('home.documentation')} &rarr;</h3>
+              <p>{t('home.documenation-info')}</p>
+            </a>
 
-          <a
-            className={classes.card}
-            href="https://github.com/Zendro-dev"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3>Github &rarr;</h3>
-            <p>{t('home.github-info')}</p>
-          </a>
-        </div>
+            <a
+              className={classes.card}
+              href="https://github.com/Zendro-dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h3>Github &rarr;</h3>
+              <p>{t('home.github-info')}</p>
+            </a>
+          </div>
+        </ClientOnly>
       </main>
 
       <footer className={classes.footer}>
@@ -96,6 +65,7 @@ const Home: NextPage = () => {
   );
 };
 
+Home.layout = AppLayout;
 export default Home;
 
 const useStyles = makeStyles((theme: Theme) =>

@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -19,9 +20,6 @@ import {
 } from '@material-ui/icons';
 
 import { TablePaginationPosition } from './hooks/usePagination';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface RecordsTablePaginationProps {
   paginationLimit?: number;

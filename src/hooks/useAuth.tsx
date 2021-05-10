@@ -1,18 +1,24 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { authSelector, logUserIn, logUserOut } from '@/store/auth-slice';
+import {
+  authSelector,
+  expireUser,
+  logUserIn,
+  logUserOut,
+} from '@/store/auth-slice';
 import { AuthState } from '@/types/auth';
 
 interface AuthOptions {
   redirectTo: string;
   redirectIfFound?: boolean;
 }
+type AuthValid = () => boolean;
 type AuthLogin = (email: string, password: string) => void;
 type AuthLogout = () => void;
 
-interface UseAuth {
-  auth: AuthState;
+interface UseAuth extends AuthState {
+  checkValidToken: AuthValid;
   login: AuthLogin;
   logout: AuthLogout;
 }
@@ -69,5 +75,25 @@ export default function useAuth(options?: AuthOptions): UseAuth {
     dispatch(logUserOut());
   };
 
-  return { auth, login, logout };
+  /**
+   * Check whether the user exists and has a valid token.
+   * - If no user is found, return false.
+   * - If the token date has expired, dispatch an action to set the
+   *   auth status to expired and return false.
+   * - Otherwise return true.
+   */
+  const checkValidToken: AuthValid = useCallback(() => {
+    if (!auth.user) return false;
+
+    const currDate = new Date();
+    const expDate = new Date(auth.user?.exp * 1000);
+    if (currDate > expDate) {
+      dispatch(expireUser());
+      return false;
+    }
+
+    return true;
+  }, [auth.user, dispatch]);
+
+  return { ...auth, checkValidToken, login, logout };
 }

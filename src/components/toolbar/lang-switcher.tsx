@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { useRef, useState } from 'react';
+import { ReactElement, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -9,10 +9,8 @@ import {
   Tooltip,
   Typography,
 } from '@material-ui/core';
-import Translate from '@material-ui/icons/TranslateRounded';
-import { useTranslation } from 'react-i18next';
-import '@/i18n';
-// import i18n from '../../i18n/i18n';
+import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
+import { ClientOnly } from '../wrappers';
 
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   const classes = useStyles();
@@ -47,20 +45,29 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   return (
     <>
       {/* Translate.icon */}
-      <Tooltip title={t('toolbar.change-language')}>
-        <IconButton
-          {...props}
-          id={'MainPanel-iconButton-translate'}
-          color="inherit"
-          onClick={handleTranslationIconClick}
-        >
-          <Translate fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <ClientOnly>
+        <Tooltip title={t('toolbar.change-language')}>
+          <IconButton
+            {...props}
+            id="language-switcher-button"
+            aria-controls="language-switcher-menu"
+            aria-haspopup="true"
+            aria-expanded={translationAnchorEl ? 'true' : undefined}
+            onClick={handleTranslationIconClick}
+          >
+            <TranslateIcon />
+          </IconButton>
+        </Tooltip>
+      </ClientOnly>
 
       {/* Translate.menu */}
       <Menu
+        id="language-switcher-menu"
+        MenuListProps={{
+          'aria-labelledby': 'language-switcher-button',
+        }}
         anchorEl={translationAnchorEl}
+        className={classes.translationMenu}
         keepMounted
         open={Boolean(translationAnchorEl)}
         onClose={handleTranslationMenuClose}
@@ -86,8 +93,11 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    translationMenu: {
+      marginTop: theme.spacing(2),
+    },
     translationMenuItem: {
-      margin: theme.spacing(1),
+      margin: theme.spacing(1, 1, 1, 1),
     },
   })
 );

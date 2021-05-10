@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -15,11 +16,10 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
 
+import { hasTokenExpiredErrors } from '@/utils/errors';
+
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface RecordProps {
   modelName: string;
@@ -51,6 +51,7 @@ export const getStaticProps: GetStaticProps<
 const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const model = useModel(modelName);
   const router = useRouter();
+  const urlQuery = router.query as RecordUrlQuery;
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
@@ -58,14 +59,14 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
   /* STATE */
 
-  const [recordData, setRecordData] = useState<DataRecord>();
+  const [recordData, setRecordData] = useState<DataRecord>({
+    [model.schema.primaryKey]: urlQuery.id ?? null,
+  });
   const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
     'attributes'
   );
 
   /* REQUEST */
-
-  const urlQuery = router.query as RecordUrlQuery;
 
   /**
    * Query data from the GraphQL endpoint.
@@ -74,19 +75,31 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
     DataRecord | undefined,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    urlQuery.id ? [zendro.queries[modelName].readOne.query, urlQuery.id] : null,
-    async (query: string, id: string) => {
+    [zendro, urlQuery.id],
+    async () => {
       const request = zendro.queries[modelName].readOne;
-      const response = await zendro.request<Record<string, DataRecord>>(query, {
-        [model.schema.primaryKey]: id,
-      });
+      const response = await zendro.request<Record<string, DataRecord>>(
+        request.query,
+        {
+          variables: { [model.schema.primaryKey]: urlQuery.id },
+        }
+      );
       if (response) return response[request.resolver];
     },
     {
       shouldRetryOnError: false,
-      onSuccess: (data) => setRecordData(data),
+      onSuccess: (data) =>
+        setRecordData(
+          data ?? {
+            [model.schema.primaryKey]: urlQuery.id ?? null,
+          }
+        ),
       onError: (error) => {
-        showSnackbar(t('errors.server-error'), 'error', error);
+        if (
+          error.response?.errors &&
+          !hasTokenExpiredErrors(error.response.errors)
+        )
+          showSnackbar(t('errors.server-error'), 'error', error);
       },
     }
   );

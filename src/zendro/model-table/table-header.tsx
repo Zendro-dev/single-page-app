@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   TableCell as MuiTableCell,
   TableHead as MuiTableHead,
@@ -9,9 +10,6 @@ import KeyIcon from '@material-ui/icons/VpnKey';
 import TableColumn from './table-column';
 import { ParsedAttribute } from '@/types/models';
 import { OrderDirection } from '@/types/queries';
-
-import '@/i18n';
-import { useTranslation } from 'react-i18next';
 
 interface TableHeaderProps {
   attributes: ParsedAttribute[];
