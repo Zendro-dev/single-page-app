@@ -43,7 +43,6 @@ export default function LoginButton({
 
   useEffect(
     function renderFeedbackAndText() {
-      console.log({ status: auth.status });
       if (auth.status === 'success') {
         setTimeout(() => {
           setIsFormOpen(false);
@@ -117,17 +116,17 @@ export default function LoginButton({
               {auth.status === 'failed' ? (
                 <>
                   <ErrorIcon />
-                  <h1>Login failed</h1>
+                  <h1>{t('login-dialog.login-failed')}</h1>
                 </>
               ) : auth.status === 'success' ? (
                 <>
                   <SuccessIcon />
-                  <h1>Login succesful</h1>
+                  <h1>{t('login-dialog.login-successful')}</h1>
                 </>
               ) : (
                 <>
                   <WarningIcon />
-                  <h1>Login expired</h1>
+                  <h1>{t('login-dialog.login-expired')}</h1>
                 </>
               )}
             </Box>
