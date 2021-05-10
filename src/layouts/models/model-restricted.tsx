@@ -66,7 +66,7 @@ export default function Restricted(
 
   return (
     <>
-      {auth.status === 'expired' && (
+      {auth.status !== 'success' && (
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box className={classes.cardContent}>
