@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Box,
   createStyles,
   Dialog,
   DialogContent,
@@ -11,10 +12,16 @@ import {
   useMediaQuery,
   useTheme,
 } from '@material-ui/core';
-import { Close as CloseIcon } from '@material-ui/icons';
+import {
+  CheckCircleOutline as SuccessIcon,
+  Close as CloseIcon,
+  ErrorOutline as ErrorIcon,
+  WarningAmber as WarningIcon,
+} from '@material-ui/icons';
+import { IconButton, IconButtonProps } from '@/components/buttons';
 import LoginForm from '@/components/forms/login-form';
 import useAuth from '@/hooks/useAuth';
-import { IconButton, IconButtonProps } from '../buttons';
+import clsx from 'clsx';
 
 interface LogoutButtonProps extends IconButtonProps {
   onLogin?: () => void;
@@ -36,17 +43,12 @@ export default function LoginButton({
 
   useEffect(
     function renderFeedbackAndText() {
-      if (auth.status === 'failed') console.log('Login failed');
-
-      if (
-        auth.status === 'failed' ||
-        auth.status === 'idle' ||
-        auth.status === 'expired'
-      ) {
-        // t('toolBar.logout')
-      } else if (auth.status === 'success') {
-        setIsFormOpen(false);
-        if (onLogin) onLogin();
+      console.log({ status: auth.status });
+      if (auth.status === 'success') {
+        setTimeout(() => {
+          setIsFormOpen(false);
+          if (onLogin) onLogin();
+        }, 700);
       }
     },
     [auth.status, onLogin]
@@ -98,10 +100,39 @@ export default function LoginButton({
             <CloseIcon />
           </IconButton>
         </DialogTitle>
+
         <DialogContent>
           <DialogContentText id="login-form-dialog-description">
             {t('login-dialog.content')}
           </DialogContentText>
+
+          {auth.status !== 'idle' && auth.status !== 'loading' && (
+            <Box
+              className={clsx(classes.card, {
+                [classes.cardError]: auth.status === 'failed',
+                [classes.cardSuccess]: auth.status === 'success',
+                [classes.cardWarning]: auth.status === 'expired',
+              })}
+            >
+              {auth.status === 'failed' ? (
+                <>
+                  <ErrorIcon />
+                  <h1>Login failed</h1>
+                </>
+              ) : auth.status === 'success' ? (
+                <>
+                  <SuccessIcon />
+                  <h1>Login succesful</h1>
+                </>
+              ) : (
+                <>
+                  <WarningIcon />
+                  <h1>Login expired</h1>
+                </>
+              )}
+            </Box>
+          )}
+
           <LoginForm onSubmit={handleOnLogin} />
         </DialogContent>
       </Dialog>
@@ -123,6 +154,71 @@ const useStyles = makeStyles((theme) =>
       color: theme.palette.grey[500],
       '&:hover': {
         color: theme.palette.secondary.main,
+      },
+    },
+    card: {
+      // Layout
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+
+      // Spacing
+      margin: theme.spacing(6, 0, 4, 0),
+      padding: theme.spacing(3),
+
+      // Background & border styles
+      border: '2px solid',
+      borderRadius: 10,
+
+      // Heading
+      '& h1': {
+        padding: 0,
+        margin: theme.spacing(0, 0, 0, 2),
+        fontSize: theme.spacing(4),
+        textAlign: 'center',
+        [theme.breakpoints.up('sm')]: {
+          fontSize: theme.spacing(5),
+        },
+      },
+
+      // Icon
+      '& svg': {
+        width: theme.spacing(6),
+        height: theme.spacing(6),
+        [theme.breakpoints.up('sm')]: {
+          width: theme.spacing(7),
+          height: theme.spacing(7),
+        },
+      },
+    },
+    cardError: {
+      backgroundColor: theme.palette.error.background,
+      borderColor: theme.palette.error.main,
+      '& h1': {
+        color: theme.palette.error.dark,
+      },
+      '& svg': {
+        color: theme.palette.error.main,
+      },
+    },
+    cardSuccess: {
+      backgroundColor: theme.palette.success.background,
+      borderColor: theme.palette.success.main,
+      '& h1': {
+        color: theme.palette.success.dark,
+      },
+      '& svg': {
+        color: theme.palette.success.main,
+      },
+    },
+    cardWarning: {
+      backgroundColor: theme.palette.warning.background,
+      borderColor: theme.palette.warning.main,
+      '& h1': {
+        color: theme.palette.warning.dark,
+      },
+      '& svg': {
+        color: theme.palette.warning.main,
       },
     },
   })
