@@ -28,7 +28,6 @@
   },
   "errors": {
     "csv-import": "",
-    "login-failed": "",
     "server-error": ""
   },
   "home": {
@@ -38,7 +37,10 @@
   },
   "login-dialog": {
     "title": "",
-    "content": ""
+    "content": "",
+    "login-expired": "",
+    "login-failed": "",
+    "login-successful": ""
   },
   "login-form": {
     "cancel": "",

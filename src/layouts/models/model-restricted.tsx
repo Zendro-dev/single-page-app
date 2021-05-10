@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   InfoOutlined as InfoIcon,
@@ -32,11 +32,6 @@ export default function Restricted(
   const isNotLoggedIn = auth.user === undefined;
   const isNotAllowed =
     urlQuery.model && !getModel(urlQuery.model).permissions.read;
-
-  const handleTerminateSession = (): void => {
-    router.push('/');
-    auth.logout();
-  };
 
   if (isNotLoggedIn || isNotAllowed) {
     return (
@@ -71,15 +66,12 @@ export default function Restricted(
 
   return (
     <>
-      {auth.status === 'expired' && (
+      {auth.status !== 'success' && (
         <Box className={clsx(classes.card, classes.cardWarning)}>
           <WarningIcon />
           <Box className={classes.cardContent}>
             <h1>{t('restricted.token-exp-header')}</h1>
             <p>{t('restricted.token-exp-info')}</p>
-            <Button size="small" onClick={handleTerminateSession}>
-              {t('toolbar.logout')}
-            </Button>
           </Box>
         </Box>
       )}
