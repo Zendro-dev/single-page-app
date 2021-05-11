@@ -75,7 +75,17 @@ export default function Restricted(
           </Box>
         </Box>
       )}
-      {props.children}
+      {/* {props.children} */}
+      <div
+        style={{
+          display: auth.status === 'expired' ? 'none' : 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        {props.children}
+      </div>
     </>
   );
 }

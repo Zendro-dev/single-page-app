@@ -116,6 +116,7 @@ const useStyles = makeStyles((theme) => {
     },
     mainContainer: {
       display: 'flex',
+      flexGrow: 1,
       height: `calc(100% - ${theme.spacing(18)})`,
     },
     mainContent: {
