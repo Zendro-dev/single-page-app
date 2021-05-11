@@ -134,7 +134,7 @@ export default function LoginButton({
               ) : (
                 <>
                   <CircularProgress size={mobile ? 20 : 22} />
-                  <h1>Sending credentials...</h1>
+                  <h1>{t('login-dialog.login-loading')}</h1>
                 </>
               )}
             </Box>

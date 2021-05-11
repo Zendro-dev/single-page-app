@@ -40,7 +40,8 @@
     "content": "To log into this website, please enter your email address and password below.",
     "login-expired": "Login expired",
     "login-failed": "Login failed",
-    "login-successful": "Login successful"
+    "login-successful": "Login successful",
+    "login-loading": "Sending credentials..."
   },
   "login-form": {
     "cancel": "Cancel",
