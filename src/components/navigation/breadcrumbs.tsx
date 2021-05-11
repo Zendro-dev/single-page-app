@@ -5,6 +5,8 @@ import {
   Link as MuiLink,
   makeStyles,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@material-ui/core';
 import { SvgIconType } from '@/types/elements';
 import clsx from 'clsx';
@@ -25,8 +27,14 @@ export default function Breadcrumbs(
   props: BreadcrumbsProps
 ): React.ReactElement {
   const classes = useStyles();
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.only('xs'));
   return (
-    <MuiBreadcrumbs aria-label="breadcrumb" className={props.className}>
+    <MuiBreadcrumbs
+      aria-label="breadcrumb"
+      className={props.className}
+      maxItems={mobile ? 2 : undefined}
+    >
       {props.crumbs.map(({ href, icon: Icon, text }) =>
         href ? (
           <NextLink key={text} href={href} passHref>
