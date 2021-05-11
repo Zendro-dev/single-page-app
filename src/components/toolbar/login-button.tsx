@@ -78,7 +78,11 @@ export default function LoginButton({
 
   return (
     <>
-      <IconButton {...props} onClick={handleOnButtonClick}>
+      <IconButton
+        {...props}
+        tooltip={t('toolbar.login')}
+        onClick={handleOnButtonClick}
+      >
         {props.children}
       </IconButton>
       <Dialog
