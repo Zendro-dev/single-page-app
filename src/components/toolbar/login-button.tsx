@@ -78,7 +78,11 @@ export default function LoginButton({
 
   return (
     <>
-      <IconButton {...props} onClick={handleOnButtonClick}>
+      <IconButton
+        {...props}
+        tooltip={t('toolbar.login')}
+        onClick={handleOnButtonClick}
+      >
         {props.children}
       </IconButton>
       <Dialog
@@ -134,7 +138,7 @@ export default function LoginButton({
               ) : (
                 <>
                   <CircularProgress size={mobile ? 20 : 22} />
-                  <h1>Sending credentials...</h1>
+                  <h1>{t('login-dialog.login-loading')}</h1>
                 </>
               )}
             </Box>

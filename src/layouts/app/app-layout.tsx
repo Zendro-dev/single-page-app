@@ -11,6 +11,7 @@ import { SiteLink } from '@/components/links';
 import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
 import { ClientOnly } from '@/components/wrappers';
 import { useAuth } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 
 export interface AppLayoutProps {
   brand?: string;
@@ -24,6 +25,7 @@ export default function ModelsLayout({
   const auth = useAuth();
   const router = useRouter();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleOnLoginAction = (): void => {
     if (router.asPath === '/') router.push('/models');
@@ -49,7 +51,7 @@ export default function ModelsLayout({
             {auth.user && (
               <SiteLink href="/models" className={classes.navlink}>
                 <ModelsIcon />
-                <span>Models</span>
+                <span>{t('toolbar.models')}</span>
               </SiteLink>
             )}
           </ClientOnly>

@@ -27,7 +27,7 @@ const Home: PageWithLayout = () => {
               rel="noopener noreferrer"
             >
               <h1>{t('home.documentation')} &rarr;</h1>
-              <p>{t('home.documenation-info')}</p>
+              <p>{t('home.documentation-info')}</p>
             </a>
 
             <a
