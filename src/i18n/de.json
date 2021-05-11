@@ -31,7 +31,7 @@
     "server-error": "Fehler {{ status }} in Anfrage zum Server"
   },
   "home": {
-    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "documentation-info": "Detaillierte Informationen über Zendro funktionen und API.",
     "documentation": "Dokumentation",
     "github-info": "Hilf mit via pull request, issues und Feedback."
   },

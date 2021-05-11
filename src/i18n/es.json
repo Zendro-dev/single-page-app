@@ -31,7 +31,7 @@
     "server-error": "El servidor ha encontrado un error {{ status }} en la petición"
   },
   "home": {
-    "documenation-info": "Más información sobre las características de Zendro y su API.",
+    "documentation-info": "Más información sobre las características de Zendro y su API.",
     "documentation": "Documentación",
     "github-info": "Contribuya aportando código, informando sobre problemas, o escribiendo comentarios."
   },
