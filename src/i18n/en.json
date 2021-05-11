@@ -40,8 +40,8 @@
     "content": "To log into this website, please enter your email address and password below.",
     "login-expired": "Login expired",
     "login-failed": "Login failed",
-    "login-successful": "Login successful",
-    "login-loading": "Sending credentials..."
+    "login-loading": "Sending credentials...",
+    "login-successful": "Login successful"
   },
   "login-form": {
     "cancel": "Cancel",
@@ -98,12 +98,12 @@
     "action-submit": "Submit changes",
     "action-update": "Edit Record",
     "completed": "Completed",
-    "create": "Create",
-    "read": "Read",
+    "create": "New",
+    "read": "Details",
     "read-only": "The form is in read-only mode",
     "tab-associations": "Associations",
     "tab-attributes": "Attributes",
-    "update": "Update"
+    "update": "Edit"
   },
   "restricted": {
     "not-logged-header": "You are not logged in",
@@ -119,6 +119,7 @@
   },
   "toolbar": {
     "change-language": "Change language",
-    "login": "Login"
+    "login": "Login",
+    "models": "Models"
   }
 }
