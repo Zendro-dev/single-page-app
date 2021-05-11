@@ -61,6 +61,7 @@ import {
   useTableSearch,
 } from '@/zendro/model-table';
 import { hasTokenExpiredErrors } from '@/utils/errors';
+import { theme } from '@/styles/theme';
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
@@ -114,6 +115,9 @@ const Model: PageWithLayout<ModelProps> = ({
     hasPreviousPage: false,
     hasNextPage: false,
   });
+  const [requestStatus, setRequestStatus] = useState<'success' | 'failed'>(
+    'success'
+  );
 
   /* HOOKS */
 
@@ -280,8 +284,10 @@ const Model: PageWithLayout<ModelProps> = ({
           setRecords(data.records);
           setPageInfo(data.pageInfo);
         }
+        setRequestStatus('success');
       },
       onError: (error) => {
+        setRequestStatus('failed');
         const clientError = error as ExtendedClientError<ReadManyResponse>;
 
         if (!clientError.response) {
@@ -377,6 +383,11 @@ const Model: PageWithLayout<ModelProps> = ({
           <Buffer
             date={new Date().toLocaleTimeString()}
             isLoading={isLoadingRecords}
+            color={
+              requestStatus === 'success'
+                ? theme.palette.success.main
+                : theme.palette.error.main
+            }
           />
           <IconButton
             tooltip={t('model-table.reload', { modelName })}

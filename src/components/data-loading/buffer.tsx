@@ -5,22 +5,22 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { createStyles, makeStyles } from '@material-ui/core';
 import { theme } from '@/styles/theme';
 
-interface BufferProps {
+interface LastUpdatedProps {
   isLoading?: boolean;
-  color?: 'red' | 'green';
+  color: string;
   date: string;
 }
 
-export default function Buffer({
-  isLoading,
-  color,
-  date,
-}: BufferProps): React.ReactElement {
-  const classes = useStyles();
+export default function Buffer(props: LastUpdatedProps): React.ReactElement {
+  const classes = useStyles(props);
   return (
     <div className={classes.root}>
-      {isLoading && <CircularProgress size={theme.spacing(5)} />}
-      <span className={classes.updatedAt}>{`last updated at ${date}`}</span>
+      {props.isLoading && (
+        <CircularProgress size={theme.spacing(5)} color="primary" />
+      )}
+      <span className={classes.updatedAt}>
+        {props.isLoading ? 'fetching...' : `last updated at ${props.date}`}
+      </span>
     </div>
   );
 }
@@ -31,11 +31,14 @@ const useStyles = makeStyles((theme) =>
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      marginRight: theme.spacing(2),
+      whiteSpace: 'nowrap',
     },
     updatedAt: {
       marginLeft: theme.spacing(2),
       fontSize: theme.spacing(3),
-      color: 'green',
+      color: (props: LastUpdatedProps) =>
+        props.isLoading ? theme.palette.warning.main : props.color,
     },
   })
 );
