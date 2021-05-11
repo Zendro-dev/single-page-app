@@ -119,6 +119,7 @@
   "toolbar": {
     "change-language": "Sprache ändern",
     "login": "Einloggen",
-    "logout": "Ausloggen"
+    "logout": "Ausloggen",
+    "models": "Modelle"
   }
 }
