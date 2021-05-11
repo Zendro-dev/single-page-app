@@ -44,15 +44,15 @@ export default function LoginButton({
   const [isFormOpen, setIsFormOpen] = React.useState(false);
 
   useEffect(
-    function renderFeedbackAndText() {
-      if (auth.status === 'success') {
+    function closeFormAndRedirect() {
+      if (auth.status === 'success' && isFormOpen) {
         setTimeout(() => {
           setIsFormOpen(false);
           if (onLogin) onLogin();
         }, 700);
       }
     },
-    [auth.status, onLogin]
+    [auth.status, isFormOpen, onLogin]
   );
 
   /* TOOLBAR EVENTS */
