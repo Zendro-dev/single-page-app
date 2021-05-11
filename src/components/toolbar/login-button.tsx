@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
+  CircularProgress,
   createStyles,
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ export default function LoginButton({
   const classes = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -105,12 +107,13 @@ export default function LoginButton({
             {t('login-dialog.content')}
           </DialogContentText>
 
-          {auth.status !== 'idle' && auth.status !== 'loading' && (
+          {auth.status !== 'idle' && (
             <Box
               className={clsx(classes.card, {
                 [classes.cardError]: auth.status === 'failed',
                 [classes.cardSuccess]: auth.status === 'success',
                 [classes.cardWarning]: auth.status === 'expired',
+                [classes.cardLoading]: auth.status === 'loading',
               })}
             >
               {auth.status === 'failed' ? (
@@ -123,10 +126,15 @@ export default function LoginButton({
                   <SuccessIcon />
                   <h1>{t('login-dialog.login-successful')}</h1>
                 </>
-              ) : (
+              ) : auth.status === 'expired' ? (
                 <>
                   <WarningIcon />
                   <h1>{t('login-dialog.login-expired')}</h1>
+                </>
+              ) : (
+                <>
+                  <CircularProgress size={mobile ? 20 : 22} />
+                  <h1>Sending credentials...</h1>
                 </>
               )}
             </Box>
@@ -181,7 +189,7 @@ const useStyles = makeStyles((theme) =>
       },
 
       // Icon
-      '& svg': {
+      '& > svg': {
         width: theme.spacing(6),
         height: theme.spacing(6),
         [theme.breakpoints.up('sm')]: {
@@ -198,6 +206,16 @@ const useStyles = makeStyles((theme) =>
       },
       '& svg': {
         color: theme.palette.error.main,
+      },
+    },
+    cardLoading: {
+      backgroundColor: theme.palette.primary.background,
+      borderColor: theme.palette.primary.main,
+      '& h1': {
+        color: theme.palette.primary.dark,
+      },
+      '& svg': {
+        color: theme.palette.primary.main,
       },
     },
     cardSuccess: {
