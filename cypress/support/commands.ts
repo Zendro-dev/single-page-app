@@ -1,3 +1,4 @@
+import 'cypress-localstorage-commands';
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -27,5 +28,19 @@
 Cypress.Commands.add('dataCy', (value) => {
   return cy.get(`[data-cy=${value}]`);
 });
+
+Cypress.Commands.add('login', () => {
+  cy.visit('/');
+  cy.dataCy('login-button').click({ force: true });
+  // fill out the inputs and click the button
+  cy.dataCy('login-form-email').type('admin@zen.dro');
+  cy.dataCy('login-form-password').type('admin');
+  cy.dataCy('login-form-login').click();
+});
+
+Cypress.LocalStorage.clear = function (keys) {
+  console.log('--Running LocalStorage.clear--');
+  return;
+};
 
 export {};

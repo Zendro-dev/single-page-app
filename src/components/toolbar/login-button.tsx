@@ -116,7 +116,9 @@ export default function LoginButton({
               {auth.status === 'failed' ? (
                 <>
                   <ErrorIcon />
-                  <h1>{t('login-dialog.login-failed')}</h1>
+                  <h1 data-cy="login-dialog-login-failed">
+                    {t('login-dialog.login-failed')}
+                  </h1>
                 </>
               ) : auth.status === 'success' ? (
                 <>

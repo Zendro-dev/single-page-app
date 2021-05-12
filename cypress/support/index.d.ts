@@ -5,5 +5,9 @@ declare namespace Cypress {
      * @example cy.dataCy('greeting')
      */
     dataCy(value: string): Chainable<Element>;
+
+    login(): string;
+
+    // setAuthSession(): void;
   }
 }

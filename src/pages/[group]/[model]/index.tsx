@@ -276,6 +276,7 @@ const Model: PageWithLayout<ModelProps> = ({
     {
       onSuccess: (data) => {
         if (data) {
+          console.log(data);
           setRecords(data.records);
           setPageInfo(data.pageInfo);
         }
@@ -428,7 +429,10 @@ const Model: PageWithLayout<ModelProps> = ({
           </a>
         </div>
       </div>
-      <Table caption={t('model-table.caption', { modelName })}>
+      <Table
+        caption={t('model-table.caption', { modelName })}
+        data-cy="record-table"
+      >
         <TableHeader
           actionsColSpan={
             Object.entries(model.permissions).filter(
@@ -449,6 +453,7 @@ const Model: PageWithLayout<ModelProps> = ({
           }
           activeOrder={order?.sortField ?? primaryKey}
           orderDirection={order?.sortDirection ?? 'ASC'}
+          data-cy="record-table-header"
         />
 
         <TableBody>

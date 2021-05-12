@@ -1,4 +1,9 @@
 {
   "baseUrl": "http://localhost:8080",
-  "defaultCommandTimeout": 6000
+  "defaultCommandTimeout": 6000,
+  "integrationFolder": "cypress/e2e",
+  "env": {
+    "admin-email": "admin@zen.dro",
+    "admin-pw": "admin"
+  }
 }

@@ -11,7 +11,7 @@ export default function TableBody({
 }: PropsWithChildren<TableBodyProps>): ReactElement {
   return (
     <Fade in={!isLoading}>
-      <MuiTableBody>{props.children}</MuiTableBody>
+      <MuiTableBody data-cy="record-table-body">{props.children}</MuiTableBody>
     </Fade>
   );
 }

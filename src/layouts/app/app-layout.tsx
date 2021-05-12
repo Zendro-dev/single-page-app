@@ -67,6 +67,7 @@ export default function ModelsLayout({
               size="small"
               onLogin={handleOnLoginAction}
               onLogout={handleOnLogoutAction}
+              data-cy="login-button"
             >
               <LoginIcon />
             </LoginButton>
