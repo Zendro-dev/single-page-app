@@ -25,7 +25,8 @@ import { isEmptyObject } from '@/utils/validation';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -41,23 +42,22 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
   return {
     props: {
-      key: modelName + '/new',
-      modelName,
+      key: params.model + '/new',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
+const Record: PageWithLayout<RecordProps> = (props) => {
   const dialog = useDialog();
-  const model = useModel(modelName);
+  const model = useModel(props.model);
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
-  const urlQuery = router.query as ModelUrlQuery;
   const { t } = useTranslation();
 
   /* STATE */
@@ -76,11 +76,11 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         message: t('dialogs.leave-confirm'),
         okText: t('dialogs.ok-text'),
         cancelText: t('dialogs.cancel-text'),
-        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
+        onOk: () => router.push(`/${props.group}/${props.model}`),
       });
     }
 
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
@@ -94,14 +94,14 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     const submit = async (): Promise<void> => {
       try {
-        const createOne = zendro.queries[modelName].createOne;
+        const createOne = zendro.queries[props.model].createOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           createOne.query,
           { variables: dataRecord }
         );
 
         router.push(
-          `/${urlQuery.group}/${modelName}/edit?id=${
+          `/${props.group}/${props.model}/edit?id=${
             response[createOne.resolver][model.schema.primaryKey]
           }`
         );
@@ -169,7 +169,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
       errors={ajvErrors}
       formId={router.asPath}
       formView="create"
-      modelName={modelName}
+      modelName={props.model}
       actions={{
         cancel: handleOnCancel,
         submit: handleOnSubmit,

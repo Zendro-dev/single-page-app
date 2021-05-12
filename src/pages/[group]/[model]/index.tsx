@@ -17,7 +17,6 @@ import {
   VisibilityTwoTone as DetailsIcon,
 } from '@material-ui/icons';
 
-import { getStaticModel } from '@/build/models';
 import { getStaticModelPaths } from '@/build/routes';
 
 import { IconButton } from '@/components/buttons';
@@ -39,10 +38,9 @@ import {
   QueryVariableSearch,
 } from '@/types/queries';
 import { ModelUrlQuery } from '@/types/routes';
-import { DataRecord, ParsedAttribute } from '@/types/models';
+import { DataRecord } from '@/types/models';
 import { PageInfo, ReadManyResponse } from '@/types/requests';
 
-import { getAttributeList } from '@/utils/models';
 import { isNullorEmpty } from '@/utils/validation';
 
 import {
@@ -61,6 +59,11 @@ import {
 } from '@/zendro/model-table';
 import { hasTokenExpiredErrors } from '@/utils/errors';
 
+export interface ModelProps {
+  group: string;
+  model: string;
+}
+
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
   const paths = await getStaticModelPaths();
   return {
@@ -74,36 +77,19 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 ) => {
   const params = context.params as ModelUrlQuery;
 
-  const modelName = params.model;
-  const dataModel = await getStaticModel(modelName);
-
-  const attributes = getAttributeList(dataModel, { excludeForeignKeys: true });
-  const primaryKey = attributes[0].name;
-
   return {
     props: {
-      modelName,
-      attributes,
-      primaryKey,
-      key: modelName,
+      key: params.model,
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-export interface ModelProps {
-  modelName: string;
-  attributes: ParsedAttribute[];
-  primaryKey: string;
-}
-
-const Model: PageWithLayout<ModelProps> = ({
-  modelName,
-  attributes,
-  primaryKey,
-}) => {
+const Model: PageWithLayout<ModelProps> = (props) => {
   /* STATE */
 
-  const model = useModel(modelName);
+  const model = useModel(props.model);
   const csvTemplateDownloadAnchor = useRef<HTMLAnchorElement | null>(null);
   const [count, setCount] = useState<number>(0);
   const [records, setRecords] = useState<TableRecord[]>([]);
@@ -125,8 +111,8 @@ const Model: PageWithLayout<ModelProps> = ({
 
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
-    attributes: attributes,
-    primaryKey: primaryKey,
+    attributes: model.schema.attributes,
+    primaryKey: model.schema.primaryKey,
     searchText,
   });
 
@@ -143,8 +129,6 @@ const Model: PageWithLayout<ModelProps> = ({
   });
   const tablePagination = useTablePagination(pagination);
 
-  const urlQuery = router.query as ModelUrlQuery;
-
   /* TOOLBAR ACTIONS */
 
   const handleImportCsv = async (
@@ -157,7 +141,7 @@ const Model: PageWithLayout<ModelProps> = ({
     // Support selecting the same file
     event.target.value = '';
     // Send request
-    const query = zendro.queries[modelName].bulkAddCsv.query;
+    const query = zendro.queries[props.model].bulkAddCsv.query;
     try {
       await zendro.legacyRequest(query, { csv_file: csvFile });
       showSnackbar(t('success.csv-import'), 'success');
@@ -173,7 +157,7 @@ const Model: PageWithLayout<ModelProps> = ({
   };
 
   const handleExportTableTemplate = async (): Promise<void> => {
-    const { query, resolver } = zendro.queries[modelName].csvTableTemplate;
+    const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
     try {
       const csvTemplate = await zendro.request<Record<string, string[]>>(query);
       const csvString = csvTemplate[resolver].join('\n');
@@ -198,25 +182,28 @@ const Model: PageWithLayout<ModelProps> = ({
   /* HANDLERS */
 
   const handleOnCreate = (): void => {
-    router.push(`/${urlQuery.group}/${modelName}/new`);
+    router.push(`/${props.group}/${props.model}/new`);
   };
 
   const handleOnRead = (primaryKey: string | number): void => {
-    router.push(`/${urlQuery.group}/${modelName}/details?id=${primaryKey}`);
+    router.push(`/${props.group}/${props.model}/details?id=${primaryKey}`);
   };
 
   const handleOnUpdate = (primaryKey: string | number): void => {
-    router.push(`/${urlQuery.group}/${modelName}/edit?id=${primaryKey}`);
+    router.push(`/${props.group}/${props.model}/edit?id=${primaryKey}`);
   };
 
   const handleOnDelete = (primaryKey: string | number): void => {
     dialog.openConfirm({
       title: t('dialogs.delete-confirm'),
-      message: t('dialogs.delete-info', { recordId: primaryKey, modelName }),
+      message: t('dialogs.delete-info', {
+        recordId: primaryKey,
+        modelName: props.model,
+      }),
       okText: t('dialogs.ok-text'),
       cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
-        const query = zendro.queries[modelName].deleteOne.query;
+        const query = zendro.queries[props.model].deleteOne.query;
         const variables = {
           [model.schema.primaryKey]: primaryKey,
         };
@@ -249,7 +236,7 @@ const Model: PageWithLayout<ModelProps> = ({
       tableOrder: QueryVariableOrder,
       tablePagination: QueryVariablePagination
     ) => {
-      const { query, transform } = zendro.queries[modelName].readAll;
+      const { query, transform } = zendro.queries[props.model].readAll;
       const variables: QueryVariables = {
         search: tableSearch,
         order: tableOrder,
@@ -316,7 +303,7 @@ const Model: PageWithLayout<ModelProps> = ({
   >(
     [tableSearch, zendro],
     (tableSearch: QueryVariableSearch) => {
-      const { query, transform } = zendro.queries[modelName].countAll;
+      const { query, transform } = zendro.queries[props.model].countAll;
       const variables: QueryVariables = { search: tableSearch };
 
       return zendro.request(query, {
@@ -365,7 +352,9 @@ const Model: PageWithLayout<ModelProps> = ({
     <TableContainer className={classes.root}>
       <div className={classes.toolbar}>
         <TableSearch
-          placeholder={t('model-table.search-label', { modelName })}
+          placeholder={t('model-table.search-label', {
+            modelName: props.model,
+          })}
           value={searchText}
           onSearch={(value) => setSearchText(value)}
           // onChange={(event) => setSearchText(event.target.value)}
@@ -374,7 +363,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
         <div className={classes.toolbarActions}>
           <IconButton
-            tooltip={t('model-table.reload', { modelName })}
+            tooltip={t('model-table.reload', { modelName: props.model })}
             onClick={() => mutateRecords()}
           >
             <ReloadIcon />
@@ -382,7 +371,7 @@ const Model: PageWithLayout<ModelProps> = ({
 
           {model.permissions.create && (
             <IconButton
-              tooltip={t('model-table.add', { modelName })}
+              tooltip={t('model-table.add', { modelName: props.model })}
               onClick={handleOnCreate}
             >
               <AddIcon />
@@ -392,7 +381,7 @@ const Model: PageWithLayout<ModelProps> = ({
           {model.permissions.create && (
             <IconButton
               component="label"
-              tooltip={t('model-table.import', { modelName })}
+              tooltip={t('model-table.import', { modelName: props.model })}
             >
               <input
                 style={{ display: 'none' }}
@@ -405,10 +394,12 @@ const Model: PageWithLayout<ModelProps> = ({
           )}
 
           <form action={EXPORT_URL}>
-            <input type="hidden" name="model" value={modelName} />
+            <input type="hidden" name="model" value={props.model} />
             <IconButton
               type="submit"
-              tooltip={t('model-table.download-data', { modelName })}
+              tooltip={t('model-table.download-data', {
+                modelName: props.model,
+              })}
             >
               <ExportIcon />
             </IconButton>
@@ -420,7 +411,9 @@ const Model: PageWithLayout<ModelProps> = ({
           >
             <IconButton
               component="label"
-              tooltip={t('model-table.download-template', { modelName })}
+              tooltip={t('model-table.download-template', {
+                modelName: props.model,
+              })}
               onClick={handleExportTableTemplate}
             >
               <ImportTemplateIcon />
@@ -428,14 +421,14 @@ const Model: PageWithLayout<ModelProps> = ({
           </a>
         </div>
       </div>
-      <Table caption={t('model-table.caption', { modelName })}>
+      <Table caption={t('model-table.caption', { modelName: props.model })}>
         <TableHeader
           actionsColSpan={
             Object.entries(model.permissions).filter(
               ([action, allowed]) => allowed && action !== 'create'
             ).length
           }
-          attributes={attributes}
+          attributes={model.schema.attributes}
           onSortLabelClick={(field) =>
             setOrder((state) => ({
               ...state,
@@ -447,16 +440,18 @@ const Model: PageWithLayout<ModelProps> = ({
                 : 'ASC',
             }))
           }
-          activeOrder={order?.sortField ?? primaryKey}
+          activeOrder={order?.sortField ?? model.schema.primaryKey}
           orderDirection={order?.sortDirection ?? 'ASC'}
         />
 
         <TableBody>
           {records.map((record) => {
-            const recordId = record.data[primaryKey] as string | number;
+            const recordId = record.data[model.schema.primaryKey] as
+              | string
+              | number;
             return (
               <TableRow
-                attributes={attributes}
+                attributes={model.schema.attributes}
                 record={record.data}
                 key={recordId}
                 onDoubleClick={() => handleOnRead(recordId)}

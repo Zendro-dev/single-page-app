@@ -22,7 +22,8 @@ import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -38,18 +39,18 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
 
   return {
     props: {
-      key: modelName + '/details',
-      modelName,
+      key: params.model + '/details',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
-  const model = useModel(modelName);
+const Record: PageWithLayout<RecordProps> = (props) => {
+  const model = useModel(props.model);
   const router = useRouter();
   const urlQuery = router.query as RecordUrlQuery;
   const classes = useStyles();
@@ -77,7 +78,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   >(
     [zendro, urlQuery.id],
     async () => {
-      const request = zendro.queries[modelName].readOne;
+      const request = zendro.queries[props.model].readOne;
       const response = await zendro.request<Record<string, DataRecord>>(
         request.query,
         {
@@ -110,14 +111,14 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
    * Navigate to the record details page.
    */
   const handleOnUpdate: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}/edit?id=${urlQuery.id}`);
+    router.push(`/${props.group}/${props.model}/edit?id=${urlQuery.id}`);
   };
 
   /**
@@ -144,7 +145,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   return (
     <TabContext value={currentTab}>
       <TabList
-        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
+        aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
         className={classes.tabList}
         onChange={handleOnTabChange}
         variant="fullWidth"
@@ -164,7 +165,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           disabled
           formId={router.asPath}
           formView="read"
-          modelName={modelName}
+          modelName={props.model}
           actions={{
             cancel: handleOnCancel,
             update: model.permissions.update ? handleOnUpdate : undefined,
@@ -177,7 +178,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           associationView="details"
           associations={model.schema.associations ?? []}
           attributes={model.schema.attributes}
-          modelName={modelName}
+          modelName={props.model}
           recordId={urlQuery.id as string}
           primaryKey={model.schema.primaryKey}
         />

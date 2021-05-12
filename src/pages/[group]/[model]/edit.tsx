@@ -31,7 +31,8 @@ import AttributesForm, {
 } from '@/zendro/record-form';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -47,18 +48,18 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
   return {
     props: {
-      key: modelName + '/edit',
-      modelName,
+      key: params.model + '/edit',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
+const Record: PageWithLayout<RecordProps> = (props) => {
   const dialog = useDialog();
-  const model = useModel(modelName);
+  const model = useModel(props.model);
   const router = useRouter();
   const urlQuery = router.query as ModelUrlQuery;
   const classes = useStyles();
@@ -87,7 +88,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   >(
     [zendro, urlQuery.id],
     async () => {
-      const request = zendro.queries[modelName].readOne;
+      const request = zendro.queries[props.model].readOne;
       const variables = {
         [model.schema.primaryKey]: urlQuery.id,
       };
@@ -136,11 +137,11 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         message: t('dialogs.leave-confirm'),
         okText: t('dialogs.ok-text'),
         cancelText: t('dialogs.cancel-text'),
-        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
+        onOk: () => router.push(`/${props.group}/${props.model}`),
       });
     }
 
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
@@ -149,19 +150,22 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const handleOnDelete: ActionHandler = () => {
     dialog.openConfirm({
       title: t('dialogs.delete-confirm'),
-      message: t('dialogs.delete-info', { recordId: urlQuery.id, modelName }),
+      message: t('dialogs.delete-info', {
+        recordId: urlQuery.id,
+        modelName: props.model,
+      }),
       okText: t('dialogs.ok-text'),
       cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
         if (!recordData) return;
 
         try {
-          const query = zendro.queries[modelName].deleteOne.query;
+          const query = zendro.queries[props.model].deleteOne.query;
           const variables = {
             [model.schema.primaryKey]: recordData[model.schema.primaryKey],
           };
           await zendro.request(query, { variables });
-          router.push(`/${urlQuery.group}/${modelName}`);
+          router.push(`/${props.group}/${props.model}`);
         } catch (error) {
           if (
             error.response?.errors &&
@@ -177,7 +181,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
    * Navigate to the record details page.
    */
   const handleOnDetails: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}/details?id=${urlQuery.id}`);
+    router.push(`/${props.group}/${props.model}/details?id=${urlQuery.id}`);
   };
 
   /**
@@ -218,7 +222,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     const submit = async (): Promise<void> => {
       try {
-        const request = zendro.queries[modelName].updateOne;
+        const request = zendro.queries[props.model].updateOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           request.query,
           { variables: dataRecord }
@@ -226,7 +230,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
         mutateRecord(response[request.resolver]);
 
-        router.push(`/${urlQuery.group}/${modelName}`);
+        router.push(`/${props.group}/${props.model}`);
       } catch (error) {
         const clientError = error as ExtendedClientError<
           Record<string, DataRecord>
@@ -299,7 +303,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   return (
     <TabContext value={currentTab}>
       <TabList
-        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
+        aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
         className={classes.tabList}
         onChange={handleOnTabChange}
         variant="fullWidth"
@@ -319,7 +323,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           errors={ajvErrors}
           formId={router.asPath}
           formView="update"
-          modelName={modelName}
+          modelName={props.model}
           actions={{
             cancel: handleOnCancel,
             delete: handleOnDelete,
@@ -334,7 +338,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           associationView="update"
           associations={model.schema.associations ?? []}
           attributes={model.schema.attributes}
-          modelName={modelName}
+          modelName={props.model}
           recordId={urlQuery.id as string}
           primaryKey={model.schema.primaryKey}
         />
