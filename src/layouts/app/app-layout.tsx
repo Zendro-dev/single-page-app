@@ -11,6 +11,7 @@ import { SiteLink } from '@/components/links';
 import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
 import { ClientOnly } from '@/components/wrappers';
 import { useAuth } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 
 export interface AppLayoutProps {
   brand?: string;
@@ -24,6 +25,7 @@ export default function ModelsLayout({
   const auth = useAuth();
   const router = useRouter();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleOnLoginAction = (): void => {
     if (router.asPath === '/') router.push('/models');
@@ -49,7 +51,7 @@ export default function ModelsLayout({
             {auth.user && (
               <SiteLink href="/models" className={classes.navlink}>
                 <ModelsIcon />
-                <span>Models</span>
+                <span>{t('toolbar.models')}</span>
               </SiteLink>
             )}
           </ClientOnly>
@@ -75,7 +77,34 @@ export default function ModelsLayout({
         </div>
       </header>
 
-      {props.children}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1,
+        }}
+      >
+        {props.children}
+      </div>
+
+      <footer className={classes.footer}>
+        <a
+          className={classes.footerLink}
+          href="https://nextjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Powered by</span>
+          <img
+            style={{
+              paddingLeft: '.5rem',
+            }}
+            src="/nextjs.svg"
+            alt="Next Logo"
+            className={classes.footerLogo}
+          />
+        </a>
+      </footer>
     </div>
   );
 }
@@ -83,6 +112,8 @@ export default function ModelsLayout({
 const useStyles = makeStyles((theme) => {
   return createStyles({
     root: {
+      display: 'flex',
+      flexDirection: 'column',
       height: '100%',
       overflowX: 'hidden',
     },
@@ -175,6 +206,23 @@ const useStyles = makeStyles((theme) => {
           },
         },
       },
+    },
+    footer: {
+      display: 'flex',
+      flexShrink: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: theme.spacing(20),
+      borderTop: '1px solid',
+      borderColor: theme.palette.grey[300],
+    },
+    footerLink: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    footerLogo: {
+      height: theme.spacing(6),
     },
   });
 });

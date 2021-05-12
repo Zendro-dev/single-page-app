@@ -26,8 +26,8 @@ const Home: PageWithLayout = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <h3>{t('home.documentation')} &rarr;</h3>
-              <p>{t('home.documenation-info')}</p>
+              <h1>{t('home.documentation')} &rarr;</h1>
+              <p>{t('home.documentation-info')}</p>
             </a>
 
             <a
@@ -37,31 +37,12 @@ const Home: PageWithLayout = () => {
               rel="noopener noreferrer"
               data-cy="github"
             >
-              <h3>Github &rarr;</h3>
+              <h1>Github &rarr;</h1>
               <p>{t('home.github-info')}</p>
             </a>
           </div>
         </ClientOnly>
       </main>
-
-      <footer className={classes.footer}>
-        <a
-          className={classes.footerLink}
-          href="https://nextjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>Powered by</span>
-          <img
-            style={{
-              paddingLeft: '.5rem',
-            }}
-            src="/nextjs.svg"
-            alt="Next Logo"
-            className={classes.logo}
-          />
-        </a>
-      </footer>
     </div>
   );
 };
@@ -76,11 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      minHeight: '100vh',
-      padding: theme.spacing(0, 2),
-    },
-    appBarRightButtonsContainer: {
-      marginLeft: 'auto',
+      padding: theme.spacing(0, 4),
     },
     main: {
       padding: theme.spacing(20, 0),
@@ -89,9 +66,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    loginButton: {
-      color: 'white',
     },
     banner: {
       padding: theme.spacing(8),
@@ -105,44 +79,40 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: theme.breakpoints.values.md,
     },
     card: {
-      padding: theme.spacing(8),
+      // Dimensions
       width: '100%',
-      border: '1px solid',
-      borderColor: theme.palette.grey[300],
-      transition: 'all',
-      transitionDuration: '.15s',
-      transitionTimingFunction: 'ease',
-      '&:hover': {
-        color: 'green',
-      },
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: theme.spacing(2),
-      },
+
+      // Spacing & Layout
+      margin: theme.spacing(2, 0),
+      padding: theme.spacing(2, 8),
+
       [theme.breakpoints.up('sm')]: {
         flexBasis: '45%',
         '&:nth-child(even)': {
           marginLeft: theme.spacing(2),
         },
       },
+
       [theme.breakpoints.up('md')]: {
         margin: theme.spacing(2, 7),
       },
-    },
-    logo: {
-      height: theme.spacing(6),
-    },
-    footer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '100%',
-      height: theme.spacing(20),
-      borderTop: '1px solid',
-      borderColor: theme.palette.grey[300],
-    },
-    footerLink: {
-      display: 'flex',
-      alignItems: 'center',
+
+      // Palette & Typography
+      '&:hover': {
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.primary.background,
+      },
+
+      '& h1': {
+        ...theme.typography.h6,
+        color: theme.palette.primary.dark,
+        fontWeight: 'bold',
+        [theme.breakpoints.up('sm')]: {
+          ...theme.typography.h5,
+          color: theme.palette.primary.dark,
+          fontWeight: 'bold',
+        },
+      },
     },
   })
 );

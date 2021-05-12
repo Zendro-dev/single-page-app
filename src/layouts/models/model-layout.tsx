@@ -33,13 +33,13 @@ export default function ModelsLayout({
   const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
-  const [showNav, setShowNav] = useState(false);
+  const [showNav, setShowNav] = useState(true);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   useEffect(
-    function hideNavOnSmallScreen() {
-      setShowNav(isLargeScreen);
+    function showNavInLargeScreen() {
+      if (isLargeScreen) setShowNav(true);
     },
     [isLargeScreen, setShowNav]
   );
