@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box } from '@material-ui/core';
@@ -8,11 +7,14 @@ import {
   InfoOutlined as InfoIcon,
   WarningAmber as WarningIcon,
 } from '@material-ui/icons';
-import { useAuth, useModel } from '@/hooks';
-import { RecordUrlQuery } from '@/types/routes';
+import { useAuth, useRoutePermissions } from '@/hooks';
+import { AuthPermissions } from '@/types/auth';
+import { getPathRequest } from '@/utils/router';
+import { useRouter } from 'next/router';
 
 interface RestrictedProps {
   info?: Record<string, string | undefined>;
+  permissions?: AuthPermissions;
   redirect?: {
     to: string;
     timer: number;
@@ -23,15 +25,17 @@ export default function Restricted(
   props: PropsWithChildren<RestrictedProps>
 ): ReactElement {
   const auth = useAuth();
+  const permissions = useRoutePermissions();
   const router = useRouter();
-  const urlQuery = router.query as Partial<RecordUrlQuery>;
-  const getModel = useModel();
   const classes = useStyles();
   const { t } = useTranslation();
 
+  const request = getPathRequest(router.asPath);
+
   const isNotLoggedIn = auth.user === undefined;
-  const isNotAllowed =
-    urlQuery.model && !getModel(urlQuery.model).permissions.read;
+  const isNotAllowed = request
+    ? permissions[request] === false
+    : permissions.read === false;
 
   if (isNotLoggedIn || isNotAllowed) {
     return (

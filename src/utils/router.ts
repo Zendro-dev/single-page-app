@@ -1,26 +1,34 @@
 import { CrudRequest } from '@/types/requests';
 
 /**
- * Compute the requested model operation from the URL path and model name.
- * @param path current router path (`router.asPath`)
- * @param model requested model name
+ * Get the CRUD request from the URL path
+ * @param path current route path (`e.g from router.asPath`)
  */
-export function getPathRequest(
-  path: string,
-  model: string
-): CrudRequest | undefined {
-  let lastChunk = path.split('/').pop();
-  if (!lastChunk) return;
+export function getPathRequest(path: string): CrudRequest | undefined {
+  const routePath = getRoutePath(path);
+  const routeChunks = routePath.split('/');
+  const lastChunk = routeChunks.pop();
 
-  const query = lastChunk.indexOf('?');
-  if (query > -1) lastChunk = lastChunk.substring(0, query);
-  if (!lastChunk) return;
+  switch (lastChunk) {
+    case 'details':
+      return 'read';
 
-  return lastChunk === model || lastChunk === 'details'
-    ? 'read'
-    : lastChunk === 'edit'
-    ? 'update'
-    : lastChunk === 'new'
-    ? 'create'
-    : undefined;
+    case 'edit':
+      return 'update';
+
+    case 'new':
+      return 'create';
+
+    case 'delete':
+      return 'delete';
+
+    default:
+      return undefined;
+  }
+}
+
+export function getRoutePath(path: string): string {
+  const queryIndex = path.lastIndexOf('?');
+  if (queryIndex === -1) return path;
+  return path.substring(0, queryIndex);
 }
