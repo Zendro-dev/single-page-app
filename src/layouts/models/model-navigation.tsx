@@ -44,7 +44,7 @@ export default function Navigation({
               key={route.name}
               icon={route.icon ? MuiIcon(route.icon) : undefined}
               label={t(
-                ((`models-layout.${route.name.toLocaleLowerCase()}` as unknown) as TemplateStringsArray) ??
+                ((`models-layout.${route.name.toLowerCase()}` as unknown) as TemplateStringsArray) ??
                   route.name
               )}
             >
