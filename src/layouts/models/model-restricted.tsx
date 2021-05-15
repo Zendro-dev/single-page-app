@@ -25,12 +25,12 @@ export default function Restricted(
   props: PropsWithChildren<RestrictedProps>
 ): ReactElement {
   const auth = useAuth();
-  const permissions = useRoutePermissions();
-  const router = useRouter();
   const classes = useStyles();
-  const { t } = useTranslation();
-
+  const router = useRouter();
+  const permissions = useRoutePermissions(router.asPath);
+  console.log({ permissions });
   const request = getPathRequest(router.asPath);
+  const { t } = useTranslation();
 
   const isNotLoggedIn = auth.user === undefined;
   const isNotAllowed = request

@@ -1,24 +1,31 @@
-import { useRouter } from 'next/router';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import { ParsedPermissions } from '@/types/acl';
 import { getResourcePermissions } from '@/utils/acl';
 import { getRoutePath } from '@/utils/router';
 import useAuth from './useAuth';
 
-export default function useRoutePermissions(): ParsedPermissions {
+type GetRoutePermissions = (route: string) => ParsedPermissions;
+
+export function useRoutePermissions(): GetRoutePermissions;
+export function useRoutePermissions(route: string): ParsedPermissions;
+export function useRoutePermissions(
+  route?: string
+): ParsedPermissions | GetRoutePermissions {
   const auth = useAuth();
-  const router = useRouter();
 
-  const permissions = useMemo(() => {
-    const routePath = getRoutePath(router.asPath);
+  const getRoutePermissions = useCallback(
+    (route: string) => {
+      const permissions = getResourcePermissions(
+        auth.user?.permissions ?? {},
+        route
+      );
 
-    const permissions = getResourcePermissions(
-      auth.user?.permissions ?? {},
-      routePath
-    );
+      return permissions;
+    },
+    [auth.user?.permissions]
+  );
 
-    return permissions;
-  }, [router.asPath, auth.user?.permissions]);
-
-  return permissions;
+  return route ? getRoutePermissions(getRoutePath(route)) : getRoutePermissions;
 }
+
+export default useRoutePermissions;
