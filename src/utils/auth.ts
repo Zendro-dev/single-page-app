@@ -169,7 +169,6 @@ export async function getUserPermissions(
       [...modelResources, ...routeResources],
       (err, permissions) => {
         if (err) reject(err.message);
-        console.log({ permissions });
         resolve(permissions);
       }
     );
