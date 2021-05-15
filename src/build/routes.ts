@@ -1,11 +1,11 @@
 import { readdir } from 'fs/promises';
 import { parse } from 'path';
 import {
-  AppRoute,
   AppRoutes,
   AppRoutes2,
   ModelRoute,
   ModelUrlQuery,
+  RouteLink,
 } from '../types/routes';
 
 /**
@@ -24,84 +24,6 @@ export async function getStaticModelPaths(): Promise<
   const modelRoutes = routes.models.map(getModelNames('models'));
 
   return [...adminRoutes, ...modelRoutes];
-}
-
-/**
- * Parse each data model path into a valid application route.
- * @param modelPaths array of paths to each data model file
- */
-export async function getStaticRecordPaths(
-  requests: string[] = ['details', 'edit', 'new']
-): Promise<AppRoutes2> {
-  const parseRoute = (group: string, model: string) => (
-    request?: string
-  ): AppRoute => {
-    return {
-      name: model,
-      href: `/${group}/${model}` + request ? `/${request}` : '',
-      params: { group, model: model, request },
-    };
-  };
-
-  const adminModels = await readdir('./admin');
-  const admin = adminModels.reduce<AppRoute[]>((adminRoutes, modelFile) => {
-    const model = parse(modelFile).name;
-    const modelRoute = parseRoute('admin', model)();
-    const recordRoutes = requests.map(parseRoute('admin', model));
-    return [...adminRoutes, modelRoute, ...recordRoutes];
-  }, []);
-
-  const dataModels = await readdir('./models');
-  const models = dataModels.reduce<AppRoute[]>((modelRoutes, modelFile) => {
-    const model = parse(modelFile).name;
-    const modelRoute = parseRoute('models', model)();
-    const recordRoutes = requests.map(parseRoute('models', model));
-    return [...modelRoutes, modelRoute, ...recordRoutes];
-  }, []);
-
-  return {
-    admin,
-    models,
-  };
-}
-
-/**
- * Parse each data model path into a valid application route.
- * @param modelPaths array of paths to each data model file
- */
-export async function getStaticRoutes2(
-  requests: string[] = ['details', 'edit', 'new']
-): Promise<AppRoutes2> {
-  const parseRoute = (group: string, model: string) => (
-    request?: string
-  ): AppRoute => {
-    return {
-      name: model,
-      href: `/${group}/${model}` + request ? `/${request}` : '',
-      params: { group, model: model, request },
-    };
-  };
-
-  const adminModels = await readdir('./admin');
-  const admin = adminModels.reduce<AppRoute[]>((adminRoutes, modelFile) => {
-    const model = parse(modelFile).name;
-    const modelRoute = parseRoute('admin', model)();
-    const recordRoutes = requests.map(parseRoute('admin', model));
-    return [...adminRoutes, modelRoute, ...recordRoutes];
-  }, []);
-
-  const dataModels = await readdir('./models');
-  const models = dataModels.reduce<AppRoute[]>((modelRoutes, modelFile) => {
-    const model = parse(modelFile).name;
-    const modelRoute = parseRoute('models', model)();
-    const recordRoutes = requests.map(parseRoute('models', model));
-    return [...modelRoutes, modelRoute, ...recordRoutes];
-  }, []);
-
-  return {
-    admin,
-    models,
-  };
 }
 
 /**
@@ -128,3 +50,47 @@ export async function getStaticRoutes(): Promise<AppRoutes> {
     models,
   };
 }
+
+/**
+ * Parse admin and data models into an array of routes.
+ * @returns an array of route groups and links
+ */
+export async function getStaticRoutes2(): Promise<AppRoutes2> {
+  const dataModels = await readdir('./models');
+  const models = dataModels.map(parseModelsAsRoutes('models'));
+
+  const adminModels = await readdir('./admin');
+  const admin = adminModels.map(parseModelsAsRoutes('admin'));
+
+  return [
+    {
+      type: 'link',
+      name: 'Home',
+      icon: 'Home',
+      href: '/models',
+    },
+    {
+      type: 'group',
+      name: 'Models',
+      icon: 'BubbleChart',
+      routes: models,
+    },
+    {
+      type: 'group',
+      name: 'Admin',
+      icon: 'SupervisorAccountRounded',
+      routes: admin,
+    },
+  ];
+}
+
+export const parseModelsAsRoutes = (group: string) => (
+  file: string
+): RouteLink => {
+  const { name } = parse(file);
+  return {
+    type: 'link',
+    name,
+    href: `/${group}/${name}`,
+  };
+};

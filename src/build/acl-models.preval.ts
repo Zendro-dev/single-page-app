@@ -18,7 +18,7 @@ const defaultRoles = [
   },
 ];
 
-async function buildAclRules(): Promise<AclSet[]> {
+async function buildModelsAclRules(): Promise<AclSet[]> {
   let aclRules;
   const rulesPath = 'src/custom/acl-rules.json';
 
@@ -57,4 +57,4 @@ async function buildAclRules(): Promise<AclSet[]> {
   return aclRules;
 }
 
-export default preval(buildAclRules());
+export default preval(buildModelsAclRules());
