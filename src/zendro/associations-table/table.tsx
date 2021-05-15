@@ -41,7 +41,6 @@ import {
 import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
-import { ParsedPermissions } from '@/types/acl';
 import { ExtendedClientError } from '@/types/errors';
 import { hasTokenExpiredErrors } from '@/utils/errors';
 import { UseOrderProps } from '@/zendro/model-table';
@@ -63,7 +62,6 @@ interface AssocResponse {
 interface AssocTable {
   data: TableRecord[];
   pageInfo?: PageInfo;
-  permissions: ParsedPermissions;
   schema: ParsedDataModel2;
 }
 
@@ -105,7 +103,7 @@ export default function AssociationsTable({
         hasPreviousPage: false,
         hasNextPage: false,
       },
-      ...model,
+      schema: model.schema,
     };
   });
 
@@ -221,7 +219,7 @@ export default function AssociationsTable({
         setAssocTable({
           data: data?.records ?? [],
           pageInfo: data?.pageInfo,
-          ...model,
+          schema: model.schema,
         });
 
         // If association type is "to_one", the count must be directly derived
