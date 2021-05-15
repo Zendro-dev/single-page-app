@@ -28,7 +28,7 @@ import {
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import {
@@ -554,5 +554,5 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-Model.layout = ModelsLayout;
+Model.layout = ModelLayout;
 export default Model;

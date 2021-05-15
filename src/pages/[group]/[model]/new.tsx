@@ -13,7 +13,7 @@ import {
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
@@ -190,5 +190,5 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-Record.layout = ModelsLayout;
+Record.layout = ModelLayout;
 export default Record;

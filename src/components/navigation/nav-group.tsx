@@ -19,7 +19,7 @@ import {
 import { SvgIconType } from '@/types/elements';
 
 export interface NavGroupProps extends ListProps {
-  icon: SvgIconType;
+  icon?: SvgIconType;
   label: string;
 }
 
@@ -38,9 +38,11 @@ export default function NavGroup({
         button
         onClick={() => setShowGroup((state) => !state)}
       >
-        <ListItemIcon>
-          <Icon />
-        </ListItemIcon>
+        {Icon && (
+          <ListItemIcon>
+            <Icon />
+          </ListItemIcon>
+        )}
         <ListItemText
           primary={<Typography fontWeight="bold">{label}</Typography>}
         />

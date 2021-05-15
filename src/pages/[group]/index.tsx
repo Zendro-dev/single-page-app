@@ -1,5 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 import { GroupUrlQuery } from '@/types/routes';
 
 export const getStaticPaths: GetStaticPaths<GroupUrlQuery> = async () => {
@@ -25,5 +25,5 @@ export const getStaticProps: GetStaticProps<GroupUrlQuery> = async (
 const ModelsHome: PageWithLayout<GroupUrlQuery> = ({ group }) => {
   return <div>{group} Home</div>;
 };
-ModelsHome.layout = ModelsLayout;
+ModelsHome.layout = ModelLayout;
 export default ModelsHome;
