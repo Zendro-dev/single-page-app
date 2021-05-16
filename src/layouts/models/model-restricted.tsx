@@ -28,7 +28,6 @@ export default function Restricted(
   const classes = useStyles();
   const router = useRouter();
   const permissions = useRoutePermissions(router.asPath);
-  console.log({ permissions });
   const request = getPathRequest(router.asPath);
   const { t } = useTranslation();
 
