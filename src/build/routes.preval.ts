@@ -4,7 +4,7 @@ import { AppRoutes2 } from '@/types/routes';
 import { getStaticRoutes2 } from './routes';
 
 async function buildRoutes(): Promise<AppRoutes2> {
-  const routesJson = process.cwd() + 'src/custom/routes.json';
+  const routesJson = process.cwd() + '/src/custom/routes.json';
   let routes: AppRoutes2;
 
   try {

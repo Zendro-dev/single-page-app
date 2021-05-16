@@ -20,7 +20,7 @@ const defaultRoles = [
 
 async function buildModelsAclRules(): Promise<AclSet[]> {
   let aclRules;
-  const rulesPath = process.cwd() + 'src/custom/acl-models.json';
+  const rulesPath = process.cwd() + '/src/custom/acl-models.json';
 
   try {
     /**
