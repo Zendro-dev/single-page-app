@@ -37,7 +37,7 @@ const requestReducer = (resources: string[], modelRoute: string): string[] => {
  */
 async function buildRoutesAclRules(): Promise<AclSet[]> {
   let aclRules;
-  const rulesPath = 'src/custom/acl-rules.json';
+  const rulesPath = process.cwd() + '/src/custom/acl-routes.json';
 
   try {
     /**
