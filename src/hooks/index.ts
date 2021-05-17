@@ -3,7 +3,6 @@ import useCoundown from './useCountdown';
 import { useDialog } from './useDialog';
 import useModel from './useModel';
 import useToastNotification from './useToastNotification';
-import useRoutePermissions from './useRoutePermissions';
 import useZendroClient from './useZendroClient';
 
 export {
@@ -11,7 +10,6 @@ export {
   useCoundown,
   useDialog,
   useModel,
-  useRoutePermissions,
   useToastNotification,
   useZendroClient,
 };

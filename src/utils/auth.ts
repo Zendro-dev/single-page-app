@@ -3,7 +3,6 @@ import axios from 'axios';
 import decode from 'jwt-decode';
 
 import aclModels from '@/build/acl-models.preval';
-import aclRoutes from '@/build/acl-routes.preval';
 
 import { LOGIN_URL } from '@/config/globals';
 import {
@@ -153,24 +152,19 @@ export async function getUserPermissions(
   const acl = new Acl(new Acl.memoryBackend());
 
   // Server defined ACL rules
-  await acl.allow([...aclModels, ...aclRoutes]);
+  await acl.allow(aclModels);
 
   // Current user and its associated roles
   await acl.addUserRoles(user, roles);
 
   // Resources for which permissions should be retrieved
   const modelResources = aclModels.reduce(aclSetResourceReducer, []);
-  const routeResources = aclRoutes.reduce(aclSetResourceReducer, []);
 
   // Parse and return the current user permissions
   return new Promise<AuthPermissions>((resolve, reject) => {
-    acl.allowedPermissions(
-      user,
-      [...modelResources, ...routeResources],
-      (err, permissions) => {
-        if (err) reject(err.message);
-        resolve(permissions);
-      }
-    );
+    acl.allowedPermissions(user, modelResources, (err, permissions) => {
+      if (err) reject(err.message);
+      resolve(permissions);
+    });
   });
 }
