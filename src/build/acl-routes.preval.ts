@@ -36,7 +36,7 @@ const requestReducer = (resources: string[], modelRoute: string): string[] => {
  * @returns a valid set of ACL rules
  */
 async function buildRoutesAclRules(): Promise<AclSet[]> {
-  let aclRules: AclSet[];
+  let aclRules: AclSet[] = [];
   const rulesPath = process.cwd() + '/src/custom/acl-routes.json';
 
   try {
@@ -47,42 +47,47 @@ async function buildRoutesAclRules(): Promise<AclSet[]> {
     aclRules = require(rulesPath);
   } catch (error) {
     /**
-     * If the file does not exist, use the provided data models to generate
-     * the default contents and write them to file.
+     * Uncommment the code below to create a default acl-routes.json file
+     * using the default model routes as resources.
      */
-    const admin = await readdir('./admin');
-    const models = await readdir('./models');
-
-    /**
-     * Route resources are as page URLs in the application. A "/models" resource
-     * is also added to the list of permissions, corresponding to the "Home"
-     * route in the models navigation.
-     */
-    const adminResources = admin
-      .map(parseModelsAsRoutes('admin'))
-      .map((link) => link.href)
-      .reduce<string[]>(requestReducer, []);
-
-    const modelResources = models
-      .map(parseModelsAsRoutes('models'))
-      .map((link) => link.href)
-      .reduce<string[]>(requestReducer, []);
-
-    aclRules = defaultRoles.map(({ roles, permissions }) => ({
-      roles,
-      allows: [
-        {
-          permissions,
-          resources:
-            roles === 'administrator'
-              ? adminResources
-              : ['/models', ...modelResources],
-        },
-      ],
-    }));
-
-    await mkdir('src/custom', { recursive: true });
-    await writeFile(rulesPath, JSON.stringify(aclRules, null, 2));
+    //
+    // /**
+    //  * If the file does not exist, use the provided data models to generate
+    //  * the default contents and write them to file.
+    //  */
+    // const admin = await readdir('./admin');
+    // const models = await readdir('./models');
+    //
+    // /**
+    //  * Route resources are as page URLs in the application. A "/models" resource
+    //  * is also added to the list of permissions, corresponding to the "Home"
+    //  * route in the models navigation.
+    //  */
+    // const adminResources = admin
+    //   .map(parseModelsAsRoutes('admin'))
+    //   .map((link) => link.href)
+    //   .reduce<string[]>(requestReducer, []);
+    //
+    // const modelResources = models
+    //   .map(parseModelsAsRoutes('models'))
+    //   .map((link) => link.href)
+    //   .reduce<string[]>(requestReducer, []);
+    //
+    // aclRules = defaultRoles.map(({ roles, permissions }) => ({
+    //   roles,
+    //   allows: [
+    //     {
+    //       permissions,
+    //       resources:
+    //         roles === 'administrator'
+    //           ? adminResources
+    //           : ['/models', ...modelResources],
+    //     },
+    //   ],
+    // }));
+    //
+    // await mkdir('src/custom', { recursive: true });
+    // await writeFile(rulesPath, JSON.stringify(aclRules, null, 2));
   }
 
   return aclRules;
