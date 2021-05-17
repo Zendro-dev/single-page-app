@@ -17,7 +17,6 @@ import useAuth from '@/hooks/useAuth';
 import { AppRoutes2, RecordUrlQuery } from '@/types/routes';
 import { getRoutePath } from '@/utils/router';
 
-import Restricted from './model-restricted';
 import Navigation from './model-navigation';
 
 export interface ModelsProps {
@@ -86,7 +85,7 @@ export default function Models({
           crumbs={crumbs}
         />
         <Divider />
-        <Restricted>{props.children}</Restricted>
+        {props.children}
       </main>
     </div>
   );

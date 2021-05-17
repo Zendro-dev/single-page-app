@@ -25,6 +25,7 @@ import { hasTokenExpiredErrors, parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
 import AssociationsTable from '@/zendro/associations-table';
+import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
@@ -301,49 +302,51 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   };
 
   return (
-    <TabContext value={currentTab}>
-      <TabList
-        aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
-        className={classes.tabList}
-        onChange={handleOnTabChange}
-        variant="fullWidth"
-      >
-        <Tab label={t('record-form.tab-attributes')} value="attributes" />
-        <Tab
-          label={t('record-form.tab-associations')}
-          value="associations"
-          disabled={model.schema.associations?.length === 0}
-        />
-      </TabList>
-      <TabPanel value="attributes" className={classes.panelForm}>
-        <AttributesForm
-          attributes={model.schema.attributes}
-          className={classes.form}
-          data={recordData}
-          errors={ajvErrors}
-          formId={router.asPath}
-          formView="update"
-          modelName={props.model}
-          actions={{
-            cancel: handleOnCancel,
-            delete: handleOnDelete,
-            read: model.permissions.read ? handleOnDetails : undefined,
-            reload: handleOnReload,
-            submit: handleOnSubmit,
-          }}
-        />
-      </TabPanel>
-      <TabPanel className={classes.panelTable} value="associations">
-        <AssociationsTable
-          associationView="update"
-          associations={model.schema.associations ?? []}
-          attributes={model.schema.attributes}
-          modelName={props.model}
-          recordId={urlQuery.id as string}
-          primaryKey={model.schema.primaryKey}
-        />
-      </TabPanel>
-    </TabContext>
+    <ModelBouncer object={props.model} action="update">
+      <TabContext value={currentTab}>
+        <TabList
+          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
+          className={classes.tabList}
+          onChange={handleOnTabChange}
+          variant="fullWidth"
+        >
+          <Tab label={t('record-form.tab-attributes')} value="attributes" />
+          <Tab
+            label={t('record-form.tab-associations')}
+            value="associations"
+            disabled={model.schema.associations?.length === 0}
+          />
+        </TabList>
+        <TabPanel value="attributes" className={classes.panelForm}>
+          <AttributesForm
+            attributes={model.schema.attributes}
+            className={classes.form}
+            data={recordData}
+            errors={ajvErrors}
+            formId={router.asPath}
+            formView="update"
+            modelName={props.model}
+            actions={{
+              cancel: handleOnCancel,
+              delete: handleOnDelete,
+              read: model.permissions.read ? handleOnDetails : undefined,
+              reload: handleOnReload,
+              submit: handleOnSubmit,
+            }}
+          />
+        </TabPanel>
+        <TabPanel className={classes.panelTable} value="associations">
+          <AssociationsTable
+            associationView="update"
+            associations={model.schema.associations ?? []}
+            attributes={model.schema.attributes}
+            modelName={props.model}
+            recordId={urlQuery.id as string}
+            primaryKey={model.schema.primaryKey}
+          />
+        </TabPanel>
+      </TabContext>
+    </ModelBouncer>
   );
 };
 

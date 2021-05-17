@@ -41,8 +41,10 @@ import { ModelUrlQuery } from '@/types/routes';
 import { DataRecord } from '@/types/models';
 import { PageInfo, ReadManyResponse } from '@/types/requests';
 
+import { hasTokenExpiredErrors } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
 
+import ModelBouncer from '@/zendro/model-bouncer';
 import {
   Table,
   TableBody,
@@ -57,7 +59,6 @@ import {
   UseTablePaginationProps,
   useTableSearch,
 } from '@/zendro/model-table';
-import { hasTokenExpiredErrors } from '@/utils/errors';
 
 export interface ModelProps {
   group: string;
@@ -349,171 +350,173 @@ const Model: PageWithLayout<ModelProps> = (props) => {
   );
 
   return (
-    <TableContainer className={classes.root}>
-      <div className={classes.toolbar}>
-        <TableSearch
-          placeholder={t('model-table.search-label', {
-            modelName: props.model,
-          })}
-          value={searchText}
-          onSearch={(value) => setSearchText(value)}
-          // onChange={(event) => setSearchText(event.target.value)}
-          onReset={() => setSearchText('')}
-        />
+    <ModelBouncer object={props.model} action="read">
+      <TableContainer className={classes.root}>
+        <div className={classes.toolbar}>
+          <TableSearch
+            placeholder={t('model-table.search-label', {
+              modelName: props.model,
+            })}
+            value={searchText}
+            onSearch={(value) => setSearchText(value)}
+            // onChange={(event) => setSearchText(event.target.value)}
+            onReset={() => setSearchText('')}
+          />
 
-        <div className={classes.toolbarActions}>
-          <IconButton
-            tooltip={t('model-table.reload', { modelName: props.model })}
-            onClick={() => mutateRecords()}
-          >
-            <ReloadIcon />
-          </IconButton>
-
-          {model.permissions.create && (
+          <div className={classes.toolbarActions}>
             <IconButton
-              tooltip={t('model-table.add', { modelName: props.model })}
-              onClick={handleOnCreate}
+              tooltip={t('model-table.reload', { modelName: props.model })}
+              onClick={() => mutateRecords()}
             >
-              <AddIcon />
+              <ReloadIcon />
             </IconButton>
-          )}
 
-          {model.permissions.create && (
-            <IconButton
-              component="label"
-              tooltip={t('model-table.import', { modelName: props.model })}
-            >
-              <input
-                style={{ display: 'none' }}
-                type="file"
-                accept=".csv"
-                onChange={handleImportCsv}
-              />
-              <ImportIcon />
-            </IconButton>
-          )}
-
-          <form action={EXPORT_URL}>
-            <input type="hidden" name="model" value={props.model} />
-            <IconButton
-              type="submit"
-              tooltip={t('model-table.download-data', {
-                modelName: props.model,
-              })}
-            >
-              <ExportIcon />
-            </IconButton>
-          </form>
-
-          <a
-            ref={(ref) => (csvTemplateDownloadAnchor.current = ref)}
-            download="country.csv"
-          >
-            <IconButton
-              component="label"
-              tooltip={t('model-table.download-template', {
-                modelName: props.model,
-              })}
-              onClick={handleExportTableTemplate}
-            >
-              <ImportTemplateIcon />
-            </IconButton>
-          </a>
-        </div>
-      </div>
-      <Table caption={t('model-table.caption', { modelName: props.model })}>
-        <TableHeader
-          actionsColSpan={
-            Object.entries(model.permissions).filter(
-              ([action, allowed]) => allowed && action !== 'create'
-            ).length
-          }
-          attributes={model.schema.attributes}
-          onSortLabelClick={(field) =>
-            setOrder((state) => ({
-              ...state,
-              sortField: field,
-              sortDirection: !state?.sortDirection
-                ? 'ASC'
-                : state.sortDirection === 'ASC'
-                ? 'DESC'
-                : 'ASC',
-            }))
-          }
-          activeOrder={order?.sortField ?? model.schema.primaryKey}
-          orderDirection={order?.sortDirection ?? 'ASC'}
-        />
-
-        <TableBody>
-          {records.map((record) => {
-            const recordId = record.data[model.schema.primaryKey] as
-              | string
-              | number;
-            return (
-              <TableRow
-                attributes={model.schema.attributes}
-                record={record.data}
-                key={recordId}
-                onDoubleClick={() => handleOnRead(recordId)}
-                hover
+            {model.permissions.create && (
+              <IconButton
+                tooltip={t('model-table.add', { modelName: props.model })}
+                onClick={handleOnCreate}
               >
-                {model.permissions.read && (
-                  <MuiTableCell padding="checkbox">
-                    <IconButton
-                      tooltip={t('model-table.view', { recordId })}
-                      onClick={() => handleOnRead(recordId)}
-                      className={classes.rowActionPrimary}
-                    >
-                      <DetailsIcon fontSize="small" />
-                    </IconButton>
-                  </MuiTableCell>
-                )}
-                {model.permissions.update && (
-                  <MuiTableCell padding="checkbox">
-                    <IconButton
-                      tooltip={t('model-table.edit', { recordId })}
-                      onClick={() => handleOnUpdate(recordId)}
-                      className={classes.rowActionPrimary}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </MuiTableCell>
-                )}
-                {model.permissions.delete && (
-                  <MuiTableCell padding="checkbox">
-                    <IconButton
-                      tooltip={t('model-table.delete', { recordId })}
-                      onClick={() => handleOnDelete(recordId)}
-                      className={classes.rowActionSecondary}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </MuiTableCell>
-                )}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                <AddIcon />
+              </IconButton>
+            )}
 
-      <TablePagination
-        count={count}
-        options={[5, 10, 15, 20, 25, 50]}
-        paginationLimit={tablePagination.first ?? tablePagination.last}
-        hasFirstPage={pageInfo.hasPreviousPage}
-        hasLastPage={pageInfo.hasNextPage}
-        hasPreviousPage={pageInfo.hasPreviousPage}
-        hasNextPage={pageInfo.hasNextPage}
-        startCursor={pageInfo.startCursor ?? null}
-        endCursor={pageInfo.endCursor ?? null}
-        onPageChange={(position, cursor) => {
-          setPagination((state) => ({ ...state, position, cursor }));
-        }}
-        onPageSizeChange={(limit) => {
-          setPagination((state) => ({ ...state, limit }));
-        }}
-      />
-    </TableContainer>
+            {model.permissions.create && (
+              <IconButton
+                component="label"
+                tooltip={t('model-table.import', { modelName: props.model })}
+              >
+                <input
+                  style={{ display: 'none' }}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleImportCsv}
+                />
+                <ImportIcon />
+              </IconButton>
+            )}
+
+            <form action={EXPORT_URL}>
+              <input type="hidden" name="model" value={props.model} />
+              <IconButton
+                type="submit"
+                tooltip={t('model-table.download-data', {
+                  modelName: props.model,
+                })}
+              >
+                <ExportIcon />
+              </IconButton>
+            </form>
+
+            <a
+              ref={(ref) => (csvTemplateDownloadAnchor.current = ref)}
+              download="country.csv"
+            >
+              <IconButton
+                component="label"
+                tooltip={t('model-table.download-template', {
+                  modelName: props.model,
+                })}
+                onClick={handleExportTableTemplate}
+              >
+                <ImportTemplateIcon />
+              </IconButton>
+            </a>
+          </div>
+        </div>
+        <Table caption={t('model-table.caption', { modelName: props.model })}>
+          <TableHeader
+            actionsColSpan={
+              Object.entries(model.permissions).filter(
+                ([action, allowed]) => allowed && action !== 'create'
+              ).length
+            }
+            attributes={model.schema.attributes}
+            onSortLabelClick={(field) =>
+              setOrder((state) => ({
+                ...state,
+                sortField: field,
+                sortDirection: !state?.sortDirection
+                  ? 'ASC'
+                  : state.sortDirection === 'ASC'
+                  ? 'DESC'
+                  : 'ASC',
+              }))
+            }
+            activeOrder={order?.sortField ?? model.schema.primaryKey}
+            orderDirection={order?.sortDirection ?? 'ASC'}
+          />
+
+          <TableBody>
+            {records.map((record) => {
+              const recordId = record.data[model.schema.primaryKey] as
+                | string
+                | number;
+              return (
+                <TableRow
+                  attributes={model.schema.attributes}
+                  record={record.data}
+                  key={recordId}
+                  onDoubleClick={() => handleOnRead(recordId)}
+                  hover
+                >
+                  {model.permissions.read && (
+                    <MuiTableCell padding="checkbox">
+                      <IconButton
+                        tooltip={t('model-table.view', { recordId })}
+                        onClick={() => handleOnRead(recordId)}
+                        className={classes.rowActionPrimary}
+                      >
+                        <DetailsIcon fontSize="small" />
+                      </IconButton>
+                    </MuiTableCell>
+                  )}
+                  {model.permissions.update && (
+                    <MuiTableCell padding="checkbox">
+                      <IconButton
+                        tooltip={t('model-table.edit', { recordId })}
+                        onClick={() => handleOnUpdate(recordId)}
+                        className={classes.rowActionPrimary}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </MuiTableCell>
+                  )}
+                  {model.permissions.delete && (
+                    <MuiTableCell padding="checkbox">
+                      <IconButton
+                        tooltip={t('model-table.delete', { recordId })}
+                        onClick={() => handleOnDelete(recordId)}
+                        className={classes.rowActionSecondary}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </MuiTableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+
+        <TablePagination
+          count={count}
+          options={[5, 10, 15, 20, 25, 50]}
+          paginationLimit={tablePagination.first ?? tablePagination.last}
+          hasFirstPage={pageInfo.hasPreviousPage}
+          hasLastPage={pageInfo.hasNextPage}
+          hasPreviousPage={pageInfo.hasPreviousPage}
+          hasNextPage={pageInfo.hasNextPage}
+          startCursor={pageInfo.startCursor ?? null}
+          endCursor={pageInfo.endCursor ?? null}
+          onPageChange={(position, cursor) => {
+            setPagination((state) => ({ ...state, position, cursor }));
+          }}
+          onPageSizeChange={(limit) => {
+            setPagination((state) => ({ ...state, limit }));
+          }}
+        />
+      </TableContainer>
+    </ModelBouncer>
   );
 };
 

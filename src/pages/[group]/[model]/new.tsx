@@ -22,6 +22,7 @@ import { ModelUrlQuery } from '@/types/routes';
 import { parseGraphqlErrors } from '@/utils/errors';
 import { isEmptyObject } from '@/utils/validation';
 
+import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
@@ -163,18 +164,20 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   /* EVENT HANDLERS */
 
   return (
-    <AttributesForm
-      attributes={model.schema.attributes}
-      className={classes.form}
-      errors={ajvErrors}
-      formId={router.asPath}
-      formView="create"
-      modelName={props.model}
-      actions={{
-        cancel: handleOnCancel,
-        submit: handleOnSubmit,
-      }}
-    />
+    <ModelBouncer object={props.model} action="create">
+      <AttributesForm
+        attributes={model.schema.attributes}
+        className={classes.form}
+        errors={ajvErrors}
+        formId={router.asPath}
+        formView="create"
+        modelName={props.model}
+        actions={{
+          cancel: handleOnCancel,
+          submit: handleOnSubmit,
+        }}
+      />
+    </ModelBouncer>
   );
 };
 

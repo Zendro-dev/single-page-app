@@ -20,6 +20,7 @@ import { hasTokenExpiredErrors } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
+import ModelBouncer from '@/zendro/model-bouncer';
 
 interface RecordProps {
   group: string;
@@ -143,47 +144,49 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   };
 
   return (
-    <TabContext value={currentTab}>
-      <TabList
-        aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
-        className={classes.tabList}
-        onChange={handleOnTabChange}
-        variant="fullWidth"
-      >
-        <Tab label={t('record-form.tab-attributes')} value="attributes" />
-        <Tab
-          label={t('record-form.tab-associations')}
-          value="associations"
-          disabled={model.schema.associations?.length === 0}
-        />
-      </TabList>
-      <TabPanel value="attributes" className={classes.panelForm}>
-        <AttributesForm
-          attributes={model.schema.attributes}
-          className={classes.form}
-          data={recordData}
-          disabled
-          formId={router.asPath}
-          formView="read"
-          modelName={props.model}
-          actions={{
-            cancel: handleOnCancel,
-            update: model.permissions.update ? handleOnUpdate : undefined,
-            reload: handleOnReload,
-          }}
-        />
-      </TabPanel>
-      <TabPanel value="associations" className={classes.panelTable}>
-        <AssociationsTable
-          associationView="details"
-          associations={model.schema.associations ?? []}
-          attributes={model.schema.attributes}
-          modelName={props.model}
-          recordId={urlQuery.id as string}
-          primaryKey={model.schema.primaryKey}
-        />
-      </TabPanel>
-    </TabContext>
+    <ModelBouncer object={props.model} action="read">
+      <TabContext value={currentTab}>
+        <TabList
+          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
+          className={classes.tabList}
+          onChange={handleOnTabChange}
+          variant="fullWidth"
+        >
+          <Tab label={t('record-form.tab-attributes')} value="attributes" />
+          <Tab
+            label={t('record-form.tab-associations')}
+            value="associations"
+            disabled={model.schema.associations?.length === 0}
+          />
+        </TabList>
+        <TabPanel value="attributes" className={classes.panelForm}>
+          <AttributesForm
+            attributes={model.schema.attributes}
+            className={classes.form}
+            data={recordData}
+            disabled
+            formId={router.asPath}
+            formView="read"
+            modelName={props.model}
+            actions={{
+              cancel: handleOnCancel,
+              update: model.permissions.update ? handleOnUpdate : undefined,
+              reload: handleOnReload,
+            }}
+          />
+        </TabPanel>
+        <TabPanel value="associations" className={classes.panelTable}>
+          <AssociationsTable
+            associationView="details"
+            associations={model.schema.associations ?? []}
+            attributes={model.schema.attributes}
+            modelName={props.model}
+            recordId={urlQuery.id as string}
+            primaryKey={model.schema.primaryKey}
+          />
+        </TabPanel>
+      </TabContext>
+    </ModelBouncer>
   );
 };
 
