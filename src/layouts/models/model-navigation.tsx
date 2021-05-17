@@ -8,7 +8,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import MuiIcon from '@/components/dynamic/mui-icon';
 
 import { NavGroup, NavLink } from '@/components/navigation';
-import { useRoutePermissions } from '@/hooks';
+import { useModel } from '@/hooks';
 import { AuthPermissions } from '@/types/auth';
 import { AppRoutes2, RouteLink } from '@/types/routes';
 
@@ -24,7 +24,7 @@ export default function Navigation({
 }: AppDrawerProps): ReactElement {
   const classes = useStyles();
   const router = useRouter();
-  const getRoutePermissions = useRoutePermissions();
+  const getModel = useModel();
   const { t } = useTranslation();
 
   const canAccessGroup = (routes: RouteLink[]): boolean => {
@@ -32,7 +32,7 @@ export default function Navigation({
   };
 
   const canAccessRoute = (route: RouteLink): boolean | undefined => {
-    return getRoutePermissions(route.href).read;
+    return getModel(route.name).permissions.read;
   };
 
   return (
