@@ -53,7 +53,9 @@ export default function Navigation({
                   key={name}
                   href={href}
                   className={clsx({
-                    active: href === router.asPath,
+                    active:
+                      router.asPath === href ||
+                      router.asPath.includes(href + '/'),
                   })}
                   text={name}
                 />
