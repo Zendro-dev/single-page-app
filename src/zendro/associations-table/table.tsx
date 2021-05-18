@@ -42,7 +42,7 @@ import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
 import { getInflections } from '@/utils/inflection';
 import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { ExtendedClientError } from '@/types/errors';
-import { hasTokenExpiredErrors } from '@/utils/errors';
+import { parseErrorResponse } from '@/utils/errors';
 import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
@@ -144,6 +144,40 @@ export default function AssociationsTable({
   });
   const tablePagination = useTablePagination(pagination);
 
+  /* AUXILIARY */
+
+  /**
+   * Auxiliary function to parse a Zendro client error response and display the
+   * relevant notifications, if necessary.
+   * @param error a base or extended client error type
+   */
+  const parseAndDisplayErrorResponse = (
+    error: Error | ExtendedClientError
+  ): void => {
+    const parsedError = parseErrorResponse(error);
+    console.log({ parsedError });
+
+    if (parsedError.networkError) {
+      showSnackbar(parsedError.networkError, 'error');
+    }
+
+    if (parsedError.genericError) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.genericError
+      );
+    }
+
+    if (parsedError.graphqlErrors?.nonValidationErrors?.length) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.graphqlErrors.nonValidationErrors
+      );
+    }
+  };
+
   /* FETCH RECORDS */
   const { mutate: mutateRecords } = useSWR<
     { records: TableRecord[]; pageInfo?: PageInfo } | undefined
@@ -228,32 +262,7 @@ export default function AssociationsTable({
           setRecordsTotal(data?.records.length ?? 0);
         }
       },
-      onError: (error) => {
-        // TODO check clientError.response.data
-        const clientError = error as ExtendedClientError<AssocResponse>;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
       shouldRetryOnError: false,
     }
   );
@@ -288,35 +297,11 @@ export default function AssociationsTable({
           setRecordsTotal(data.count);
         }
       },
-      onError: (error) => {
-        const clientError = error as ExtendedClientError<
-          Record<'count', number>
-        >;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
     }
   );
+
+  /* HANDLERS */
 
   const handleOnAsociationSelect = (target: string, name: string): void => {
     const assoc = associations.find(
@@ -427,11 +412,7 @@ export default function AssociationsTable({
       mutateRecords();
       mutateCount();
     } catch (error) {
-      if (
-        error.response?.errors &&
-        !hasTokenExpiredErrors(error.response.errors)
-      )
-        showSnackbar(t('errors.server-error'), 'error', error);
+      parseAndDisplayErrorResponse(error);
     }
   };
 

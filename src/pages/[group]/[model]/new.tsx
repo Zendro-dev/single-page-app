@@ -15,12 +15,10 @@ import {
 } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
-import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { parseGraphqlErrors } from '@/utils/errors';
-import { isEmptyObject } from '@/utils/validation';
+import { parseErrorResponse } from '@/utils/errors';
 
 import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
@@ -107,37 +105,30 @@ const Record: PageWithLayout<RecordProps> = (props) => {
           }`
         );
       } catch (error) {
-        setAjvErrors(undefined);
-        const clientError = error as ExtendedClientError<
-          Record<string, DataRecord>
-        >;
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
+        const parsedError = parseErrorResponse<DataRecord>(error);
 
-        if (genericError) {
+        if (parsedError.genericError) {
           showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
+            t('errors.server-error', { status: parsedError.status }),
             'error',
-            clientError
+            parsedError.genericError
           );
         }
 
-        if (!graphqlErrors) return;
-        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
-          graphqlErrors
-        );
+        if (parsedError.graphqlErrors) {
+          // Send generic GraphQL errors to the notification queue
+          if (parsedError.graphqlErrors.nonValidationErrors?.length) {
+            showSnackbar(
+              t('errors.server-error', { status: parsedError.status }),
+              'error',
+              parsedError.graphqlErrors.nonValidationErrors
+            );
+          }
 
-        // Send generic GraphQL errors to the notification queue
-        if (nonValidationErrors.length > 0) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            nonValidationErrors
-          );
+          // Send validation errors to the form serverErrors
+          if (parsedError.graphqlErrors.validationErrors)
+            setAjvErrors(parsedError.graphqlErrors.validationErrors);
         }
-
-        // Send validation errors to the form serverErrors
-        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
       }
     };
 

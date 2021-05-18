@@ -21,8 +21,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { hasTokenExpiredErrors, parseGraphqlErrors } from '@/utils/errors';
-import { isEmptyObject } from '@/utils/validation';
+import { parseErrorResponse } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
 import ModelBouncer from '@/zendro/model-bouncer';
@@ -78,47 +77,36 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     'attributes'
   );
 
-  /* REQUEST */
+  /* AUXILIARY */
 
-  /**
-   * Query data from the GraphQL endpoint.
-   */
-  const { mutate: mutateRecord } = useSWR<
-    DataRecord | undefined,
-    ExtendedClientError<Record<string, DataRecord>>
-  >(
-    [zendro, urlQuery.id],
-    async () => {
-      const request = zendro.queries[props.model].readOne;
-      const variables = {
-        [model.schema.primaryKey]: urlQuery.id,
-      };
-      const response = await zendro.request<Record<string, DataRecord>>(
-        request.query,
-        { variables }
+  const parseAndDisplayErrorResponse = (
+    error: Error | ExtendedClientError
+  ): void => {
+    const parsedError = parseErrorResponse(error);
+
+    if (parsedError.genericError) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.genericError
       );
-      if (response) return response[request.resolver];
-    },
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
-      onSuccess: (data) => {
-        setRecordData(
-          data ?? {
-            [model.schema.primaryKey]: urlQuery.id ?? null,
-          }
-        );
-        setAjvErrors(undefined);
-      },
-      onError: (error) => {
-        if (
-          error.response?.errors &&
-          !hasTokenExpiredErrors(error.response.errors)
-        )
-          showSnackbar(t('errors.server-error'), 'error', error);
-      },
     }
-  );
+
+    if (parsedError.graphqlErrors) {
+      // Send generic GraphQL errors to the notification queue
+      if (parsedError.graphqlErrors.nonValidationErrors?.length) {
+        showSnackbar(
+          t('errors.server-error', { status: parsedError.status }),
+          'error',
+          parsedError.graphqlErrors.nonValidationErrors
+        );
+      }
+
+      // Send validation errors to the form serverErrors
+      if (parsedError.graphqlErrors.validationErrors)
+        setAjvErrors(parsedError.graphqlErrors.validationErrors);
+    }
+  };
 
   /* ACTION HANDLERS */
 
@@ -168,11 +156,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
           await zendro.request(query, { variables });
           router.push(`/${props.group}/${props.model}`);
         } catch (error) {
-          if (
-            error.response?.errors &&
-            !hasTokenExpiredErrors(error.response.errors)
-          )
-            showSnackbar(t('errors.server-error'), 'error', error);
+          parseAndDisplayErrorResponse(error);
         }
       },
     });
@@ -233,36 +217,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
 
         router.push(`/${props.group}/${props.model}`);
       } catch (error) {
-        const clientError = error as ExtendedClientError<
-          Record<string, DataRecord>
-        >;
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (genericError) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            clientError
-          );
-        }
-
-        if (!graphqlErrors) return;
-        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
-          graphqlErrors
-        );
-
-        // Send generic GraphQL errors to the notification queue
-        if (nonValidationErrors.length > 0) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            nonValidationErrors
-          );
-        }
-
-        // Send validation errors to the form serverErrors
-        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
+        parseAndDisplayErrorResponse(error);
       }
     };
 
@@ -300,6 +255,42 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   ): void => {
     setCurrentTab(value);
   };
+
+  /* REQUEST */
+
+  /**
+   * Query data from the GraphQL endpoint.
+   */
+  const { mutate: mutateRecord } = useSWR<
+    DataRecord | undefined,
+    ExtendedClientError<Record<string, DataRecord>>
+  >(
+    [zendro, urlQuery.id],
+    async () => {
+      const request = zendro.queries[props.model].readOne;
+      const variables = {
+        [model.schema.primaryKey]: urlQuery.id,
+      };
+      const response = await zendro.request<Record<string, DataRecord>>(
+        request.query,
+        { variables }
+      );
+      if (response) return response[request.resolver];
+    },
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+      onSuccess: (data) => {
+        setRecordData(
+          data ?? {
+            [model.schema.primaryKey]: urlQuery.id ?? null,
+          }
+        );
+        setAjvErrors(undefined);
+      },
+      onError: parseAndDisplayErrorResponse,
+    }
+  );
 
   return (
     <ModelBouncer object={props.model} action="update">

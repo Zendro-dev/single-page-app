@@ -16,7 +16,7 @@ import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
 
-import { hasTokenExpiredErrors } from '@/utils/errors';
+import { parseErrorResponse } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
@@ -97,11 +97,15 @@ const Record: PageWithLayout<RecordProps> = (props) => {
           }
         ),
       onError: (error) => {
+        const parsedError = parseErrorResponse(error);
+
         if (
-          error.response?.errors &&
-          !hasTokenExpiredErrors(error.response.errors)
-        )
-          showSnackbar(t('errors.server-error'), 'error', error);
+          parsedError.networkError ||
+          parsedError.genericError ||
+          parsedError.graphqlErrors?.nonValidationErrors
+        ) {
+          showSnackbar(t('errors.server-error'), 'error', parsedError);
+        }
       },
     }
   );

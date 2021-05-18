@@ -39,9 +39,9 @@ import {
 } from '@/types/queries';
 import { ModelUrlQuery } from '@/types/routes';
 import { DataRecord } from '@/types/models';
-import { PageInfo, ReadManyResponse } from '@/types/requests';
+import { PageInfo } from '@/types/requests';
 
-import { hasTokenExpiredErrors } from '@/utils/errors';
+import { hasTokenExpiredErrors, parseErrorResponse } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
 
 import ModelBouncer from '@/zendro/model-bouncer';
@@ -213,16 +213,44 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           mutateRecords();
           mutateCount();
         } catch (error) {
-          const clientError = error as ExtendedClientError;
-
-          if (
-            clientError.response?.errors &&
-            !hasTokenExpiredErrors(clientError.response.errors)
-          )
-            showSnackbar(t('errors.server-error'), 'error', error);
+          parseAndDisplayErrorResponse(error);
         }
       },
     });
+  };
+
+  /* AUXILIARY */
+
+  /**
+   * Auxiliary function to parse a Zendro client error response and display the
+   * relevant notifications, if necessary.
+   * @param error a base or extended client error type
+   */
+  const parseAndDisplayErrorResponse = (
+    error: Error | ExtendedClientError
+  ): void => {
+    const parsedError = parseErrorResponse(error);
+    console.log({ parsedError });
+
+    if (parsedError.networkError) {
+      showSnackbar(parsedError.networkError, 'error');
+    }
+
+    if (parsedError.genericError) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.genericError
+      );
+    }
+
+    if (parsedError.graphqlErrors?.nonValidationErrors?.length) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.graphqlErrors.nonValidationErrors
+      );
+    }
   };
 
   /* DATA FETCHING */
@@ -268,31 +296,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           setPageInfo(data.pageInfo);
         }
       },
-      onError: (error) => {
-        const clientError = error as ExtendedClientError<ReadManyResponse>;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
       shouldRetryOnError: false,
     }
   );
@@ -318,33 +322,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           setCount(data.count);
         }
       },
-      onError: (error) => {
-        const clientError = error as ExtendedClientError<
-          Record<string, number>
-        >;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
       shouldRetryOnError: false,
     }
   );
