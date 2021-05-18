@@ -364,7 +364,7 @@ const useStyles = makeStyles((theme) =>
       },
 
       // Spacing
-      margin: theme.spacing(4, 0),
+      marginBottom: theme.spacing(4),
 
       // Buttons
       '& > button, a': {

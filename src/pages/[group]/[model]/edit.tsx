@@ -325,7 +325,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
             }}
           />
         </TabPanel>
-        <TabPanel className={classes.panelTable} value="associations">
+        <TabPanel className={classes.tabPanel} value="associations">
           <AssociationsTable
             associationView="update"
             associations={model.schema.associations ?? []}
@@ -342,12 +342,9 @@ const Record: PageWithLayout<RecordProps> = (props) => {
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    panelTable: {
-      display: 'flex',
-      flexGrow: 1,
-      margin: theme.spacing(5, 2),
-    },
     tabList: {
+      marginBottom: theme.spacing(6),
+
       backgroundColor: theme.palette.action.hover,
       borderBottom: '1px solid',
       borderBottomColor: theme.palette.divider,
@@ -366,6 +363,10 @@ const useStyles = makeStyles((theme) =>
         color: theme.palette.getContrastText(theme.palette.primary.main),
         fontWeight: 'bold',
       },
+    },
+    tabPanel: {
+      display: 'flex',
+      flexGrow: 1,
     },
   })
 );
