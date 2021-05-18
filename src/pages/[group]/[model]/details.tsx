@@ -102,7 +102,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
         if (
           parsedError.networkError ||
           parsedError.genericError ||
-          parsedError.graphqlErrors?.nonValidationErrors
+          parsedError.graphqlErrors?.nonValidationErrors.length
         ) {
           showSnackbar(t('errors.server-error'), 'error', parsedError);
         }
