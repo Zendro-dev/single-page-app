@@ -12,6 +12,7 @@ import {
   VisibilityTwoTone as DetailsIcon,
 } from '@material-ui/icons';
 
+import AlertCard from '@/components/alert-card';
 import { Breadcrumbs, Breadcrumb } from '@/components/navigation';
 import useAuth from '@/hooks/useAuth';
 import { AppRoutes2, RecordUrlQuery } from '@/types/routes';
@@ -85,7 +86,21 @@ export default function Models({
           crumbs={crumbs}
         />
         <Divider />
-        {props.children}
+        {!auth.user ? (
+          <AlertCard
+            title={t('restricted.not-logged-header')}
+            body={t('restricted.not-logged-info')}
+            type="info"
+          />
+        ) : auth.status === 'expired' ? (
+          <AlertCard
+            title={t('restricted.token-exp-header')}
+            body={t('restricted.token-exp-info')}
+            type="warning"
+          />
+        ) : (
+          props.children
+        )}
       </main>
     </div>
   );
