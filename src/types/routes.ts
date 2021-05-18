@@ -1,14 +1,19 @@
 import { ParsedUrlQuery } from 'querystring';
 
-export interface AppRoute<T extends ParsedUrlQuery = ParsedUrlQuery> {
+export type AppRoutes2 = Array<RouteGroup | RouteLink>;
+
+export interface RouteLink {
+  type: 'link';
   name: string;
+  icon?: string;
   href: string;
-  params: T;
 }
 
-export interface AppRoutes2 {
-  admin: AppRoute[];
-  models: AppRoute[];
+export interface RouteGroup {
+  type: 'group';
+  name: string;
+  icon?: string;
+  routes: RouteLink[];
 }
 
 export interface GroupUrlQuery extends ParsedUrlQuery {

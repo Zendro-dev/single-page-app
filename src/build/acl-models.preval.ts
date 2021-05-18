@@ -18,16 +18,16 @@ const defaultRoles = [
   },
 ];
 
-async function buildAclRules(): Promise<AclSet[]> {
-  let aclRules;
-  const rulesPath = 'src/custom/acl-rules.json';
+async function buildModelsAclRules(): Promise<AclSet[]> {
+  let aclRules: AclSet[];
+  const rulesPath = process.cwd() + '/src/custom/acl-models.json';
 
   try {
     /**
      * If `acl-rules.json` exists, import the file and cache the contents.
      */
     await stat(rulesPath);
-    aclRules = (await import(rulesPath)) as AclSet[];
+    aclRules = require(rulesPath);
   } catch (error) {
     /**
      * If the file does not exist, generate the default contents and
@@ -57,4 +57,4 @@ async function buildAclRules(): Promise<AclSet[]> {
   return aclRules;
 }
 
-export default preval(buildAclRules());
+export default preval(buildModelsAclRules());

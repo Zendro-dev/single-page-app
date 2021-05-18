@@ -5,100 +5,75 @@ import { useTranslation } from 'react-i18next';
 
 import { Box } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import {
-  BubbleChart as ModelsIcon,
-  Home as HomeIcon,
-  SupervisorAccountRounded as AdminIcon,
-} from '@material-ui/icons';
+import MuiIcon from '@/components/dynamic/mui-icon';
 
 import { NavGroup, NavLink } from '@/components/navigation';
+import { useModel } from '@/hooks';
 import { AuthPermissions } from '@/types/auth';
-import { AppRoutes, ModelUrlQuery } from '@/types/routes';
+import { AppRoutes2, RouteLink } from '@/types/routes';
 
 interface AppDrawerProps {
   className?: string;
   permissions?: AuthPermissions;
-  routes: AppRoutes;
+  routes: AppRoutes2;
 }
 
 export default function Navigation({
   className,
-  permissions,
   routes,
 }: AppDrawerProps): ReactElement {
   const classes = useStyles();
   const router = useRouter();
-  const urlQuery = router.query as ModelUrlQuery;
+  const getModel = useModel();
   const { t } = useTranslation();
 
-  const canAccessAdminRoutes = routes.admin.some(
-    (route) =>
-      permissions &&
-      permissions[route.name]?.find((x) => x === 'read' || x === '*')
-  );
+  const canAccessGroup = (routes: RouteLink[]): boolean => {
+    return routes.some(canAccessRoute);
+  };
 
-  const canAccessModelRoutes = routes.models.some(
-    (route) =>
-      permissions &&
-      permissions[route.name]?.find((x) => x === 'read' || x === '*')
-  );
-
-  const canAccessRoute = (name: string): boolean | undefined => {
-    return (
-      permissions &&
-      permissions[name]?.some(
-        (permission) => permission === 'read' || permission === '*'
-      )
-    );
+  const canAccessRoute = (route: RouteLink): boolean | undefined => {
+    return getModel(route.name).permissions.read;
   };
 
   return (
     <Box component="nav" className={clsx(classes.drawer, className ?? '')}>
-      <NavLink
-        className={classes.homeLink}
-        href="/models"
-        icon={HomeIcon}
-        text={t('models-layout.home')}
-        textProps={{
-          fontWeight: 'bold',
-        }}
-      />
-
-      {canAccessModelRoutes && (
-        <NavGroup icon={ModelsIcon} label={t('models-layout.models')}>
-          {routes.models.map(
-            ({ name, href }) =>
-              canAccessRoute(name) && (
+      {routes.map((route) => {
+        if (route.type === 'group' && canAccessGroup(route.routes))
+          return (
+            <NavGroup
+              key={route.name}
+              icon={route.icon ? MuiIcon(route.icon) : undefined}
+              label={t(
+                ((`models-layout.${route.name.toLowerCase()}` as unknown) as TemplateStringsArray) ??
+                  route.name
+              )}
+            >
+              {route.routes.map(({ name, href }) => (
                 <NavLink
                   key={name}
                   href={href}
                   className={clsx({
-                    active: name === urlQuery.model,
+                    active:
+                      router.asPath === href ||
+                      router.asPath.includes(href + '/'),
                   })}
                   text={name}
                 />
-              )
-          )}
-        </NavGroup>
-      )}
+              ))}
+            </NavGroup>
+          );
 
-      {canAccessAdminRoutes && (
-        <NavGroup icon={AdminIcon} label={t('models-layout.admin')}>
-          {routes.admin.map(
-            ({ name, href }) =>
-              canAccessRoute(name) && (
-                <NavLink
-                  key={name}
-                  className={clsx({
-                    active: name === urlQuery.model,
-                  })}
-                  href={href}
-                  text={name}
-                />
-              )
-          )}
-        </NavGroup>
-      )}
+        if (route.type === 'link' && canAccessRoute(route))
+          return (
+            <NavLink
+              key={route.name}
+              icon={route.icon ? MuiIcon(route.icon) : undefined}
+              href={route.href}
+              className={clsx(classes.homeLink)}
+              text={route.name}
+            />
+          );
+      })}
     </Box>
   );
 }
@@ -129,6 +104,9 @@ const useStyles = makeStyles((theme) => {
       alignItems: 'center',
       height: theme.spacing(14),
       padding: theme.spacing(3, 4),
+      '& p': {
+        fontWeight: 'bold',
+      },
     },
   });
 });

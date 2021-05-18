@@ -15,23 +15,24 @@ import {
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { hasTokenExpiredErrors, parseGraphqlErrors } from '@/utils/errors';
-import { isEmptyObject } from '@/utils/validation';
+import { parseErrorResponse } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
+import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/zendro/record-form';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -47,18 +48,18 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
   return {
     props: {
-      key: modelName + '/edit',
-      modelName,
+      key: params.model + '/edit',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
+const Record: PageWithLayout<RecordProps> = (props) => {
   const dialog = useDialog();
-  const model = useModel(modelName);
+  const model = useModel(props.model);
   const router = useRouter();
   const urlQuery = router.query as ModelUrlQuery;
   const classes = useStyles();
@@ -76,47 +77,36 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
     'attributes'
   );
 
-  /* REQUEST */
+  /* AUXILIARY */
 
-  /**
-   * Query data from the GraphQL endpoint.
-   */
-  const { mutate: mutateRecord } = useSWR<
-    DataRecord | undefined,
-    ExtendedClientError<Record<string, DataRecord>>
-  >(
-    [zendro, urlQuery.id],
-    async () => {
-      const request = zendro.queries[modelName].readOne;
-      const variables = {
-        [model.schema.primaryKey]: urlQuery.id,
-      };
-      const response = await zendro.request<Record<string, DataRecord>>(
-        request.query,
-        { variables }
+  const parseAndDisplayErrorResponse = (
+    error: Error | ExtendedClientError
+  ): void => {
+    const parsedError = parseErrorResponse(error);
+
+    if (parsedError.genericError) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.genericError
       );
-      if (response) return response[request.resolver];
-    },
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
-      onSuccess: (data) => {
-        setRecordData(
-          data ?? {
-            [model.schema.primaryKey]: urlQuery.id ?? null,
-          }
-        );
-        setAjvErrors(undefined);
-      },
-      onError: (error) => {
-        if (
-          error.response?.errors &&
-          !hasTokenExpiredErrors(error.response.errors)
-        )
-          showSnackbar(t('errors.server-error'), 'error', error);
-      },
     }
-  );
+
+    if (parsedError.graphqlErrors) {
+      // Send generic GraphQL errors to the notification queue
+      if (parsedError.graphqlErrors.nonValidationErrors?.length) {
+        showSnackbar(
+          t('errors.server-error', { status: parsedError.status }),
+          'error',
+          parsedError.graphqlErrors.nonValidationErrors
+        );
+      }
+
+      // Send validation errors to the form serverErrors
+      if (parsedError.graphqlErrors.validationErrors)
+        setAjvErrors(parsedError.graphqlErrors.validationErrors);
+    }
+  };
 
   /* ACTION HANDLERS */
 
@@ -136,11 +126,11 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         message: t('dialogs.leave-confirm'),
         okText: t('dialogs.ok-text'),
         cancelText: t('dialogs.cancel-text'),
-        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
+        onOk: () => router.push(`/${props.group}/${props.model}`),
       });
     }
 
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
@@ -149,25 +139,24 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   const handleOnDelete: ActionHandler = () => {
     dialog.openConfirm({
       title: t('dialogs.delete-confirm'),
-      message: t('dialogs.delete-info', { recordId: urlQuery.id, modelName }),
+      message: t('dialogs.delete-info', {
+        recordId: urlQuery.id,
+        modelName: props.model,
+      }),
       okText: t('dialogs.ok-text'),
       cancelText: t('dialogs.cancel-text'),
       onOk: async () => {
         if (!recordData) return;
 
         try {
-          const query = zendro.queries[modelName].deleteOne.query;
+          const query = zendro.queries[props.model].deleteOne.query;
           const variables = {
             [model.schema.primaryKey]: recordData[model.schema.primaryKey],
           };
           await zendro.request(query, { variables });
-          router.push(`/${urlQuery.group}/${modelName}`);
+          router.push(`/${props.group}/${props.model}`);
         } catch (error) {
-          if (
-            error.response?.errors &&
-            !hasTokenExpiredErrors(error.response.errors)
-          )
-            showSnackbar(t('errors.server-error'), 'error', error);
+          parseAndDisplayErrorResponse(error);
         }
       },
     });
@@ -177,7 +166,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
    * Navigate to the record details page.
    */
   const handleOnDetails: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}/details?id=${urlQuery.id}`);
+    router.push(`/${props.group}/${props.model}/details?id=${urlQuery.id}`);
   };
 
   /**
@@ -218,7 +207,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     const submit = async (): Promise<void> => {
       try {
-        const request = zendro.queries[modelName].updateOne;
+        const request = zendro.queries[props.model].updateOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           request.query,
           { variables: dataRecord }
@@ -226,38 +215,9 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
         mutateRecord(response[request.resolver]);
 
-        router.push(`/${urlQuery.group}/${modelName}`);
+        router.push(`/${props.group}/${props.model}`);
       } catch (error) {
-        const clientError = error as ExtendedClientError<
-          Record<string, DataRecord>
-        >;
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (genericError) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            clientError
-          );
-        }
-
-        if (!graphqlErrors) return;
-        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
-          graphqlErrors
-        );
-
-        // Send generic GraphQL errors to the notification queue
-        if (nonValidationErrors.length > 0) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            nonValidationErrors
-          );
-        }
-
-        // Send validation errors to the form serverErrors
-        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
+        parseAndDisplayErrorResponse(error);
       }
     };
 
@@ -296,50 +256,88 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
     setCurrentTab(value);
   };
 
+  /* REQUEST */
+
+  /**
+   * Query data from the GraphQL endpoint.
+   */
+  const { mutate: mutateRecord } = useSWR<
+    DataRecord | undefined,
+    ExtendedClientError<Record<string, DataRecord>>
+  >(
+    [zendro, urlQuery.id],
+    async () => {
+      const request = zendro.queries[props.model].readOne;
+      const variables = {
+        [model.schema.primaryKey]: urlQuery.id,
+      };
+      const response = await zendro.request<Record<string, DataRecord>>(
+        request.query,
+        { variables }
+      );
+      if (response) return response[request.resolver];
+    },
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+      onSuccess: (data) => {
+        setRecordData(
+          data ?? {
+            [model.schema.primaryKey]: urlQuery.id ?? null,
+          }
+        );
+        setAjvErrors(undefined);
+      },
+      onError: parseAndDisplayErrorResponse,
+    }
+  );
+
   return (
-    <TabContext value={currentTab}>
-      <TabList
-        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
-        className={classes.tabList}
-        onChange={handleOnTabChange}
-        variant="fullWidth"
-      >
-        <Tab label={t('record-form.tab-attributes')} value="attributes" />
-        <Tab
-          label={t('record-form.tab-associations')}
-          value="associations"
-          disabled={model.schema.associations?.length === 0}
-        />
-      </TabList>
-      <TabPanel value="attributes" className={classes.panelForm}>
-        <AttributesForm
-          attributes={model.schema.attributes}
-          className={classes.form}
-          data={recordData}
-          errors={ajvErrors}
-          formId={router.asPath}
-          formView="update"
-          modelName={modelName}
-          actions={{
-            cancel: handleOnCancel,
-            delete: handleOnDelete,
-            read: model.permissions.read ? handleOnDetails : undefined,
-            reload: handleOnReload,
-            submit: handleOnSubmit,
-          }}
-        />
-      </TabPanel>
-      <TabPanel className={classes.panelTable} value="associations">
-        <AssociationsTable
-          associationView="update"
-          associations={model.schema.associations ?? []}
-          attributes={model.schema.attributes}
-          modelName={modelName}
-          recordId={urlQuery.id as string}
-          primaryKey={model.schema.primaryKey}
-        />
-      </TabPanel>
-    </TabContext>
+    <ModelBouncer object={props.model} action="update">
+      <TabContext value={currentTab}>
+        <TabList
+          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
+          className={classes.tabList}
+          onChange={handleOnTabChange}
+          variant="fullWidth"
+        >
+          <Tab label={t('record-form.tab-attributes')} value="attributes" />
+          <Tab
+            label={t('record-form.tab-associations')}
+            value="associations"
+            disabled={model.schema.associations?.length === 0}
+          />
+        </TabList>
+        <TabPanel value="attributes" className={classes.panelForm}>
+          <AttributesForm
+            attributes={model.schema.attributes}
+            className={classes.form}
+            data={recordData}
+            errors={ajvErrors}
+            formId={router.asPath}
+            formView="update"
+            modelName={props.model}
+            actions={{
+              cancel: handleOnCancel,
+              delete: handleOnDelete,
+              read: model.permissions.read ? handleOnDetails : undefined,
+              reload: handleOnReload,
+              submit: handleOnSubmit,
+            }}
+          />
+        </TabPanel>
+        <TabPanel className={classes.panelTable} value="associations">
+          <AssociationsTable
+            associationView="update"
+            associations={model.schema.associations ?? []}
+            attributes={model.schema.attributes}
+            modelName={props.model}
+            recordId={urlQuery.id as string}
+            primaryKey={model.schema.primaryKey}
+          />
+        </TabPanel>
+      </TabContext>
+    </ModelBouncer>
   );
 };
 
@@ -365,5 +363,5 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-Record.layout = ModelsLayout;
+Record.layout = ModelLayout;
 export default Record;

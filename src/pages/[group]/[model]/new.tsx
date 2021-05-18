@@ -13,19 +13,19 @@ import {
   useToastNotification,
   useZendroClient,
 } from '@/hooks';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 
-import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
 
-import { parseGraphqlErrors } from '@/utils/errors';
-import { isEmptyObject } from '@/utils/validation';
+import { parseErrorResponse } from '@/utils/errors';
 
+import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -41,23 +41,22 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
   return {
     props: {
-      key: modelName + '/new',
-      modelName,
+      key: params.model + '/new',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
+const Record: PageWithLayout<RecordProps> = (props) => {
   const dialog = useDialog();
-  const model = useModel(modelName);
+  const model = useModel(props.model);
   const router = useRouter();
   const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
-  const urlQuery = router.query as ModelUrlQuery;
   const { t } = useTranslation();
 
   /* STATE */
@@ -76,11 +75,11 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
         message: t('dialogs.leave-confirm'),
         okText: t('dialogs.ok-text'),
         cancelText: t('dialogs.cancel-text'),
-        onOk: () => router.push(`/${urlQuery.group}/${modelName}`),
+        onOk: () => router.push(`/${props.group}/${props.model}`),
       });
     }
 
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
@@ -94,49 +93,42 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
 
     const submit = async (): Promise<void> => {
       try {
-        const createOne = zendro.queries[modelName].createOne;
+        const createOne = zendro.queries[props.model].createOne;
         const response = await zendro.request<Record<string, DataRecord>>(
           createOne.query,
           { variables: dataRecord }
         );
 
         router.push(
-          `/${urlQuery.group}/${modelName}/edit?id=${
+          `/${props.group}/${props.model}/edit?id=${
             response[createOne.resolver][model.schema.primaryKey]
           }`
         );
       } catch (error) {
-        setAjvErrors(undefined);
-        const clientError = error as ExtendedClientError<
-          Record<string, DataRecord>
-        >;
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
+        const parsedError = parseErrorResponse<DataRecord>(error);
 
-        if (genericError) {
+        if (parsedError.genericError) {
           showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
+            t('errors.server-error', { status: parsedError.status }),
             'error',
-            clientError
+            parsedError.genericError
           );
         }
 
-        if (!graphqlErrors) return;
-        const { nonValidationErrors, validationErrors } = parseGraphqlErrors(
-          graphqlErrors
-        );
+        if (parsedError.graphqlErrors) {
+          // Send generic GraphQL errors to the notification queue
+          if (parsedError.graphqlErrors.nonValidationErrors?.length) {
+            showSnackbar(
+              t('errors.server-error', { status: parsedError.status }),
+              'error',
+              parsedError.graphqlErrors.nonValidationErrors
+            );
+          }
 
-        // Send generic GraphQL errors to the notification queue
-        if (nonValidationErrors.length > 0) {
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            nonValidationErrors
-          );
+          // Send validation errors to the form serverErrors
+          if (parsedError.graphqlErrors.validationErrors)
+            setAjvErrors(parsedError.graphqlErrors.validationErrors);
         }
-
-        // Send validation errors to the form serverErrors
-        if (!isEmptyObject(validationErrors)) setAjvErrors(validationErrors);
       }
     };
 
@@ -163,18 +155,20 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   /* EVENT HANDLERS */
 
   return (
-    <AttributesForm
-      attributes={model.schema.attributes}
-      className={classes.form}
-      errors={ajvErrors}
-      formId={router.asPath}
-      formView="create"
-      modelName={modelName}
-      actions={{
-        cancel: handleOnCancel,
-        submit: handleOnSubmit,
-      }}
-    />
+    <ModelBouncer object={props.model} action="create">
+      <AttributesForm
+        attributes={model.schema.attributes}
+        className={classes.form}
+        errors={ajvErrors}
+        formId={router.asPath}
+        formView="create"
+        modelName={props.model}
+        actions={{
+          cancel: handleOnCancel,
+          submit: handleOnSubmit,
+        }}
+      />
+    </ModelBouncer>
   );
 };
 
@@ -190,5 +184,5 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-Record.layout = ModelsLayout;
+Record.layout = ModelLayout;
 export default Record;

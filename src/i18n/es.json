@@ -76,11 +76,11 @@
   },
   "models-layout": {
     "admin": "Administración",
-    "create": "Nuevo",
+    "edit": "Editar",
+    "details": "Detalles",
     "home": "Inicio",
     "models": "Modelos",
-    "read": "Detalles",
-    "update": "Editar"
+    "new": "Nuevo"
   },
   "record-fields": {
     "array-add": "Añadir nuevo campo",
