@@ -230,7 +230,6 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     error: Error | ExtendedClientError
   ): void => {
     const parsedError = parseErrorResponse(error);
-    console.log({ parsedError });
 
     if (parsedError.networkError) {
       showSnackbar(parsedError.networkError, 'error');
