@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import ConfirmationDialog, {
   ConfirmationDialogProps,
   Color,
-} from '@/components/dialog/confirmation-dialog';
+} from './dialog-popup';
 
 /* CONTEXT */
 
@@ -117,6 +117,6 @@ export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({
 
 /* HOOK */
 
-export const useDialog = (): DialogContext => {
+export default function useDialog(): DialogContext {
   return useContext(DialogContext);
-};
+}

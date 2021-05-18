@@ -4,7 +4,7 @@ import { Overwrite } from 'utility-types';
 import { InputBaseComponentProps } from '@material-ui/core';
 import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
-import { TextInput, TextInputProps } from '@/components/inputs';
+import TextInput, { TextInputProps } from '@/components/text-input';
 
 type DateTimeFieldProps = Overwrite<
   TextInputProps,

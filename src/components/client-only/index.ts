@@ -1,3 +1,3 @@
 import ClientOnly from './client-only';
 
-export { ClientOnly };
+export default ClientOnly;

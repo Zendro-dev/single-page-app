@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 
-import { DialogProvider } from '@/hooks/useDialog';
+import { DialogProvider } from '@/components/dialog-popup';
 import { PageWithLayout } from '@/layouts';
 import store from '@/store';
 import { theme } from '@/styles/theme';

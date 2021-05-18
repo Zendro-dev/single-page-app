@@ -6,10 +6,10 @@ import {
   TableRow as MuiTableRow,
   Typography,
 } from '@material-ui/core';
-import KeyIcon from '@material-ui/icons/VpnKey';
-import TableColumn from './table-column';
+import { VpnKey as KeyIcon } from '@material-ui/icons';
 import { ParsedAttribute } from '@/types/models';
 import { OrderDirection } from '@/types/queries';
+import TableColumn from './table-column';
 
 interface TableHeaderProps {
   attributes: ParsedAttribute[];

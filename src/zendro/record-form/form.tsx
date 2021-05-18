@@ -21,7 +21,7 @@ import {
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import ActionButton from '@/components/buttons/fab';
+import ActionButton from '@/components/float-button';
 
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';

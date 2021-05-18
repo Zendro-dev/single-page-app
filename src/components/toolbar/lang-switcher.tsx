@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
-import { ClientOnly } from '../wrappers';
+import ClientOnly from '@/components/client-only';
 
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   const classes = useStyles();

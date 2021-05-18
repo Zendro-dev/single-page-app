@@ -7,9 +7,9 @@ import {
   PowerSettingsNew as LoginIcon,
 } from '@material-ui/icons';
 
-import { SiteLink } from '@/components/links';
+import ClientOnly from '@/components/client-only';
+import SiteLink from '@/components/site-link';
 import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
-import { ClientOnly } from '@/components/wrappers';
 import { useAuth } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 

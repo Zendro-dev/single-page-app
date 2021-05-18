@@ -23,14 +23,14 @@ import {
 } from '@material-ui/icons';
 import { green, red, blue, orange } from '@material-ui/core/colors';
 
-export interface ZendroSnackbarProps {
+export interface AlertToastProps {
   id: SnackbarKey;
   variant: VariantType;
   message: SnackbarMessage;
   details?: unknown;
 }
 
-const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
+const toast = forwardRef<HTMLDivElement, AlertToastProps>(
   ({ id, variant, message, details }, ref) => {
     const classes = useStyles();
     const { closeSnackbar } = useSnackbar();
@@ -105,7 +105,7 @@ const snackbar = forwardRef<HTMLDivElement, ZendroSnackbarProps>(
   }
 );
 
-export default snackbar;
+export default toast;
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -11,8 +11,9 @@ import {
   Delete as DeleteIcon,
 } from '@material-ui/icons';
 
-import { IconButton } from '@/components/buttons';
-import { InputActions, TextInputProps } from '@/components/inputs';
+import IconButton from '@/components/icon-button';
+import InputActions from '@/components/input-actions';
+import { TextInputProps } from '@/components/text-input';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
