@@ -27,7 +27,7 @@
     "types": ["cypress"]
   },
   "include": [
-    "typings/next-env.d.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],
