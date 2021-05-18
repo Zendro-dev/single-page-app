@@ -23,8 +23,8 @@ import {
 } from '@material-ui/icons';
 
 import IconButton, { IconButtonProps } from '@/components/icon-button';
-import LoginForm from '@/components/login-form';
 import useAuth from '@/hooks/useAuth';
+import LoginForm from './login-form';
 
 interface LogoutButtonProps extends IconButtonProps {
   onLogin?: () => void;

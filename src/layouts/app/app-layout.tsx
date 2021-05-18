@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   BubbleChart as ModelsIcon,
@@ -9,9 +10,9 @@ import {
 
 import ClientOnly from '@/components/client-only';
 import SiteLink from '@/components/site-link';
-import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
+import LanguageSwitcher from '@/components/lang-switcher';
+import { LoginButton } from '@/components/login-form';
 import { useAuth } from '@/hooks';
-import { useTranslation } from 'react-i18next';
 
 export interface AppLayoutProps {
   brand?: string;
