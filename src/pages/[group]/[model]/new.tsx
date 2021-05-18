@@ -3,8 +3,6 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { createStyles, makeStyles } from '@material-ui/core';
-
 import { getStaticModelPaths } from '@/build/routes';
 
 import {
@@ -54,7 +52,6 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   const dialog = useDialog();
   const model = useModel(props.model);
   const router = useRouter();
-  const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const { t } = useTranslation();
@@ -158,7 +155,6 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     <ModelBouncer object={props.model} action="create">
       <AttributesForm
         attributes={model.schema.attributes}
-        className={classes.form}
         errors={ajvErrors}
         formId={router.asPath}
         formView="create"
@@ -171,18 +167,6 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     </ModelBouncer>
   );
 };
-
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    form: {
-      border: '2px solid',
-      borderRadius: 10,
-      borderColor: theme.palette.grey[300],
-      margin: theme.spacing(10, 4),
-      padding: theme.spacing(12, 10),
-    },
-  })
-);
 
 Record.layout = ModelLayout;
 export default Record;

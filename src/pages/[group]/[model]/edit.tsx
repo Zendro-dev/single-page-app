@@ -308,10 +308,9 @@ const Record: PageWithLayout<RecordProps> = (props) => {
             disabled={model.schema.associations?.length === 0}
           />
         </TabList>
-        <TabPanel value="attributes" className={classes.panelForm}>
+        <TabPanel value="attributes">
           <AttributesForm
             attributes={model.schema.attributes}
-            className={classes.form}
             data={recordData}
             errors={ajvErrors}
             formId={router.asPath}
@@ -343,22 +342,30 @@ const Record: PageWithLayout<RecordProps> = (props) => {
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    form: {
-      border: '2px solid',
-      borderRadius: 10,
-      borderColor: theme.palette.grey[300],
-      padding: theme.spacing(12, 10),
-    },
-    panelForm: {
-      margin: theme.spacing(10, 0),
-    },
     panelTable: {
       display: 'flex',
       flexGrow: 1,
       margin: theme.spacing(5, 2),
     },
     tabList: {
-      margin: theme.spacing(0, 4),
+      backgroundColor: theme.palette.action.hover,
+      borderBottom: '1px solid',
+      borderBottomColor: theme.palette.divider,
+
+      '& .MuiTabs-indicator': {
+        backgroundColor: 'transparent',
+      },
+
+      '& .MuiTab-root:hover:not(.Mui-selected)': {
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.getContrastText(theme.palette.background.default),
+      },
+
+      '& .Mui-selected': {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.getContrastText(theme.palette.primary.main),
+        fontWeight: 'bold',
+      },
     },
   })
 );
