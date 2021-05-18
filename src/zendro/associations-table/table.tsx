@@ -14,17 +14,24 @@ import {
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import { IconButton } from '@/components/buttons';
-import { SelectInput } from '@/components/inputs';
+import IconButton from '@/components/icon-button';
+import SelectInput from '@/components/select-input';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
+
+import { ExtendedClientError } from '@/types/errors';
 import {
   DataRecord,
   ParsedAssociation,
   ParsedAttribute,
   ParsedDataModel2,
 } from '@/types/models';
+import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { PageInfo } from '@/types/requests';
+import { parseErrorResponse } from '@/utils/errors';
+import { getInflections } from '@/utils/inflection';
+
 import {
+  AssociationFilter,
   Table,
   TableBody,
   TableHeader,
@@ -37,13 +44,8 @@ import {
   useTableSearch,
   useTableOrder,
   TableRecord,
+  UseOrderProps,
 } from '@/zendro/model-table';
-import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
-import { getInflections } from '@/utils/inflection';
-import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
-import { ExtendedClientError } from '@/types/errors';
-import { parseErrorResponse } from '@/utils/errors';
-import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
   associations: ParsedAssociation[];

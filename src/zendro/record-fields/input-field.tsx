@@ -7,7 +7,7 @@ import {
   AttributeScalarValue,
 } from '@/types/models';
 
-import { TextInputProps } from '@/components/inputs';
+import { TextInputProps } from '@/components/text-input';
 
 import BoolField from './bool-field';
 import DateTimeField from './datetime-field';

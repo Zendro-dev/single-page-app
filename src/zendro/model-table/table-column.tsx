@@ -7,8 +7,8 @@ import {
   Box,
   TableCellProps,
 } from '@material-ui/core';
-import { SvgIconType } from '@/types/elements';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { SvgIconType } from '@/types/elements';
 import { OrderDirection } from '@/types/queries';
 
 interface TableColumnProps extends TableCellProps {

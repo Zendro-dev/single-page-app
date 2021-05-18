@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { makeStyles, createStyles, Theme } from '@material-ui/core';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
-import { ClientOnly } from '@/components/wrappers';
+import ClientOnly from '@/components/client-only';
 
 const Home: PageWithLayout = () => {
   const classes = useStyles();

@@ -8,19 +8,13 @@ import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import { getStaticModelPaths } from '@/build/routes';
-
-import {
-  useDialog,
-  useModel,
-  useToastNotification,
-  useZendroClient,
-} from '@/hooks';
+import { useDialog } from '@/components/dialog-popup';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
-
 import { parseErrorResponse } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';

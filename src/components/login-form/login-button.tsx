@@ -1,5 +1,7 @@
+import clsx from 'clsx';
 import React, { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   Box,
   CircularProgress,
@@ -19,10 +21,10 @@ import {
   ErrorOutline as ErrorIcon,
   WarningAmber as WarningIcon,
 } from '@material-ui/icons';
-import { IconButton, IconButtonProps } from '@/components/buttons';
-import LoginForm from '@/components/forms/login-form';
+
+import IconButton, { IconButtonProps } from '@/components/icon-button';
 import useAuth from '@/hooks/useAuth';
-import clsx from 'clsx';
+import LoginForm from './login-form';
 
 interface LogoutButtonProps extends IconButtonProps {
   onLogin?: () => void;

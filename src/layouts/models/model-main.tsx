@@ -13,7 +13,7 @@ import {
 } from '@material-ui/icons';
 
 import AlertCard from '@/components/alert-card';
-import { Breadcrumbs, Breadcrumb } from '@/components/navigation';
+import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
 import useAuth from '@/hooks/useAuth';
 import { AppRoutes2, RecordUrlQuery } from '@/types/routes';
 import { getRoutePath } from '@/utils/router';

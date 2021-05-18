@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Box } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import MuiIcon from '@/components/dynamic/mui-icon';
+import useMuiIcon from '@/hooks/useMuiIcon';
 
-import { NavGroup, NavLink } from '@/components/navigation';
+import NavGroup from '@/components/nav-group';
+import NavLink from '@/components/nav-link';
 import { useModel } from '@/hooks';
 import { AuthPermissions } from '@/types/auth';
 import { AppRoutes2, RouteLink } from '@/types/routes';
@@ -24,6 +25,7 @@ export default function Navigation({
 }: AppDrawerProps): ReactElement {
   const classes = useStyles();
   const router = useRouter();
+  const getIcon = useMuiIcon();
   const getModel = useModel();
   const { t } = useTranslation();
 
@@ -42,7 +44,7 @@ export default function Navigation({
           return (
             <NavGroup
               key={route.name}
-              icon={route.icon ? MuiIcon(route.icon) : undefined}
+              icon={route.icon ? getIcon(route.icon) : undefined}
               label={t(
                 ((`models-layout.${route.name.toLowerCase()}` as unknown) as TemplateStringsArray) ??
                   route.name
@@ -67,7 +69,7 @@ export default function Navigation({
           return (
             <NavLink
               key={route.name}
-              icon={route.icon ? MuiIcon(route.icon) : undefined}
+              icon={route.icon ? getIcon(route.icon) : undefined}
               href={route.href}
               className={clsx(classes.homeLink)}
               text={route.name}

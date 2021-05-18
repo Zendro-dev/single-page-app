@@ -7,7 +7,7 @@ import {
   FormControlLabel,
   FormHelperText,
 } from '@material-ui/core';
-import { TextInputProps } from '@/components/inputs';
+import { TextInputProps } from '@/components/text-input';
 
 type BoolFieldProps = Overwrite<
   TextInputProps,

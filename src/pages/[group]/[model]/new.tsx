@@ -4,18 +4,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { getStaticModelPaths } from '@/build/routes';
-
-import {
-  useDialog,
-  useModel,
-  useToastNotification,
-  useZendroClient,
-} from '@/hooks';
+import { useDialog } from '@/components/dialog-popup';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery } from '@/types/routes';
-
 import { parseErrorResponse } from '@/utils/errors';
 
 import ModelBouncer from '@/zendro/model-bouncer';

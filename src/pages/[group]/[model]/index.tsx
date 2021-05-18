@@ -18,16 +18,10 @@ import {
 } from '@material-ui/icons';
 
 import { getStaticModelPaths } from '@/build/routes';
-
-import { IconButton } from '@/components/buttons';
+import { useDialog } from '@/components/dialog-popup';
+import IconButton from '@/components/icon-button';
 import { EXPORT_URL } from '@/config/globals';
-
-import {
-  useDialog,
-  useModel,
-  useToastNotification,
-  useZendroClient,
-} from '@/hooks';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';

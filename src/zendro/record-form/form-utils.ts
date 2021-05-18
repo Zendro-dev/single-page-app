@@ -1,6 +1,6 @@
-import { FormAttribute, FormView } from './form';
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
+import { FormAttribute, FormView } from './form';
 
 /* STATE MANAGEMENT */
 
