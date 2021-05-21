@@ -23,27 +23,18 @@ interface StyledSelectProps {
   id?: string;
   items: SelectItem[];
   label?: string;
-  onChange?: (itemId: string, itemText: string) => void;
+  onChange?: (itemId: string) => void;
   defaultValue?: string;
   selected: string;
 }
 
 export default function SelectInput(props: StyledSelectProps): ReactElement {
-  // const [selected, setSelected] = useState<string>(
-  //   props.defaultValue ?? props.items[0].id
-  // );
   const classes = useStyles();
 
   const handleOnChange = (
     event: React.ChangeEvent<{ value: string }>
   ): void => {
-    // setSelected(event.target.value);
-
-    const { id, text } = props.items.find(
-      (assoc) => assoc.id === event.target.value
-    ) as SelectItem;
-
-    if (props.onChange) props.onChange(id, text);
+    if (props.onChange) props.onChange(event.target.value);
   };
 
   return (

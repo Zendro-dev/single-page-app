@@ -19,39 +19,40 @@ const defaultRoles = [
 ];
 
 async function buildModelsAclRules(): Promise<AclSet[]> {
-  let aclRules: AclSet[];
-  const rulesPath = process.cwd() + '/src/custom/acl-models.json';
+  const rulesFile = 'acl-models.json';
+  const customPath = process.cwd() + `/src/custom/${rulesFile}`;
+  const overridePath = process.cwd() + `/src/${rulesFile}`;
 
+  /**
+   * Re-generate the default file and write them to file.
+   */
+  const admin = await readdir('./admin');
+  const models = await readdir('./models');
+
+  const adminResources = admin.map((file) => parse(file).name);
+  const modelResources = models.map((file) => parse(file).name);
+
+  let aclRules: AclSet[] = defaultRoles.map(({ roles, permissions }) => ({
+    roles,
+    allows: [
+      {
+        permissions,
+        resources: roles === 'administrator' ? adminResources : modelResources,
+      },
+    ],
+  }));
+
+  await mkdir('src/custom', { recursive: true });
+  await writeFile(customPath, JSON.stringify(aclRules, null, 2));
+
+  /**
+   * If `acl-models.json` exists, import the file and cache the contents.
+   */
   try {
-    /**
-     * If `acl-rules.json` exists, import the file and cache the contents.
-     */
-    await stat(rulesPath);
-    aclRules = require(rulesPath);
+    await stat(overridePath);
+    aclRules = require(overridePath);
   } catch (error) {
-    /**
-     * If the file does not exist, generate the default contents and
-     * write them to file.
-     */
-    const admin = await readdir('./admin');
-    const models = await readdir('./models');
-
-    const adminResources = admin.map((file) => parse(file).name);
-    const modelResources = models.map((file) => parse(file).name);
-
-    aclRules = defaultRoles.map(({ roles, permissions }) => ({
-      roles,
-      allows: [
-        {
-          permissions,
-          resources:
-            roles === 'administrator' ? adminResources : modelResources,
-        },
-      ],
-    }));
-
-    await mkdir('src/custom', { recursive: true });
-    await writeFile(rulesPath, JSON.stringify(aclRules, null, 2));
+    console.log(`Override for "acl-models.json" not found. Loading defaults.`);
   }
 
   return aclRules;

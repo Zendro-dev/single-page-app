@@ -102,25 +102,24 @@ export const readOneRecordWithAssoc = (
   readOneRecordWithToOne: AssocQuery;
   readOneRecordWithAssocCount: AssocQuery;
 } => {
-  const { nameCp } = getInflections(modelName);
-  const {
-    nameCp: assocNameCp,
-    namePlLc: assocNamePlLc,
-    namePlCp: assocNamePlCp,
-  } = getInflections(assocModelName);
-  const readResolver = `readOne${nameCp}`;
+  const { nameCp: modelNameCp } = getInflections(modelName);
+  const { nameCp: assocModelNameCp } = getInflections(assocModelName);
+  const { nameCp: assocNameCp, nameLc: assocNameLc } = getInflections(
+    assocName
+  );
+  const readResolver = `readOne${modelNameCp}`;
 
   const { idArg, idVar } = parseQueryAttributes(attributes);
   const { fields } = parseQueryAttributes(associationAttributes);
 
   /* TO MANY */
-  const assocResolverToMany = `${assocNamePlLc}Connection`;
-  const queryNameToMany = `readOne${nameCp}With${assocNamePlCp}`;
+  const assocResolverToMany = `${assocNameLc}Connection`;
+  const queryNameToMany = `readOne${modelNameCp}With${assocNameCp}`;
   const queryToMany = `
   query ${readResolver}(
     ${idArg}
-    $order: [order${assocNameCp}Input]
-    $search: search${assocNameCp}Input
+    $order: [order${assocModelNameCp}Input]
+    $search: search${assocModelNameCp}Input
     $pagination: paginationCursorInput!) { ${readResolver}(${idVar}) {
     ${assocResolverToMany} ( order: $order search: $search, pagination: $pagination ) {
       pageInfo {
@@ -137,9 +136,9 @@ export const readOneRecordWithAssoc = (
   `;
 
   /* TO ONE */
-  const queryNameToOne = `readOne${nameCp}With${assocName}`;
+  const queryNameToOne = `readOne${modelNameCp}With${assocName}`;
   const queryToOne = `
-  query ${readResolver}(${idArg} $search: search${assocNameCp}Input) { ${readResolver}(${idVar}) {
+  query ${readResolver}(${idArg} $search: search${assocModelNameCp}Input) { ${readResolver}(${idVar}) {
     ${assocName}(search: $search){
       ${fields}
     }
@@ -147,10 +146,10 @@ export const readOneRecordWithAssoc = (
   `;
 
   /* COUNT */
-  const queryNameCount = `readOne${nameCp}With${assocNamePlCp}Count`;
-  const countResolver = `countFiltered${assocNamePlCp}`;
+  const queryNameCount = `readOne${modelNameCp}With${assocNameCp}Count`;
+  const countResolver = `countFiltered${assocNameCp}`;
   const queryCount = `
-  query ${readResolver}(${idArg} $search: search${assocNameCp}Input) { ${readResolver}(${idVar}) {
+  query ${readResolver}(${idArg} $search: search${assocModelNameCp}Input) { ${readResolver}(${idVar}) {
    ${countResolver} (search: $search)
   } }
   `;
@@ -165,6 +164,7 @@ export const readOneRecordWithAssoc = (
         `.${readResolver}` +
         ` | (if .${assocName} then map({${fields
           .split(' ')
+          .map((field) => `"${field}"`)
           .join(',')}}) else [] end) as $records ` +
         ` | { $records }`,
     },
@@ -252,23 +252,24 @@ export const queryRecordsCount = (modelName: string): RawQuery => {
 export const queryRecordsWithToMany = (
   modelName: string,
   modelAttributes: ParsedAttribute[],
+  assocName: string,
   assocModelName: string,
   assocPrimaryKey: string
 ): AssocQuery => {
-  const {
-    nameCp: assocNameCp,
-    namePlCp: assocNamePlCp,
-    namePlLc: assocNamePlLc,
-  } = getInflections(assocModelName);
-
   const {
     nameCp: modelNameCp,
     namePlCp: modelNamePlCp,
     namePlLc: modelNamePlLc,
   } = getInflections(modelName);
 
+  const { nameCp: assocModelNameCp } = getInflections(assocModelName);
+
+  const { namePlCp: assocNamePlCp, nameLc: assocNameLc } = getInflections(
+    assocName
+  );
+
   const modelResolver = `${modelNamePlLc}Connection`;
-  const assocResolver = `${assocNamePlLc}Connection`;
+  const assocResolver = `${assocNameLc}Connection`;
   const { fields } = parseQueryAttributes(modelAttributes);
 
   const queryName = `read${modelNamePlCp}With${assocNamePlCp}`;
@@ -276,8 +277,8 @@ export const queryRecordsWithToMany = (
     $order: [order${modelNameCp}Input]
     $search: search${modelNameCp}Input
     $pagination: paginationCursorInput!
-    $assocOrder: [order${assocNameCp}Input]
-    $assocSearch: search${assocNameCp}Input
+    $assocOrder: [order${assocModelNameCp}Input]
+    $assocSearch: search${assocModelNameCp}Input
     $assocPagination: paginationCursorInput!
   ) {
     ${modelResolver}( order: $order search: $search, pagination: $pagination ) {
@@ -323,7 +324,8 @@ export const queryRecordsWithToOne = (
   assocModelName: string,
   assocPrimaryKey: string
 ): AssocQuery => {
-  const { nameCp: assocNameCp } = getInflections(assocModelName);
+  const { nameCp: assocModelNameCp } = getInflections(assocModelName);
+  const { nameCp: assocNameCp } = getInflections(assocName);
 
   const {
     namePlLc: modelNamePlLc,
@@ -339,7 +341,7 @@ export const queryRecordsWithToOne = (
     $order: [order${modelNameCp}Input]
     $search: search${modelNameCp}Input
     $pagination: paginationCursorInput!
-    $assocSearch: search${assocNameCp}Input
+    $assocSearch: search${assocModelNameCp}Input
   ) {
     ${modelResolver}( order: $order search: $search, pagination: $pagination ) {
       pageInfo {

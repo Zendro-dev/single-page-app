@@ -157,7 +157,6 @@ export default function AssociationsTable({
     error: Error | ExtendedClientError
   ): void => {
     const parsedError = parseErrorResponse(error);
-    console.log({ parsedError });
 
     if (parsedError.networkError) {
       showSnackbar(parsedError.networkError, 'error');
@@ -186,7 +185,7 @@ export default function AssociationsTable({
   >(
     [
       recordsFilter,
-      selectedAssoc.name,
+      selectedAssoc,
       tableSearch,
       tableOrder,
       tablePagination,
@@ -195,9 +194,9 @@ export default function AssociationsTable({
     async () => {
       const recordsQuery: AssocQuery =
         associationView === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+          ? zendro.queries[modelName].withFilter[selectedAssoc.name]
               .readFiltered
-          : zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
+          : zendro.queries[modelName].withFilter[selectedAssoc.name].readAll;
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -272,12 +271,12 @@ export default function AssociationsTable({
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     selectedAssoc.type !== 'to_one'
-      ? [recordsFilter, selectedAssoc.target, tableSearch, zendro]
+      ? [recordsFilter, selectedAssoc, tableSearch, zendro]
       : null,
     async () => {
       const countQuery =
         associationView === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+          ? zendro.queries[modelName].withFilter[selectedAssoc.name]
               .countFiltered
           : zendro.queries[selectedAssoc.target].countAll;
 
@@ -300,25 +299,26 @@ export default function AssociationsTable({
         }
       },
       onError: parseAndDisplayErrorResponse,
+      shouldRetryOnError: false,
     }
   );
 
   /* HANDLERS */
 
-  const handleOnAsociationSelect = (target: string, name: string): void => {
+  const handleOnAsociationSelect = (name: string): void => {
     const assoc = associations.find(
-      (association) => association.target === target
+      (association) => association.name === name
     ) as ParsedAssociation;
-    if (target !== selectedAssoc.target) {
+    if (name !== selectedAssoc.name) {
       setOrder(undefined);
       setSelectedRecords({
         toAdd: [],
         toRemove: [],
       });
 
-      const model = getModel(target);
+      const model = getModel(assoc.target);
       setSelectedAssoc({
-        target,
+        target: assoc.target,
         name,
         type: assoc.type,
         attributes: model.schema.attributes,
@@ -507,13 +507,13 @@ export default function AssociationsTable({
             id={`${modelName}-association-select`}
             // label={`Select ${modelName} association`}
             label={t('associations.assoc-select', { modelName })}
-            items={associations.map(({ name, target, type }) => ({
-              id: target,
+            items={associations.map(({ name, type }) => ({
+              id: name,
               text: name,
               icon: type === 'to_many' ? ToManyIcon : ToOneIcon,
             }))}
             onChange={handleOnAsociationSelect}
-            selected={selectedAssoc.target}
+            selected={selectedAssoc.name}
           />
         </div>
       </div>
