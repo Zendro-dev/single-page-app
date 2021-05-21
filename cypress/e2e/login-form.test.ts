@@ -2,6 +2,11 @@ import { AuthToken } from '@/types/auth';
 import decode from 'jwt-decode';
 
 describe('Login', () => {
+  after('logout', () => {
+    cy.dataCy('login-button').click({ force: true });
+    // cy.dataCy('login-button').forceClick();
+  });
+
   it('failed login using UI', () => {
     cy.visit('/');
     cy.dataCy('login-button').click();
