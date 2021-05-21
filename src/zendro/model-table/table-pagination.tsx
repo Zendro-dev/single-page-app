@@ -83,9 +83,14 @@ export default function RecordsTablePagination({
           variant="standard"
           value={paginationLimit}
           onChange={handlePageLimitChange}
+          data-cy="pagination-select"
         >
           {options.map((rowValue, index) => (
-            <MenuItem value={rowValue} key={index}>
+            <MenuItem
+              value={rowValue}
+              key={index}
+              data-cy={`pagination-select-${rowValue}`}
+            >
               {rowValue}
             </MenuItem>
           ))}
@@ -107,6 +112,7 @@ export default function RecordsTablePagination({
           <IconButton
             onClick={handleOnPageChange('first')}
             disabled={!hasFirstPage}
+            data-cy="pagination-first"
           >
             <FirstPage />
           </IconButton>
@@ -118,6 +124,7 @@ export default function RecordsTablePagination({
           <IconButton
             onClick={handleOnPageChange('previous')}
             disabled={!hasPreviousPage}
+            data-cy="pagination-previous"
           >
             <KeyboardArrowLeft />
           </IconButton>
@@ -129,6 +136,7 @@ export default function RecordsTablePagination({
           <IconButton
             onClick={handleOnPageChange('next')}
             disabled={!hasNextPage}
+            data-cy="pagination-next"
           >
             <KeyboardArrowRight />
           </IconButton>
@@ -140,6 +148,7 @@ export default function RecordsTablePagination({
           <IconButton
             onClick={handleOnPageChange('last')}
             disabled={!hasLastPage}
+            data-cy="pagination-last"
           >
             <LastPage />
           </IconButton>

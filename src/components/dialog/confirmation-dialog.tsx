@@ -103,6 +103,7 @@ export default function ConfirmationDialog({
             <Button
               color={cancelColor || DEFAULT_CANCEL_COLOR}
               onClick={onClose}
+              data-cy="dialog-cancel"
             >
               {cancelText || DEFAULT_CANCEL_TEXT}
             </Button>
@@ -112,6 +113,7 @@ export default function ConfirmationDialog({
               color={okColor || DEFAULT_OK_COLOR}
               onClick={onOk}
               variant="contained"
+              data-cy="dialog-ok"
             >
               {okText || DEFAULT_OK_TEXT}
             </Button>

@@ -1,4 +1,4 @@
-describe('record-table read', () => {
+describe('record-table', () => {
   // but set the user before visiting the page
   // so the app thinks it is already authenticated
 
@@ -8,18 +8,236 @@ describe('record-table read', () => {
 
   after('logout', () => {
     cy.dataCy('login-button').click({ force: true });
+    // cy.dataCy('login-button').forceClick();
   });
 
-  it('Alien model table', () => {
+  beforeEach('intercept requests', () => {
+    cy.intercept('http://localhost:3000/meta_query', (req) => {
+      if ((req.body.query as string).includes('readAliens')) {
+        req.alias = 'read';
+      } else if ((req.body.query as string).includes('countAliens')) {
+        req.alias = 'count';
+      }
+    });
     cy.visit('/models/alien');
-    // check if the table has the expected data
-    cy.dataCy('record-table-body').within(($tbody) => {
-      cy.get('tr').should('have.length', 11).and('be.visible');
-      cy.get('tr').eq(0).find('td').should('have.length', 14);
-      cy.get('tr').eq(0).find('td').eq(3).should('eq', 'alien_1');
+
+    // Wait for inital requests
+    cy.wait('@read').then(({ request, response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(11);
+    });
+    cy.wait('@count').then(({ request, response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.eq(11);
+    });
+  });
+
+  it('Alien model table - order', () => {
+    /* ORDER */
+    // click on intField to order intField ASC
+    cy.dataCy('table-column-intField').click();
+    cy.wait('@read').then(({ request, response }) => {
+      // check request variables
+      expect(request.body.variables.order).to.deep.equal({
+        field: 'intField',
+        order: 'ASC',
+      });
+      // check response status
+      expect(response?.statusCode).to.eq(200);
     });
 
-    // sorting
+    // click on inField again to order intField DESC
+    cy.dataCy('table-column-intField').click();
+    cy.wait('@read').then(({ request, response }) => {
+      // check request variables
+      expect(request.body.variables.order).to.deep.equal({
+        field: 'intField',
+        order: 'DESC',
+      });
+      // check response status
+      expect(response?.statusCode).to.eq(200);
+    });
+  });
+
+  it('Alien model table - pagination', () => {
+    /* PAGINATION */
+    // click on the select and then select 5
+    cy.dataCy('pagination-select').click();
+    cy.dataCy('pagination-select-5').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        first: 5,
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(5);
+    });
+
+    // click on next page
+    cy.dataCy('pagination-next').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        first: 5,
+        after:
+          'eyJpZEZpZWxkIjoiYWxpZW5fMyIsInN0cmluZ0ZpZWxkIjoiU3RyaW5nIiwiaW50RmllbGQiOjMsImZsb2F0RmllbGQiOjMuNywiZGF0ZXRpbWVGaWVsZCI6bnVsbCwiYm9vbGVhbkZpZWxkIjp0cnVlLCJzdHJpbmdBcnJheUZpZWxkIjpbXSwiaW50QXJyYXlGaWVsZCI6W10sImZsb2F0QXJyYXlGaWVsZCI6W10sImRhdGV0aW1lQXJyYXlGaWVsZCI6W10sImJvb2xlYW5BcnJheUZpZWxkIjpbXX0=',
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      // expect(response?.body.data.records).to.have.length(5);
+    });
+
+    // click on next page again
+    cy.dataCy('pagination-next').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        first: 5,
+        after:
+          'eyJpZEZpZWxkIjoiYWxpZW5fOCIsInN0cmluZ0ZpZWxkIjoiU3RyaW5nIiwiaW50RmllbGQiOjgsImZsb2F0RmllbGQiOjEyNS40OCwiZGF0ZXRpbWVGaWVsZCI6bnVsbCwiYm9vbGVhbkZpZWxkIjp0cnVlLCJzdHJpbmdBcnJheUZpZWxkIjpbXSwiaW50QXJyYXlGaWVsZCI6W10sImZsb2F0QXJyYXlGaWVsZCI6W10sImRhdGV0aW1lQXJyYXlGaWVsZCI6W10sImJvb2xlYW5BcnJheUZpZWxkIjpbXX0=',
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      // since there are 11 records only the last one should be shown
+      expect(response?.body.data.records).to.have.length(1);
+    });
+
+    // click on previous page
+    cy.dataCy('pagination-previous').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        last: 5,
+        before:
+          'eyJpZEZpZWxkIjoiYWxpZW5fOSIsInN0cmluZ0ZpZWxkIjoiU3RyaW5nIiwiaW50RmllbGQiOjksImZsb2F0RmllbGQiOjIuNDIsImRhdGV0aW1lRmllbGQiOm51bGwsImJvb2xlYW5GaWVsZCI6dHJ1ZSwic3RyaW5nQXJyYXlGaWVsZCI6W10sImludEFycmF5RmllbGQiOltdLCJmbG9hdEFycmF5RmllbGQiOltdLCJkYXRldGltZUFycmF5RmllbGQiOltdLCJib29sZWFuQXJyYXlGaWVsZCI6W119',
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(5);
+    });
+
+    // click on last page
+    cy.dataCy('pagination-last').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        last: 5,
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(5);
+    });
+
+    // click on first page
+    cy.dataCy('pagination-first').click();
+    cy.wait('@read').then(({ request, response }) => {
+      //check request variables
+      expect(request.body.variables.pagination).to.deep.equal({
+        first: 5,
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(5);
+    });
+  });
+
+  it('Alien model table - search', () => {
+    /* SEARCH */
+    cy.dataCy('model-table-search-field').type('true');
+    cy.dataCy('model-table-search-button').click();
+    // check request variables for the readAll
+    cy.wait('@read').then(({ request, response }) => {
+      expect(request.body.variables.search).to.deep.equal({
+        operator: 'or',
+        search: [
+          {
+            field: 'idField',
+            value: '%true%',
+            operator: 'like',
+          },
+          {
+            field: 'stringField',
+            value: '%true%',
+            operator: 'like',
+          },
+          {
+            field: 'booleanField',
+            value: 'true',
+            operator: 'eq',
+          },
+        ],
+      });
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+    });
+
+    // check if the count is correct
+    cy.wait('@count').then(({ request, response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.eq(7);
+    });
+
+    // click on reset button
+    // ! temporary wait. Otherwise this fails sometimes.. See
+    // ! https://github.com/cypress-io/cypress/issues/2227
+    // ! https://github.com/cypress-io/cypress/issues/3427
+    cy.wait(2000);
+    cy.dataCy('model-table-search-reset').click();
+    // cy.dataCy('model-table-search-field').should('have.value', '');
+    cy.wait('@read').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+    });
+    cy.wait('@count').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+    });
+  });
+
+  it('Alien model table - actions', () => {
+    /* RELOAD */
+    cy.dataCy('model-table-reload').click();
+    cy.wait('@read').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+    });
+    cy.wait('@count').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+    });
+
+    /* DELETE */
+    // cancel
+    cy.dataCy('model-table-delete-alien_2').click();
+    cy.dataCy('dialog-cancel').click();
+    // Ok
+    cy.dataCy('model-table-delete-alien_2').click();
+    cy.dataCy('dialog-ok').click();
+    cy.wait('@read').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.have.length(10);
+    });
+    cy.wait('@count').then(({ request, response }) => {
+      // check response status and records
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.equal(10);
+    });
+
+    /* VIEW */
+    cy.dataCy('model-table-view-alien_1').click();
+    cy.url().should('include', '/models/alien/details?id=alien_1');
+
+    /* EDIT */
+    cy.visit('models/alien');
+    cy.dataCy('model-table-edit-alien_1').click();
+    cy.url().should('include', '/models/alien/edit?id=alien_1');
+
+    /* NEW */
+    cy.visit('models/alien');
+    cy.dataCy('model-table-add').click();
+    cy.url().should('include', '/models/alien/new');
   });
 });
 

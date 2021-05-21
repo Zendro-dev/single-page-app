@@ -249,6 +249,7 @@ const Model: PageWithLayout<ModelProps> = ({
       tableOrder: QueryVariableOrder,
       tablePagination: QueryVariablePagination
     ) => {
+      console.log('--useSWR RECORDS--');
       const { query, transform } = zendro.queries[modelName].readAll;
       const variables: QueryVariables = {
         search: tableSearch,
@@ -276,7 +277,6 @@ const Model: PageWithLayout<ModelProps> = ({
     {
       onSuccess: (data) => {
         if (data) {
-          console.log(data);
           setRecords(data.records);
           setPageInfo(data.pageInfo);
         }
@@ -317,6 +317,7 @@ const Model: PageWithLayout<ModelProps> = ({
   >(
     [tableSearch, zendro],
     (tableSearch: QueryVariableSearch) => {
+      console.log('--useSWR COUNT--');
       const { query, transform } = zendro.queries[modelName].countAll;
       const variables: QueryVariables = { search: tableSearch };
 
@@ -376,7 +377,11 @@ const Model: PageWithLayout<ModelProps> = ({
         <div className={classes.toolbarActions}>
           <IconButton
             tooltip={t('model-table.reload', { modelName })}
-            onClick={() => mutateRecords()}
+            onClick={() => {
+              mutateRecords();
+              mutateCount();
+            }}
+            data-cy="model-table-reload"
           >
             <ReloadIcon />
           </IconButton>
@@ -385,6 +390,7 @@ const Model: PageWithLayout<ModelProps> = ({
             <IconButton
               tooltip={t('model-table.add', { modelName })}
               onClick={handleOnCreate}
+              data-cy="model-table-add"
             >
               <AddIcon />
             </IconButton>
@@ -473,6 +479,7 @@ const Model: PageWithLayout<ModelProps> = ({
                       tooltip={t('model-table.view', { recordId })}
                       onClick={() => handleOnRead(recordId)}
                       className={classes.rowActionPrimary}
+                      data-cy={`model-table-view-${recordId}`}
                     >
                       <DetailsIcon fontSize="small" />
                     </IconButton>
@@ -484,6 +491,7 @@ const Model: PageWithLayout<ModelProps> = ({
                       tooltip={t('model-table.edit', { recordId })}
                       onClick={() => handleOnUpdate(recordId)}
                       className={classes.rowActionPrimary}
+                      data-cy={`model-table-edit-${recordId}`}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -495,6 +503,7 @@ const Model: PageWithLayout<ModelProps> = ({
                       tooltip={t('model-table.delete', { recordId })}
                       onClick={() => handleOnDelete(recordId)}
                       className={classes.rowActionSecondary}
+                      data-cy={`model-table-delete-${recordId}`}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
