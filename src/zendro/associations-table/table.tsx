@@ -157,7 +157,6 @@ export default function AssociationsTable({
     error: Error | ExtendedClientError
   ): void => {
     const parsedError = parseErrorResponse(error);
-    console.log({ parsedError });
 
     if (parsedError.networkError) {
       showSnackbar(parsedError.networkError, 'error');
@@ -186,7 +185,7 @@ export default function AssociationsTable({
   >(
     [
       recordsFilter,
-      selectedAssoc.name,
+      selectedAssoc,
       tableSearch,
       tableOrder,
       tablePagination,
@@ -195,9 +194,9 @@ export default function AssociationsTable({
     async () => {
       const recordsQuery: AssocQuery =
         associationView === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+          ? zendro.queries[modelName].withFilter[selectedAssoc.name]
               .readFiltered
-          : zendro.queries[modelName].withFilter[selectedAssoc.target].readAll;
+          : zendro.queries[modelName].withFilter[selectedAssoc.name].readAll;
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -272,12 +271,12 @@ export default function AssociationsTable({
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     selectedAssoc.type !== 'to_one'
-      ? [recordsFilter, selectedAssoc.target, tableSearch, zendro]
+      ? [recordsFilter, selectedAssoc, tableSearch, zendro]
       : null,
     async () => {
       const countQuery =
         associationView === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[modelName].withFilter[selectedAssoc.target]
+          ? zendro.queries[modelName].withFilter[selectedAssoc.name]
               .countFiltered
           : zendro.queries[selectedAssoc.target].countAll;
 
@@ -300,6 +299,7 @@ export default function AssociationsTable({
         }
       },
       onError: parseAndDisplayErrorResponse,
+      shouldRetryOnError: false,
     }
   );
 
