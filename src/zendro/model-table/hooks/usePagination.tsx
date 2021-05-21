@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { QueryVariablePagination } from '@/types/queries';
 
 export type TablePaginationPosition = 'first' | 'last' | 'next' | 'previous';
@@ -14,32 +14,52 @@ export default function usePagination({
   limit,
   position,
 }: UseTablePaginationProps): QueryVariablePagination {
-  const [pagination, setPagination] = useState<QueryVariablePagination>({
-    first: limit,
-  });
+  // const [pagination, setPagination] = useState<QueryVariablePagination>({
+  //   first: limit,
+  // });
 
-  useEffect(() => {
+  const pagination = useMemo(() => {
     switch (position) {
       case 'first':
-        setPagination({ first: limit });
-        break;
+        return { first: limit };
       case 'last':
-        setPagination({ last: limit });
-        break;
+        return { last: limit };
       case 'next':
-        setPagination({
+        return {
           first: limit,
           after: cursor, // endCursor
-        });
-        break;
+        };
       case 'previous':
-        setPagination({
+        return {
           last: limit,
           before: cursor, // startCursor
-        });
-        break;
+        };
     }
-  }, [cursor, limit, position, setPagination]);
+  }, [cursor, limit, position]);
+
+  // useEffect(() => {
+  //   console.log('-- usePagination --');
+  //   switch (position) {
+  //     case 'first':
+  //       setPagination({ first: limit });
+  //       break;
+  //     case 'last':
+  //       setPagination({ last: limit });
+  //       break;
+  //     case 'next':
+  //       setPagination({
+  //         first: limit,
+  //         after: cursor, // endCursor
+  //       });
+  //       break;
+  //     case 'previous':
+  //       setPagination({
+  //         last: limit,
+  //         before: cursor, // startCursor
+  //       });
+  //       break;
+  //   }
+  // }, [cursor, limit, position, setPagination]);
 
   return pagination;
 }
