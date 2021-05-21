@@ -305,7 +305,7 @@ export default function AssociationsTable({
 
   /* HANDLERS */
 
-  const handleOnAsociationSelect = (target: string, name: string): void => {
+  const handleOnAsociationSelect = (name: string): void => {
     const assoc = associations.find(
       (association) => association.name === name
     ) as ParsedAssociation;
