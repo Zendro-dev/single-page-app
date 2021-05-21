@@ -7,7 +7,7 @@ import {
   Search as SearchIcon,
 } from '@material-ui/icons';
 
-import { IconButton } from '@/components/buttons';
+import IconButton from '@/components/icon-button';
 
 interface SearchFieldProps {
   onSearch: (value: string) => void;

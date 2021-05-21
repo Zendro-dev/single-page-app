@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
 import { Clear as ClearIcon } from '@material-ui/icons';
 
-import { InputActions, WithActions } from '@/components/inputs';
+import InputActions, { WithActions } from '@/components/input-actions';
 import { AttributeValue, AttributeArrayValue } from '@/types/models';
 import { InputField, InputFieldProps } from '@/zendro/record-fields';
 

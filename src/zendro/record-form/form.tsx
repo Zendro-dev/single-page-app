@@ -1,14 +1,14 @@
-import clsx from 'clsx';
 import React, {
   PropsWithChildren,
   ReactElement,
+  ReactNode,
   useEffect,
   useMemo,
   useReducer,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Tooltip } from '@material-ui/core';
+import { Container, Tooltip } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   Cached as Reload,
@@ -21,7 +21,7 @@ import {
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import ActionButton from '@/components/buttons/fab';
+import ActionButton from '@/components/float-button';
 
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
@@ -48,6 +48,7 @@ export interface AttributesFormProps {
   errors?: Record<string, string[]>;
   formId: string;
   formView: FormView;
+  info?: ReactNode;
   modelName: string;
 }
 
@@ -75,6 +76,7 @@ export default function AttributesForm({
   formId,
   formView,
   modelName,
+  ...props
 }: PropsWithChildren<AttributesFormProps>): ReactElement {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -163,105 +165,93 @@ export default function AttributesForm({
   };
 
   return (
-    <Box position="relative" className={className}>
-      <Box
-        position="absolute"
-        display="flex"
-        justifyContent="space-between"
-        top={-28}
-        right={0}
-        paddingX={10}
-        width="100%"
-      >
-        <div className={clsx(classes.actions, classes.leftActions)}>
-          {actions?.cancel && (
-            <ActionButton
-              className={classes.actionSecondary}
-              form={formId}
-              onClick={handleOnAction({
-                action: 'cancel',
-                handler: actions.cancel,
-              })}
-              icon={CancelIcon}
-              tooltip={t('record-form.action-exit')}
-              data-cy="record-form-exit"
-            />
-          )}
+    <Container maxWidth="lg" className={className}>
+      <div className={classes.actionsContainer}>
+        {actions?.cancel && (
+          <ActionButton
+            className="secondary"
+            form={formId}
+            onClick={handleOnAction({
+              action: 'cancel',
+              handler: actions.cancel,
+            })}
+            icon={CancelIcon}
+            tooltip={t('record-form.action-exit')}
+            data-cy="record-form-exit"
+          />
+        )}
 
-          {actions?.read && (
-            <ActionButton
-              className={classes.actionSupport}
-              form={formId}
-              icon={ReadIcon}
-              onClick={handleOnAction({
-                action: 'read',
-                handler: actions.read,
-              })}
-              tooltip={t('record-form.action-read')}
-              data-cy="record-form-read"
-            />
-          )}
+        {actions?.read && (
+          <ActionButton
+            className="support"
+            form={formId}
+            icon={ReadIcon}
+            onClick={handleOnAction({
+              action: 'read',
+              handler: actions.read,
+            })}
+            tooltip={t('record-form.action-read')}
+            data-cy="record-form-read"
+          />
+        )}
 
-          {actions?.update && (
-            <ActionButton
-              className={classes.actionSupport}
-              form={formId}
-              icon={EditIcon}
-              onClick={handleOnAction({
-                action: 'update',
-                handler: actions.update,
-              })}
-              tooltip={t('record-form.action-update')}
-              data-cy="record-form-udpate"
-            />
-          )}
-        </div>
+        {actions?.update && (
+          <ActionButton
+            className="support"
+            form={formId}
+            icon={EditIcon}
+            onClick={handleOnAction({
+              action: 'update',
+              handler: actions.update,
+            })}
+            tooltip={t('record-form.action-update')}
+            data-cy="record-form-udpate"
+          />
+        )}
 
-        <div className={clsx(classes.actions, classes.rightActions)}>
-          {actions?.delete && (
-            <ActionButton
-              className={classes.actionSecondary}
-              form={formId}
-              icon={DeleteIcon}
-              onClick={handleOnAction({
-                action: 'delete',
-                handler: actions.delete,
-              })}
-              tooltip={t('record-form.action-delete')}
-              data-cy="record-form-delete"
-            />
-          )}
+        {actions?.delete && (
+          <ActionButton
+            className="secondary"
+            form={formId}
+            icon={DeleteIcon}
+            onClick={handleOnAction({
+              action: 'delete',
+              handler: actions.delete,
+            })}
+            tooltip={t('record-form.action-delete')}
+            data-cy="record-form-delete"
+          />
+        )}
 
-          {actions?.reload && (
-            <ActionButton
-              className={classes.actionSupport}
-              form={formId}
-              icon={Reload}
-              tooltip={t('record-form.action-reload')}
-              onClick={handleOnAction({
-                action: 'reload',
-                handler: actions.reload,
-              })}
-              data-cy="record-form-reload"
-            />
-          )}
+        {actions?.reload && (
+          <ActionButton
+            className="support"
+            form={formId}
+            icon={Reload}
+            tooltip={t('record-form.action-reload')}
+            onClick={handleOnAction({
+              action: 'reload',
+              handler: actions.reload,
+            })}
+            data-cy="record-form-reload"
+          />
+        )}
 
-          {actions?.submit && (
-            <ActionButton
-              className={classes.actionPrimary}
-              form={formId}
-              icon={SaveIcon}
-              tooltip={t('record-form.action-submit')}
-              type="submit"
-              onClick={handleOnAction({
-                action: 'submit',
-                handler: actions.submit,
-              })}
-              data-cy="record-form-submit"
-            />
-          )}
-        </div>
-      </Box>
+        {actions?.submit && (
+          <ActionButton
+            className="primary"
+            form={formId}
+            icon={SaveIcon}
+            tooltip={t('record-form.action-submit')}
+            type="submit"
+            onClick={handleOnAction({
+              action: 'submit',
+              handler: actions.submit,
+            })}
+            data-cy="record-form-submit"
+          />
+        )}
+      </div>
 
       <form id={formId} className={classes.form}>
         <FormHeader
@@ -273,103 +263,138 @@ export default function AttributesForm({
           subtitle={`${t('record-form.completed')} ${
             formAttributes.length - formStats.unset
           } / ${formAttributes.length}`}
-        />
+        >
+          {props.info}
+        </FormHeader>
 
-        {formAttributes.map((attribute) => {
-          const {
-            name,
-            type,
-            value,
-            clientError,
-            serverErrors,
-            readOnly,
-            primaryKey,
-          } = attribute;
+        <section
+          aria-label={`${formId}-input-fields`}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flexGrow: 1,
+          }}
+        >
+          {formAttributes.map((attribute) => {
+            const {
+              name,
+              type,
+              value,
+              clientError,
+              serverErrors,
+              readOnly,
+              primaryKey,
+            } = attribute;
 
-          return (
-            <FormField
-              key={name}
-              type={type}
-              error={clientError || serverErrors ? true : false}
-              helperText={
-                clientError || serverErrors
-                  ? {
-                      component: 'ul',
-                      node: (
-                        <FormErrors
-                          ajvValidation={serverErrors}
-                          clientValidation={clientError}
-                        />
-                      ),
-                    }
-                  : undefined
-              }
-              label={name}
-              actionLeft={
-                primaryKey && (
-                  <Tooltip title={t('record-fields.primary-key', { name })}>
-                    <KeyIcon fontSize="small" color="action" />
-                  </Tooltip>
-                )
-              }
-              readOnly={readOnly}
-              actionRight={
-                readOnly && (
-                  <Tooltip title={t('record-fields.read-only')}>
-                    <LockIcon fontSize="small" color="secondary" />
-                  </Tooltip>
-                )
-              }
-              onChange={!disabled ? handleOnChange(name) : undefined}
-              onError={!disabled ? handleOnError(name) : undefined}
-              value={value}
-              data-cy={`record-form-fields-${name}`}
-            />
-          );
-        })}
+            return (
+              <FormField
+                key={name}
+                type={type}
+                error={clientError || serverErrors ? true : false}
+                helperText={
+                  clientError || serverErrors
+                    ? {
+                        component: 'ul',
+                        node: (
+                          <FormErrors
+                            ajvValidation={serverErrors}
+                            clientValidation={clientError}
+                          />
+                        ),
+                      }
+                    : undefined
+                }
+                label={name}
+                actionLeft={
+                  primaryKey && (
+                    <Tooltip title={t('record-fields.primary-key', { name })}>
+                      <KeyIcon fontSize="small" color="action" />
+                    </Tooltip>
+                  )
+                }
+                readOnly={readOnly}
+                actionRight={
+                  readOnly ? (
+                    <Tooltip title={t('record-fields.read-only')}>
+                      <LockIcon fontSize="small" color="secondary" />
+                    </Tooltip>
+                  ) : null
+                }
+                onChange={!disabled ? handleOnChange(name) : undefined}
+                onError={!disabled ? handleOnError(name) : undefined}
+                value={value}
+                data-cy={`record-form-fields-${name}`}
+              />
+            );
+          })}
+        </section>
       </form>
-    </Box>
+    </Container>
   );
 }
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     form: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+
+      [theme.breakpoints.up('lg')]: {
+        flexDirection: 'row',
+        alignItems: 'start',
+      },
+
       marginTop: theme.spacing(6),
     },
-    actions: {
+    actionsContainer: {
+      // Layout
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
+
+      [theme.breakpoints.up('sm')]: {
+        justifyContent: 'center',
+        '& > button:not(:last-child), a:not(:last-child)': {
+          marginRight: theme.spacing(6),
+        },
+      },
+
+      [theme.breakpoints.only('md')]: {
+        justifyContent: 'flex-start',
+        marginLeft: theme.spacing(9.5),
+      },
+
+      [theme.breakpoints.up('lg')]: {
+        justifyContent: 'flex-end',
+        marginRight: theme.spacing(9.5),
+      },
+
+      // Spacing
+      marginBottom: theme.spacing(4),
+
+      // Buttons
       '& > button, a': {
-        width: theme.spacing(12),
-        height: theme.spacing(12),
+        flexShrink: 0,
+        width: theme.spacing(10),
+        height: theme.spacing(10),
       },
-      '& > button:not(:first-child), a:not(:first-child)': {
-        marginLeft: theme.spacing(6),
+
+      '& .primary': {
+        color: theme.palette.primary.background,
+        backgroundColor: theme.palette.primary.main,
+        '&:hover': {
+          backgroundColor: theme.palette.primary.dark,
+        },
       },
-    },
-    leftActions: {
-      '& > button:first-child, a:first-child': {
-        width: theme.spacing(14),
-        height: theme.spacing(14),
+
+      '& .secondary': {
+        color: theme.palette.secondary.main,
       },
-    },
-    rightActions: {
-      '& > button:last-child, a:last-child': {
-        width: theme.spacing(14),
-        height: theme.spacing(14),
+
+      '& .support': {
+        color: theme.palette.primary.main,
       },
-    },
-    actionPrimary: {
-      color: theme.palette.grey[100],
-      backgroundColor: theme.palette.primary.main,
-      '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-      },
-    },
-    actionSecondary: {
-      color: theme.palette.secondary.main,
-    },
-    actionSupport: {
-      color: theme.palette.primary.main,
     },
   })
 );

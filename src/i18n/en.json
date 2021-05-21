@@ -76,11 +76,11 @@
   },
   "models-layout": {
     "admin": "Admin",
-    "create": "new",
+    "edit": "edit",
+    "details": "details",
     "home": "Home",
     "models": "Models",
-    "read": "details",
-    "update": "edit"
+    "new": "new"
   },
   "record-fields": {
     "array-add": "Add New Item",

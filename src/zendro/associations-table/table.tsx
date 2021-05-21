@@ -14,17 +14,24 @@ import {
   Save as SaveIcon,
 } from '@material-ui/icons';
 
-import { IconButton } from '@/components/buttons';
-import { SelectInput } from '@/components/inputs';
+import IconButton from '@/components/icon-button';
+import SelectInput from '@/components/select-input';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
+
+import { ExtendedClientError } from '@/types/errors';
 import {
   DataRecord,
   ParsedAssociation,
   ParsedAttribute,
   ParsedDataModel2,
 } from '@/types/models';
+import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
 import { PageInfo } from '@/types/requests';
+import { parseErrorResponse } from '@/utils/errors';
+import { getInflections } from '@/utils/inflection';
+
 import {
+  AssociationFilter,
   Table,
   TableBody,
   TableHeader,
@@ -37,14 +44,8 @@ import {
   useTableSearch,
   useTableOrder,
   TableRecord,
+  UseOrderProps,
 } from '@/zendro/model-table';
-import { AssociationFilter } from '@/zendro/model-table/hooks/useSearch';
-import { getInflections } from '@/utils/inflection';
-import { AssocQuery, QueryModelTableRecordsVariables } from '@/types/queries';
-import { ParsedPermissions } from '@/types/acl';
-import { ExtendedClientError } from '@/types/errors';
-import { hasTokenExpiredErrors } from '@/utils/errors';
-import { UseOrderProps } from '@/zendro/model-table';
 
 interface AssociationsTableProps {
   associations: ParsedAssociation[];
@@ -63,7 +64,6 @@ interface AssocResponse {
 interface AssocTable {
   data: TableRecord[];
   pageInfo?: PageInfo;
-  permissions: ParsedPermissions;
   schema: ParsedDataModel2;
 }
 
@@ -105,7 +105,7 @@ export default function AssociationsTable({
         hasPreviousPage: false,
         hasNextPage: false,
       },
-      ...model,
+      schema: model.schema,
     };
   });
 
@@ -145,6 +145,40 @@ export default function AssociationsTable({
     cursor: null,
   });
   const tablePagination = useTablePagination(pagination);
+
+  /* AUXILIARY */
+
+  /**
+   * Auxiliary function to parse a Zendro client error response and display the
+   * relevant notifications, if necessary.
+   * @param error a base or extended client error type
+   */
+  const parseAndDisplayErrorResponse = (
+    error: Error | ExtendedClientError
+  ): void => {
+    const parsedError = parseErrorResponse(error);
+    console.log({ parsedError });
+
+    if (parsedError.networkError) {
+      showSnackbar(parsedError.networkError, 'error');
+    }
+
+    if (parsedError.genericError) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.genericError
+      );
+    }
+
+    if (parsedError.graphqlErrors?.nonValidationErrors?.length) {
+      showSnackbar(
+        t('errors.server-error', { status: parsedError.status }),
+        'error',
+        parsedError.graphqlErrors.nonValidationErrors
+      );
+    }
+  };
 
   /* FETCH RECORDS */
   const { mutate: mutateRecords } = useSWR<
@@ -221,7 +255,7 @@ export default function AssociationsTable({
         setAssocTable({
           data: data?.records ?? [],
           pageInfo: data?.pageInfo,
-          ...model,
+          schema: model.schema,
         });
 
         // If association type is "to_one", the count must be directly derived
@@ -230,32 +264,7 @@ export default function AssociationsTable({
           setRecordsTotal(data?.records.length ?? 0);
         }
       },
-      onError: (error) => {
-        // TODO check clientError.response.data
-        const clientError = error as ExtendedClientError<AssocResponse>;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
       shouldRetryOnError: false,
     }
   );
@@ -290,35 +299,11 @@ export default function AssociationsTable({
           setRecordsTotal(data.count);
         }
       },
-      onError: (error) => {
-        const clientError = error as ExtendedClientError<
-          Record<'count', number>
-        >;
-
-        if (!clientError.response) {
-          showSnackbar((error as Error).message, 'error');
-          return;
-        }
-
-        const genericError = clientError.response.error;
-        const graphqlErrors = clientError.response.errors;
-
-        if (graphqlErrors && !hasTokenExpiredErrors(graphqlErrors))
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            graphqlErrors
-          );
-
-        if (genericError)
-          showSnackbar(
-            t('errors.server-error', { status: clientError.response.status }),
-            'error',
-            genericError
-          );
-      },
+      onError: parseAndDisplayErrorResponse,
     }
   );
+
+  /* HANDLERS */
 
   const handleOnAsociationSelect = (target: string, name: string): void => {
     const assoc = associations.find(
@@ -429,11 +414,7 @@ export default function AssociationsTable({
       mutateRecords();
       mutateCount();
     } catch (error) {
-      if (
-        error.response?.errors &&
-        !hasTokenExpiredErrors(error.response.errors)
-      )
-        showSnackbar(t('errors.server-error'), 'error', error);
+      parseAndDisplayErrorResponse(error);
     }
   };
 

@@ -27,7 +27,7 @@
     "@material-ui/lab": "^5.0.0-alpha.25",
     "@reduxjs/toolkit": "^1.5.0",
     "@types/acl": "^0.4.37",
-    "acl": "^0.4.11",
+    "acl2": "^2.0.0",
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
     "date-fns": "^2.21.1",

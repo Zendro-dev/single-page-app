@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    "downlevelIteration": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
@@ -26,7 +27,7 @@
     "types": ["cypress"]
   },
   "include": [
-    "typings/next-env.d.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx"
   ],

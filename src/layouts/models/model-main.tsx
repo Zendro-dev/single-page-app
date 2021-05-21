@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Divider } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   AddCircle as NewIcon,
@@ -11,17 +12,16 @@ import {
   VisibilityTwoTone as DetailsIcon,
 } from '@material-ui/icons';
 
-import { Breadcrumbs, Breadcrumb } from '@/components/navigation';
+import AlertCard from '@/components/alert-card';
+import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
 import useAuth from '@/hooks/useAuth';
-import { AppRoutes, RecordUrlQuery } from '@/types/routes';
-import { getPathRequest } from '@/utils/router';
+import { AppRoutes2, RecordUrlQuery } from '@/types/routes';
+import { getRoutePath } from '@/utils/router';
 
-import Restricted from './model-restricted';
 import Navigation from './model-navigation';
-import { Divider } from '@material-ui/core';
 
 export interface ModelsProps {
-  routes: AppRoutes;
+  routes: AppRoutes2;
   showNav: boolean;
 }
 
@@ -35,47 +35,35 @@ export default function Models({
   const router = useRouter();
   const { t } = useTranslation();
 
-  const { group, model, id } = router.query as RecordUrlQuery;
-  const request = getPathRequest(router.asPath, model);
-  const crumbs: Breadcrumb[] = [];
+  const routePath = getRoutePath(router.asPath);
+  const crumbs: Breadcrumb[] = routePath
+    .split('/')
+    .slice(1)
+    .reduce<Breadcrumb[]>((acc, chunk, index, chunks) => {
+      const crumb = {
+        text: t((`models-layout.${chunk}` as unknown) as TemplateStringsArray, {
+          defaultValue: chunk,
+        }),
+        href: index === 1 ? `/${chunks[0]}/${chunk}` : undefined,
+        icon:
+          chunk === 'models'
+            ? ModelIcon
+            : chunk === 'details'
+            ? DetailsIcon
+            : chunk === 'edit'
+            ? EditIcon
+            : chunk === 'new'
+            ? NewIcon
+            : undefined,
+      };
+      return [...acc, crumb];
+    }, []);
 
-  if (group) {
+  const urlQuery = router.query as RecordUrlQuery;
+  if (urlQuery.id)
     crumbs.push({
-      text: t((`models-layout.${group}` as unknown) as TemplateStringsArray),
-      icon: ModelIcon,
-    });
-  }
-
-  if (model)
-    crumbs.push({
-      text: model,
-      href: `/${group}/${model}`,
-    });
-
-  if (request)
-    crumbs.push({
-      text:
-        request === 'read'
-          ? t('models-layout.read')
-          : request === 'update'
-          ? t('models-layout.update')
-          : request === 'create'
-          ? t('models-layout.create')
-          : request,
-      icon:
-        request === 'read'
-          ? DetailsIcon
-          : request === 'update'
-          ? EditIcon
-          : request === 'create'
-          ? NewIcon
-          : undefined,
-    });
-
-  if (id)
-    crumbs.push({
-      text: id,
-      href: `/${group}/${model}/edit/?id=${id}`,
+      text: urlQuery.id,
+      href: router.asPath,
     });
 
   return (
@@ -98,7 +86,21 @@ export default function Models({
           crumbs={crumbs}
         />
         <Divider />
-        <Restricted>{props.children}</Restricted>
+        {!auth.user ? (
+          <AlertCard
+            title={t('restricted.not-logged-header')}
+            body={t('restricted.not-logged-info')}
+            type="info"
+          />
+        ) : auth.status === 'expired' ? (
+          <AlertCard
+            title={t('restricted.token-exp-header')}
+            body={t('restricted.token-exp-info')}
+            type="warning"
+          />
+        ) : (
+          props.children
+        )}
       </main>
     </div>
   );

@@ -1,5 +1,5 @@
-import { Alert, AlertTitle, ListItemText } from '@material-ui/core';
 import { ReactElement } from 'react';
+import { Alert, AlertTitle, ListItemText } from '@material-ui/core';
 
 interface FormErrorsProps {
   ajvValidation?: string[] | null | undefined;

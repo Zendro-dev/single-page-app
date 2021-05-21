@@ -1,9 +1,8 @@
-import Acl from 'acl';
+import Acl from 'acl2';
 import axios from 'axios';
 import decode from 'jwt-decode';
 
-import aclRules from '@/build/acl-rules.preval';
-import appRoutes from '@/build/routes.preval';
+import aclModels from '@/build/acl-models.preval';
 
 import { LOGIN_URL } from '@/config/globals';
 import {
@@ -16,7 +15,7 @@ import {
   AUTH_PERMISSIONS_NOT_FOUND,
   AUTH_TOKEN_EXPIRED,
 } from '@/types/auth';
-
+import { aclSetResourceReducer } from '@/utils/acl';
 import { localStorage } from '@/utils/storage';
 
 /**
@@ -152,20 +151,18 @@ export async function getUserPermissions(
 ): Promise<AuthPermissions> {
   const acl = new Acl(new Acl.memoryBackend());
 
-  // Default or custom acl rules
-  await acl.allow(aclRules);
+  // Server defined ACL rules
+  await acl.allow(aclModels);
 
   // Current user and its associated roles
   await acl.addUserRoles(user, roles);
 
-  // Controlled resources for which permissions should be retrieved
-  const resources = [...appRoutes.admin, ...appRoutes.models].map(
-    ({ name }) => name
-  ) as string[];
+  // Resources for which permissions should be retrieved
+  const modelResources = aclModels.reduce(aclSetResourceReducer, []);
 
   // Parse and return the current user permissions
   return new Promise<AuthPermissions>((resolve, reject) => {
-    acl.allowedPermissions(user, resources, (err, permissions) => {
+    acl.allowedPermissions(user, modelResources, (err, permissions) => {
       if (err) reject(err.message);
       resolve(permissions);
     });
