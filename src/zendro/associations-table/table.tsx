@@ -307,18 +307,18 @@ export default function AssociationsTable({
 
   const handleOnAsociationSelect = (target: string, name: string): void => {
     const assoc = associations.find(
-      (association) => association.target === target
+      (association) => association.name === name
     ) as ParsedAssociation;
-    if (target !== selectedAssoc.target) {
+    if (name !== selectedAssoc.name) {
       setOrder(undefined);
       setSelectedRecords({
         toAdd: [],
         toRemove: [],
       });
 
-      const model = getModel(target);
+      const model = getModel(assoc.target);
       setSelectedAssoc({
-        target,
+        target: assoc.target,
         name,
         type: assoc.type,
         attributes: model.schema.attributes,
@@ -507,13 +507,13 @@ export default function AssociationsTable({
             id={`${modelName}-association-select`}
             // label={`Select ${modelName} association`}
             label={t('associations.assoc-select', { modelName })}
-            items={associations.map(({ name, target, type }) => ({
-              id: target,
+            items={associations.map(({ name, type }) => ({
+              id: name,
               text: name,
               icon: type === 'to_many' ? ToManyIcon : ToOneIcon,
             }))}
             onChange={handleOnAsociationSelect}
-            selected={selectedAssoc.target}
+            selected={selectedAssoc.name}
           />
         </div>
       </div>
