@@ -161,7 +161,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
             disabled={model.schema.associations?.length === 0}
           />
         </TabList>
-        <TabPanel value="attributes">
+        <TabPanel className={classes.tabPanel} value="attributes">
           <AttributesForm
             attributes={model.schema.attributes}
             data={recordData}
@@ -176,7 +176,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
             }}
           />
         </TabPanel>
-        <TabPanel value="associations" className={classes.tabPanel}>
+        <TabPanel className={classes.tabPanel} value="associations">
           <AssociationsTable
             associationView="details"
             associations={model.schema.associations ?? []}
@@ -216,8 +216,11 @@ const useStyles = makeStyles((theme) =>
       },
     },
     tabPanel: {
-      display: 'flex',
-      flexGrow: 1,
+      '&&:not([hidden])': {
+        display: 'flex',
+        flexGrow: 1,
+        overflowY: 'auto',
+      },
     },
   })
 );
