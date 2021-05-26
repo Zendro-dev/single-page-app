@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
@@ -43,6 +44,7 @@ export const getStaticProps: GetStaticProps<
 };
 
 const Record: PageWithLayout<RecordProps> = (props) => {
+  const classes = useStyles();
   const dialog = useDialog();
   const model = useModel(props.model);
   const router = useRouter();
@@ -148,6 +150,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   return (
     <ModelBouncer object={props.model} action="create">
       <AttributesForm
+        className={classes.form}
         attributes={model.schema.attributes}
         errors={ajvErrors}
         formId={router.asPath}
@@ -161,6 +164,15 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     </ModelBouncer>
   );
 };
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    form: {
+      marginTop: theme.spacing(6),
+      overflowY: 'auto',
+    },
+  })
+);
 
 Record.layout = ModelLayout;
 export default Record;

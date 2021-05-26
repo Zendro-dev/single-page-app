@@ -39,7 +39,7 @@ export function initForm({
         type,
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
-        value: data?.[name] ?? null,
+        value: (data?.[name] as AttributeValue) ?? null,
         serverErrors: errors?.[name],
       });
 
@@ -75,7 +75,7 @@ function updateValues(
 ): FormAttribute[] {
   const { data } = payload;
   return state.map((attribute) => {
-    attribute.value = data[attribute.name];
+    attribute.value = data[attribute.name] as AttributeValue;
     return attribute;
   });
 }
@@ -121,7 +121,7 @@ export function formAttributesReducer(
 
 /* UTILITY FUNCTIONS */
 
-interface FormStats {
+export interface FormStats {
   clientErrors: number;
   unset: number;
 }
@@ -150,7 +150,7 @@ export function computeStats(formAttributes: FormAttribute[]): FormStats {
  */
 export function computeDiffs(
   formData: FormAttribute[],
-  recordData: Record<string, AttributeValue>
+  recordData: DataRecord
 ): number {
   return formData.reduce((acc, { name, value }) => {
     const cachedValue = recordData[name];

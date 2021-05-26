@@ -322,7 +322,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   return (
     <ModelBouncer object={props.model} action="read">
-      <TableContainer className={classes.root}>
+      <TableContainer className={classes.tableContainer}>
         <div className={classes.toolbar}>
           <TableSearch
             placeholder={t('model-table.search-label', {
@@ -394,6 +394,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             </a>
           </div>
         </div>
+
         <Table caption={t('model-table.caption', { modelName: props.model })}>
           <TableHeader
             actionsColSpan={
@@ -493,12 +494,11 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    root: {
+    tableContainer: {
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
       flexGrow: 1,
-      overflow: 'auto',
       padding: theme.spacing(2, 4),
       marginTop: theme.spacing(8),
     },

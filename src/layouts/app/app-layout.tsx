@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,10 +18,12 @@ import { useAuth } from '@/hooks';
 export interface AppLayoutProps {
   brand?: string;
   action?: ReactNode;
+  footer?: boolean;
 }
 
 export default function ModelsLayout({
-  brand,
+  brand = 'Zendro',
+  footer = true,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
   const auth = useAuth();
@@ -38,6 +41,11 @@ export default function ModelsLayout({
 
   return (
     <div className={classes.root}>
+      <Head>
+        <title>{brand}</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <header className={classes.header}>
         {/* NAVIGATION LINKS */}
         <div className={classes.navLinks}>
@@ -45,7 +53,7 @@ export default function ModelsLayout({
 
           <SiteLink href="/" className={classes.navlink}>
             <HomeIcon />
-            <span>{brand ?? 'Zendro'}</span>
+            <span>{brand}</span>
           </SiteLink>
 
           <ClientOnly>
@@ -77,34 +85,28 @@ export default function ModelsLayout({
         </div>
       </header>
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexGrow: 1,
-        }}
-      >
-        {props.children}
-      </div>
+      {props.children}
 
-      <footer className={classes.footer}>
-        <a
-          className={classes.footerLink}
-          href="https://nextjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>Powered by</span>
-          <img
-            style={{
-              paddingLeft: '.5rem',
-            }}
-            src="/nextjs.svg"
-            alt="Next Logo"
-            className={classes.footerLogo}
-          />
-        </a>
-      </footer>
+      {footer && (
+        <footer className={classes.footer}>
+          <a
+            className={classes.footerLink}
+            href="https://nextjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Powered by</span>
+            <img
+              style={{
+                paddingLeft: '.5rem',
+              }}
+              src="/nextjs.svg"
+              alt="Next Logo"
+              className={classes.footerLogo}
+            />
+          </a>
+        </footer>
+      )}
     </div>
   );
 }
@@ -114,8 +116,8 @@ const useStyles = makeStyles((theme) => {
     root: {
       display: 'flex',
       flexDirection: 'column',
-      height: '100%',
-      overflowX: 'hidden',
+      flexGrow: 1,
+      minHeight: '100vh',
     },
     header: {
       // Layout

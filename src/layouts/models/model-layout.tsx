@@ -26,10 +26,9 @@ export interface ModelLayoutProps {
   routes?: AppRoutes2;
 }
 
-export default function ModelLayout({
-  routes,
-  children,
-}: PropsWithChildren<ModelLayoutProps>): ReactElement {
+export default function ModelLayout(
+  props: PropsWithChildren<ModelLayoutProps>
+): ReactElement {
   const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
@@ -67,9 +66,11 @@ export default function ModelLayout({
           </Fab>
         </Zoom>
       }
+      brand={props.brand}
+      footer={false}
     >
-      <Models showNav={showNav} routes={routes ?? appRoutes}>
-        {children}
+      <Models showNav={showNav} routes={props.routes ?? appRoutes}>
+        {props.children}
       </Models>
     </AppLayout>
   );
