@@ -8,6 +8,10 @@ declare namespace Cypress {
 
     login(): string;
 
+    addDummyAlien(token: string): void;
+
+    deleteDummyAlien(token: string): void;
+
     // setAuthSession(): void;
   }
 }
