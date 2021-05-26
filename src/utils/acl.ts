@@ -28,8 +28,8 @@ export function aclSetResourceReducer(
  * @returns a CRUD->boolean map object.
  */
 export function getResourcePermissions(
-  permissions: AuthPermissions,
-  resource: string
+  resource: string,
+  permissions?: AuthPermissions
 ): ParsedPermissions {
   const defaultPermissions: ParsedPermissions = {
     create: false,
@@ -38,27 +38,33 @@ export function getResourcePermissions(
     delete: false,
   };
 
+  // Without user permissions (e.g. not logged in), access to the resource is forbidden
+  if (!permissions) return defaultPermissions;
+
   const aclPermissions = permissions[resource];
 
-  const parsedPermissions = aclPermissions
-    ? aclPermissions.reduce(
-        (acc, x) =>
-          x === '*'
-            ? Object.assign(acc, {
-                create: true,
-                read: true,
-                update: true,
-                delete: true,
-              })
-            : Object.assign(acc, { [x]: true }),
-        defaultPermissions
-      )
-    : {
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-      };
+  // When the resource is not controlled, full access is granted to the user
+  if (!aclPermissions)
+    return {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+    };
+
+  // When the resource is controlled, permissions are parsed
+  const parsedPermissions = aclPermissions.reduce(
+    (acc, x) =>
+      x === '*'
+        ? Object.assign(acc, {
+            create: true,
+            read: true,
+            update: true,
+            delete: true,
+          })
+        : Object.assign(acc, { [x]: true }),
+    defaultPermissions
+  );
 
   return parsedPermissions;
 }
