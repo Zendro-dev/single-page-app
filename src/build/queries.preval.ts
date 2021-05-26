@@ -5,6 +5,43 @@ import { format } from 'prettier';
 import { StaticQueries } from '@/types/static';
 import { getStaticQueries } from './queries';
 
+function formatQuery(
+  name: string,
+  query: string,
+  resolver: string,
+  transform: string
+): string {
+  const graphqlQuery = format(query, { parser: 'graphql' });
+
+  const data = `
+        import { gql } from 'graphql-request';
+
+        export const name = '${name}';
+
+        export const query = gql\`${graphqlQuery}\`;
+
+        export const resolver = '${resolver}';
+
+        export const transform = ${
+          transform ? "'" + transform + "'" : undefined
+        };
+
+        export default {
+          name,
+          query,
+          resolver,
+          transform,
+        }
+      `;
+
+  return format(data, {
+    parser: 'typescript',
+    semi: true,
+    singleQuote: true,
+    trailingComma: 'es5',
+  });
+}
+
 async function buildQueries(): Promise<Record<string, StaticQueries>> {
   const modelQueries = await getStaticQueries();
 
@@ -14,21 +51,30 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
     const modelQueriesDir = `src/custom/queries/${model}`;
     await mkdir(modelQueriesDir, { recursive: true });
 
-    // Generate in-model queries
-    for (const { name, query } of Object.values(queries)) {
-      await writeFile(
-        join(modelQueriesDir, name) + '.gql',
-        format(query, { parser: 'graphql' })
-      );
+    /**
+     * Model table queries
+     */
+    for (const { name, query, resolver, transform } of Object.values(queries)) {
+      const formattedQuery = formatQuery(name, query, resolver, transform);
+      await writeFile(join(modelQueriesDir, name) + '.ts', formattedQuery);
     }
-    // Generate association queries
+
+    /**
+     * Association table queries
+     */
     const modelAssocQueriesDir = join(modelQueriesDir, 'associations');
+
     await mkdir(modelAssocQueriesDir, { recursive: true });
+
     for (const assocQueries of Object.values(withFilter)) {
-      for (const { name, query } of Object.values(assocQueries)) {
+      for (const { name, query, resolver, transform } of Object.values(
+        assocQueries
+      )) {
+        const formattedQuery = formatQuery(name, query, resolver, transform);
+
         await writeFile(
-          join(modelQueriesDir, 'associations', name) + '.gql',
-          format(query, { parser: 'graphql' })
+          join(modelQueriesDir, 'associations', name) + '.ts',
+          formattedQuery
         );
       }
     }
