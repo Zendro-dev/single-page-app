@@ -37,7 +37,6 @@ describe('new record', () => {
         '2021-05-01T08:43:30.000Z'
       );
     });
-    cy.pause();
     cy.get('span').contains('OK').click();
     // Arrayfield
     cy.get('div').contains('stringArrayField').click();

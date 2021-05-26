@@ -27,7 +27,7 @@ describe('Record details', () => {
     cy.url().should('include', '/models/country');
   });
 
-  it('Fetch record country_1', () => {
+  it('record country_1 details page', () => {
     cy.intercept('http://localhost:3000/graphql').as('read');
     cy.visit('/models/country/details?id=country_1');
 
@@ -82,7 +82,6 @@ describe('Record details', () => {
 
     // check initial request for the first association of country (unique_capital)
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ request, response });
       // check request variables
       expect(request.body.variables).to.deep.eq({
         pagination: {
@@ -111,11 +110,10 @@ describe('Record details', () => {
 
     // select the rivers association
     cy.dataCy('associations-filter-select').click();
-    cy.dataCy('associations-filter-select-river').click();
+    cy.dataCy('associations-filter-select-rivers').click();
 
     // check the request / resonse
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ request, response });
       // check request variables
       expect(request.body.variables).to.deep.eq({
         pagination: {
@@ -157,10 +155,88 @@ describe('Record details', () => {
     });
 
     cy.wait('@count-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        country_id: 'country_1',
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.eq(2);
+    });
+
+    /* SEARCH */
+    cy.dataCy('model-table-search-field').type('rhine');
+    cy.dataCy('model-table-search-button').click();
+
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          operator: 'or',
+          search: [
+            {
+              field: 'river_id',
+              value: '%rhine%',
+              operator: 'like',
+            },
+            {
+              field: 'name',
+              value: '%rhine%',
+              operator: 'like',
+            },
+          ],
+        },
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        country_id: 'country_1',
+        assocSearch: {
+          field: 'country_id',
+          value: 'country_1',
+          operator: 'eq',
+        },
+      });
       expect(response?.statusCode).to.eq(200);
     });
 
-    cy.pause();
+    cy.wait('@count-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          operator: 'or',
+          search: [
+            {
+              field: 'river_id',
+              value: '%rhine%',
+              operator: 'like',
+            },
+            {
+              field: 'name',
+              value: '%rhine%',
+              operator: 'like',
+            },
+          ],
+        },
+        country_id: 'country_1',
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.eq(1);
+    });
+
+    // change association while search field is non-empty
+    cy.dataCy('associations-filter-select').click();
+    cy.dataCy('associations-filter-select-continent').click();
+
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      console.log({ request, response });
+      expect(response?.statusCode).to.eq(200);
+      // This behaviour
+      expect(response?.body.data.records).to.deep.eq([
+        {
+          continent_id: null,
+          name: null,
+        },
+      ]);
+    });
   });
 });
 

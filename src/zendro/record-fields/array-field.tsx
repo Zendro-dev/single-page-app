@@ -171,6 +171,7 @@ export default function ArrayField({
                             className={classes.actionClear}
                             tooltip={t('record-fields.array-unset')}
                             onClick={() => handleOnClear(index)}
+                            data-cy={`arrayfield-inputfield-unset-${index}`}
                           >
                             <ClearIcon />
                           </IconButton>
