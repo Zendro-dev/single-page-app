@@ -42,10 +42,8 @@ export interface ParsedAttribute {
 }
 
 export interface DataRecord {
-  [key: string]: AttributeValue;
+  [key: string]: AttributeValue | DataRecord | undefined;
 }
-
-export type DataRecordWithAssoc = DataRecord & Record<string, DataRecord>;
 
 /* ASSOCIATIONS */
 
