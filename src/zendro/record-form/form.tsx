@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Container, Tooltip } from '@material-ui/core';
+import { Container, ContainerProps, Tooltip } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   Cached as Reload,
@@ -29,7 +29,12 @@ import { isNullorEmpty } from '@/utils/validation';
 import FormErrors from './form-errors';
 import FormHeader from './form-header';
 import FormField from './form-field';
-import { formAttributesReducer, computeStats, initForm } from './form-utils';
+import {
+  computeStats,
+  formAttributesReducer,
+  FormStats,
+  initForm,
+} from './form-utils';
 
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
 export type ActionHandler = (
@@ -37,20 +42,6 @@ export type ActionHandler = (
   stats: FormStats,
   callback?: () => void
 ) => void;
-
-export interface AttributesFormProps {
-  actions?: Partial<Record<FormAction, ActionHandler>>;
-  // actions2?: { [key in FormAction]?: ActionHandler };
-  attributes: ParsedAttribute[];
-  className?: string;
-  data?: DataRecord;
-  disabled?: boolean;
-  errors?: Record<string, string[]>;
-  formId: string;
-  formView: FormView;
-  info?: ReactNode;
-  modelName: string;
-}
 
 export interface FormAttribute extends ParsedAttribute {
   serverErrors?: string[];
@@ -61,15 +52,22 @@ export interface FormAttribute extends ParsedAttribute {
 
 export type FormView = 'create' | 'read' | 'update';
 
-interface FormStats {
-  clientErrors: number;
-  unset: number;
+export interface AttributesFormProps extends ContainerProps {
+  actions?: Partial<Record<FormAction, ActionHandler>>;
+  // actions2?: { [key in FormAction]?: ActionHandler };
+  attributes: ParsedAttribute[];
+  data?: DataRecord;
+  disabled?: boolean;
+  errors?: Record<string, string[]>;
+  formId: string;
+  formView: FormView;
+  info?: ReactNode;
+  modelName: string;
 }
 
 export default function AttributesForm({
   actions,
   attributes,
-  className,
   disabled,
   data,
   errors,
@@ -165,7 +163,7 @@ export default function AttributesForm({
   };
 
   return (
-    <Container maxWidth="lg" className={className}>
+    <Container maxWidth="lg" {...props}>
       <div className={classes.actionsContainer}>
         {actions?.cancel && (
           <ActionButton

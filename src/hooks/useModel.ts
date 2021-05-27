@@ -20,10 +20,7 @@ export function useModel(modelName?: string): Model | GetModel {
 
   const getModel = useCallback(
     (modelName: string): Model => {
-      const permissions = getResourcePermissions(
-        user?.permissions ?? {},
-        modelName
-      );
+      const permissions = getResourcePermissions(modelName, user?.permissions);
 
       return {
         permissions,

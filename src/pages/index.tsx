@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { makeStyles, createStyles, Theme } from '@material-ui/core';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
@@ -9,41 +8,34 @@ const Home: PageWithLayout = () => {
   const { t } = useTranslation();
 
   return (
-    <div className={classes.container}>
-      <Head>
-        <title>Zendro App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <main className={classes.main}>
+      <img className={classes.banner} src="/banner.png" alt="zendro banner" />
 
-      <main className={classes.main}>
-        <img className={classes.banner} src="/banner.png" alt="zendro banner" />
+      <ClientOnly>
+        <div className={classes.cardContainer}>
+          <a
+            className={classes.card}
+            href="https://zendro-dev.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <h1>{t('home.documentation')} &rarr;</h1>
+            <p>{t('home.documentation-info')}</p>
+          </a>
 
-        <ClientOnly>
-          <div className={classes.cardContainer}>
-            <a
-              className={classes.card}
-              href="https://zendro-dev.github.io"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <h1>{t('home.documentation')} &rarr;</h1>
-              <p>{t('home.documentation-info')}</p>
-            </a>
-
-            <a
-              className={classes.card}
-              href="https://github.com/Zendro-dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-cy="github"
-            >
-              <h1>Github &rarr;</h1>
-              <p>{t('home.github-info')}</p>
-            </a>
-          </div>
-        </ClientOnly>
-      </main>
-    </div>
+          <a
+            className={classes.card}
+            href="https://github.com/Zendro-dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cy="github"
+          >
+            <h1>Github &rarr;</h1>
+            <p>{t('home.github-info')}</p>
+          </a>
+        </div>
+      </ClientOnly>
+    </main>
   );
 };
 
@@ -69,7 +61,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     banner: {
       padding: theme.spacing(8),
-      width: '100%',
       objectFit: 'contain',
     },
     cardContainer: {

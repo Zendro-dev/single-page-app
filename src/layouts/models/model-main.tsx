@@ -67,7 +67,7 @@ export default function Models({
     });
 
   return (
-    <div className={classes.mainContainer}>
+    <div className={classes.container}>
       <Navigation
         className={clsx(classes.navDrawer, {
           [classes.navDrawerClosed]: !showNav,
@@ -76,8 +76,8 @@ export default function Models({
         routes={routes}
       />
       <main
-        className={clsx(classes.mainContent, {
-          [classes.mainContentShift]: showNav,
+        className={clsx(classes.content, {
+          [classes.contentShift]: showNav,
         })}
       >
         <Breadcrumbs
@@ -116,19 +116,23 @@ const useStyles = makeStyles((theme) => {
       height: theme.spacing(14),
       padding: theme.spacing(0, 4),
     },
-    mainContainer: {
+    container: {
       display: 'flex',
       flexGrow: 1,
-      height: `calc(100% - ${theme.spacing(18)})`,
+      overflowY: 'hidden',
+      maxHeight: `calc(100vh - ${theme.spacing(18)})`,
     },
-    mainContent: {
+    content: {
       display: 'flex',
       flexDirection: 'column',
-      width: '100%',
+      flexGrow: 1,
+      // maxHeight: `calc(100% - ${theme.spacing(32)})`,
+
       transition: theme.transitions.create(['width'], {
         duration: theme.transitions.duration.standard,
         easing: theme.transitions.easing.sharp,
       }),
+
       [theme.breakpoints.down('md')]: {
         opacity: 100,
         transition: theme.transitions.create(['opacity'], {
@@ -137,7 +141,7 @@ const useStyles = makeStyles((theme) => {
         }),
       },
     },
-    mainContentShift: {
+    contentShift: {
       [theme.breakpoints.down('md')]: {
         opacity: 0,
         transition: theme.transitions.create(['opacity'], {
