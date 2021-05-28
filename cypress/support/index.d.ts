@@ -8,9 +8,9 @@ declare namespace Cypress {
 
     login(): string;
 
-    addDummyAlien(token: string): void;
+    gqlRequest(query: string): void;
 
-    deleteDummyAlien(token: string): void;
+    // deleteDummyAlien(token: string): void;
 
     // setAuthSession(): void;
   }
