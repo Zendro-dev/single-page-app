@@ -7,7 +7,7 @@ import { theme } from '@/styles/theme';
 
 interface LastUpdatedProps {
   isLoading?: boolean;
-  color: string;
+  color?: string;
   date: string;
 }
 
