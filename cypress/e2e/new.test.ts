@@ -18,6 +18,15 @@ describe('new record', () => {
 
   it.only('Submit new alien', () => {
     cy.intercept('http://localhost:3000/graphql').as('add');
+
+    cy.intercept('http://localhost:3000/graphql', (req) => {
+      if ((req.body.query as string).includes('addAlien')) {
+        req.alias = 'add-record';
+      } else if ((req.body.query as string).includes('deleteAlien')) {
+        req.alias = 'delete-record';
+      }
+    });
+
     cy.visit('/models/alien/new');
 
     // type in attributes
@@ -49,11 +58,11 @@ describe('new record', () => {
     cy.dataCy('arrayfield-delete-item-1').click();
 
     // submit mutation
-    cy.dataCy('record-form-submit').click();
+    cy.dataCy('record-form-submit').click({ force: true });
     // confirm submition
-    cy.dataCy('dialog-ok').click();
+    cy.dataCy('dialog-ok').click({ force: true });
 
-    cy.wait('@add').then(({ request, response }) => {
+    cy.wait('@add-record').then(({ request, response }) => {
       expect(request.body.variables).to.deep.equal({
         idField: 'alien_test_1',
         stringField: 'Xortacl',
@@ -71,6 +80,19 @@ describe('new record', () => {
     });
 
     cy.url().should('include', '/models/alien/edit?id=alien_test_1');
+
+    /* Delete the record to clean up */
+    cy.dataCy('record-form-delete').click();
+    cy.dataCy('dialog-ok').click();
+    cy.wait('@delete-record').then(({ response }) => {
+      console.log({ response });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        deleteAlien: 'Item successfully deleted',
+      });
+    });
+
+    // cy.pause();
   });
 
   it('Submit existing country', () => {
@@ -84,7 +106,7 @@ describe('new record', () => {
     //submit mutation
     cy.dataCy('record-form-submit').click();
 
-    cy.wait('@add').then(({ request, response }) => {
+    cy.wait('@add-record').then(({ request, response }) => {
       expect(request.body.variables).to.deep.equal({
         country_id: 'country_1',
         name: 'USA',

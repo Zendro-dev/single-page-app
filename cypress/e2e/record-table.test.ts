@@ -19,16 +19,19 @@ describe('record-table', () => {
         req.alias = 'count';
       }
     });
+    cy.intercept('http://localhost:3000/graphql', (req) => {
+      if ((req.body.query as string).includes('mutation')) {
+        req.alias = 'mutation';
+      }
+    });
     cy.visit('/models/alien');
 
     // Wait for inital requests
     cy.wait('@read').then(({ request, response }) => {
       expect(response?.statusCode).to.eq(200);
-      expect(response?.body.data.records).to.have.length(11);
     });
     cy.wait('@count').then(({ request, response }) => {
       expect(response?.statusCode).to.eq(200);
-      expect(response?.body.data.count).to.eq(11);
     });
   });
 
@@ -196,6 +199,12 @@ describe('record-table', () => {
   });
 
   it('Alien model table - actions', () => {
+    // Add test alien to delete
+    const addAlien = `mutation {
+      addAlien(idField: "alien_to_delete") {idField}
+    }`;
+    cy.gqlRequest(addAlien);
+
     /* RELOAD */
     cy.dataCy('model-table-reload').click();
     cy.wait('@read').then(({ request, response }) => {
@@ -209,20 +218,26 @@ describe('record-table', () => {
 
     /* DELETE */
     // cancel
-    cy.dataCy('model-table-delete-alien_2').click();
+    cy.dataCy('model-table-delete-alien_to_delete').click();
     cy.dataCy('dialog-cancel').click();
     // Ok
-    cy.dataCy('model-table-delete-alien_2').click();
+    cy.dataCy('model-table-delete-alien_to_delete').click();
     cy.dataCy('dialog-ok').click();
+    cy.wait('@mutation').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        deleteAlien: 'Item successfully deleted',
+      });
+    });
     cy.wait('@read').then(({ request, response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
-      expect(response?.body.data.records).to.have.length(10);
+      expect(response?.body.data.records).to.have.length(11);
     });
     cy.wait('@count').then(({ request, response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
-      expect(response?.body.data.count).to.equal(10);
+      expect(response?.body.data.count).to.equal(11);
     });
 
     /* VIEW */

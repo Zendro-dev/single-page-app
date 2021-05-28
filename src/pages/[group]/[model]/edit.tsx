@@ -198,6 +198,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
+    console.log({ dataRecord });
 
     const submit = async (): Promise<void> => {
       try {
@@ -295,11 +296,16 @@ const Record: PageWithLayout<RecordProps> = (props) => {
           onChange={handleOnTabChange}
           variant="fullWidth"
         >
-          <Tab label={t('record-form.tab-attributes')} value="attributes" />
+          <Tab
+            label={t('record-form.tab-attributes')}
+            value="attributes"
+            data-cy="record-form-tab-attributes"
+          />
           <Tab
             label={t('record-form.tab-associations')}
             value="associations"
             disabled={model.schema.associations?.length === 0}
+            data-cy="record-form-tab-associations"
           />
         </TabList>
         <TabPanel className={classes.tabPanel} value="attributes">

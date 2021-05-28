@@ -109,8 +109,8 @@ describe('Record details', () => {
     });
 
     // select the rivers association
-    cy.dataCy('associations-filter-select').click();
-    cy.dataCy('associations-filter-select-rivers').click();
+    cy.dataCy('country-association-select').click();
+    cy.dataCy('country-association-select-rivers').click();
 
     // check the request / resonse
     cy.wait('@read-assoc-table').then(({ request, response }) => {
@@ -223,8 +223,8 @@ describe('Record details', () => {
     });
 
     // change association while search field is non-empty
-    cy.dataCy('associations-filter-select').click();
-    cy.dataCy('associations-filter-select-continent').click();
+    cy.dataCy('country-association-select').click();
+    cy.dataCy('country-association-select-continent').click();
 
     cy.wait('@read-assoc-table').then(({ request, response }) => {
       console.log({ request, response });

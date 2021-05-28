@@ -337,7 +337,10 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           <div className={classes.toolbarActions}>
             <IconButton
               tooltip={t('model-table.reload', { modelName: props.model })}
-              onClick={() => mutateRecords()}
+              onClick={() => {
+                mutateRecords();
+                mutateCount();
+              }}
               data-cy="model-table-reload"
             >
               <ReloadIcon />

@@ -257,9 +257,12 @@ export default function AssociationsTable({
           schema: model.schema,
         });
 
-        // If association type is "to_one", the count must be directly derived
+        // If association type is "to_one", the count count be directly derived
         // from the data (no count resolver exists). The count should be 0 or 1.
-        if (selectedAssoc.type === 'to_one') {
+        if (
+          selectedAssoc.type === 'to_one' &&
+          (associationView === 'details' || recordsFilter === 'associated')
+        ) {
           setRecordsTotal(data?.records.length ?? 0);
         }
       },
@@ -270,7 +273,10 @@ export default function AssociationsTable({
 
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
-    selectedAssoc.type !== 'to_one'
+    !(
+      selectedAssoc.type === 'to_one' &&
+      (associationView === 'details' || recordsFilter === 'associated')
+    )
       ? [recordsFilter, selectedAssoc, tableSearch, zendro]
       : null,
     async () => {
@@ -483,6 +489,7 @@ export default function AssociationsTable({
               mutateRecords();
               mutateCount();
             }}
+            data-cy="associations-table-reload"
           >
             <ReloadIcon />
           </IconButton>
@@ -497,6 +504,7 @@ export default function AssociationsTable({
                 selectedRecords.toAdd.length === 0 &&
                 selectedRecords.toRemove.length === 0
               }
+              data-cy={`associations-table-save`}
             >
               <SaveIcon />
             </IconButton>
@@ -574,6 +582,7 @@ export default function AssociationsTable({
                             isSelected ? 'remove' : 'add'
                           )
                         }
+                        data-cy={`associations-table-mark-${recordId}`}
                       >
                         {record.isAssociated ? (
                           isSelected ? (
