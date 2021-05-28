@@ -6,12 +6,26 @@ declare namespace Cypress {
      */
     dataCy(value: string): Chainable<Element>;
 
-    login(): string;
+    /**
+     * Custom command to login via the UI
+     */
+    login(): void;
 
+    /**
+     * Custom command to fire a graphql request via cy.request
+     * @param query qraphql query as string
+     * @example cy.gqlRequest('mutation{deleteCountry(country_id: "country_1")}')
+     */
     gqlRequest(query: string): void;
 
-    // deleteDummyAlien(token: string): void;
+    /**
+     * Custom command to seed a default DB
+     */
+    seedDefaultDb(): void;
 
-    // setAuthSession(): void;
+    /**
+     * Custom command to reset the default seeded DB
+     */
+    resetDefaultDb(): void;
   }
 }
