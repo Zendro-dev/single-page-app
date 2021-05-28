@@ -2,13 +2,14 @@ describe('record-table', () => {
   // but set the user before visiting the page
   // so the app thinks it is already authenticated
 
-  before('login', () => {
+  before('login and Db seed', () => {
+    cy.seedDefaultDb();
     cy.login();
   });
 
-  after('logout', () => {
+  after('logout and Db reset', () => {
+    cy.resetDefaultDb();
     cy.dataCy('login-button').click({ force: true });
-    // cy.dataCy('login-button').forceClick();
   });
 
   beforeEach('intercept requests', () => {

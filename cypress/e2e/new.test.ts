@@ -2,11 +2,13 @@ import { AuthToken } from '@/types/auth';
 import decode from 'jwt-decode';
 
 describe('new record', () => {
-  before('login', () => {
+  before('login and Db seed', () => {
+    cy.seedDefaultDb();
     cy.login();
   });
 
-  after('logout', () => {
+  after('logout and Db reset', () => {
+    cy.resetDefaultDb();
     cy.dataCy('login-button').click({ force: true });
   });
 
@@ -16,7 +18,7 @@ describe('new record', () => {
     cy.url().should('include', '/models/alien');
   });
 
-  it.only('Submit new alien', () => {
+  it('Submit new alien', () => {
     cy.intercept('http://localhost:3000/graphql').as('add');
 
     cy.intercept('http://localhost:3000/graphql', (req) => {
@@ -95,10 +97,11 @@ describe('new record', () => {
     // cy.pause();
   });
 
-  it('Submit existing country', () => {
-    cy.intercept('http://localhost:3000/graphql').as('add');
+  it('Submition Errors', () => {
+    cy.intercept('http://localhost:3000/graphql').as('add-record');
     cy.visit('/models/country/new');
 
+    /* Existing Record */
     // type in attributes
     cy.dataCy('record-form-fields-country_id').type('country_1');
     cy.dataCy('record-form-fields-name').type('USA');
@@ -111,6 +114,44 @@ describe('new record', () => {
         country_id: 'country_1',
         name: 'USA',
       });
+      expect(response?.statusCode).to.eq(500);
+    });
+
+    cy.visit('/models/country/new');
+    /* Validation Errors */
+    // type in attributes
+    cy.dataCy('record-form-fields-country_id').type('country_invalid');
+    cy.dataCy('record-form-fields-name').type('USA2');
+
+    cy.dataCy('record-form-submit').click();
+
+    cy.wait('@add-record').then(({ response }) => {
+      console.log({ response });
+      expect(response?.body.errors).to.deep.eq([
+        {
+          message: 'validation failed',
+          locations: [
+            {
+              line: 1,
+              column: 55,
+            },
+          ],
+          extensions: {
+            validationErrors: [
+              {
+                keyword: 'pattern',
+                dataPath: '.name',
+                schemaPath: '#/properties/name/pattern',
+                params: {
+                  pattern: '^[A-Za-z]+$',
+                },
+                message: 'should match pattern "^[A-Za-z]+$"',
+              },
+            ],
+          },
+          path: ['addCountry'],
+        },
+      ]);
       expect(response?.statusCode).to.eq(500);
     });
   });

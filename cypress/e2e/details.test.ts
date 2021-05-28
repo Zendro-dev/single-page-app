@@ -2,11 +2,13 @@ import { AuthToken } from '@/types/auth';
 import decode from 'jwt-decode';
 
 describe('Record details', () => {
-  before('login', () => {
+  before('login and Db seed', () => {
+    cy.seedDefaultDb();
     cy.login();
   });
 
-  after('logout', () => {
+  after('logout and Db reset', () => {
+    cy.resetDefaultDb();
     cy.dataCy('login-button').click({ force: true });
   });
 

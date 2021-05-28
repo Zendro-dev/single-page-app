@@ -1,16 +1,12 @@
 describe('Record edit', () => {
-  before('login', () => {
+  before('login and Db seed', () => {
+    cy.seedDefaultDb();
     cy.login();
-    // add a test record to update
-
-    // cy.gqlRequest(addDummyAlien);
   });
 
-  after('logout', () => {
+  after('logout and Db reset', () => {
+    cy.resetDefaultDb();
     cy.dataCy('login-button').click({ force: true });
-    // delete the test record
-    // const deleteDummyAlien = `mutation{ deleteAlien(idField: "alien_test_update") }`;
-    // cy.gqlRequest(deleteDummyAlien);
   });
 
   it('Cancel Form', () => {
