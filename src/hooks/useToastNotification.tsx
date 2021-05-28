@@ -1,27 +1,27 @@
-import Snackbar from '@/components/alert/snackbar';
+import ToastAlert from '@/components/toast-alert';
 import { SnackbarMessage, useSnackbar, VariantType } from 'notistack';
 import { useCallback } from 'react';
 
-type showSnackbar = (
+type showNotification = (
   message: SnackbarMessage,
   variant: VariantType,
   details?: unknown
 ) => void;
 
 interface UseToastNotification {
-  showSnackbar: showSnackbar;
+  showSnackbar: showNotification;
 }
 
 export default function useToastNotification(): UseToastNotification {
   const { enqueueSnackbar } = useSnackbar();
 
-  const showSnackbar: showSnackbar = useCallback(
+  const showSnackbar: showNotification = useCallback(
     (message, variant, details): void => {
       enqueueSnackbar(message, {
         preventDuplicate: true,
         // eslint-disable-next-line react/display-name
         content: (key) => (
-          <Snackbar
+          <ToastAlert
             id={key}
             message={message}
             details={details}

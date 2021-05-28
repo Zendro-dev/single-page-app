@@ -8,21 +8,21 @@ import { createStyles, makeStyles, Tab } from '@material-ui/core';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 
 import { getStaticModelPaths } from '@/build/routes';
-
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
-import { ModelsLayout, PageWithLayout } from '@/layouts';
+import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
 import { ModelUrlQuery, RecordUrlQuery } from '@/types/routes';
-
-import { hasTokenExpiredErrors } from '@/utils/errors';
+import { parseErrorResponse } from '@/utils/errors';
 
 import AssociationsTable from '@/zendro/associations-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
+import ModelBouncer from '@/zendro/model-bouncer';
 
 interface RecordProps {
-  modelName: string;
+  group: string;
+  model: string;
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -38,18 +38,18 @@ export const getStaticProps: GetStaticProps<
   ModelUrlQuery
 > = async (context) => {
   const params = context.params as ModelUrlQuery;
-  const modelName = params.model;
 
   return {
     props: {
-      key: modelName + '/details',
-      modelName,
+      key: params.model + '/details',
+      group: params.group,
+      model: params.model,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
-  const model = useModel(modelName);
+const Record: PageWithLayout<RecordProps> = (props) => {
+  const model = useModel(props.model);
   const router = useRouter();
   const urlQuery = router.query as RecordUrlQuery;
   const classes = useStyles();
@@ -77,7 +77,7 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   >(
     [zendro, urlQuery.id],
     async () => {
-      const request = zendro.queries[modelName].readOne;
+      const request = zendro.queries[props.model].readOne;
       const response = await zendro.request<Record<string, DataRecord>>(
         request.query,
         {
@@ -95,11 +95,15 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
           }
         ),
       onError: (error) => {
+        const parsedError = parseErrorResponse(error);
+
         if (
-          error.response?.errors &&
-          !hasTokenExpiredErrors(error.response.errors)
-        )
-          showSnackbar(t('errors.server-error'), 'error', error);
+          parsedError.networkError ||
+          parsedError.genericError ||
+          parsedError.graphqlErrors?.nonValidationErrors.length
+        ) {
+          showSnackbar(t('errors.server-error'), 'error', parsedError);
+        }
       },
     }
   );
@@ -110,14 +114,14 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
    * Exit the form and go back to the model table page.
    */
   const handleOnCancel: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}`);
+    router.push(`/${props.group}/${props.model}`);
   };
 
   /**
    * Navigate to the record details page.
    */
   const handleOnUpdate: ActionHandler = () => {
-    router.push(`/${urlQuery.group}/${modelName}/edit?id=${urlQuery.id}`);
+    router.push(`/${props.group}/${props.model}/edit?id=${urlQuery.id}`);
   };
 
   /**
@@ -142,73 +146,84 @@ const Record: PageWithLayout<RecordProps> = ({ modelName }) => {
   };
 
   return (
-    <TabContext value={currentTab}>
-      <TabList
-        aria-label={`attributes and associations for ${modelName} record ${urlQuery.id}`}
-        className={classes.tabList}
-        onChange={handleOnTabChange}
-        variant="fullWidth"
-      >
-        <Tab label={t('record-form.tab-attributes')} value="attributes" />
-        <Tab
-          label={t('record-form.tab-associations')}
-          value="associations"
-          disabled={model.schema.associations?.length === 0}
-        />
-      </TabList>
-      <TabPanel value="attributes" className={classes.panelForm}>
-        <AttributesForm
-          attributes={model.schema.attributes}
-          className={classes.form}
-          data={recordData}
-          disabled
-          formId={router.asPath}
-          formView="read"
-          modelName={modelName}
-          actions={{
-            cancel: handleOnCancel,
-            update: model.permissions.update ? handleOnUpdate : undefined,
-            reload: handleOnReload,
-          }}
-        />
-      </TabPanel>
-      <TabPanel value="associations" className={classes.panelTable}>
-        <AssociationsTable
-          associationView="details"
-          associations={model.schema.associations ?? []}
-          attributes={model.schema.attributes}
-          modelName={modelName}
-          recordId={urlQuery.id as string}
-          primaryKey={model.schema.primaryKey}
-        />
-      </TabPanel>
-    </TabContext>
+    <ModelBouncer object={props.model} action="read">
+      <TabContext value={currentTab}>
+        <TabList
+          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
+          className={classes.tabList}
+          onChange={handleOnTabChange}
+          variant="fullWidth"
+        >
+          <Tab label={t('record-form.tab-attributes')} value="attributes" />
+          <Tab
+            label={t('record-form.tab-associations')}
+            value="associations"
+            disabled={model.schema.associations?.length === 0}
+          />
+        </TabList>
+        <TabPanel className={classes.tabPanel} value="attributes">
+          <AttributesForm
+            attributes={model.schema.attributes}
+            data={recordData}
+            disabled
+            formId={router.asPath}
+            formView="read"
+            modelName={props.model}
+            actions={{
+              cancel: handleOnCancel,
+              update: model.permissions.update ? handleOnUpdate : undefined,
+              reload: handleOnReload,
+            }}
+          />
+        </TabPanel>
+        <TabPanel className={classes.tabPanel} value="associations">
+          <AssociationsTable
+            associationView="details"
+            associations={model.schema.associations ?? []}
+            attributes={model.schema.attributes}
+            modelName={props.model}
+            recordId={urlQuery.id as string}
+            primaryKey={model.schema.primaryKey}
+          />
+        </TabPanel>
+      </TabContext>
+    </ModelBouncer>
   );
 };
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    form: {
-      border: '2px solid',
-      borderRadius: 10,
-      borderColor: theme.palette.grey[300],
-      padding: theme.spacing(12, 10),
-    },
-    panelForm: {
-      margin: theme.spacing(10, 0),
-    },
-    panelTable: {
-      display: 'flex',
-      flexGrow: 1,
-      margin: theme.spacing(5, 2),
-    },
     tabList: {
-      margin: theme.spacing(0, 4),
-      // borderBottom: '1px solid',
-      // borderBottomColor: theme.palette.divider,
+      marginBottom: theme.spacing(6),
+
+      backgroundColor: theme.palette.action.hover,
+      borderBottom: '1px solid',
+      borderBottomColor: theme.palette.divider,
+
+      '& .MuiTabs-indicator': {
+        backgroundColor: 'transparent',
+      },
+
+      '& .MuiTab-root:hover:not(.Mui-selected)': {
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.getContrastText(theme.palette.background.default),
+      },
+
+      '& .Mui-selected': {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.getContrastText(theme.palette.primary.main),
+        fontWeight: 'bold',
+      },
+    },
+    tabPanel: {
+      '&&:not([hidden])': {
+        display: 'flex',
+        flexGrow: 1,
+        overflowY: 'auto',
+      },
     },
   })
 );
 
-Record.layout = ModelsLayout;
+Record.layout = ModelLayout;
 export default Record;

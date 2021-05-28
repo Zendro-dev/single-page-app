@@ -28,17 +28,20 @@
   },
   "errors": {
     "csv-import": "An error occurred while trying to import the CSV file. Please contact your administrator.",
-    "login-failed": "Login failed",
     "server-error": "Error {{ status }} in request to server"
   },
   "home": {
-    "documenation-info": "Find in-depth information about Zendro features and API.",
+    "documentation-info": "Find in-depth information about Zendro features and API.",
     "documentation": "Documentation",
     "github-info": "Contribute with pull requests, issues, and feedback."
   },
   "login-dialog": {
     "title": "Login Form",
-    "content": "To log into this website, please enter your email address and password below."
+    "content": "To log into this website, please enter your email address and password below.",
+    "login-expired": "Login expired",
+    "login-failed": "Login failed",
+    "login-loading": "Sending credentials...",
+    "login-successful": "Login successful"
   },
   "login-form": {
     "cancel": "Cancel",
@@ -73,11 +76,11 @@
   },
   "models-layout": {
     "admin": "Admin",
-    "create": "new",
+    "edit": "edit",
+    "details": "details",
     "home": "Home",
     "models": "Models",
-    "read": "details",
-    "update": "edit"
+    "new": "new"
   },
   "record-fields": {
     "array-add": "Add New Item",
@@ -95,12 +98,12 @@
     "action-submit": "Submit changes",
     "action-update": "Edit Record",
     "completed": "Completed",
-    "create": "Create",
-    "read": "Read",
+    "create": "New",
+    "read": "Details",
     "read-only": "The form is in read-only mode",
     "tab-associations": "Associations",
     "tab-attributes": "Attributes",
-    "update": "Update"
+    "update": "Edit"
   },
   "restricted": {
     "not-logged-header": "You are not logged in",
@@ -108,7 +111,7 @@
     "not-allowed-header": "Access to this page is restricted",
     "not-allowed-info": "It appears you do not have sufficient permissions to access this page. If you think this is an error, please contact your administrator.",
     "token-exp-header": "Your session has expired",
-    "token-exp-info": "It appears your current session has expired. This page will not function until you re-validate your identity. You can do so using the sign-in button in the top right corner. You may also exit the current session by clicking on the Logout button below."
+    "token-exp-info": "It appears your current session has expired. This page will not function until you re-validate your identity. You can do so using the sign-in button in the top right corner. You may also exit the current session by closing this window."
   },
   "success": {
     "assoc-update": "Associations updated successfully",
@@ -117,6 +120,6 @@
   "toolbar": {
     "change-language": "Change language",
     "login": "Login",
-    "logout": "Logout"
+    "models": "Models"
   }
 }

@@ -28,17 +28,19 @@
   },
   "errors": {
     "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator.",
-    "login-failed": "Anmeldung fehlgeschlagen",
     "server-error": "Fehler {{ status }} in Anfrage zum Server"
   },
   "home": {
-    "documenation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "documentation-info": "Detaillierte Informationen über Zendro funktionen und API.",
     "documentation": "Dokumentation",
     "github-info": "Hilf mit via pull request, issues und Feedback."
   },
   "login-dialog": {
     "title": "Login Formular",
-    "content": "Um sich auf der Website anzumelden, geben Sie bitte ihre E-Mail-Adresse und Passwort ein."
+    "content": "Um sich auf der Website anzumelden, geben Sie bitte ihre E-Mail-Adresse und Passwort ein.",
+    "login-expired": "Anmenldung abgelaufen",
+    "login-failed": "Anmeldung fehlgeschlagen",
+    "login-successful": "Anmeldung erfolgreich"
   },
   "login-form": {
     "cancel": "Abbrechen",
@@ -73,11 +75,11 @@
   },
   "models-layout": {
     "admin": "Admin",
-    "create": "Neu",
+    "details": "Details",
+    "edit": "Bearbeiten",
     "home": "Home",
     "models": "Modelle",
-    "read": "Details",
-    "update": "Bearbeiten"
+    "new": "Neu"
   },
   "record-fields": {
     "array-add": "Element hinzufügen",
@@ -108,7 +110,7 @@
     "not-allowed-header": "Zugriff zu dieser Seite ist gepserrt",
     "not-allowed-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
     "token-exp-header": "Ihre Sitzung ist abgelaufen",
-    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke. Um die aktuelle Sitzung zu beenden nutzen sie den Logout."
+    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke. Um die aktuelle Sitzung zu beenden schließen sie das Fenster."
   },
   "success": {
     "assoc-update": "Assoziation erfolgreich aktualisiert",
@@ -117,6 +119,7 @@
   "toolbar": {
     "change-language": "Sprache ändern",
     "login": "Einloggen",
-    "logout": "Ausloggen"
+    "logout": "Ausloggen",
+    "models": "Modelle"
   }
 }

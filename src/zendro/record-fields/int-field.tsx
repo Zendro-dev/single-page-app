@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
-import { TextInput, TextInputProps } from '@/components/inputs';
+import TextInput, { TextInputProps } from '@/components/text-input';
 
 type IntFieldProps = Overwrite<
   TextInputProps,

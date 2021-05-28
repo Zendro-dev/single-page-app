@@ -24,11 +24,11 @@ To facilitate the development process, we use a unified `JSON` format that works
 
 ### Configuration
 
-For the Zendro frontend to know the location of its GraphQL endpoint, as well as other parameters required for its functionality, several environmental variables need to be defined in an `.env.local` file.
+For the Zendro frontend to know the location of its GraphQL endpoint, as well as other parameters required for its functionality, several environmental variables need to be defined in either a `.env`, `.env.local`, or `.env.production` file.
 
 This file is also used by Next.js to set any environment variables that should be available to either the built-in generator, or in the browser. Read more about Next.js environmental variables [in the official documentation](https://nextjs.org/docs/basic-features/environment-variables).
 
-For security reasons, this file is never committed to the remote repository. However, we have included a `.env.local.example` file with some reasonable defaults that may be used in development. To get started, you can begin by renaming `.env.local.example` to `.env.local`.
+For security reasons, `env.local` is never committed to the remote repository. However, we have included a `.env.local.development` file with some reasonable defaults that may be used in development. In production, you can copy `.env.development` to a new `.env.production` file and modify it accordingly.
 
 Below there is a brief explanation of what each variable is used for.
 
@@ -42,12 +42,21 @@ NEXT_PUBLIC_ZENDRO_LOGIN_URL='http://localhost:3000/login'
 # Endpoint export address. Used to request table downloads in CSV format.
 NEXT_PUBLIC_ZENDRO_EXPORT_URL='http://localhost:3000/export'
 
+# GraphQL meta-query endpoint address. Used to send meta- queries and mutations.
+NEXT_PUBLIC_ZENDRO_METAQUERY_URL='http://localhost:3000/meta_query'
+
 # Maximum allowed upload size in megabytes.
 NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE=500
 
 # Maximum number of records that can be returned per request.
 NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT=10000
 ```
+
+#### Sending GraphQL Requests
+
+The standard Zendro GraphQL Server exposes two different APIs to send requests, a standard GraphQL endpoint in `/graphql`, and a **Meta-Query** endpoint in `/meta_query`. This latter route accepts either a `jq` or `jsonpath` header with special syntax to further process the contents of the GraphQL `data` object in the server. After the processing is complete, the modified `data` is sent in the response. This feature allows us to statically serve complex parsing instructions along with the queries and mutations data.
+
+This is an optional feature for custom implementations, but the default CRUD interface provided with the SPA uses the `/meta_query` endpoint extensively to function. Meaning, that the default application requires that the `NEXT_PUBLIC_ZENDRO_METAQUERY_URL` is set correctly, and the `/meta_query` endpoint accessible to `reader` roles.
 
 ## Development
 
@@ -78,7 +87,7 @@ or the cypress CLI using
 ```bash
 yarn cy:run
 ```
-Using the cypress dashboard comes with several build in advantages, which can be very helpful debugging: 
+Using the cypress dashboard comes with several build in advantages, which can be very helpful debugging:
 * When serving the application in development mode cypress will watch file changes and rerun tests accordingly
 * Step-by-step feedback for every test and the possibility to go back in time via DOM snapshots
 * manually run tests in isolation or run the full suite
@@ -88,13 +97,13 @@ In case there is no active backend to run the tests again a full test run can be
 ```bash
 yarn test-integration
 ```
-This will setup a test environment including a graphql-server and graphql-server-model-codegen to generate the backend code, as well as building the application, serving it and running the full test suite.  
+This will setup a test environment including a graphql-server and graphql-server-model-codegen to generate the backend code, as well as building the application, serving it and running the full test suite.
 
 Run
 ```bash
 yarn test-integration -h
 ```
-for more help and possible run-options. 
+for more help and possible run-options.
 ### Writing tests
 Test files and tests can be added in the `/cypress` folder at the root of the project. See the [docs](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests#Folder-Structure) for more information.
 ### Coverage

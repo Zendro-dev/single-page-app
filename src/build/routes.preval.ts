@@ -1,37 +1,22 @@
-import { mkdir, readdir, stat, writeFile } from 'fs/promises';
+import { mkdir, stat, writeFile } from 'fs/promises';
 import preval from 'next-plugin-preval';
-import { parse } from 'path';
-import { AppRoutes } from '@/types/routes';
+import { AppRoutes2 } from '@/types/routes';
+import { getStaticRoutes2 } from './routes';
 
-async function buildRoutes(): Promise<AppRoutes> {
-  const routesPath = 'src/custom/routes.json';
-  let routes: AppRoutes;
+async function buildRoutes(): Promise<AppRoutes2> {
+  const routesFile = 'routes.json';
+  const customPath = process.cwd() + `/src/custom/${routesFile}`;
+  const overridePath = process.cwd() + `/src/${routesFile}`;
 
-  const parseRoutes = (group: string) => (file: string) => {
-    const { name } = parse(file);
-    return {
-      name,
-      href: `/${group}/${name}`,
-    };
-  };
+  let routes = await getStaticRoutes2();
+  await mkdir('src/custom', { recursive: true });
+  await writeFile(customPath, JSON.stringify(routes, null, 2));
 
   try {
-    await stat(routesPath);
-    routes = require(routesPath);
+    await stat(overridePath);
+    routes = require(overridePath);
   } catch (error) {
-    const adminModels = await readdir('./admin');
-    const dataModels = await readdir('./models');
-
-    const admin = adminModels.map(parseRoutes('admin'));
-    const models = dataModels.map(parseRoutes('models'));
-
-    routes = {
-      admin,
-      models,
-    };
-
-    await mkdir('src/custom', { recursive: true });
-    await writeFile(routesPath, JSON.stringify(routes, null, 2));
+    console.log('Override for "routes.json" not found. Loading defaults.');
   }
 
   return routes;

@@ -16,30 +16,29 @@ import {
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
 import appRoutes from '@/build/routes.preval';
-import { AppRoutes } from '@/types/routes';
+import { AppRoutes2 } from '@/types/routes';
 
 import AppLayout from '../app/app-layout';
 const Models = dynamic(() => import('./model-main'), { ssr: false });
 
-export interface ModelsDesktopLayoutProps {
+export interface ModelLayoutProps {
   brand?: string;
-  routes?: AppRoutes;
+  routes?: AppRoutes2;
 }
 
-export default function ModelsLayout({
-  routes,
-  children,
-}: PropsWithChildren<ModelsDesktopLayoutProps>): ReactElement {
+export default function ModelLayout(
+  props: PropsWithChildren<ModelLayoutProps>
+): ReactElement {
   const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
-  const [showNav, setShowNav] = useState(false);
+  const [showNav, setShowNav] = useState(true);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   useEffect(
-    function hideNavOnSmallScreen() {
-      setShowNav(isLargeScreen);
+    function showNavInLargeScreen() {
+      if (isLargeScreen) setShowNav(true);
     },
     [isLargeScreen, setShowNav]
   );
@@ -67,9 +66,11 @@ export default function ModelsLayout({
           </Fab>
         </Zoom>
       }
+      brand={props.brand}
+      footer={false}
     >
-      <Models showNav={showNav} routes={routes ?? appRoutes}>
-        {children}
+      <Models showNav={showNav} routes={props.routes ?? appRoutes}>
+        {props.children}
       </Models>
     </AppLayout>
   );

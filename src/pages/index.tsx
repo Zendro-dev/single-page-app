@@ -1,67 +1,40 @@
-import Head from 'next/head';
 import { makeStyles, createStyles, Theme } from '@material-ui/core';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
-import { ClientOnly } from '@/components/wrappers';
+import ClientOnly from '@/components/client-only';
 
 const Home: PageWithLayout = () => {
   const classes = useStyles();
   const { t } = useTranslation();
 
   return (
-    <div className={classes.container}>
-      <Head>
-        <title>Zendro App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <main className={classes.main}>
+      <img className={classes.banner} src="/banner.png" alt="zendro banner" />
 
-      <main className={classes.main}>
-        <img className={classes.banner} src="/banner.png" alt="zendro banner" />
+      <ClientOnly>
+        <div className={classes.cardContainer}>
+          <a
+            className={classes.card}
+            href="https://zendro-dev.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <h1>{t('home.documentation')} &rarr;</h1>
+            <p>{t('home.documentation-info')}</p>
+          </a>
 
-        <ClientOnly>
-          <div className={classes.cardContainer}>
-            <a
-              className={classes.card}
-              href="https://zendro-dev.github.io"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <h3>{t('home.documentation')} &rarr;</h3>
-              <p>{t('home.documenation-info')}</p>
-            </a>
-
-            <a
-              className={classes.card}
-              href="https://github.com/Zendro-dev"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <h3>Github &rarr;</h3>
-              <p>{t('home.github-info')}</p>
-            </a>
-          </div>
-        </ClientOnly>
-      </main>
-
-      <footer className={classes.footer}>
-        <a
-          className={classes.footerLink}
-          href="https://nextjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>Powered by</span>
-          <img
-            style={{
-              paddingLeft: '.5rem',
-            }}
-            src="/nextjs.svg"
-            alt="Next Logo"
-            className={classes.logo}
-          />
-        </a>
-      </footer>
-    </div>
+          <a
+            className={classes.card}
+            href="https://github.com/Zendro-dev"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <h1>Github &rarr;</h1>
+            <p>{t('home.github-info')}</p>
+          </a>
+        </div>
+      </ClientOnly>
+    </main>
   );
 };
 
@@ -75,11 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      minHeight: '100vh',
-      padding: theme.spacing(0, 2),
-    },
-    appBarRightButtonsContainer: {
-      marginLeft: 'auto',
+      padding: theme.spacing(0, 4),
     },
     main: {
       padding: theme.spacing(20, 0),
@@ -89,12 +58,8 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: 'center',
       alignItems: 'center',
     },
-    loginButton: {
-      color: 'white',
-    },
     banner: {
       padding: theme.spacing(8),
-      width: '100%',
       objectFit: 'contain',
     },
     cardContainer: {
@@ -104,44 +69,40 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: theme.breakpoints.values.md,
     },
     card: {
-      padding: theme.spacing(8),
+      // Dimensions
       width: '100%',
-      border: '1px solid',
-      borderColor: theme.palette.grey[300],
-      transition: 'all',
-      transitionDuration: '.15s',
-      transitionTimingFunction: 'ease',
-      '&:hover': {
-        color: 'green',
-      },
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: theme.spacing(2),
-      },
+
+      // Spacing & Layout
+      margin: theme.spacing(2, 0),
+      padding: theme.spacing(2, 8),
+
       [theme.breakpoints.up('sm')]: {
         flexBasis: '45%',
         '&:nth-child(even)': {
           marginLeft: theme.spacing(2),
         },
       },
+
       [theme.breakpoints.up('md')]: {
         margin: theme.spacing(2, 7),
       },
-    },
-    logo: {
-      height: theme.spacing(6),
-    },
-    footer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '100%',
-      height: theme.spacing(20),
-      borderTop: '1px solid',
-      borderColor: theme.palette.grey[300],
-    },
-    footerLink: {
-      display: 'flex',
-      alignItems: 'center',
+
+      // Palette & Typography
+      '&:hover': {
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.primary.background,
+      },
+
+      '& h1': {
+        ...theme.typography.h6,
+        color: theme.palette.primary.dark,
+        fontWeight: 'bold',
+        [theme.breakpoints.up('sm')]: {
+          ...theme.typography.h5,
+          color: theme.palette.primary.dark,
+          fontWeight: 'bold',
+        },
+      },
     },
   })
 );

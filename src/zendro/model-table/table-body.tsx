@@ -1,7 +1,11 @@
 import { PropsWithChildren, ReactElement } from 'react';
-import { TableBody as MuiTableBody, Fade } from '@material-ui/core';
+import {
+  Fade,
+  TableBody as MuiTableBody,
+  TableBodyProps as MuiTableBodyProps,
+} from '@material-ui/core';
 
-interface TableBodyProps {
+interface TableBodyProps extends MuiTableBodyProps {
   isLoading?: boolean;
 }
 
@@ -11,7 +15,7 @@ export default function TableBody({
 }: PropsWithChildren<TableBodyProps>): ReactElement {
   return (
     <Fade in={!isLoading}>
-      <MuiTableBody>{props.children}</MuiTableBody>
+      <MuiTableBody {...props}>{props.children}</MuiTableBody>
     </Fade>
   );
 }

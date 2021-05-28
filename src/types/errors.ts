@@ -6,6 +6,10 @@ import { GraphQLResponse } from 'graphql-request/dist/types';
 type GraphQLRequest = ClientError['request'];
 // type GraphQLResponse = ClientError['response'];
 
+export interface GenericError extends Error {
+  status: number;
+}
+
 export type GraphQLError = GraphQLFormattedError<{
   validationErrors?: ErrorObject[];
 }>;
@@ -13,7 +17,14 @@ export type GraphQLError = GraphQLFormattedError<{
 export interface ParsedGraphQLErrors {
   nonValidationErrors: GraphQLError[];
   validationErrors: Record<string, string[]>;
-  tokenExpiredErrors: GraphQLError[];
+  tokenInvalidErrors: GraphQLError[];
+}
+
+export interface ParsedErrorResponse {
+  status: number;
+  networkError?: string;
+  genericError?: string;
+  graphqlErrors?: ParsedGraphQLErrors;
 }
 
 export interface ExtendedClientError<T = unknown> {

@@ -58,6 +58,12 @@ export const theme = createMuiTheme({
   spacing: (value: number) => defaultTheme.typography.pxToRem(value / 0.25),
   // spacing: (value: number) => `${0.25 * value}rem`,
   palette: {
+    error: {
+      background: red[50],
+      light: red[200],
+      main: red[600],
+      dark: red[700],
+    },
     primary: {
       background: blue[50],
       light: blue[100],
@@ -70,17 +76,17 @@ export const theme = createMuiTheme({
       main: red[600],
       dark: red[700],
     },
-    warning: {
-      background: yellow[50],
-      light: yellow[100],
-      main: yellow[600],
-      dark: yellow[700],
-    },
     success: {
       background: green[50],
       light: green[100],
       main: green[600],
       dark: green[700],
+    },
+    warning: {
+      background: yellow[50],
+      light: yellow[100],
+      main: yellow[600],
+      dark: yellow[700],
     },
   },
   color: {

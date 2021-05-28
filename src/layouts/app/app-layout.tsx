@@ -1,5 +1,7 @@
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
   BubbleChart as ModelsIcon,
@@ -7,23 +9,27 @@ import {
   PowerSettingsNew as LoginIcon,
 } from '@material-ui/icons';
 
-import { SiteLink } from '@/components/links';
-import { LanguageSwitcher, LoginButton } from '@/components/toolbar';
-import { ClientOnly } from '@/components/wrappers';
+import ClientOnly from '@/components/client-only';
+import SiteLink from '@/components/site-link';
+import LanguageSwitcher from '@/components/lang-switcher';
+import { LoginButton } from '@/components/login-form';
 import { useAuth } from '@/hooks';
 
 export interface AppLayoutProps {
   brand?: string;
   action?: ReactNode;
+  footer?: boolean;
 }
 
 export default function ModelsLayout({
-  brand,
+  brand = 'Zendro',
+  footer = true,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
   const auth = useAuth();
   const router = useRouter();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleOnLoginAction = (): void => {
     if (router.asPath === '/') router.push('/models');
@@ -35,6 +41,11 @@ export default function ModelsLayout({
 
   return (
     <div className={classes.root}>
+      <Head>
+        <title>{brand}</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <header className={classes.header}>
         {/* NAVIGATION LINKS */}
         <div className={classes.navLinks}>
@@ -42,14 +53,14 @@ export default function ModelsLayout({
 
           <SiteLink href="/" className={classes.navlink}>
             <HomeIcon />
-            <span>{brand ?? 'Zendro'}</span>
+            <span>{brand}</span>
           </SiteLink>
 
           <ClientOnly>
             {auth.user && (
               <SiteLink href="/models" className={classes.navlink}>
                 <ModelsIcon />
-                <span>Models</span>
+                <span>{t('toolbar.models')}</span>
               </SiteLink>
             )}
           </ClientOnly>
@@ -75,6 +86,27 @@ export default function ModelsLayout({
       </header>
 
       {props.children}
+
+      {footer && (
+        <footer className={classes.footer}>
+          <a
+            className={classes.footerLink}
+            href="https://nextjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Powered by</span>
+            <img
+              style={{
+                paddingLeft: '.5rem',
+              }}
+              src="/nextjs.svg"
+              alt="Next Logo"
+              className={classes.footerLogo}
+            />
+          </a>
+        </footer>
+      )}
     </div>
   );
 }
@@ -82,8 +114,10 @@ export default function ModelsLayout({
 const useStyles = makeStyles((theme) => {
   return createStyles({
     root: {
-      height: '100%',
-      overflowX: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      minHeight: '100vh',
     },
     header: {
       // Layout
@@ -174,6 +208,23 @@ const useStyles = makeStyles((theme) => {
           },
         },
       },
+    },
+    footer: {
+      display: 'flex',
+      flexShrink: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: theme.spacing(20),
+      borderTop: '1px solid',
+      borderColor: theme.palette.grey[300],
+    },
+    footerLink: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    footerLogo: {
+      height: theme.spacing(6),
     },
   });
 });

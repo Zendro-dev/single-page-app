@@ -8,6 +8,7 @@ import {
   logUserOut,
 } from '@/store/auth-slice';
 import { AuthState } from '@/types/auth';
+import { isTokenValid } from '@/utils/auth';
 
 interface AuthOptions {
   redirectTo: string;
@@ -84,15 +85,9 @@ export default function useAuth(options?: AuthOptions): UseAuth {
    */
   const checkValidToken: AuthValid = useCallback(() => {
     if (!auth.user) return false;
-
-    const currDate = new Date();
-    const expDate = new Date(auth.user?.exp * 1000);
-    if (currDate > expDate) {
-      dispatch(expireUser());
-      return false;
-    }
-
-    return true;
+    const isValid = isTokenValid(auth.user);
+    if (!isValid) dispatch(expireUser());
+    return isValid;
   }, [auth.user, dispatch]);
 
   return { ...auth, checkValidToken, login, logout };
