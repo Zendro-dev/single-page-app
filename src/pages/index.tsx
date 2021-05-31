@@ -9,7 +9,9 @@ const Home: PageWithLayout = () => {
 
   return (
     <main className={classes.main}>
-      <img className={classes.banner} src="/banner.png" alt="zendro banner" />
+      <div className={classes.banner}>
+        <img src="/banner.png" alt="zendro banner" />
+      </div>
 
       <ClientOnly>
         <div className={classes.cardContainer}>
@@ -44,40 +46,52 @@ export default Home;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: theme.spacing(0, 4),
-    },
     main: {
-      padding: theme.spacing(20, 0),
       display: 'flex',
       flexGrow: 1,
       flexDirection: 'column',
-      justifyContent: 'center',
       alignItems: 'center',
+
+      // Spacing
+      padding: theme.spacing(4, 8),
+      [theme.breakpoints.up('sm')]: {
+        justifyContent: 'center',
+      },
     },
+
     banner: {
-      padding: theme.spacing(8),
-      objectFit: 'contain',
+      width: '100%',
+      maxWidth: theme.breakpoints.values.md,
+
+      margin: theme.spacing(5, 0, 0, 0),
+      [theme.breakpoints.up('sm')]: {
+        margin: 0,
+      },
+
+      '& img': {
+        width: '100%',
+        objectFit: 'contain',
+      },
     },
+
     cardContainer: {
       display: 'flex',
       justifyContent: 'center',
       flexWrap: 'wrap',
       maxWidth: theme.breakpoints.values.md,
+      marginTop: theme.spacing(4),
     },
+
     card: {
       // Dimensions
       width: '100%',
 
       // Spacing & Layout
       margin: theme.spacing(2, 0),
-      padding: theme.spacing(2, 8),
+      padding: theme.spacing(2, 0),
 
       [theme.breakpoints.up('sm')]: {
+        padding: theme.spacing(2, 8),
         flexBasis: '45%',
         '&:nth-child(even)': {
           marginLeft: theme.spacing(2),
