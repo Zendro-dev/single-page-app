@@ -93,6 +93,7 @@ describe('record-table', () => {
     });
 
     // click on next page again
+    cy.wait(1000);
     cy.dataCy('pagination-next').click();
     cy.wait('@read').then(({ request, response }) => {
       //check request variables

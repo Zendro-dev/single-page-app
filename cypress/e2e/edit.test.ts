@@ -9,6 +9,28 @@ describe('Record edit', () => {
     cy.dataCy('login-button').click({ force: true });
   });
 
+  beforeEach('intercept requests', () => {
+    cy.intercept('http://localhost:3000/graphql', (req) => {
+      if ((req.body.query as string).includes('read')) {
+        req.alias = 'read-record';
+      } else if ((req.body.query as string).includes('mutation')) {
+        req.alias = 'update-record';
+      }
+    });
+
+    // ! Needs a better check
+    cy.intercept('http://localhost:3000/meta_query', (req) => {
+      if (
+        (req.body.query as string).match('countFiltered[A-Z][a-z]+\\s*\\(') ||
+        (req.body.query as string).match('count[A-Z][a-z]+\\(')
+      ) {
+        req.alias = 'count-assoc-table';
+      } else {
+        req.alias = 'read-assoc-table';
+      }
+    });
+  });
+
   it('Cancel Form', () => {
     cy.visit('/models/country/edit?id=country_1');
 
@@ -16,10 +38,9 @@ describe('Record edit', () => {
     cy.url().should('include', '/models/country');
   });
 
-  it('Non-existing record', () => {
-    cy.intercept('http://localhost:3000/graphql').as('read');
+  it('Query non-existing record', () => {
     cy.visit('/models/country/edit?id=this-country-does-not-exist');
-    cy.wait('@read').then(({ response }) => {
+    cy.wait('@read-record').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.errors).to.deep.eq([
         {
@@ -47,13 +68,6 @@ describe('Record edit', () => {
       booleanField: true,
       stringArrayField: ["my_first_string", "my_real_second_string"]){idField}}`;
     cy.gqlRequest(addDummyAlien);
-    cy.intercept('http://localhost:3000/graphql', (req) => {
-      if ((req.body.query as string).includes('read')) {
-        req.alias = 'read-record';
-      } else if ((req.body.query as string).includes('mutation')) {
-        req.alias = 'update-record';
-      }
-    });
 
     cy.visit('/models/alien/edit?id=alien_test_update');
 
@@ -128,17 +142,20 @@ describe('Record edit', () => {
       });
     });
     cy.url().should('include', '/models/alien');
+    const deleteDummyAlien = `mutation{ deleteAlien(idField: "alien_test_update") }`;
+    cy.gqlRequest(deleteDummyAlien);
   });
 
   it('record alien_1 edit page, actions', () => {
-    cy.intercept('http://localhost:3000/graphql', (req) => {
-      if ((req.body.query as string).includes('read')) {
-        req.alias = 'read-record';
-      } else if ((req.body.query as string).includes('mutation')) {
-        req.alias = 'update-record';
-      }
-    });
-
+    const addDummyAlien = `mutation {
+      addAlien(idField: "alien_test_update",
+      stringField: "Xortacl",
+      intField: 5,
+      floatField: 2.45,
+      datetimeField: "2021-05-01T06:43:30.000Z",
+      booleanField: true,
+      stringArrayField: ["my_first_string", "my_real_second_string"]){idField}}`;
+    cy.gqlRequest(addDummyAlien);
     cy.visit('/models/alien/edit?id=alien_test_update');
 
     cy.wait('@read-record').then(({ request, response }) => {
@@ -182,25 +199,6 @@ describe('Record edit', () => {
       ) { capital_id }
     }`;
     cy.gqlRequest(addRecords);
-
-    cy.intercept('http://localhost:3000/graphql', (req) => {
-      if ((req.body.query as string).includes('read')) {
-        req.alias = 'read-record';
-      } else if ((req.body.query as string).includes('mutation')) {
-        req.alias = 'update-record';
-      }
-    });
-
-    // ! Needs a better check
-    cy.intercept('http://localhost:3000/meta_query', (req) => {
-      if ((req.body.query as string).includes('edges')) {
-        // console.log('read: ', { req });
-        req.alias = 'read-assoc-table';
-      } else {
-        // console.log('count: ', { req });
-        req.alias = 'count-assoc-table';
-      }
-    });
 
     cy.visit('/models/country/edit?id=country_test_update');
     cy.wait('@read-record').then(({ response }) => {
@@ -350,7 +348,118 @@ describe('Record edit', () => {
       }
     );
 
+    // Delete test record
+    const deleteCountry = `mutation{
+      updateCountry(
+        country_id: "country_test_update"
+        removeUnique_capital: "capital_test_update"
+        removeContinent:"continent_1"
+        removeRivers:["river_1","river_2"]
+        ) {country_id}
+      deleteCountry(country_id: "country_test_update")
+      deleteCapital(capital_id: "capital_test_update")
+    }`;
+    cy.gqlRequest(deleteCountry);
+  });
+
+  it('assocations filters', () => {
+    cy.visit('/models/country/edit?id=country_1');
+
+    // intial requests
+    cy.wait('@read-record').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+    });
+
+    // switch to associations tab
+    cy.dataCy('record-form-tab-associations').click();
+
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
+
     /* ASSOCIATION FILTERS */
+    /* to-one */
+    cy.log('to-one');
+    // filter associated records
+    cy.dataCy('country-association-filters').click();
+    cy.dataCy('country-association-filters-associated').click();
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        country_id: 'country_1',
+        assocSearch: {
+          field: 'country_id',
+          value: 'country_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        records: [
+          {
+            capital_id: 'capital_1',
+            name: 'berlin',
+          },
+        ],
+      });
+    });
+    // reset filters
+    cy.wait(2000);
+    cy.dataCy('country-association-filters').click();
+    cy.dataCy('country-association-filters-no-filter').click();
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
+
+    /* many-to-many foreignKey Array */
+    cy.log('many-to-many through foreignKey Array');
+    // switch to rivers
+    cy.dataCy('country-association-select').click();
+    cy.dataCy('country-association-select-rivers').click();
+    // initial request
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.body.data.records).to.deep.eq([
+          {
+            river_id: 'river_1',
+            name: 'rhine',
+            length: 1000,
+            countriesConnection: {
+              country_id: 'country_1',
+            },
+          },
+          {
+            river_id: 'river_2',
+            name: 'danub',
+            length: 2000,
+            countriesConnection: {
+              country_id: 'country_1',
+            },
+          },
+          {
+            river_id: 'river_3',
+            name: 'guadalquivir',
+            length: 12000,
+            countriesConnection: null,
+          },
+        ]);
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
+
+    // filter associated records
     cy.dataCy('country-association-filters').click();
     cy.dataCy('country-association-filters-associated').click();
 
@@ -362,16 +471,16 @@ describe('Record edit', () => {
         assocPagination: {
           first: 1,
         },
-        country_id: 'country_test_update',
+        country_id: 'country_1',
         assocSearch: {
           field: 'country_id',
-          value: 'country_test_update',
+          value: 'country_1',
           operator: 'eq',
         },
       });
       expect(response?.statusCode).to.eq(200);
     });
-    cy.wait('@count-assoc-table').then(({ request, response }) => {
+    cy.wait('@count-assoc-table').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data.count).to.eq(2);
     });
@@ -384,7 +493,6 @@ describe('Record edit', () => {
     cy.dataCy('country-association-filters-records-to-remove').click();
 
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ request, response });
       expect(request.body.variables).to.deep.eq({
         search: {
           field: 'river_id',
@@ -398,10 +506,10 @@ describe('Record edit', () => {
         assocPagination: {
           first: 1,
         },
-        country_id: 'country_test_update',
+        country_id: 'country_1',
         assocSearch: {
           field: 'country_id',
-          value: 'country_test_update',
+          value: 'country_1',
           operator: 'eq',
         },
       });
@@ -416,7 +524,6 @@ describe('Record edit', () => {
     cy.dataCy('model-table-search-button').click();
 
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ request, response });
       expect(request.body.variables).to.deep.eq({
         search: {
           operator: 'and',
@@ -450,10 +557,10 @@ describe('Record edit', () => {
         assocPagination: {
           first: 1,
         },
-        country_id: 'country_test_update',
+        country_id: 'country_1',
         assocSearch: {
           field: 'country_id',
-          value: 'country_test_update',
+          value: 'country_1',
           operator: 'eq',
         },
       });
@@ -463,18 +570,147 @@ describe('Record edit', () => {
       expect(response?.body.data.count).to.eq(1);
     });
 
-    // Delete test record
-    const deleteCountry = `mutation{
-      updateCountry(
-        country_id: "country_test_update"
-        removeUnique_capital: "capital_test_update"
-        removeContinent:"continent_1"
-        removeRivers:["river_1","river_2"]
-        ) {country_id}
-      deleteCountry(country_id: "country_test_update")
-      deleteCapital(capital_id: "capital_test_update")
-    }`;
-    cy.gqlRequest(deleteCountry);
+    /* many_to_one */
+    cy.log('many-to-one');
+    cy.visit('/models/continent/edit?id=continent_1');
+
+    // switch to associations tab
+    cy.dataCy('record-form-tab-associations').click();
+
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        continent_id: 'continent_1',
+        assocSearch: {
+          field: 'continent_id',
+          value: 'continent_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.deep.eq([
+        {
+          country_id: 'country_1',
+          name: 'germany',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_2',
+          name: 'spain',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_3',
+          name: 'mexico',
+          continent: {
+            continent_id: null,
+          },
+        },
+        {
+          country_id: 'country_4',
+          name: 'china',
+          continent: {
+            continent_id: null,
+          },
+        },
+        {
+          country_id: 'country_5',
+          name: 'netherlands',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_6',
+          name: 'france',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+      ]);
+    });
+    cy.wait('@count-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        continent_id: 'continent_1',
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        count: 6,
+      });
+    });
+
+    // filter associated records
+    cy.dataCy('continent-association-filters').click();
+    cy.dataCy('continent-association-filters-associated').click();
+
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(response?.statusCode).to.eq(200);
+    });
+    cy.wait('@count-assoc-table').then(({ request, response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        count: 4,
+      });
+    });
+
+    // additionally add a search
+    cy.dataCy('model-table-search-field').type('er');
+    cy.dataCy('model-table-search-button').click();
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
+
+    // additionally sort by country name
+    cy.dataCy('table-header-column-name').click();
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      console.log({ request, response });
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          operator: 'or',
+          search: [
+            {
+              field: 'country_id',
+              value: '%er%',
+              operator: 'like',
+            },
+            {
+              field: 'name',
+              value: '%er%',
+              operator: 'like',
+            },
+          ],
+        },
+        order: {
+          field: 'name',
+          order: 'ASC',
+        },
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        continent_id: 'continent_1',
+        assocSearch: {
+          field: 'continent_id',
+          value: 'continent_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+    });
   });
 });
 

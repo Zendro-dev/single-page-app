@@ -4,7 +4,6 @@ import decode from 'jwt-decode';
 describe('Login', () => {
   after('logout', () => {
     cy.dataCy('login-button').click({ force: true });
-    // cy.dataCy('login-button').forceClick();
   });
 
   it('failed login using UI', () => {
@@ -41,9 +40,8 @@ describe('Login', () => {
         expect(decodedToken.email).to.equal('admin@zen.dro');
         expect(decodedToken.roles).to.deep.equal([
           'administrator',
-          'reader',
           'editor',
-          'acl_validations-role',
+          'reader',
         ]);
       });
   });

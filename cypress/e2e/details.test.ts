@@ -66,7 +66,7 @@ describe('Record details', () => {
     cy.url().should('include', '/models/country/edit?id=country_1');
   });
 
-  it.only('Record details associations', () => {
+  it('Record details associations', () => {
     cy.intercept('http://localhost:3000/graphql').as('read-record');
     cy.intercept('http://localhost:3000/meta_query', (req) => {
       if ((req.body.query as string).includes('countFiltered')) {
