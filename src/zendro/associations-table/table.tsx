@@ -426,6 +426,10 @@ export default function AssociationsTable({
 
   const handleOnAssociationFilterSelect = (filter: string): void => {
     setRecordsFilter(filter as AssociationFilter);
+    // not implemented message via snackbar
+    if (filter === 'not-associated') {
+      showSnackbar(t('info.not-implemented'), 'info');
+    }
   };
 
   return (
