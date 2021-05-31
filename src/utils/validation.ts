@@ -55,7 +55,13 @@ export function isObject(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
 }
 
+/**
+ * Check whether a given string value (e.g. from an input) is a valid integer.
+ * @param value string to convert and check
+ * @returns whether the given value is a valid integer
+ */
 export function isIntValue(value: string): boolean {
-  const int = parseInt(value);
-  return !value.includes('.') && !isNaN(int) && typeof int === 'number';
+  return value.includes('.') || value.includes(' ')
+    ? false
+    : !isNaN(parseInt(value));
 }
