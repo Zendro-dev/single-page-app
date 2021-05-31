@@ -56,6 +56,10 @@ export function isObject(x: unknown): x is Record<string, unknown> {
 }
 
 export function isIntValue(value: string): boolean {
-  const int = parseInt(value);
-  return !value.includes('.') && !isNaN(int) && typeof int === 'number';
+  const ret =
+    value.includes('.') || value.includes(' ')
+      ? false
+      : !isNaN(parseInt(value));
+  console.log({ ret });
+  return ret;
 }
