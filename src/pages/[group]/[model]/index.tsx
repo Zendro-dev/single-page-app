@@ -21,7 +21,12 @@ import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
 import IconButton from '@/components/icon-button';
 import { EXPORT_URL } from '@/config/globals';
-import { useModel, useToastNotification, useZendroClient } from '@/hooks';
+import {
+  useAuth,
+  useModel,
+  useToastNotification,
+  useZendroClient,
+} from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
@@ -35,6 +40,7 @@ import { ModelUrlQuery } from '@/types/routes';
 import { DataRecord } from '@/types/models';
 import { PageInfo } from '@/types/requests';
 
+import { isSafari } from '@/utils/browser';
 import { hasTokenExpiredErrors, parseErrorResponse } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
 
@@ -84,8 +90,8 @@ export const getStaticProps: GetStaticProps<ModelProps, ModelUrlQuery> = async (
 const Model: PageWithLayout<ModelProps> = (props) => {
   /* STATE */
 
-  const model = useModel(props.model);
-  const csvTemplateDownloadAnchor = useRef<HTMLAnchorElement | null>(null);
+  const csvExportAnchor = useRef<HTMLAnchorElement | null>(null);
+  const csvTemplateAnchor = useRef<HTMLAnchorElement | null>(null);
   const [count, setCount] = useState<number>(0);
   const [records, setRecords] = useState<TableRecord[]>([]);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
@@ -97,11 +103,13 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   /* HOOKS */
 
-  const classes = useStyles();
-  const { t } = useTranslation();
-  const router = useRouter();
-  const { showSnackbar } = useToastNotification();
+  const auth = useAuth();
   const dialog = useDialog();
+  const model = useModel(props.model);
+  const router = useRouter();
+  const classes = useStyles();
+  const { showSnackbar } = useToastNotification();
+  const { t } = useTranslation();
   const zendro = useZendroClient();
 
   const [searchText, setSearchText] = useState('');
@@ -126,6 +134,70 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   /* TOOLBAR ACTIONS */
 
+  const handleExportCsv = async (): Promise<void> => {
+    try {
+      const response = await fetch(EXPORT_URL + `?model=${props.model}`, {
+        headers: {
+          Authorization: 'Bearer ' + auth.user?.token,
+        },
+      });
+
+      const csvData = await response.text();
+
+      if (csvExportAnchor.current) {
+        const type = isSafari() ? 'application/csv' : 'text/csv';
+
+        const blob = new Blob([csvData], { type });
+        const dataURI = `data:${type};charset=utf-8,${csvData}`;
+
+        const URL = window.URL || window.webkitURL;
+
+        const downloadUrl =
+          typeof URL.createObjectURL === 'undefined'
+            ? dataURI
+            : URL.createObjectURL(blob);
+
+        csvExportAnchor.current.href = downloadUrl;
+        csvExportAnchor.current.click();
+        URL.revokeObjectURL(downloadUrl);
+      }
+    } catch (error) {
+      showSnackbar(t('errors.server-error'), 'error', error);
+    }
+  };
+
+  const handleExportTemplateCsv = async (): Promise<void> => {
+    const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
+    try {
+      const csvTemplate = await zendro.request<Record<string, string[]>>(query);
+      const csvData = csvTemplate[resolver].join('\n');
+
+      if (csvTemplateAnchor.current) {
+        const type = isSafari() ? 'application/csv' : 'text/csv';
+
+        const blob = new Blob([csvData], { type });
+        const dataURI = `data:${type};charset=utf-8,${csvData}`;
+
+        const downloadUrl =
+          typeof URL.createObjectURL === 'undefined'
+            ? dataURI
+            : URL.createObjectURL(blob);
+
+        csvTemplateAnchor.current.href = downloadUrl;
+        csvTemplateAnchor.current.click();
+        URL.revokeObjectURL(downloadUrl);
+      }
+    } catch (error) {
+      const clientError = error as ExtendedClientError;
+
+      if (
+        clientError.response?.errors &&
+        !hasTokenExpiredErrors(clientError.response.errors)
+      )
+        showSnackbar(t('errors.server-error'), 'error', error);
+    }
+  };
+
   const handleImportCsv = async (
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> => {
@@ -148,29 +220,6 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         !hasTokenExpiredErrors(clientError.response.errors)
       )
         showSnackbar(t('errors.csv-import'), 'error', error);
-    }
-  };
-
-  const handleExportTableTemplate = async (): Promise<void> => {
-    const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
-    try {
-      const csvTemplate = await zendro.request<Record<string, string[]>>(query);
-      const csvString = csvTemplate[resolver].join('\n');
-
-      if (csvTemplateDownloadAnchor.current) {
-        const downloadUrl = URL.createObjectURL(new Blob([csvString]));
-        csvTemplateDownloadAnchor.current.href = downloadUrl;
-        csvTemplateDownloadAnchor.current.click();
-        URL.revokeObjectURL(downloadUrl);
-      }
-    } catch (error) {
-      const clientError = error as ExtendedClientError;
-
-      if (
-        clientError.response?.errors &&
-        !hasTokenExpiredErrors(clientError.response.errors)
-      )
-        showSnackbar(t('errors.server-error'), 'error', error);
     }
   };
 
@@ -366,28 +415,31 @@ const Model: PageWithLayout<ModelProps> = (props) => {
               </IconButton>
             )}
 
-            <form action={EXPORT_URL}>
-              <input type="hidden" name="model" value={props.model} />
+            <a
+              ref={(ref) => (csvExportAnchor.current = ref)}
+              download={props.model + '.csv'}
+            >
               <IconButton
-                type="submit"
+                component="label"
                 tooltip={t('model-table.download-data', {
                   modelName: props.model,
                 })}
+                onClick={handleExportCsv}
               >
                 <ExportIcon />
               </IconButton>
-            </form>
+            </a>
 
             <a
-              ref={(ref) => (csvTemplateDownloadAnchor.current = ref)}
-              download="country.csv"
+              ref={(ref) => (csvTemplateAnchor.current = ref)}
+              download={props.model + '.csv'}
             >
               <IconButton
                 component="label"
                 tooltip={t('model-table.download-template', {
                   modelName: props.model,
                 })}
-                onClick={handleExportTableTemplate}
+                onClick={handleExportTemplateCsv}
               >
                 <ImportTemplateIcon />
               </IconButton>
