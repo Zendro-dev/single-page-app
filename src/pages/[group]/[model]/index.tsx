@@ -170,10 +170,19 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
     try {
       const csvTemplate = await zendro.request<Record<string, string[]>>(query);
-      const csvString = csvTemplate[resolver].join('\n');
+      const csvData = csvTemplate[resolver].join('\n');
 
       if (csvTemplateAnchor.current) {
-        const downloadUrl = URL.createObjectURL(new Blob([csvString]));
+        const type = isSafari() ? 'application/csv' : 'text/csv';
+
+        const blob = new Blob([csvData], { type });
+        const dataURI = `data:${type};charset=utf-8,${csvData}`;
+
+        const downloadUrl =
+          typeof URL.createObjectURL === 'undefined'
+            ? dataURI
+            : URL.createObjectURL(blob);
+
         csvTemplateAnchor.current.href = downloadUrl;
         csvTemplateAnchor.current.click();
         URL.revokeObjectURL(downloadUrl);
