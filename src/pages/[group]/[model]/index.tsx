@@ -423,7 +423,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
             <a
               ref={(ref) => (csvTemplateAnchor.current = ref)}
-              download="country.csv"
+              download={props.model + '.csv'}
             >
               <IconButton
                 component="label"
