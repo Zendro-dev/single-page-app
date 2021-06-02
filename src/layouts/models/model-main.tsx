@@ -16,7 +16,7 @@ import AlertCard from '@/components/alert-card';
 import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
 import useAuth from '@/hooks/useAuth';
 import { AppRoutes, RecordUrlQuery } from '@/types/routes';
-import { getRoutePath } from '@/utils/router';
+import { parseRoute } from '@/utils/router';
 
 import Navigation from './model-navigation';
 
@@ -35,16 +35,21 @@ export default function Models({
   const router = useRouter();
   const { t } = useTranslation();
 
-  const routePath = getRoutePath(router.asPath);
-  const crumbs: Breadcrumb[] = routePath
+  const route = parseRoute(router.asPath);
+  const crumbs: Breadcrumb[] = route.path
     .split('/')
     .slice(1)
-    .reduce<Breadcrumb[]>((acc, chunk, index, chunks) => {
+    .map((chunk, index, chunks) => {
       const crumb = {
         text: t((`models-layout.${chunk}` as unknown) as TemplateStringsArray, {
           defaultValue: chunk,
         }),
-        href: index === 1 ? `/${chunks[0]}/${chunk}` : undefined,
+        href:
+          index === 1 // model
+            ? `/${chunks[0]}/${chunk}`
+            : index === 3 // association
+            ? router.asPath
+            : undefined,
         icon:
           chunk === 'models'
             ? ModelIcon
@@ -56,15 +61,30 @@ export default function Models({
             ? NewIcon
             : undefined,
       };
-      return [...acc, crumb];
-    }, []);
+      return crumb;
+    });
 
   const urlQuery = router.query as RecordUrlQuery;
-  if (urlQuery.id)
-    crumbs.push({
-      text: urlQuery.id,
-      href: router.asPath,
-    });
+  if (urlQuery.id) {
+    if (crumbs.length > 3) {
+      const last = crumbs.pop() as Breadcrumb;
+      crumbs.push(
+        {
+          text: urlQuery.id,
+          href:
+            '/' +
+            crumbs.map((crumb) => crumb.text.toLowerCase()).join('/') +
+            route.query,
+        },
+        last
+      );
+    } else {
+      crumbs.push({
+        text: urlQuery.id,
+        href: router.asPath,
+      });
+    }
+  }
 
   return (
     <div className={classes.container}>

@@ -1,34 +1,17 @@
-import { CrudRequest } from '@/types/requests';
-
 /**
- * Get the CRUD request from the URL path
- * @param path current route path (`e.g from router.asPath`)
+ * Parse a raw url into a string stripped of url queries.
+ * @param path raw path including url queries
+ * @returns parsed path without url queries
  */
-export function getPathRequest(path: string): CrudRequest | undefined {
-  const routePath = getRoutePath(path);
-  const routeChunks = routePath.split('/');
-  const lastChunk = routeChunks.pop();
-
-  switch (lastChunk) {
-    case 'details':
-      return 'read';
-
-    case 'edit':
-      return 'update';
-
-    case 'new':
-      return 'create';
-
-    case 'delete':
-      return 'delete';
-
-    default:
-      return undefined;
-  }
-}
-
-export function getRoutePath(path: string): string {
+export function parseRoute(path: string): { path: string; query?: string } {
   const queryIndex = path.lastIndexOf('?');
-  if (queryIndex === -1) return path;
-  return path.substring(0, queryIndex);
+  if (queryIndex === -1)
+    return {
+      path,
+      query: undefined,
+    };
+  return {
+    path: path.substring(0, queryIndex),
+    query: path.substring(queryIndex),
+  };
 }
