@@ -11,12 +11,12 @@ import NavGroup from '@/components/nav-group';
 import NavLink from '@/components/nav-link';
 import { useModel } from '@/hooks';
 import { AuthPermissions } from '@/types/auth';
-import { AppRoutes2, RouteLink } from '@/types/routes';
+import { AppRoutes, RouteLink } from '@/types/routes';
 
 interface AppDrawerProps {
   className?: string;
   permissions?: AuthPermissions;
-  routes: AppRoutes2;
+  routes: AppRoutes;
 }
 
 export default function Navigation({

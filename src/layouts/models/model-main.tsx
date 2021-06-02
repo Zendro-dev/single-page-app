@@ -15,13 +15,13 @@ import {
 import AlertCard from '@/components/alert-card';
 import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
 import useAuth from '@/hooks/useAuth';
-import { AppRoutes2, RecordUrlQuery } from '@/types/routes';
+import { AppRoutes, RecordUrlQuery } from '@/types/routes';
 import { getRoutePath } from '@/utils/router';
 
 import Navigation from './model-navigation';
 
 export interface ModelsProps {
-  routes: AppRoutes2;
+  routes: AppRoutes;
   showNav: boolean;
 }
 

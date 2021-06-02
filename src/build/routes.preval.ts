@@ -1,14 +1,15 @@
 import { mkdir, stat, writeFile } from 'fs/promises';
 import preval from 'next-plugin-preval';
-import { AppRoutes2 } from '@/types/routes';
-import { getStaticRoutes2 } from './routes';
+import { AppRoutes } from '@/types/routes';
+import { log } from '@/utils/logs';
+import { getModelNavRoutes } from './routes';
 
-async function buildRoutes(): Promise<AppRoutes2> {
+async function buildRoutes(): Promise<AppRoutes> {
   const routesFile = 'routes.json';
   const customPath = process.cwd() + `/src/custom/${routesFile}`;
   const overridePath = process.cwd() + `/src/${routesFile}`;
 
-  let routes = await getStaticRoutes2();
+  let routes = await getModelNavRoutes();
   await mkdir('src/custom', { recursive: true });
   await writeFile(customPath, JSON.stringify(routes, null, 2));
 
@@ -16,7 +17,7 @@ async function buildRoutes(): Promise<AppRoutes2> {
     await stat(overridePath);
     routes = require(overridePath);
   } catch (error) {
-    console.log('Override for "routes.json" not found. Loading defaults.');
+    log('override for "routes.json" not found, loading defaults.');
   }
 
   return routes;
