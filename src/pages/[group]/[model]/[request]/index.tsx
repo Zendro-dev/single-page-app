@@ -4,11 +4,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { createStyles, makeStyles, Tab } from '@material-ui/core';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
-
 import { getStaticRecordPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
+import NavTabs from '@/components/nav-tabs';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
@@ -17,12 +15,12 @@ import { DataRecord } from '@/types/models';
 import { RecordUrlQuery } from '@/types/routes';
 import { parseErrorResponse } from '@/utils/errors';
 
-import AssociationsTable from '@/zendro/associations-table';
 import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/zendro/record-form';
+import { createStyles, makeStyles } from '@material-ui/core';
 
 export const getStaticPaths: GetStaticPaths<RecordUrlQuery> = async () => {
   const paths = await getStaticRecordPaths();
@@ -46,11 +44,11 @@ export const getStaticProps: GetStaticProps<RecordUrlQuery> = async (
 };
 
 const Record: PageWithLayout<RecordUrlQuery> = (props) => {
+  const classes = useStyles();
   const dialog = useDialog();
   const model = useModel(props.model);
   const router = useRouter();
   const urlQuery = router.query as RecordUrlQuery;
-  const classes = useStyles();
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const { t } = useTranslation();
@@ -61,9 +59,6 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
     [model.schema.primaryKey]: urlQuery.id ?? null,
   });
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
-  );
 
   /* AUXILIARY */
 
@@ -246,20 +241,6 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
     router.push(`/${props.group}/${props.model}/edit?id=${urlQuery.id}`);
   };
 
-  /* EVENT HANDLERS */
-
-  /**
-   * Set the tab index to a new value.
-   * @param event change tab event
-   * @param value new tab value
-   */
-  const handleOnTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: typeof currentTab
-  ): void => {
-    setCurrentTab(value);
-  };
-
   /* REQUEST */
 
   /**
@@ -297,111 +278,87 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
   );
 
   return (
-    <ModelBouncer object={props.model} action="update">
-      <TabContext value={currentTab}>
-        <TabList
-          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
-          className={classes.tabList}
-          onChange={handleOnTabChange}
-          variant="fullWidth"
-        >
-          <Tab label={t('record-form.tab-attributes')} value="attributes" />
-          <Tab
-            label={t('record-form.tab-associations')}
-            value="associations"
-            disabled={
-              props.request === 'new' || model.schema.associations?.length === 0
-            }
-          />
-        </TabList>
-        <TabPanel className={classes.tabPanel} value="attributes">
-          <AttributesForm
-            attributes={model.schema.attributes}
-            data={recordData}
-            disabled={props.request === 'details'}
-            errors={ajvErrors}
-            formId={router.asPath}
-            formView={
-              props.request === 'details'
-                ? 'read'
-                : props.request === 'edit'
-                ? 'update'
-                : 'create'
-            }
-            modelName={props.model}
-            actions={{
-              cancel: handleOnCancel,
-              delete:
-                props.request === 'edit' && model.permissions.update
-                  ? handleOnDelete
-                  : undefined,
-              read:
-                props.request === 'edit' && model.permissions.read
-                  ? handleOnDetails
-                  : undefined,
-              reload:
-                props.request === 'details' || props.request === 'edit'
-                  ? handleOnReload
-                  : undefined,
-              update:
-                props.request === 'details' && model.permissions.update
-                  ? handleOnUpdate
-                  : undefined,
-              submit:
-                (props.request === 'edit' && model.permissions.create) ||
-                (props.request === 'new' && model.permissions.update)
-                  ? handleOnSubmit
-                  : undefined,
-            }}
-          />
-        </TabPanel>
-        {(props.request === 'edit' || props.request === 'details') && (
-          <TabPanel className={classes.tabPanel} value="associations">
-            <AssociationsTable
-              associationView={props.request}
-              associations={model.schema.associations ?? []}
-              attributes={model.schema.attributes}
-              modelName={props.model}
-              recordId={urlQuery.id as string}
-              primaryKey={model.schema.primaryKey}
-            />
-          </TabPanel>
-        )}
-      </TabContext>
+    <ModelBouncer
+      object={props.model}
+      action={
+        props.request === 'details'
+          ? 'read'
+          : props.request === 'edit'
+          ? 'update'
+          : 'create'
+      }
+    >
+      <NavTabs
+        id={urlQuery.id as string}
+        tabs={[
+          {
+            type: 'link',
+            label: 'attributes',
+            href: router.asPath,
+          },
+          {
+            type: 'group',
+            label: 'associations',
+            links: model.schema.associations?.map((assoc) => ({
+              type: 'link',
+              label: assoc.name,
+              href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+            })),
+          },
+        ]}
+      />
+
+      <AttributesForm
+        attributes={model.schema.attributes}
+        className={classes.root}
+        data={recordData}
+        disabled={props.request === 'details'}
+        errors={ajvErrors}
+        formId={router.asPath}
+        formView={
+          props.request === 'details'
+            ? 'read'
+            : props.request === 'edit'
+            ? 'update'
+            : 'create'
+        }
+        modelName={props.model}
+        actions={{
+          cancel: handleOnCancel,
+          delete:
+            props.request === 'edit' && model.permissions.update
+              ? handleOnDelete
+              : undefined,
+          read:
+            props.request === 'edit' && model.permissions.read
+              ? handleOnDetails
+              : undefined,
+          reload:
+            props.request === 'details' || props.request === 'edit'
+              ? handleOnReload
+              : undefined,
+          update:
+            props.request === 'details' && model.permissions.update
+              ? handleOnUpdate
+              : undefined,
+          submit:
+            (props.request === 'edit' && model.permissions.create) ||
+            (props.request === 'new' && model.permissions.update)
+              ? handleOnSubmit
+              : undefined,
+        }}
+      />
     </ModelBouncer>
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
-    tabList: {
-      marginBottom: theme.spacing(6),
-
-      backgroundColor: theme.palette.action.hover,
-      borderBottom: '1px solid',
-      borderBottomColor: theme.palette.divider,
-
-      '& .MuiTabs-indicator': {
-        backgroundColor: 'transparent',
-      },
-
-      '& .MuiTab-root:hover:not(.Mui-selected)': {
-        backgroundColor: theme.palette.background.default,
-        color: theme.palette.getContrastText(theme.palette.background.default),
-      },
-
-      '& .Mui-selected': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.getContrastText(theme.palette.primary.main),
-        fontWeight: 'bold',
-      },
-    },
-    tabPanel: {
-      '&&:not([hidden])': {
-        display: 'flex',
-        flexGrow: 1,
-        overflowY: 'auto',
-      },
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      overflowY: 'auto',
     },
   })
 );
