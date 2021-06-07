@@ -1,6 +1,3 @@
-import { AuthToken } from '@/types/auth';
-import decode from 'jwt-decode';
-
 describe('new record', () => {
   before('login and Db seed', () => {
     cy.seedDefaultDb();

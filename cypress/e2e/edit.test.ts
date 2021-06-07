@@ -652,10 +652,10 @@ describe('Record edit', () => {
     cy.dataCy('continent-association-filters').click();
     cy.dataCy('continent-association-filters-associated').click();
 
-    cy.wait('@read-assoc-table').then(({ request, response }) => {
+    cy.wait('@read-assoc-table').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
     });
-    cy.wait('@count-assoc-table').then(({ request, response }) => {
+    cy.wait('@count-assoc-table').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data).to.deep.eq({
         count: 4,

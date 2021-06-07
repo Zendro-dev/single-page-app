@@ -1,6 +1,3 @@
-import { AuthToken } from '@/types/auth';
-import decode from 'jwt-decode';
-
 describe('Record details', () => {
   before('login and Db seed', () => {
     cy.seedDefaultDb();
@@ -11,16 +8,6 @@ describe('Record details', () => {
     cy.resetDefaultDb();
     cy.dataCy('login-button').click({ force: true });
   });
-
-  // beforeEach('intercept requests', () => {
-  //   cy.intercept('http://localhost:3000/graphql').as('read');
-  //   cy.visit('/models/country/details?id=country_1');
-
-  //   // Wait for inital requests
-  //   cy.wait('@read').then(({ request, response }) => {
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
-  // });
 
   it('Cancel Form', () => {
     cy.visit('/models/country/details?id=country_1');

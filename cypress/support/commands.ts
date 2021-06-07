@@ -36,9 +36,10 @@ Cypress.Commands.add('login', () => {
   cy.dataCy('login-form-email').type('admin@zen.dro');
   cy.dataCy('login-form-password').type('admin');
   cy.dataCy('login-form-login').click();
+  cy.wait(1000);
 });
 
-Cypress.LocalStorage.clear = function (keys) {
+Cypress.LocalStorage.clear = function () {
   console.log('--Running LocalStorage.clear--');
   return;
 };
@@ -49,7 +50,6 @@ Cypress.Commands.add('gqlRequest', (query) => {
     body: { email: 'admin@zen.dro', password: 'admin' },
     method: 'POST',
   }).then((response) => {
-    // console.log({ response });
     cy.request({
       url: 'http://localhost:3000/graphql',
       headers: {

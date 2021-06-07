@@ -28,10 +28,10 @@ describe('record-table', () => {
     cy.visit('/models/alien');
 
     // Wait for inital requests
-    cy.wait('@read').then(({ request, response }) => {
+    cy.wait('@read').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
     });
-    cy.wait('@count').then(({ request, response }) => {
+    cy.wait('@count').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
     });
   });
@@ -109,6 +109,7 @@ describe('record-table', () => {
     });
 
     // click on previous page
+    cy.wait(1000);
     cy.dataCy('pagination-previous').click();
     cy.wait('@read').then(({ request, response }) => {
       //check request variables
@@ -123,6 +124,7 @@ describe('record-table', () => {
     });
 
     // click on last page
+    cy.wait(1000);
     cy.dataCy('pagination-last').click();
     cy.wait('@read').then(({ request, response }) => {
       //check request variables
@@ -135,6 +137,7 @@ describe('record-table', () => {
     });
 
     // click on first page
+    cy.wait(1000);
     cy.dataCy('pagination-first').click();
     cy.wait('@read').then(({ request, response }) => {
       //check request variables
@@ -178,7 +181,7 @@ describe('record-table', () => {
     });
 
     // check if the count is correct
-    cy.wait('@count').then(({ request, response }) => {
+    cy.wait('@count').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data.count).to.eq(7);
     });
@@ -190,11 +193,11 @@ describe('record-table', () => {
     cy.wait(2000);
     cy.dataCy('model-table-search-reset').click();
     // cy.dataCy('model-table-search-field').should('have.value', '');
-    cy.wait('@read').then(({ request, response }) => {
+    cy.wait('@read').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
     });
-    cy.wait('@count').then(({ request, response }) => {
+    cy.wait('@count').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
     });
@@ -209,11 +212,11 @@ describe('record-table', () => {
 
     /* RELOAD */
     cy.dataCy('model-table-reload').click();
-    cy.wait('@read').then(({ request, response }) => {
+    cy.wait('@read').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
     });
-    cy.wait('@count').then(({ request, response }) => {
+    cy.wait('@count').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
     });
@@ -231,12 +234,12 @@ describe('record-table', () => {
         deleteAlien: 'Item successfully deleted',
       });
     });
-    cy.wait('@read').then(({ request, response }) => {
+    cy.wait('@read').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data.records).to.have.length(11);
     });
-    cy.wait('@count').then(({ request, response }) => {
+    cy.wait('@count').then(({ response }) => {
       // check response status and records
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data.count).to.equal(11);
