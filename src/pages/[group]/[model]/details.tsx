@@ -176,7 +176,11 @@ const Record: PageWithLayout<RecordProps> = (props) => {
             }}
           />
         </TabPanel>
-        <TabPanel className={classes.tabPanel} value="associations">
+        <TabPanel
+          className={classes.tabPanel}
+          value="associations"
+          data-cy="details-associations-tab"
+        >
           <AssociationsTable
             associationView="details"
             associations={model.schema.associations ?? []}

@@ -175,6 +175,7 @@ export default function AttributesForm({
             })}
             icon={CancelIcon}
             tooltip={t('record-form.action-exit')}
+            data-cy="record-form-exit"
           />
         )}
 
@@ -188,6 +189,7 @@ export default function AttributesForm({
               handler: actions.read,
             })}
             tooltip={t('record-form.action-read')}
+            data-cy="record-form-read"
           />
         )}
 
@@ -201,6 +203,7 @@ export default function AttributesForm({
               handler: actions.update,
             })}
             tooltip={t('record-form.action-update')}
+            data-cy="record-form-udpate"
           />
         )}
 
@@ -214,6 +217,7 @@ export default function AttributesForm({
               handler: actions.delete,
             })}
             tooltip={t('record-form.action-delete')}
+            data-cy="record-form-delete"
           />
         )}
 
@@ -227,6 +231,7 @@ export default function AttributesForm({
               action: 'reload',
               handler: actions.reload,
             })}
+            data-cy="record-form-reload"
           />
         )}
 
@@ -241,6 +246,7 @@ export default function AttributesForm({
               action: 'submit',
               handler: actions.submit,
             })}
+            data-cy="record-form-submit"
           />
         )}
       </div>
@@ -315,6 +321,7 @@ export default function AttributesForm({
                 onChange={!disabled ? handleOnChange(name) : undefined}
                 onError={!disabled ? handleOnError(name) : undefined}
                 value={value}
+                data-cy={`record-form-fields-${name}`}
               />
             );
           })}

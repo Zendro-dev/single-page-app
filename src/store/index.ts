@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
-import loginReducer from './auth-slice';
+import loginReducer, { logUserIn } from './auth-slice';
 import { REDUX_LOGGER } from '@/config/globals';
+import {} from 'react-redux';
 
 const store = configureStore({
   reducer: {

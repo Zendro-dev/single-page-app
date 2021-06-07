@@ -386,7 +386,11 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           <div className={classes.toolbarActions}>
             <IconButton
               tooltip={t('model-table.reload', { modelName: props.model })}
-              onClick={() => mutateRecords()}
+              onClick={() => {
+                mutateRecords();
+                mutateCount();
+              }}
+              data-cy="model-table-reload"
             >
               <ReloadIcon />
             </IconButton>
@@ -395,6 +399,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
               <IconButton
                 tooltip={t('model-table.add', { modelName: props.model })}
                 onClick={handleOnCreate}
+                data-cy="model-table-add"
               >
                 <AddIcon />
               </IconButton>
@@ -446,8 +451,10 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             </a>
           </div>
         </div>
-
-        <Table caption={t('model-table.caption', { modelName: props.model })}>
+        <Table
+          caption={t('model-table.caption', { modelName: props.model })}
+          data-cy="record-table"
+        >
           <TableHeader
             actionsColSpan={
               Object.entries(model.permissions).filter(
@@ -468,6 +475,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             }
             activeOrder={order?.sortField ?? model.schema.primaryKey}
             orderDirection={order?.sortDirection ?? 'ASC'}
+            data-cy="record-table-header"
           />
 
           <TableBody>
@@ -489,6 +497,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                         tooltip={t('model-table.view', { recordId })}
                         onClick={() => handleOnRead(recordId)}
                         className={classes.rowActionPrimary}
+                        data-cy={`model-table-view-${recordId}`}
                       >
                         <DetailsIcon fontSize="small" />
                       </IconButton>
@@ -500,6 +509,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                         tooltip={t('model-table.edit', { recordId })}
                         onClick={() => handleOnUpdate(recordId)}
                         className={classes.rowActionPrimary}
+                        data-cy={`model-table-edit-${recordId}`}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -511,6 +521,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                         tooltip={t('model-table.delete', { recordId })}
                         onClick={() => handleOnDelete(recordId)}
                         className={classes.rowActionSecondary}
+                        data-cy={`model-table-delete-${recordId}`}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

@@ -35,6 +35,9 @@
     "documentation": "Documentación",
     "github-info": "Contribuya aportando código, informando sobre problemas, o escribiendo comentarios."
   },
+  "info": {
+    "not-implemented": "No implementado"
+  },
   "login-dialog": {
     "title": "Formulario de Ingreso",
     "content": "Para iniciar sesión, por favor escriba su correo electrónico y contraseña a continuación.",

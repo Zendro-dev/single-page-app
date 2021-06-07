@@ -35,6 +35,9 @@
     "documentation": "Documentation",
     "github-info": "Contribute with pull requests, issues, and feedback."
   },
+  "info": {
+    "not-implemented": "Not implemented"
+  },
   "login-dialog": {
     "title": "Login Form",
     "content": "To log into this website, please enter your email address and password below.",

@@ -87,7 +87,11 @@ export default function ArrayField({
 
   return (
     <Accordion className={classes.accordion}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <AccordionSummary
+        expandIcon={
+          <ExpandMoreIcon data-cy="arrayfield-accordion-expand-button" />
+        }
+      >
         {label}
       </AccordionSummary>
       <AccordionDetails>
@@ -103,7 +107,11 @@ export default function ArrayField({
           )}
 
           {/* INSERT AT POSITION=0 */}
-          <Button className={classes.actionAddNew} onClick={addItem(-1)}>
+          <Button
+            className={classes.actionAddNew}
+            onClick={addItem(-1)}
+            data-cy="arrayfield-unshift-item"
+          >
             <AddIcon /> {t('record-fields.array-add')}
           </Button>
 
@@ -123,6 +131,7 @@ export default function ArrayField({
                           'action-bottom'
                         )}
                         onClick={addItem(index)}
+                        data-cy={`arrayfield-add-item-${index}`}
                       >
                         <AddIcon />
                       </IconButton>
@@ -135,6 +144,7 @@ export default function ArrayField({
                         size="small"
                         tooltip={t('record-fields.array-delete')}
                         onClick={() => deleteItem(index)}
+                        data-cy={`arrayfield-delete-item-${index}`}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -153,6 +163,7 @@ export default function ArrayField({
                     label={'item ' + index}
                     onChange={handleOnChange(index)}
                     onError={onError}
+                    data-cy={`arrayfield-inputfield-${index}`}
                     endAdornment={
                       onChange && (
                         <InputAdornment position="end">
@@ -160,6 +171,7 @@ export default function ArrayField({
                             className={classes.actionClear}
                             tooltip={t('record-fields.array-unset')}
                             onClick={() => handleOnClear(index)}
+                            data-cy={`arrayfield-inputfield-unset-${index}`}
                           >
                             <ClearIcon />
                           </IconButton>

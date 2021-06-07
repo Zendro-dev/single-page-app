@@ -23,12 +23,13 @@ services:
       - ./data_models_storage_config1.json:/usr/src/app/config/data_models_storage_config.json
       - ./integration-test.sql:/usr/src/app/integration-test.sql
       - ./migrateDbAndStartServer.sh:/usr/src/app/migrateDbAndStartServer.sh
+      - ./.env:/usr/src/app/.env
     ports:
       - "3000:3000"
     environment:
       PORT: 3000
       REQUIRE_SIGN_IN: "false"
-      LIMIT_RECORDS: 25
+      LIMIT_RECORDS: 10000
       JQ_PATH: /usr/bin/jq
     networks:
       - integrationtest

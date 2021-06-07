@@ -50,6 +50,7 @@ export default function SelectInput(props: StyledSelectProps): ReactElement {
         value={props.selected}
         onChange={handleOnChange}
         input={<OutlinedInput label={props.label} />}
+        data-cy={`${props.id}`}
         MenuProps={{
           className: classes.menu,
           anchorOrigin: {
@@ -68,6 +69,7 @@ export default function SelectInput(props: StyledSelectProps): ReactElement {
             key={item.id}
             value={item.id}
             disableRipple
+            data-cy={`${props.id}-${item.id}`}
           >
             {item.icon && <item.icon />}
             {item.text}

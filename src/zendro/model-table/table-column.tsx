@@ -41,6 +41,7 @@ export default function TableColumn({
         onClick={() => {
           onSortLabelClick(label);
         }}
+        data-cy={`table-header-column-${label}`}
       >
         {Icon && tooltip && (
           <Tooltip title={tooltip}>
