@@ -290,6 +290,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
     >
       <NavTabs
         id={urlQuery.id as string}
+        active={router.asPath}
         tabs={[
           {
             type: 'link',
