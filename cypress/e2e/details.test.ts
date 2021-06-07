@@ -16,7 +16,7 @@ describe('Record details', () => {
     cy.url().should('include', '/models/country');
   });
 
-  it('Attributes tab fetch and actions function correctly', () => {
+  it('Attributes form fetch and actions function correctly', () => {
     cy.intercept('http://localhost:3000/graphql').as('read');
     cy.visit('/models/country/details?id=country_1');
 
@@ -53,7 +53,7 @@ describe('Record details', () => {
     cy.url().should('include', '/models/country/edit?id=country_1');
   });
 
-  it('Associations tab functions correctly', () => {
+  it('Associations table functions correctly', () => {
     cy.intercept('http://localhost:3000/graphql').as('read-record');
     cy.intercept('http://localhost:3000/meta_query', (req) => {
       if ((req.body.query as string).includes('countFiltered')) {

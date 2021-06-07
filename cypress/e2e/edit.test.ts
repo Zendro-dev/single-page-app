@@ -31,13 +31,6 @@ describe('Record edit', () => {
     });
   });
 
-  it('Attributes form can be cancelled', () => {
-    cy.visit('/models/country/edit?id=country_1');
-
-    cy.dataCy('record-form-exit').click();
-    cy.url().should('include', '/models/country');
-  });
-
   it('Querying a non-existing record throws', () => {
     cy.visit('/models/country/edit?id=this-country-does-not-exist');
     cy.wait('@read-record').then(({ response }) => {
@@ -58,7 +51,14 @@ describe('Record edit', () => {
     });
   });
 
-  it('Attributes tab fetches and updates correctly', () => {
+  it('Attributes form can be cancelled', () => {
+    cy.visit('/models/country/edit?id=country_1');
+
+    cy.dataCy('record-form-exit').click();
+    cy.url().should('include', '/models/country');
+  });
+
+  it('Attributes form fetches and updates correctly', () => {
     const addDummyAlien = `mutation {
       addAlien(idField: "alien_test_update",
       stringField: "Xortacl",
@@ -146,7 +146,7 @@ describe('Record edit', () => {
     cy.gqlRequest(deleteDummyAlien);
   });
 
-  it('Attributes tab actions work correctly', () => {
+  it('Attributes form actions work correctly', () => {
     const addDummyAlien = `mutation {
       addAlien(idField: "alien_test_update",
       stringField: "Xortacl",
@@ -186,7 +186,7 @@ describe('Record edit', () => {
     });
   });
 
-  it('Associations tab fetch, select, and update work correctly', () => {
+  it('Associations table fetch, select, and update work correctly', () => {
     // Add test records
     const addRecords = `mutation {
       addCountry(
@@ -362,7 +362,7 @@ describe('Record edit', () => {
     cy.gqlRequest(deleteCountry);
   });
 
-  it('Assocations tab correctly applies filters', () => {
+  it('Assocations table correctly applies filters', () => {
     cy.visit('/models/country/edit?id=country_1');
 
     // intial requests
