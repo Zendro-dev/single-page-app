@@ -1,4 +1,4 @@
-describe('record-table', () => {
+describe('Model page', () => {
   // but set the user before visiting the page
   // so the app thinks it is already authenticated
 
@@ -36,7 +36,7 @@ describe('record-table', () => {
     });
   });
 
-  it('Alien model table - order', () => {
+  it('Table order (sorting) functions correctly', () => {
     /* ORDER */
     // click on intField to order intField ASC
     cy.dataCy('table-column-intField').click();
@@ -63,7 +63,7 @@ describe('record-table', () => {
     });
   });
 
-  it('Alien model table - pagination', () => {
+  it('Table pagination functions correctly', () => {
     /* PAGINATION */
     // click on the select and then select 5
     cy.dataCy('pagination-select').click();
@@ -150,7 +150,7 @@ describe('record-table', () => {
     });
   });
 
-  it('Alien model table - search', () => {
+  it('Table search functions correctly', () => {
     /* SEARCH */
     cy.dataCy('model-table-search-field').type('true');
     cy.dataCy('model-table-search-button').click();
@@ -203,7 +203,7 @@ describe('record-table', () => {
     });
   });
 
-  it('Alien model table - actions', () => {
+  it('Table actions function correctly', () => {
     // Add test alien to delete
     const addAlien = `mutation {
       addAlien(idField: "alien_to_delete") {idField}

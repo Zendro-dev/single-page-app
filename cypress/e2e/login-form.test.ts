@@ -6,7 +6,7 @@ describe('Login', () => {
     cy.dataCy('login-button').click({ force: true });
   });
 
-  it('failed login using UI', () => {
+  it('Wrong credentials display a login error', () => {
     cy.visit('/');
     cy.dataCy('login-button').click();
 
@@ -18,7 +18,7 @@ describe('Login', () => {
     cy.dataCy('login-dialog-login-failed').should('be.visible');
   });
 
-  it('successful login using UI', () => {
+  it('Successful login receives a valid token', () => {
     cy.visit('/');
     cy.dataCy('login-button').click();
 
@@ -47,7 +47,7 @@ describe('Login', () => {
       });
   });
 
-  it('logout using UI', () => {
+  it('Logging out clears existing token', () => {
     cy.dataCy('login-button').click({ force: true });
     // cy.dataCy('login-button').click();
 

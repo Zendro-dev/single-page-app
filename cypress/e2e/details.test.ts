@@ -9,14 +9,14 @@ describe('Record details', () => {
     cy.dataCy('login-button').click({ force: true });
   });
 
-  it('Cancel Form', () => {
+  it('Attributes form can be cancelled', () => {
     cy.visit('/models/country/details?id=country_1');
 
     cy.dataCy('record-form-exit').click();
     cy.url().should('include', '/models/country');
   });
 
-  it('record country_1 details page', () => {
+  it('Attributes tab fetch and actions function correctly', () => {
     cy.intercept('http://localhost:3000/graphql').as('read');
     cy.visit('/models/country/details?id=country_1');
 
@@ -53,7 +53,7 @@ describe('Record details', () => {
     cy.url().should('include', '/models/country/edit?id=country_1');
   });
 
-  it('Record details associations', () => {
+  it('Associations tab functions correctly', () => {
     cy.intercept('http://localhost:3000/graphql').as('read-record');
     cy.intercept('http://localhost:3000/meta_query', (req) => {
       if ((req.body.query as string).includes('countFiltered')) {

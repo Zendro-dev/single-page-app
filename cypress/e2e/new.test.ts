@@ -1,4 +1,4 @@
-describe('new record', () => {
+describe('Record new', () => {
   before('login and Db seed', () => {
     cy.seedDefaultDb();
     cy.login();
@@ -9,13 +9,13 @@ describe('new record', () => {
     cy.dataCy('login-button').click({ force: true });
   });
 
-  it('Cancel Form', () => {
+  it('Attributes form can be cancelled', () => {
     cy.visit('/models/alien/new');
     cy.dataCy('record-form-exit').click();
     cy.url().should('include', '/models/alien');
   });
 
-  it('Submit new alien', () => {
+  it('Successfully submit a new record', () => {
     cy.intercept('http://localhost:3000/graphql').as('add');
 
     cy.intercept('http://localhost:3000/graphql', (req) => {
@@ -94,7 +94,7 @@ describe('new record', () => {
     // cy.pause();
   });
 
-  it('Submition Errors', () => {
+  it('Correctly receive server errors', () => {
     cy.intercept('http://localhost:3000/graphql').as('add-record');
     cy.visit('/models/country/new');
 
