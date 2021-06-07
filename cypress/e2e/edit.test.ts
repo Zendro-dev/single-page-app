@@ -31,14 +31,7 @@ describe('Record edit', () => {
     });
   });
 
-  it('Cancel Form', () => {
-    cy.visit('/models/country/edit?id=country_1');
-
-    cy.dataCy('record-form-exit').click();
-    cy.url().should('include', '/models/country');
-  });
-
-  it('Query non-existing record', () => {
+  it('Querying a non-existing record throws', () => {
     cy.visit('/models/country/edit?id=this-country-does-not-exist');
     cy.wait('@read-record').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
@@ -58,7 +51,14 @@ describe('Record edit', () => {
     });
   });
 
-  it('record alien_test_update edit page', () => {
+  it('Attributes form can be cancelled', () => {
+    cy.visit('/models/country/edit?id=country_1');
+
+    cy.dataCy('record-form-exit').click();
+    cy.url().should('include', '/models/country');
+  });
+
+  it('Attributes form fetches and updates correctly', () => {
     const addDummyAlien = `mutation {
       addAlien(idField: "alien_test_update",
       stringField: "Xortacl",
@@ -146,7 +146,7 @@ describe('Record edit', () => {
     cy.gqlRequest(deleteDummyAlien);
   });
 
-  it('record alien_1 edit page, actions', () => {
+  it('Attributes form actions work correctly', () => {
     const addDummyAlien = `mutation {
       addAlien(idField: "alien_test_update",
       stringField: "Xortacl",
@@ -186,11 +186,11 @@ describe('Record edit', () => {
     });
   });
 
-  it('update associations', () => {
+  it('Associations table fetch, select, and update work correctly', () => {
     // Add test records
     const addRecords = `mutation {
       addCountry(
-        country_id: "country_test_update" 
+        country_id: "country_test_update"
         name: "belgium"
       ) { country_id }
       addCapital(
@@ -362,7 +362,7 @@ describe('Record edit', () => {
     cy.gqlRequest(deleteCountry);
   });
 
-  it('assocations filters', () => {
+  it('Assocations table correctly applies filters', () => {
     cy.visit('/models/country/edit?id=country_1');
 
     // intial requests
