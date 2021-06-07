@@ -40,8 +40,9 @@ describe('Login', () => {
         expect(decodedToken.email).to.equal('admin@zen.dro');
         expect(decodedToken.roles).to.deep.equal([
           'administrator',
-          'editor',
           'reader',
+          'editor',
+          'acl_validations-role',
         ]);
       });
   });
