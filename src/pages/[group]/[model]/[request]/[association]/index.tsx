@@ -423,7 +423,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           },
           {
             type: 'group',
-            label: 'associations',
+            label: props.association,
             links: sourceModel.schema.associations?.map((assoc) => ({
               type: 'link',
               label: assoc.name,
