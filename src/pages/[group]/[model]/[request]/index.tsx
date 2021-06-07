@@ -300,11 +300,14 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
           {
             type: 'group',
             label: 'associations',
-            links: model.schema.associations?.map((assoc) => ({
-              type: 'link',
-              label: assoc.name,
-              href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
-            })),
+            links:
+              props.request === 'new'
+                ? []
+                : model.schema.associations?.map((assoc) => ({
+                    type: 'link',
+                    label: assoc.name,
+                    href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+                  })),
           },
         ]}
       />
