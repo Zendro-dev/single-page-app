@@ -19,6 +19,7 @@ import {
 import { getStaticAssociationPaths } from '@/build/routes';
 
 import IconButton from '@/components/icon-button';
+import NavTabs from '@/components/nav-tabs';
 import SelectInput from '@/components/select-input';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
@@ -32,6 +33,7 @@ import { AssociationUrlQuery } from '@/types/routes';
 import { parseErrorResponse } from '@/utils/errors';
 import { getInflections } from '@/utils/inflection';
 
+import ModelBouncer from '@/zendro/model-bouncer';
 import {
   AssociationFilter,
   Table,
@@ -304,12 +306,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   /* HANDLERS */
 
-  const handleOnAsociationSelect = (name: string): void => {
-    router.push(
-      `/${props.group}/${props.model}/${props.request}/${name}?id=${urlQuery.id}`
-    );
-  };
-
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
     recordToMark,
     list,
@@ -406,205 +402,226 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   };
 
   return (
-    <div className={classes.root}>
-      <div className={classes.toolbar}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <TableSearch
-            placeholder={t('model-table.search-label', {
-              modelName: association.name,
-            })}
-            value={searchText}
-            onSearch={(value) => setSearchText(value)}
-            onReset={() => setSearchText('')}
-          />
-          {props.request !== 'details' && (
-            <SelectInput
-              className={classes.toolbarFilters}
-              id={`${props.model}-association-filters`}
-              label={t('associations.filter-select', {
-                assocName: association.name,
+    <ModelBouncer
+      object={props.model}
+      action={
+        props.request === 'details'
+          ? 'read'
+          : props.request === 'edit'
+          ? 'update'
+          : 'create'
+      }
+    >
+      <NavTabs
+        id={urlQuery.id as string}
+        active={router.asPath}
+        tabs={[
+          {
+            type: 'link',
+            label: 'attributes',
+            href: `/${props.group}/${props.model}/${props.request}?id=${urlQuery.id}`,
+          },
+          {
+            type: 'group',
+            label: 'associations',
+            links: sourceModel.schema.associations?.map((assoc) => ({
+              type: 'link',
+              label: assoc.name,
+              href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+              icon:
+                assoc.type === 'to_many' ||
+                assoc.type === 'to_many_through_sql_cross_table'
+                  ? ToManyIcon
+                  : ToOneIcon,
+            })),
+          },
+        ]}
+      />
+
+      <div className={classes.root}>
+        <div className={classes.toolbar}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <TableSearch
+              placeholder={t('model-table.search-label', {
+                modelName: association.name,
               })}
-              onChange={handleOnAssociationFilterSelect}
-              selected={recordsFilter}
-              items={[
-                {
-                  id: 'no-filter',
-                  text: t('associations.filter-no-filter'),
-                  icon: FilterIcon,
-                },
-                {
-                  id: 'associated',
-                  text: t('associations.filter-associated'),
-                  icon: LinkIcon,
-                },
-                {
-                  id: 'not-associated',
-                  text: t('associations.filter-not-associated'),
-                  icon: LinkOffIcon,
-                },
-                {
-                  id: 'records-to-add',
-                  text: t('associations.filter-to-add'),
-                  icon: LinkIcon,
-                },
-                {
-                  id: 'records-to-remove',
-                  text: t('associations.filter-to-remove'),
-                  icon: LinkOffIcon,
-                },
-              ]}
+              value={searchText}
+              onSearch={(value) => setSearchText(value)}
+              onReset={() => setSearchText('')}
             />
-          )}
-        </div>
+            {props.request !== 'details' && (
+              <SelectInput
+                className={classes.toolbarFilters}
+                id={`${props.model}-association-filters`}
+                label={t('associations.filter-select', {
+                  assocName: association.name,
+                })}
+                onChange={handleOnAssociationFilterSelect}
+                selected={recordsFilter}
+                items={[
+                  {
+                    id: 'no-filter',
+                    text: t('associations.filter-no-filter'),
+                    icon: FilterIcon,
+                  },
+                  {
+                    id: 'associated',
+                    text: t('associations.filter-associated'),
+                    icon: LinkIcon,
+                  },
+                  {
+                    id: 'not-associated',
+                    text: t('associations.filter-not-associated'),
+                    icon: LinkOffIcon,
+                  },
+                  {
+                    id: 'records-to-add',
+                    text: t('associations.filter-to-add'),
+                    icon: LinkIcon,
+                  },
+                  {
+                    id: 'records-to-remove',
+                    text: t('associations.filter-to-remove'),
+                    icon: LinkOffIcon,
+                  },
+                ]}
+              />
+            )}
+          </div>
 
-        <div className={classes.toolbarActions}>
-          <IconButton
-            tooltip={t('model-table.reload', {
-              modelName: association.target,
-            })}
-            onClick={() => {
-              mutateRecords();
-              mutateCount();
-            }}
-          >
-            <ReloadIcon />
-          </IconButton>
-          {props.request !== 'details' && (
+          <div className={classes.toolbarActions}>
             <IconButton
-              // tooltip={`Save ${selectedAssoc.target} data`}
-              tooltip={t('associations.save', {
-                assocName: association.target,
+              tooltip={t('model-table.reload', {
+                modelName: association.target,
               })}
-              onClick={handleSubmit}
-              disabled={
-                selectedRecords.toAdd.length === 0 &&
-                selectedRecords.toRemove.length === 0
-              }
+              onClick={() => {
+                mutateRecords();
+                mutateCount();
+              }}
             >
-              <SaveIcon />
+              <ReloadIcon />
             </IconButton>
-          )}
-
-          <SelectInput
-            className={classes.toolbarAssocSelect}
-            id={`${props.model}-association-select`}
-            // label={`Select ${modelName} association`}
-            label={t('associations.assoc-select', { modelName: props.model })}
-            items={
-              sourceModel.schema.associations?.map(({ name, type }) => ({
-                id: name,
-                text: name,
-                icon: type === 'to_many' ? ToManyIcon : ToOneIcon,
-              })) ?? []
-            }
-            onChange={handleOnAsociationSelect}
-            selected={association.name}
-          />
+            {props.request !== 'details' && (
+              <IconButton
+                // tooltip={`Save ${selectedAssoc.target} data`}
+                tooltip={t('associations.save', {
+                  assocName: association.target,
+                })}
+                onClick={handleSubmit}
+                disabled={
+                  selectedRecords.toAdd.length === 0 &&
+                  selectedRecords.toRemove.length === 0
+                }
+              >
+                <SaveIcon />
+              </IconButton>
+            )}
+          </div>
         </div>
-      </div>
 
-      <TableContainer className={classes.table}>
-        <Table
-          caption={`${association.name} associations table for ${props.model}`}
-          isEmpty={assocTable.data.length === 0}
-        >
-          <TableHeader
-            actionsColSpan={props.request !== 'details' ? 1 : 0}
-            attributes={assocModel.schema.attributes}
-            onSortLabelClick={(field) =>
-              setOrder((state) => ({
-                ...state,
-                sortField: field,
-                sortDirection: !state?.sortDirection
-                  ? 'ASC'
-                  : state.sortDirection === 'ASC'
-                  ? 'DESC'
-                  : 'ASC',
-              }))
-            }
-            activeOrder={order?.sortField ?? assocModel.schema.primaryKey}
-            orderDirection={order?.sortDirection ?? 'ASC'}
-          />
+        <TableContainer className={classes.table}>
+          <Table
+            caption={`${association.name} associations table for ${props.model}`}
+            isEmpty={assocTable.data.length === 0}
+          >
+            <TableHeader
+              actionsColSpan={props.request !== 'details' ? 1 : 0}
+              attributes={assocModel.schema.attributes}
+              onSortLabelClick={(field) =>
+                setOrder((state) => ({
+                  ...state,
+                  sortField: field,
+                  sortDirection: !state?.sortDirection
+                    ? 'ASC'
+                    : state.sortDirection === 'ASC'
+                    ? 'DESC'
+                    : 'ASC',
+                }))
+              }
+              activeOrder={order?.sortField ?? assocModel.schema.primaryKey}
+              orderDirection={order?.sortDirection ?? 'ASC'}
+            />
 
-          <TableBody>
-            {assocTable.data.map((record) => {
-              const recordPK = assocModel.schema.primaryKey;
-              const recordId = record.data[recordPK] as string | number;
-              const isSelected =
-                selectedRecords.toAdd.includes(recordId) ||
-                selectedRecords.toRemove.includes(recordId);
-              return (
-                <TableRow
-                  key={recordId}
-                  hover
-                  attributes={assocModel.schema.attributes}
-                  record={record.data}
-                >
-                  {props.request !== 'details' && (
-                    <MuiTableCell align="center">
-                      <IconButton
-                        tooltip={
-                          record.isAssociated
-                            ? isSelected
-                              ? t('associations.mark-to-disassociate')
-                              : t('associations.click-to-disassociate')
-                            : isSelected
-                            ? t('associations.mark-to-associate')
-                            : t('associations.click-to-associate')
-                        }
-                        onClick={() =>
-                          handleOnMarkForAssociationClick(
-                            recordId,
-                            record.isAssociated ? 'toRemove' : 'toAdd',
-                            isSelected ? 'remove' : 'add'
-                          )
-                        }
-                      >
-                        {record.isAssociated ? (
-                          isSelected ? (
-                            <LinkOffIcon
+            <TableBody>
+              {assocTable.data.map((record) => {
+                const recordPK = assocModel.schema.primaryKey;
+                const recordId = record.data[recordPK] as string | number;
+                const isSelected =
+                  selectedRecords.toAdd.includes(recordId) ||
+                  selectedRecords.toRemove.includes(recordId);
+                return (
+                  <TableRow
+                    key={recordId}
+                    hover
+                    attributes={assocModel.schema.attributes}
+                    record={record.data}
+                  >
+                    {props.request !== 'details' && (
+                      <MuiTableCell align="center">
+                        <IconButton
+                          tooltip={
+                            record.isAssociated
+                              ? isSelected
+                                ? t('associations.mark-to-disassociate')
+                                : t('associations.click-to-disassociate')
+                              : isSelected
+                              ? t('associations.mark-to-associate')
+                              : t('associations.click-to-associate')
+                          }
+                          onClick={() =>
+                            handleOnMarkForAssociationClick(
+                              recordId,
+                              record.isAssociated ? 'toRemove' : 'toAdd',
+                              isSelected ? 'remove' : 'add'
+                            )
+                          }
+                        >
+                          {record.isAssociated ? (
+                            isSelected ? (
+                              <LinkOffIcon
+                                fontSize="small"
+                                className={classes.iconLinkOffMarked}
+                              />
+                            ) : (
+                              <LinkIcon fontSize="small" />
+                            )
+                          ) : isSelected ? (
+                            <LinkIcon
                               fontSize="small"
-                              className={classes.iconLinkOffMarked}
+                              className={classes.iconLinkMarked}
                             />
                           ) : (
-                            <LinkIcon fontSize="small" />
-                          )
-                        ) : isSelected ? (
-                          <LinkIcon
-                            fontSize="small"
-                            className={classes.iconLinkMarked}
-                          />
-                        ) : (
-                          <LinkOffIcon fontSize="small" />
-                        )}
-                      </IconButton>
-                    </MuiTableCell>
-                  )}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                            <LinkOffIcon fontSize="small" />
+                          )}
+                        </IconButton>
+                      </MuiTableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
 
-        <TablePagination
-          count={recordsTotal}
-          options={[5, 10, 15, 20, 25, 50]}
-          paginationLimit={tablePagination.first ?? tablePagination.last}
-          hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
-          hasLastPage={assocTable.pageInfo?.hasNextPage}
-          hasPreviousPage={assocTable.pageInfo?.hasPreviousPage}
-          hasNextPage={assocTable.pageInfo?.hasNextPage}
-          startCursor={assocTable.pageInfo?.startCursor ?? null}
-          endCursor={assocTable.pageInfo?.endCursor ?? null}
-          onPageChange={(position, cursor) => {
-            setPagination((state) => ({ ...state, position, cursor }));
-          }}
-          onPageSizeChange={(limit) => {
-            setPagination((state) => ({ ...state, limit }));
-          }}
-        />
-      </TableContainer>
-    </div>
+          <TablePagination
+            count={recordsTotal}
+            options={[5, 10, 15, 20, 25, 50]}
+            paginationLimit={tablePagination.first ?? tablePagination.last}
+            hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
+            hasLastPage={assocTable.pageInfo?.hasNextPage}
+            hasPreviousPage={assocTable.pageInfo?.hasPreviousPage}
+            hasNextPage={assocTable.pageInfo?.hasNextPage}
+            startCursor={assocTable.pageInfo?.startCursor ?? null}
+            endCursor={assocTable.pageInfo?.endCursor ?? null}
+            onPageChange={(position, cursor) => {
+              setPagination((state) => ({ ...state, position, cursor }));
+            }}
+            onPageSizeChange={(limit) => {
+              setPagination((state) => ({ ...state, limit }));
+            }}
+          />
+        </TableContainer>
+      </div>
+    </ModelBouncer>
   );
 };
 
@@ -616,6 +633,8 @@ const useStyles = makeStyles((theme) =>
     root: {
       display: 'flex',
       flexDirection: 'column',
+      flexGrow: 1,
+      padding: theme.spacing(3),
       width: '100%',
     },
     table: {
