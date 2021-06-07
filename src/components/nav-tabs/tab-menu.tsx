@@ -6,6 +6,7 @@ import {
   MenuItem,
   MenuProps,
 } from '@material-ui/core';
+import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import SiteLink from '@/components/site-link';
 import { SvgIconType } from '@/types/elements';
 
@@ -48,6 +49,7 @@ export default function TabMenu({
         id="tab-menu-button"
         onClick={onButtonClick}
         ref={(ref) => (buttonRef.current = ref)}
+        endIcon={links && links.length > 0 && <ExpandMoreIcon />}
         {...props.ButtonProps}
       >
         {props.label}
