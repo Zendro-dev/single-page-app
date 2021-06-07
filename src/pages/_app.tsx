@@ -1,6 +1,6 @@
 import { AppProps } from 'next/app';
 import { SnackbarProvider } from 'notistack';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 
 import { ThemeProvider } from '@material-ui/core/styles';

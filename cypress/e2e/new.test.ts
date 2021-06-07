@@ -90,8 +90,6 @@ describe('new record', () => {
         deleteAlien: 'Item successfully deleted',
       });
     });
-
-    // cy.pause();
   });
 
   it('Submition Errors', () => {
