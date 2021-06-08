@@ -52,6 +52,7 @@ export default function SearchField({
       value={text}
       variant="outlined"
       className={classes.searchField}
+      data-cy="model-table-search-field"
       InputProps={{
         onKeyDown: searchInputKeyDown,
         startAdornment: (
@@ -60,6 +61,7 @@ export default function SearchField({
               size="small"
               tooltip={t('model-table.search-tooltip')}
               onClick={searchIconClick}
+              data-cy="model-table-search-button"
             >
               <SearchIcon fontSize="small" />
             </IconButton>
@@ -73,6 +75,7 @@ export default function SearchField({
               tooltip={t('model-table.search-clear')}
               disabled={!value}
               onClick={onReset}
+              data-cy="model-table-search-reset"
             >
               <ClearIcon
                 color={!value ? 'disabled' : 'secondary'}

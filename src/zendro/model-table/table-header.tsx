@@ -69,6 +69,7 @@ export default function TableHeader({
             }
             onSortLabelClick={onSortLabelClick}
             key={`EnhancedTableHeadCell-${attribute.name}-${index}`}
+            data-cy={`table-column-${attribute.name}`}
           />
         ))}
       </MuiTableRow>

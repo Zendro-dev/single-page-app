@@ -30,6 +30,7 @@ const Home: PageWithLayout = () => {
             href="https://github.com/Zendro-dev"
             target="_blank"
             rel="noopener noreferrer"
+            data-cy="github"
           >
             <h1>Github &rarr;</h1>
             <p>{t('home.github-info')}</p>

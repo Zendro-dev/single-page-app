@@ -37,7 +37,11 @@ export default function AttributeField({
             <InputAdornment position="end">
               <Tooltip title={t('record-fields.unset')}>
                 <span>
-                  <IconButton tabIndex="-1" onClick={handleOnClear}>
+                  <IconButton
+                    tabIndex="-1"
+                    onClick={handleOnClear}
+                    data-cy="record-fields-unset"
+                  >
                     <ClearIcon />
                   </IconButton>
                 </span>

@@ -10,6 +10,7 @@
 videos
 /.nyc_output
 test_env
+screenshots
 
 # next.js
 /.next/

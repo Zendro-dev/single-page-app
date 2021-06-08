@@ -1,0 +1,12 @@
+--- c.js	2021-06-07 10:27:43.035849848 +0200
++++ country.js	2021-05-28 16:08:17.253389810 +0200
+@@ -19,7 +19,8 @@
+         "$async": true,
+         "properties": {
+             "name": {
+-                "type": ["string", "null"]
++                "type": ["string", "null"],
++                "pattern": "^[A-Za-z]+$"
+             },
+             "country_id": {
+                 "type": ["string", "null"]

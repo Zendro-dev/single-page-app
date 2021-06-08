@@ -187,6 +187,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
+    console.log({ dataRecord });
 
     const submit = async (): Promise<void> => {
       try {
