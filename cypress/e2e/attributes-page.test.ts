@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+import { enGB } from 'date-fns/locale';
 import { gql } from 'graphql-request';
 
 describe('Record attributes page', () => {
@@ -30,11 +32,15 @@ describe('Record attributes page', () => {
 
     cy.intercept('http://localhost:3000/graphql', (req) => {
       if ((req.body.query as string).includes('readOneAlien')) {
-        req.alias = 'read-record';
+        req.alias = 'read-record-alien';
+      } else if ((req.body.query as string).includes('readOneCountry')) {
+        req.alias = 'read-record-country';
       } else if ((req.body.query as string).includes('updateAlien')) {
         req.alias = 'update-record';
+      } else if ((req.body.query as string).includes('addCountry')) {
+        req.alias = 'create-record-country';
       } else if ((req.body.query as string).includes('addAlien')) {
-        req.alias = 'create-record';
+        req.alias = 'create-record-alien';
       } else if ((req.body.query as string).includes('deleteAlien')) {
         req.alias = 'delete-record';
       }
@@ -54,7 +60,7 @@ describe('Record attributes page', () => {
     cy.visit('/models/country/details?id=this-country-does-not-exist');
 
     // Verify the error response
-    cy.wait('@read-record').then(({ response }) => {
+    cy.wait('@read-record-country').then(({ response }) => {
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.errors).to.deep.eq([
         {
@@ -75,11 +81,11 @@ describe('Record attributes page', () => {
   it('Can fetch and reload attributes, and move between details and edit pages', () => {
     /* FETCH DETAILS ATTRIBUTES */
 
-    // Navigate to alien details attributes page
+    // Navigate to country details attributes page
     cy.visit('/models/country/details?id=country_1');
 
     // Verify request and success response
-    cy.wait('@read-record').then(({ request, response }) => {
+    cy.wait('@read-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.eq({
         country_id: 'country_1',
       });
@@ -97,7 +103,7 @@ describe('Record attributes page', () => {
     cy.dataCy('record-form-reload').click();
 
     // Verify request and success response
-    cy.wait('@read-record').then(({ request, response }) => {
+    cy.wait('@read-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.eq({
         country_id: 'country_1',
       });
@@ -117,7 +123,7 @@ describe('Record attributes page', () => {
     cy.url().should('include', '/models/country/edit?id=country_1');
 
     // Verify request and success response
-    cy.wait('@read-record').then(({ request, response }) => {
+    cy.wait('@read-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.eq({
         country_id: 'country_1',
       });
@@ -135,7 +141,7 @@ describe('Record attributes page', () => {
     cy.dataCy('record-form-reload').click();
 
     // Verify request and success response
-    cy.wait('@read-record').then(({ request, response }) => {
+    cy.wait('@read-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.eq({
         country_id: 'country_1',
       });
@@ -170,7 +176,7 @@ describe('Record attributes page', () => {
     /* FETCH RECORD ATTRIBUTES */
 
     // Verify the request and success response
-    cy.wait('@read-record').then(({ request, response }) => {
+    cy.wait('@read-record-alien').then(({ request, response }) => {
       expect(request.body.variables).to.deep.eq({
         idField: 'alien_test_update',
       });
@@ -272,14 +278,20 @@ describe('Record attributes page', () => {
     cy.get('input[type="checkbox"]').click().click();
 
     // Set datetimeField
+    const date = format(
+      new Date('2021-06-08T14:08:27.000Z'),
+      'yyyy/MM/dd HH:mm:ss.SSS',
+      {
+        locale: enGB,
+      }
+    );
+    cy.dataCy('record-form-fields-datetimeField').find('button').click();
     cy.dataCy('record-form-fields-datetimeField').click();
     cy.get(
       'button[aria-label="calendar view is open, go to text input view"]'
     ).click();
     cy.get('div[class="MuiPickersMobileKeyboardInputView-root"]').within(() => {
-      cy.dataCy('record-form-fields-datetimeField').type(
-        '2021-05-01T08:43:30.000Z'
-      );
+      cy.dataCy('record-form-fields-datetimeField').type(date);
     });
     cy.get('span').contains('OK').click();
 
@@ -298,25 +310,21 @@ describe('Record attributes page', () => {
     cy.dataCy('dialog-ok').click({ force: true });
 
     // Verify the request and success response
-    cy.wait('@create-record').then(({ request, response }) => {
+    cy.wait('@create-record-alien').then(({ request, response }) => {
       expect(request.body.variables).to.deep.equal({
-        idField: 'alien_test_1',
+        idField: 'alien_test_create',
         stringField: 'Xortacl',
         intField: 5,
         floatField: 2.45,
-        datetimeField: '2021-05-01T06:43:30.000Z',
-        booleanField: true,
+        datetimeField: '2021-06-08T14:08:27.000Z',
+        booleanField: null,
         stringArrayField: ['my_first_string', 'my_real_second_string'],
-        intArrayField: null,
-        floatArrayField: null,
-        datetimeArrayField: null,
-        booleanArrayField: null,
       });
       expect(response?.statusCode).to.eq(200);
     });
 
     // Verify we are redirected to the edit page
-    cy.url().should('include', '/models/alien/edit?id=alien_test_1');
+    cy.url().should('include', '/models/alien/edit?id=alien_test_create');
 
     /* DELETE RECORD */
 
@@ -347,7 +355,7 @@ describe('Record attributes page', () => {
     cy.dataCy('record-form-submit').click();
 
     // Verify mutation request and error response
-    cy.wait('@add-record').then(({ request, response }) => {
+    cy.wait('@create-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.equal({
         country_id: 'country_1',
         name: 'USA',
@@ -368,7 +376,7 @@ describe('Record attributes page', () => {
     cy.dataCy('record-form-submit').click();
 
     // Verify mutation request and error response
-    cy.wait('@add-record').then(({ response }) => {
+    cy.wait('@create-record-country').then(({ response }) => {
       console.log({ response });
       expect(response?.body.errors).to.deep.eq([
         {
