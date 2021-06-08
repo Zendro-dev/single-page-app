@@ -16,8 +16,9 @@ async function buildRoutes(): Promise<AppRoutes> {
   try {
     await stat(overridePath);
     routes = require(overridePath);
+    log('Loading "routes.json" override.');
   } catch (error) {
-    log('override for "routes.json" not found, loading defaults.');
+    log('Override for "routes.json" not found, loading defaults.');
   }
 
   return routes;

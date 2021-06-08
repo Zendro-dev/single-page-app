@@ -75,15 +75,22 @@ export async function getStaticModelPaths(): Promise<
 > {
   const modelRoutes = await getModelRoutes();
 
-  let overrides: string[];
-
   try {
     const overridesJson = await readFile('./src/config/page-overrides.json', {
       encoding: 'utf8',
     });
-    overrides = JSON.parse(overridesJson);
+
+    const overrides: string[] = JSON.parse(overridesJson);
+    log('Filtering model page overrides');
+
+    const removeOverrides = (route: RouteLink): boolean =>
+      !overrides.includes(route.href);
+
+    modelRoutes.admin = modelRoutes.admin.filter(removeOverrides);
+    modelRoutes.models = modelRoutes.models.filter(removeOverrides);
   } catch (error) {
-    overrides = [];
+    if (error.code !== 'ENOENT') throw error;
+    log('Custom page overrides not found, loading default model paths');
   }
 
   const composeUrlQuery = (group: string) => ({
@@ -92,13 +99,8 @@ export async function getStaticModelPaths(): Promise<
     params: { group, model: name },
   });
 
-  const adminPaths = modelRoutes.admin
-    .filter(({ href }) => !overrides?.includes(href))
-    .map(composeUrlQuery('admin'));
-
-  const modelPaths = modelRoutes.models
-    .filter(({ href }) => !overrides?.includes(href))
-    .map(composeUrlQuery('models'));
+  const adminPaths = modelRoutes.admin.map(composeUrlQuery('admin'));
+  const modelPaths = modelRoutes.models.map(composeUrlQuery('models'));
 
   return [...adminPaths, ...modelPaths];
 }
@@ -139,8 +141,10 @@ export async function getStaticRecordPaths(): Promise<
     };
 
     recordPaths = recordPaths.filter(removeOverrides);
+    log('Filtering record page overrides');
   } catch (error) {
-    log('custom page overrides not found, loading default paths');
+    if (error.code !== 'ENOENT') throw error;
+    log('Custom page overrides not found, loading default record paths');
   }
 
   return recordPaths;
@@ -151,7 +155,7 @@ export async function getStaticAssociationPaths(): Promise<
 > {
   const recordPaths = await getStaticRecordPaths();
 
-  const associationPaths: Array<{ params: AssociationUrlQuery }> = [];
+  let associationPaths: Array<{ params: AssociationUrlQuery }> = [];
   for (const path of recordPaths) {
     const { associations } = await getStaticModel(path.params.model);
     if (associations) {
@@ -161,6 +165,24 @@ export async function getStaticAssociationPaths(): Promise<
         })
       );
     }
+  }
+
+  try {
+    const overridesJson = await readFile('./src/config/page-overrides.json', {
+      encoding: 'utf8',
+    });
+    const overrides: string[] = JSON.parse(overridesJson);
+    log('Filtering association page overrides');
+
+    associationPaths = associationPaths.filter((path) => {
+      const { group, model, request, association } = path.params;
+      return !overrides.includes(
+        `/${group}/${model}/${request}/${association}`
+      );
+    });
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    log('Custom page overrides not found, loading default paths');
   }
 
   return associationPaths;
