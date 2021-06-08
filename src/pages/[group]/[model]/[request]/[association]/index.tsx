@@ -260,7 +260,10 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
         // If association type is "to_one", the count must be directly derived
         // from the data (no count resolver exists). The count should be 0 or 1.
-        if (association.type === 'to_one') {
+        if (
+          association.type === 'to_one' &&
+          (props.request === 'details' || recordsFilter === 'associated')
+        ) {
           setRecordsTotal(data?.records.length ?? 0);
         }
       },
@@ -271,7 +274,11 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   /* FETCH COUNT */
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
-    association.type !== 'to_one' && urlQuery.id
+    urlQuery.id &&
+      !(
+        association.type === 'to_one' &&
+        (props.request === 'details' || recordsFilter === 'associated')
+      )
       ? [recordsFilter, tableSearch, urlQuery.id, zendro]
       : null,
     async () => {

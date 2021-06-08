@@ -259,9 +259,9 @@ describe('Record association page', () => {
       expect(response?.statusCode).to.eq(200);
     });
 
-    // cy.wait('@count-assoc-table').then(({ response }) => {
-    //   expect(response?.statusCode).to.eq(200);
-    // });
+    cy.wait('@count-assoc-table').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+    });
 
     /* ADD NEW ASSOCIATIONS */
 
@@ -284,13 +284,13 @@ describe('Record association page', () => {
       });
     });
 
-    // // Verify the revalidation successful response
-    // cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-    //   ([read, count]) => {
-    //     expect(read.response?.statusCode).to.eq(200);
-    //     expect(count.response?.statusCode).to.eq(200);
-    //   }
-    // );
+    // Verify the revalidation successful response
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
 
     cy.wait(2000);
 
@@ -309,13 +309,13 @@ describe('Record association page', () => {
       expect(response?.statusCode).to.eq(200);
     });
 
-    // // Verify the revalidation successful response
-    // cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-    //   ([read, count]) => {
-    //     expect(read.response?.statusCode).to.eq(200);
-    //     expect(count.response?.statusCode).to.eq(200);
-    //   }
-    // );
+    // Verify the revalidation successful response
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
   });
 
   it('Can modify existing associations', () => {
@@ -419,7 +419,7 @@ describe('Record association page', () => {
     // );
   });
 
-  it.only('Can filter one-to-one associated records', () => {
+  it('Can filter one-to-one associated records', () => {
     // Navigate to country->unique_capital association page
     cy.visit('/models/country/edit/unique_capital?id=country_1');
 
@@ -472,327 +472,332 @@ describe('Record association page', () => {
     cy.dataCy('country-association-filters').click();
     cy.dataCy('country-association-filters-no-filter').click();
 
-    // // Verify the revalidation success response
-    // cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-    //   ([read, count]) => {
-    //     expect(read.response?.statusCode).to.eq(200);
-    //     expect(count.response?.statusCode).to.eq(200);
-    //   }
-    // );
+    // Verify the revalidation success response
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
   });
 
-  // it('Can filter and search many-to-many (foreign key arrays) associated records', () => {
-  //   // Navigate to country->rivers association page
-  //   cy.visit('/models/country/edit/rivers?id=country_1');
+  it('Can filter and search many-to-many (foreign key arrays) associated records', () => {
+    // Navigate to country->rivers association page
+    cy.visit('/models/country/edit/rivers?id=country_1');
 
-  //   /* FETCH ASSOCIATION TABLE DATA */
+    /* FETCH ASSOCIATION TABLE DATA */
 
-  //   cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-  //     ([read, count]) => {
-  //       expect(read.response?.body.data.records).to.deep.eq([
-  //         {
-  //           river_id: 'river_1',
-  //           name: 'rhine',
-  //           length: 1000,
-  //           countriesConnection: {
-  //             country_id: 'country_1',
-  //           },
-  //         },
-  //         {
-  //           river_id: 'river_2',
-  //           name: 'danub',
-  //           length: 2000,
-  //           countriesConnection: {
-  //             country_id: 'country_1',
-  //           },
-  //         },
-  //         {
-  //           river_id: 'river_3',
-  //           name: 'guadalquivir',
-  //           length: 12000,
-  //           countriesConnection: null,
-  //         },
-  //       ]);
-  //       expect(read.response?.statusCode).to.eq(200);
-  //       expect(count.response?.statusCode).to.eq(200);
-  //     }
-  //   );
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.body.data.records).to.deep.eq([
+          {
+            river_id: 'river_1',
+            name: 'rhine',
+            length: 1000,
+            countriesConnection: {
+              country_id: 'country_1',
+            },
+          },
+          {
+            river_id: 'river_2',
+            name: 'danub',
+            length: 2000,
+            countriesConnection: {
+              country_id: 'country_1',
+            },
+          },
+          {
+            river_id: 'river_3',
+            name: 'guadalquivir',
+            length: 12000,
+            countriesConnection: null,
+          },
+        ]);
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
 
-  //   /* FILTER ASSOCIATED RECORDS */
+    /* FILTER ASSOCIATED RECORDS */
 
-  //   cy.dataCy('country-association-filters').click();
-  //   cy.dataCy('country-association-filters-associated').click();
+    cy.dataCy('country-association-filters').click();
+    cy.dataCy('country-association-filters-associated').click();
 
-  //   // Verify the request and success response
-  //   cy.wait('@read-assoc-table').then(({ request, response }) => {
-  //     expect(request.body.variables).to.deep.eq({
-  //       pagination: {
-  //         first: 25,
-  //       },
-  //       assocPagination: {
-  //         first: 1,
-  //       },
-  //       country_id: 'country_1',
-  //       assocSearch: {
-  //         field: 'country_id',
-  //         value: 'country_1',
-  //         operator: 'eq',
-  //       },
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
+    // Verify the request and success response
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        country_id: 'country_1',
+        assocSearch: {
+          field: 'country_id',
+          value: 'country_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+    });
 
-  //   cy.wait('@count-assoc-table').then(({ response }) => {
-  //     expect(response?.statusCode).to.eq(200);
-  //     expect(response?.body.data.count).to.eq(2);
-  //   });
+    cy.wait('@count-assoc-table').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.count).to.eq(2);
+    });
 
-  //   /* MARK RECORDS */
+    /* MARK RECORDS */
 
-  //   // Mark river_1 for disassociation
-  //   cy.dataCy('associations-table-mark-river_1').click();
-  //   cy.dataCy('associations-table-mark-river_2').click();
+    // Mark river_1 for disassociation
+    cy.dataCy('associations-table-mark-river_1').click();
+    cy.dataCy('associations-table-mark-river_2').click();
 
-  //   // Select records-to-remove filter
-  //   cy.dataCy('country-association-filters').click();
-  //   cy.dataCy('country-association-filters-records-to-remove').click();
+    // Select records-to-remove filter
+    cy.dataCy('country-association-filters').click();
+    cy.dataCy('country-association-filters-records-to-remove').click();
 
-  //   // Verify the request and success response
-  //   cy.wait('@read-assoc-table').then(({ request, response }) => {
-  //     expect(request.body.variables).to.deep.eq({
-  //       search: {
-  //         field: 'river_id',
-  //         value: 'river_1,river_2',
-  //         valueType: 'Array',
-  //         operator: 'in',
-  //       },
-  //       pagination: {
-  //         first: 25,
-  //       },
-  //       assocPagination: {
-  //         first: 1,
-  //       },
-  //       country_id: 'country_1',
-  //       assocSearch: {
-  //         field: 'country_id',
-  //         value: 'country_1',
-  //         operator: 'eq',
-  //       },
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
+    // Verify the request and success response
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          field: 'river_id',
+          value: 'river_1,river_2',
+          valueType: 'Array',
+          operator: 'in',
+        },
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        country_id: 'country_1',
+        assocSearch: {
+          field: 'country_id',
+          value: 'country_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+    });
 
-  //   cy.wait('@count-assoc-table').then(({ response }) => {
-  //     expect(response?.body.data.count).to.eq(2);
-  //   });
+    cy.wait('@count-assoc-table').then(({ response }) => {
+      expect(response?.body.data.count).to.eq(2);
+    });
 
-  //   /* SEARCH RECORDS */
+    /* SEARCH RECORDS */
 
-  //   // Add an additional search parameter
-  //   cy.dataCy('model-table-search-field').type('rhine');
-  //   cy.dataCy('model-table-search-button').click();
+    // Add an additional search parameter
+    cy.dataCy('model-table-search-field').type('rhine');
+    cy.dataCy('model-table-search-button').click();
 
-  //   // Verify the request and sucess response
-  //   cy.wait('@read-assoc-table').then(({ request, response }) => {
-  //     expect(request.body.variables).to.deep.eq({
-  //       search: {
-  //         operator: 'and',
-  //         search: [
-  //           {
-  //             operator: 'or',
-  //             search: [
-  //               {
-  //                 field: 'river_id',
-  //                 value: '%rhine%',
-  //                 operator: 'like',
-  //               },
-  //               {
-  //                 field: 'name',
-  //                 value: '%rhine%',
-  //                 operator: 'like',
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             field: 'river_id',
-  //             value: 'river_1,river_2',
-  //             valueType: 'Array',
-  //             operator: 'in',
-  //           },
-  //         ],
-  //       },
-  //       pagination: {
-  //         first: 25,
-  //       },
-  //       assocPagination: {
-  //         first: 1,
-  //       },
-  //       country_id: 'country_1',
-  //       assocSearch: {
-  //         field: 'country_id',
-  //         value: 'country_1',
-  //         operator: 'eq',
-  //       },
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
+    // Verify the request and sucess response
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          operator: 'and',
+          search: [
+            {
+              operator: 'or',
+              search: [
+                {
+                  field: 'river_id',
+                  value: '%rhine%',
+                  operator: 'like',
+                },
+                {
+                  field: 'name',
+                  value: '%rhine%',
+                  operator: 'like',
+                },
+              ],
+            },
+            {
+              field: 'river_id',
+              value: 'river_1,river_2',
+              valueType: 'Array',
+              operator: 'in',
+            },
+          ],
+        },
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        country_id: 'country_1',
+        assocSearch: {
+          field: 'country_id',
+          value: 'country_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+    });
 
-  //   cy.wait('@count-assoc-table').then(({ response }) => {
-  //     expect(response?.body.data.count).to.eq(1);
-  //   });
-  // });
+    cy.wait('@count-assoc-table').then(({ response }) => {
+      expect(response?.body.data.count).to.eq(1);
+    });
+  });
 
-  // it('Can filter, search, and sort many-to-one associated records', () => {
-  //   // Navigate to continent->countries association page
-  //   cy.visit('/models/continent/edit/countries?id=continent_1');
+  it('Can filter, search, and sort many-to-one associated records', () => {
+    // Navigate to continent->countries association page
+    cy.visit('/models/continent/edit/countries?id=continent_1');
 
-  //   /* FETCH ASSOCIATION TABLE DATA */
+    /* FETCH ASSOCIATION TABLE DATA */
 
-  //   cy.wait('@read-assoc-table').then(({ request, response }) => {
-  //     expect(request.body.variables).to.deep.eq({
-  //       pagination: {
-  //         first: 25,
-  //       },
-  //       assocPagination: {
-  //         first: 1,
-  //       },
-  //       continent_id: 'continent_1',
-  //       assocSearch: {
-  //         field: 'continent_id',
-  //         value: 'continent_1',
-  //         operator: 'eq',
-  //       },
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //     expect(response?.body.data.records).to.deep.eq([
-  //       {
-  //         country_id: 'country_1',
-  //         name: 'germany',
-  //         continent: {
-  //           continent_id: 'continent_1',
-  //         },
-  //       },
-  //       {
-  //         country_id: 'country_2',
-  //         name: 'spain',
-  //         continent: {
-  //           continent_id: 'continent_1',
-  //         },
-  //       },
-  //       {
-  //         country_id: 'country_3',
-  //         name: 'mexico',
-  //         continent: {
-  //           continent_id: null,
-  //         },
-  //       },
-  //       {
-  //         country_id: 'country_4',
-  //         name: 'china',
-  //         continent: {
-  //           continent_id: null,
-  //         },
-  //       },
-  //       {
-  //         country_id: 'country_5',
-  //         name: 'netherlands',
-  //         continent: {
-  //           continent_id: 'continent_1',
-  //         },
-  //       },
-  //       {
-  //         country_id: 'country_6',
-  //         name: 'france',
-  //         continent: {
-  //           continent_id: 'continent_1',
-  //         },
-  //       },
-  //     ]);
-  //   });
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        continent_id: 'continent_1',
+        assocSearch: {
+          field: 'continent_id',
+          value: 'continent_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data.records).to.deep.eq([
+        {
+          country_id: 'country_1',
+          name: 'germany',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_2',
+          name: 'spain',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_3',
+          name: 'mexico',
+          continent: {
+            continent_id: null,
+          },
+        },
+        {
+          country_id: 'country_4',
+          name: 'china',
+          continent: {
+            continent_id: null,
+          },
+        },
+        {
+          country_id: 'country_5',
+          name: 'netherlands',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_6',
+          name: 'france',
+          continent: {
+            continent_id: 'continent_1',
+          },
+        },
+        {
+          country_id: 'country_test_update',
+          name: 'belgium',
+          continent: null,
+        },
+      ]);
+    });
 
-  //   cy.wait('@count-assoc-table').then(({ request, response }) => {
-  //     expect(request.body.variables).to.deep.eq({
-  //       continent_id: 'continent_1',
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //     expect(response?.body.data).to.deep.eq({
-  //       count: 6,
-  //     });
-  //   });
+    cy.wait('@count-assoc-table').then(({ request, response }) => {
+      expect(request.body.variables).to.deep.eq({
+        continent_id: 'continent_1',
+      });
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        count: 7,
+      });
+    });
 
-  //   /* FILTER ASSOCIATED RECORDS */
+    /* FILTER ASSOCIATED RECORDS */
 
-  //   cy.dataCy('continent-association-filters').click();
-  //   cy.dataCy('continent-association-filters-associated').click();
+    cy.dataCy('continent-association-filters').click();
+    cy.dataCy('continent-association-filters-associated').click();
 
-  //   // Verify request and success response
-  //   cy.wait('@read-assoc-table').then(({ response }) => {
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
+    // Verify request and success response
+    cy.wait('@read-assoc-table').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+    });
 
-  //   cy.wait('@count-assoc-table').then(({ response }) => {
-  //     expect(response?.statusCode).to.eq(200);
-  //     expect(response?.body.data).to.deep.eq({
-  //       count: 4,
-  //     });
-  //   });
+    cy.wait('@count-assoc-table').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.data).to.deep.eq({
+        count: 4,
+      });
+    });
 
-  //   /* SEARCH RECORDS */
+    /* SEARCH RECORDS */
 
-  //   cy.dataCy('model-table-search-field').type('er');
-  //   cy.dataCy('model-table-search-button').click();
+    cy.dataCy('model-table-search-field').type('er');
+    cy.dataCy('model-table-search-button').click();
 
-  //   // Verify request and success response
-  //   cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-  //     ([read, count]) => {
-  //       expect(read.response?.statusCode).to.eq(200);
-  //       expect(count.response?.statusCode).to.eq(200);
-  //     }
-  //   );
+    // Verify request and success response
+    cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
+      ([read, count]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+      }
+    );
 
-  //   /* SORT RECORDS */
+    /* SORT RECORDS */
 
-  //   cy.dataCy('table-header-column-name').click();
+    cy.dataCy('table-header-column-name').click();
 
-  //   // Verify request and success response
-  //   cy.wait('@read-assoc-table').then(({ request, response }) => {
-  //     console.log({ request, response });
-  //     expect(request.body.variables).to.deep.eq({
-  //       search: {
-  //         operator: 'or',
-  //         search: [
-  //           {
-  //             field: 'country_id',
-  //             value: '%er%',
-  //             operator: 'like',
-  //           },
-  //           {
-  //             field: 'name',
-  //             value: '%er%',
-  //             operator: 'like',
-  //           },
-  //         ],
-  //       },
-  //       order: {
-  //         field: 'name',
-  //         order: 'ASC',
-  //       },
-  //       pagination: {
-  //         first: 25,
-  //       },
-  //       assocPagination: {
-  //         first: 1,
-  //       },
-  //       continent_id: 'continent_1',
-  //       assocSearch: {
-  //         field: 'continent_id',
-  //         value: 'continent_1',
-  //         operator: 'eq',
-  //       },
-  //     });
-  //     expect(response?.statusCode).to.eq(200);
-  //   });
-  // });
+    // Verify request and success response
+    cy.wait('@read-assoc-table').then(({ request, response }) => {
+      console.log({ request, response });
+      expect(request.body.variables).to.deep.eq({
+        search: {
+          operator: 'or',
+          search: [
+            {
+              field: 'country_id',
+              value: '%er%',
+              operator: 'like',
+            },
+            {
+              field: 'name',
+              value: '%er%',
+              operator: 'like',
+            },
+          ],
+        },
+        order: {
+          field: 'name',
+          order: 'ASC',
+        },
+        pagination: {
+          first: 25,
+        },
+        assocPagination: {
+          first: 1,
+        },
+        continent_id: 'continent_1',
+        assocSearch: {
+          field: 'continent_id',
+          value: 'continent_1',
+          operator: 'eq',
+        },
+      });
+      expect(response?.statusCode).to.eq(200);
+    });
+  });
 });
 
 export {};
