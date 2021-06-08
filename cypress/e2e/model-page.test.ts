@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 describe('Model page', () => {
   before('Login and seed database', () => {
     cy.seedDefaultDb();
