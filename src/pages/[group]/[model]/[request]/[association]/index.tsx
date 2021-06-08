@@ -436,6 +436,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             })),
           },
         ]}
+        data-cy={`${props.model}-associations-tab`}
       />
 
       <div className={classes.root}>
@@ -498,6 +499,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                 mutateRecords();
                 mutateCount();
               }}
+              data-cy="associations-table-reload"
             >
               <ReloadIcon />
             </IconButton>
@@ -512,6 +514,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                   selectedRecords.toAdd.length === 0 &&
                   selectedRecords.toRemove.length === 0
                 }
+                data-cy={`associations-table-submit`}
               >
                 <SaveIcon />
               </IconButton>
@@ -575,6 +578,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                               isSelected ? 'remove' : 'add'
                             )
                           }
+                          data-cy={`associations-table-mark-${recordId}`}
                         >
                           {record.isAssociated ? (
                             isSelected ? (
