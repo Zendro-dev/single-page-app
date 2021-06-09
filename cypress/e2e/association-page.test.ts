@@ -439,7 +439,6 @@ describe('Record association page', () => {
 
     // Verify the mutation request and sucessful response
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ response });
       expect(request.body.variables).to.deep.eq({
         pagination: {
           first: 25,
@@ -761,7 +760,6 @@ describe('Record association page', () => {
 
     // Verify request and success response
     cy.wait('@read-assoc-table').then(({ request, response }) => {
-      console.log({ request, response });
       expect(request.body.variables).to.deep.eq({
         search: {
           operator: 'or',

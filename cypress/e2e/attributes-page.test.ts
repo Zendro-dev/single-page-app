@@ -333,7 +333,6 @@ describe('Record attributes page', () => {
 
     // Verify the request and success response
     cy.wait('@delete-record').then(({ response }) => {
-      console.log({ response });
       expect(response?.statusCode).to.eq(200);
       expect(response?.body.data).to.deep.eq({
         deleteAlien: 'Item successfully deleted',
@@ -377,7 +376,6 @@ describe('Record attributes page', () => {
 
     // Verify mutation request and error response
     cy.wait('@create-record-country').then(({ response }) => {
-      console.log({ response });
       expect(response?.body.errors).to.deep.eq([
         {
           message: 'validation failed',
