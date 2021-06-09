@@ -9,7 +9,8 @@
   },
   "associations": {
     "unique_country": {
-      "type" : "to_one",
+      "type" : "one_to_one",
+      "implementation": "foreignkey",
       "target" : "country",
       "targetKey" : "country_id",
       "keyIn": "capital",

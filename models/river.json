@@ -10,8 +10,8 @@
   },
   "associations": {
     "countries": {
-      "type": "to_many",
-      "reverseAssociationType": "to_many",
+      "type": "many_to_many",
+      "implementation": "foreignkey",
       "target": "country",
       "targetKey": "river_ids",
       "sourceKey": "country_ids",

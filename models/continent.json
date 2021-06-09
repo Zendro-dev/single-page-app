@@ -7,7 +7,8 @@
   },
   "associations": {
     "countries": {
-      "type" : "to_many",
+      "type" : "one_to_many",
+      "implementation": "foreignkey",
       "target" : "country",
       "targetKey" : "continent_id",
       "keyIn": "country",
