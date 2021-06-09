@@ -1,7 +1,7 @@
 import { mkdir, stat, writeFile } from 'fs/promises';
 import preval from 'next-plugin-preval';
 import { AppRoutes } from '@/types/routes';
-import { log } from '@/utils/logs';
+import { zendrify } from '@/utils/logs';
 import { getModelNavRoutes } from './routes';
 
 async function buildRoutes(): Promise<AppRoutes> {
@@ -16,9 +16,11 @@ async function buildRoutes(): Promise<AppRoutes> {
   try {
     await stat(overridePath);
     routes = require(overridePath);
-    log('Loading "routes.json" override.');
+    console.log(zendrify('Loading "routes.json" override.'));
   } catch (error) {
-    log('Override for "routes.json" not found, loading defaults.');
+    console.log(
+      zendrify('Override for "routes.json" not found, loading defaults.')
+    );
   }
 
   return routes;

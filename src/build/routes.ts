@@ -8,7 +8,7 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { log } from '@/utils/logs';
+import { zendrify } from '@/utils/logs';
 import { getStaticModel } from './models';
 
 /**
@@ -81,7 +81,7 @@ export async function getStaticModelPaths(): Promise<
     });
 
     const overrides: string[] = JSON.parse(overridesJson);
-    log('Filtering model page overrides');
+    console.log(console.log(zendrify('Filtering model page overrides')));
 
     const removeOverrides = (route: RouteLink): boolean =>
       !overrides.includes(route.href);
@@ -90,7 +90,9 @@ export async function getStaticModelPaths(): Promise<
     modelRoutes.models = modelRoutes.models.filter(removeOverrides);
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    log('Custom page overrides not found, loading default model paths');
+    console.log(
+      zendrify('Custom page overrides not found, loading default model paths')
+    );
   }
 
   const composeUrlQuery = (group: string) => ({
@@ -141,10 +143,12 @@ export async function getStaticRecordPaths(): Promise<
     };
 
     recordPaths = recordPaths.filter(removeOverrides);
-    log('Filtering record page overrides');
+    console.log(zendrify('Filtering record page overrides'));
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    log('Custom page overrides not found, loading default record paths');
+    console.log(
+      zendrify('Custom page overrides not found, loading default record paths')
+    );
   }
 
   return recordPaths;
@@ -172,7 +176,7 @@ export async function getStaticAssociationPaths(): Promise<
       encoding: 'utf8',
     });
     const overrides: string[] = JSON.parse(overridesJson);
-    log('Filtering association page overrides');
+    console.log(zendrify('Filtering association page overrides'));
 
     associationPaths = associationPaths.filter((path) => {
       const { group, model, request, association } = path.params;
@@ -182,7 +186,9 @@ export async function getStaticAssociationPaths(): Promise<
     });
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    log('Custom page overrides not found, loading default paths');
+    console.log(
+      zendrify('Custom page overrides not found, loading default paths')
+    );
   }
 
   return associationPaths;

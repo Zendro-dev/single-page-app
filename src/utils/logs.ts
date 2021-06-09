@@ -5,7 +5,7 @@ import chalk from 'chalk';
  * @param message message to print to stdout
  * @returns the formatted message
  */
-export function log(message: string): string {
+export function zendrify(message: string): string {
   const zendr = chalk.yellow('zendr') + ' - ';
   return zendr + message;
 }
