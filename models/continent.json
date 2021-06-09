@@ -9,6 +9,7 @@
     "countries": {
       "type" : "one_to_many",
       "implementation": "foreignkey",
+      "reverseAssociation": "continent",
       "target" : "country",
       "targetKey" : "continent_id",
       "keyIn": "country",

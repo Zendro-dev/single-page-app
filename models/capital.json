@@ -11,6 +11,7 @@
     "unique_country": {
       "type" : "one_to_one",
       "implementation": "foreignkey",
+      "reverseAssociation": "unique_capital",
       "target" : "country",
       "targetKey" : "country_id",
       "keyIn": "capital",
