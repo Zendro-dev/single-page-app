@@ -8,7 +8,6 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { zendrify } from '@/utils/logs';
 import { getStaticModel } from './models';
 
 /**
@@ -81,7 +80,6 @@ export async function getStaticModelPaths(): Promise<
     });
 
     const overrides: string[] = JSON.parse(overridesJson);
-    console.log(console.log(zendrify('Filtering model page overrides')));
 
     const removeOverrides = (route: RouteLink): boolean =>
       !overrides.includes(route.href);
@@ -90,9 +88,6 @@ export async function getStaticModelPaths(): Promise<
     modelRoutes.models = modelRoutes.models.filter(removeOverrides);
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    console.log(
-      zendrify('Custom page overrides not found, loading default model paths')
-    );
   }
 
   const composeUrlQuery = (group: string) => ({
@@ -115,20 +110,30 @@ export async function getStaticRecordPaths(): Promise<
   Array<{ params: RecordUrlQuery }>
 > {
   // Compose record page requests
-  const modelPaths = await getStaticModelPaths();
+  const modelRoutes = await getModelRoutes();
   const requests = ['details', 'edit', 'new'];
 
-  const addPageRequests = (
+  const composeRecordUrlQuery = (group: string) => (
     recordPaths: Array<{ params: RecordUrlQuery }>,
-    path: { params: ModelUrlQuery }
+    { name: model }: RouteLink
   ): Array<{ params: RecordUrlQuery }> => {
     requests.forEach((request) => {
-      recordPaths.push({ params: { ...path.params, request } });
+      recordPaths.push({ params: { group, model, request } });
     });
     return recordPaths;
   };
 
-  let recordPaths = modelPaths.reduce(addPageRequests, []);
+  const adminPaths = modelRoutes.admin.reduce(
+    composeRecordUrlQuery('admin'),
+    []
+  );
+
+  const modelPaths = modelRoutes.models.reduce(
+    composeRecordUrlQuery('models'),
+    []
+  );
+
+  let recordPaths = [...adminPaths, ...modelPaths];
 
   // Remove user-defined overrides
   try {
@@ -143,12 +148,8 @@ export async function getStaticRecordPaths(): Promise<
     };
 
     recordPaths = recordPaths.filter(removeOverrides);
-    console.log(zendrify('Filtering record page overrides'));
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    console.log(
-      zendrify('Custom page overrides not found, loading default record paths')
-    );
   }
 
   return recordPaths;
@@ -157,26 +158,34 @@ export async function getStaticRecordPaths(): Promise<
 export async function getStaticAssociationPaths(): Promise<
   Array<{ params: AssociationUrlQuery }>
 > {
-  const recordPaths = await getStaticRecordPaths();
+  // Compose association page requests
+  const routeGroups = await getModelRoutes();
+  const requests = ['details', 'edit', 'new'];
 
   let associationPaths: Array<{ params: AssociationUrlQuery }> = [];
-  for (const path of recordPaths) {
-    const { associations } = await getStaticModel(path.params.model);
-    if (associations) {
-      Object.keys(associations).forEach((association) =>
-        associationPaths.push({
-          params: { ...path.params, association },
-        })
-      );
+  for (const group in routeGroups) {
+    const modelRoutes = routeGroups[group as keyof ModelRoutes];
+    for (const route of modelRoutes) {
+      const model = route.name;
+      const { associations } = await getStaticModel(model);
+      if (associations) {
+        Object.keys(associations).forEach((association) =>
+          requests.forEach((request) => {
+            associationPaths.push({
+              params: { group, model, request, association },
+            });
+          })
+        );
+      }
     }
   }
 
+  // Remove user-defined overrides
   try {
     const overridesJson = await readFile('./src/config/page-overrides.json', {
       encoding: 'utf8',
     });
     const overrides: string[] = JSON.parse(overridesJson);
-    console.log(zendrify('Filtering association page overrides'));
 
     associationPaths = associationPaths.filter((path) => {
       const { group, model, request, association } = path.params;
@@ -186,9 +195,6 @@ export async function getStaticAssociationPaths(): Promise<
     });
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    console.log(
-      zendrify('Custom page overrides not found, loading default paths')
-    );
   }
 
   return associationPaths;
