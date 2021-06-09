@@ -203,7 +203,7 @@ export default function AttributesForm({
               handler: actions.update,
             })}
             tooltip={t('record-form.action-update')}
-            data-cy="record-form-udpate"
+            data-cy="record-form-update"
           />
         )}
 

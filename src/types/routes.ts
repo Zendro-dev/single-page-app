@@ -1,6 +1,11 @@
 import { ParsedUrlQuery } from 'querystring';
 
-export type AppRoutes2 = Array<RouteGroup | RouteLink>;
+export type AppRoutes = Array<RouteGroup | RouteLink>;
+
+export interface ModelRoutes {
+  admin: RouteLink[];
+  models: RouteLink[];
+}
 
 export interface RouteLink {
   type: 'link';
@@ -22,7 +27,6 @@ export interface GroupUrlQuery extends ParsedUrlQuery {
 
 export interface ModelUrlQuery extends GroupUrlQuery {
   model: string;
-  id?: string;
 }
 
 export interface RecordUrlQuery extends ModelUrlQuery {
@@ -30,14 +34,6 @@ export interface RecordUrlQuery extends ModelUrlQuery {
   id?: string;
 }
 
-/* DEPRECATED */
-
-export interface ModelRoute {
-  name: string;
-  href: string;
-}
-
-export interface AppRoutes {
-  admin: ModelRoute[];
-  models: ModelRoute[];
+export interface AssociationUrlQuery extends RecordUrlQuery {
+  association: string;
 }

@@ -13,7 +13,7 @@ interface ModelBouncerProps {
   type: 'error' | 'info' | 'warning';
 }
 
-export default function ModelBouncer(
+export default function AlertCard(
   props: PropsWithChildren<ModelBouncerProps>
 ): ReactElement {
   const classes = useStyles();

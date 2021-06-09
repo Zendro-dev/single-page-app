@@ -52,7 +52,7 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
     await stat(overridePath);
     aclRules = require(overridePath);
   } catch (error) {
-    console.log(`Override for "acl-models.json" not found. Loading defaults.`);
+    if (error.code !== 'ENOENT') throw error;
   }
 
   return aclRules;
