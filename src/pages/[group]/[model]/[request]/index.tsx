@@ -4,59 +4,51 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { createStyles, makeStyles, Tab } from '@material-ui/core';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
-
-import { getStaticModelPaths } from '@/build/routes';
+import { getStaticRecordPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
+import NavTabs from '@/components/nav-tabs';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
 import { DataRecord } from '@/types/models';
-import { ModelUrlQuery } from '@/types/routes';
+import { RecordUrlQuery } from '@/types/routes';
 import { parseErrorResponse } from '@/utils/errors';
 
-import AssociationsTable from '@/zendro/associations-table';
 import ModelBouncer from '@/zendro/model-bouncer';
 import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/zendro/record-form';
+import { createStyles, makeStyles } from '@material-ui/core';
 
-interface RecordProps {
-  group: string;
-  model: string;
-}
-
-export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
-  const paths = await getStaticModelPaths();
+export const getStaticPaths: GetStaticPaths<RecordUrlQuery> = async () => {
+  const paths = await getStaticRecordPaths();
   return {
     paths,
     fallback: false,
   };
 };
 
-export const getStaticProps: GetStaticProps<
-  RecordProps,
-  ModelUrlQuery
-> = async (context) => {
-  const params = context.params as ModelUrlQuery;
+export const getStaticProps: GetStaticProps<RecordUrlQuery> = async (
+  context
+) => {
+  const params = context.params as RecordUrlQuery;
+
   return {
     props: {
-      key: params.model + '/edit',
-      group: params.group,
-      model: params.model,
+      key: `${params.group}/${params.model}/${params.request}`,
+      ...params,
     },
   };
 };
 
-const Record: PageWithLayout<RecordProps> = (props) => {
+const Record: PageWithLayout<RecordUrlQuery> = (props) => {
+  const classes = useStyles();
   const dialog = useDialog();
   const model = useModel(props.model);
   const router = useRouter();
-  const urlQuery = router.query as ModelUrlQuery;
-  const classes = useStyles();
+  const urlQuery = router.query as RecordUrlQuery;
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const { t } = useTranslation();
@@ -67,9 +59,6 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     [model.schema.primaryKey]: urlQuery.id ?? null,
   });
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
-  const [currentTab, setCurrentTab] = useState<'attributes' | 'associations'>(
-    'attributes'
-  );
 
   /* AUXILIARY */
 
@@ -78,28 +67,24 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   ): void => {
     const parsedError = parseErrorResponse(error);
 
-    if (parsedError.genericError) {
+    if (
+      parsedError.genericError ||
+      parsedError.networkError ||
+      parsedError.graphqlErrors?.nonValidationErrors.length
+    ) {
       showSnackbar(
         t('errors.server-error', { status: parsedError.status }),
         'error',
-        parsedError.genericError
+        parsedError
       );
     }
 
-    if (parsedError.graphqlErrors) {
-      // Send generic GraphQL errors to the notification queue
-      if (parsedError.graphqlErrors.nonValidationErrors?.length) {
-        showSnackbar(
-          t('errors.server-error', { status: parsedError.status }),
-          'error',
-          parsedError.graphqlErrors.nonValidationErrors
-        );
-      }
-
-      // Send validation errors to the form serverErrors
-      if (parsedError.graphqlErrors.validationErrors)
-        setAjvErrors(parsedError.graphqlErrors.validationErrors);
-    }
+    // When creating or updating a record, display server validation errors
+    if (
+      (props.request === 'edit' || props.request === 'new') &&
+      parsedError.graphqlErrors?.validationErrors
+    )
+      setAjvErrors(parsedError.graphqlErrors.validationErrors);
   };
 
   /* ACTION HANDLERS */
@@ -107,24 +92,28 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   /**
    * Exit the form and go back to the model table page.
    */
-  const handleOnCancel: ActionHandler = (formData) => {
-    let diffs = 0;
-
-    if (recordData) {
-      diffs = computeDiffs(formData, recordData);
-    }
-
-    if (diffs > 0) {
-      return dialog.openConfirm({
+  const handleOnCancel: ActionHandler = (formData, formStats) => {
+    const confirmAbandonChanges = (): void => {
+      dialog.openConfirm({
         title: t('dialogs.modified-info'),
         message: t('dialogs.leave-confirm'),
         okText: t('dialogs.ok-text'),
         cancelText: t('dialogs.cancel-text'),
         onOk: () => router.push(`/${props.group}/${props.model}`),
       });
-    }
+    };
 
-    router.push(`/${props.group}/${props.model}`);
+    if (
+      props.request === 'edit' &&
+      recordData &&
+      computeDiffs(formData, recordData) > 0
+    ) {
+      confirmAbandonChanges();
+    } else if (props.request === 'new' && formStats.unset < formData.length) {
+      confirmAbandonChanges();
+    } else {
+      router.push(`/${props.group}/${props.model}`);
+    }
   };
 
   /**
@@ -167,25 +156,25 @@ const Record: PageWithLayout<RecordProps> = (props) => {
    * Reload page data.
    */
   const handleOnReload: ActionHandler = (formData) => {
-    let diffs = 0;
-
-    if (recordData) {
-      diffs = computeDiffs(formData, recordData);
-    }
-
     const revalidateData = async (): Promise<void> => {
       mutateRecord(undefined, true);
     };
 
-    if (diffs > 0)
-      dialog.openConfirm({
-        title: t('dialogs.modified-info'),
-        message: t('dialogs.reload-confirm'),
-        okText: t('dialogs.ok-text'),
-        cancelText: t('dialogs.cancel-text'),
-        onOk: revalidateData,
-      });
-    else {
+    if (props.request === 'edit' && recordData) {
+      const diffs = computeDiffs(formData, recordData);
+
+      if (diffs > 0)
+        dialog.openConfirm({
+          title: t('dialogs.modified-info'),
+          message: t('dialogs.reload-confirm'),
+          okText: t('dialogs.ok-text'),
+          cancelText: t('dialogs.cancel-text'),
+          onOk: revalidateData,
+        });
+      else {
+        revalidateData();
+      }
+    } else {
       revalidateData();
     }
   };
@@ -198,11 +187,14 @@ const Record: PageWithLayout<RecordProps> = (props) => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
-    console.log({ dataRecord });
 
     const submit = async (): Promise<void> => {
       try {
-        const request = zendro.queries[props.model].updateOne;
+        const request =
+          props.request === 'edit'
+            ? zendro.queries[props.model].updateOne
+            : zendro.queries[props.model].createOne;
+
         const response = await zendro.request<Record<string, DataRecord>>(
           request.query,
           { variables: dataRecord }
@@ -210,7 +202,12 @@ const Record: PageWithLayout<RecordProps> = (props) => {
 
         mutateRecord(response[request.resolver]);
 
-        router.push(`/${props.group}/${props.model}`);
+        if (props.request === 'new') {
+          const newId = response[request.resolver][model.schema.primaryKey];
+          router.push(`/${props.group}/${props.model}/edit?id=${newId}`);
+        } else {
+          router.push(`/${props.group}/${props.model}`);
+        }
       } catch (error) {
         parseAndDisplayErrorResponse(error);
       }
@@ -237,18 +234,11 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     submit();
   };
 
-  /* EVENT HANDLERS */
-
   /**
-   * Set the tab index to a new value.
-   * @param event change tab event
-   * @param value new tab value
+   * Navigate to the record details page.
    */
-  const handleOnTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: typeof currentTab
-  ): void => {
-    setCurrentTab(value);
+  const handleOnUpdate: ActionHandler = () => {
+    router.push(`/${props.group}/${props.model}/edit?id=${urlQuery.id}`);
   };
 
   /* REQUEST */
@@ -260,7 +250,7 @@ const Record: PageWithLayout<RecordProps> = (props) => {
     DataRecord | undefined,
     ExtendedClientError<Record<string, DataRecord>>
   >(
-    [zendro, urlQuery.id],
+    props.request === 'new' ? null : [zendro, urlQuery.id],
     async () => {
       const request = zendro.queries[props.model].readOne;
       const variables = {
@@ -288,88 +278,91 @@ const Record: PageWithLayout<RecordProps> = (props) => {
   );
 
   return (
-    <ModelBouncer object={props.model} action="update">
-      <TabContext value={currentTab}>
-        <TabList
-          aria-label={`attributes and associations for ${props.model} record ${urlQuery.id}`}
-          className={classes.tabList}
-          onChange={handleOnTabChange}
-          variant="fullWidth"
-        >
-          <Tab
-            label={t('record-form.tab-attributes')}
-            value="attributes"
-            data-cy="record-form-tab-attributes"
-          />
-          <Tab
-            label={t('record-form.tab-associations')}
-            value="associations"
-            disabled={model.schema.associations?.length === 0}
-            data-cy="record-form-tab-associations"
-          />
-        </TabList>
-        <TabPanel className={classes.tabPanel} value="attributes">
-          <AttributesForm
-            attributes={model.schema.attributes}
-            data={recordData}
-            errors={ajvErrors}
-            formId={router.asPath}
-            formView="update"
-            modelName={props.model}
-            actions={{
-              cancel: handleOnCancel,
-              delete: handleOnDelete,
-              read: model.permissions.read ? handleOnDetails : undefined,
-              reload: handleOnReload,
-              submit: handleOnSubmit,
-            }}
-          />
-        </TabPanel>
-        <TabPanel className={classes.tabPanel} value="associations">
-          <AssociationsTable
-            associationView="update"
-            associations={model.schema.associations ?? []}
-            attributes={model.schema.attributes}
-            modelName={props.model}
-            recordId={urlQuery.id as string}
-            primaryKey={model.schema.primaryKey}
-          />
-        </TabPanel>
-      </TabContext>
+    <ModelBouncer
+      object={props.model}
+      action={
+        props.request === 'details'
+          ? 'read'
+          : props.request === 'edit'
+          ? 'update'
+          : 'create'
+      }
+    >
+      <NavTabs
+        id={urlQuery.id as string}
+        active={router.asPath}
+        tabs={[
+          {
+            type: 'link',
+            label: 'attributes',
+            href: router.asPath,
+          },
+          {
+            type: 'group',
+            label: 'associations',
+            links:
+              props.request === 'new'
+                ? []
+                : model.schema.associations?.map((assoc) => ({
+                    type: 'link',
+                    label: assoc.name,
+                    href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+                  })),
+          },
+        ]}
+      />
+
+      <AttributesForm
+        attributes={model.schema.attributes}
+        className={classes.root}
+        data={recordData}
+        disabled={props.request === 'details'}
+        errors={ajvErrors}
+        formId={router.asPath}
+        formView={
+          props.request === 'details'
+            ? 'read'
+            : props.request === 'edit'
+            ? 'update'
+            : 'create'
+        }
+        modelName={props.model}
+        actions={{
+          cancel: handleOnCancel,
+          delete:
+            props.request === 'edit' && model.permissions.update
+              ? handleOnDelete
+              : undefined,
+          read:
+            props.request === 'edit' && model.permissions.read
+              ? handleOnDetails
+              : undefined,
+          reload:
+            props.request === 'details' || props.request === 'edit'
+              ? handleOnReload
+              : undefined,
+          update:
+            props.request === 'details' && model.permissions.update
+              ? handleOnUpdate
+              : undefined,
+          submit:
+            (props.request === 'edit' && model.permissions.create) ||
+            (props.request === 'new' && model.permissions.update)
+              ? handleOnSubmit
+              : undefined,
+        }}
+      />
     </ModelBouncer>
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
-    tabList: {
-      marginBottom: theme.spacing(6),
-
-      backgroundColor: theme.palette.action.hover,
-      borderBottom: '1px solid',
-      borderBottomColor: theme.palette.divider,
-
-      '& .MuiTabs-indicator': {
-        backgroundColor: 'transparent',
-      },
-
-      '& .MuiTab-root:hover:not(.Mui-selected)': {
-        backgroundColor: theme.palette.background.default,
-        color: theme.palette.getContrastText(theme.palette.background.default),
-      },
-
-      '& .Mui-selected': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.getContrastText(theme.palette.primary.main),
-        fontWeight: 'bold',
-      },
-    },
-    tabPanel: {
-      '&&:not([hidden])': {
-        display: 'flex',
-        flexGrow: 1,
-        overflowY: 'auto',
-      },
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      overflowY: 'auto',
     },
   })
 );

@@ -1,32 +1,37 @@
 import { AuthToken } from '@/types/auth';
 import decode from 'jwt-decode';
 
-describe('Login', () => {
-  after('logout', () => {
+describe('Login form', () => {
+  after('Logout', () => {
     cy.dataCy('login-button').click({ force: true });
   });
 
-  it('Wrong credentials display a login error', () => {
+  it('Receive a login error after a failed login', () => {
+    // Navigate to the application home page
     cy.visit('/');
-    cy.dataCy('login-button').click();
 
-    // fill out the inputs and click the button
+    // Fill and submit the login form
+    cy.dataCy('login-button').click();
     cy.dataCy('login-form-email').type('admin@zen.dro');
     cy.dataCy('login-form-password').type('admn');
     cy.dataCy('login-form-login').click();
-    // check if login failed info is visible
+
+    // Verify that the error toast is visible
+    // ! Needs to check the response
     cy.dataCy('login-dialog-login-failed').should('be.visible');
   });
 
-  it('Successful login receives a valid token', () => {
+  it('Receive a valid token after a successful login', () => {
+    // Navigate to application home page
     cy.visit('/');
-    cy.dataCy('login-button').click();
 
-    // fill out the inputs and click the button
+    // Fill and submit the login form
+    cy.dataCy('login-button').click();
     cy.dataCy('login-form-email').type('admin@zen.dro');
     cy.dataCy('login-form-password').type('admin');
     cy.dataCy('login-form-login').click();
 
+    // Verify the success response
     cy.window()
       .its('localStorage.token')
       .should('exist')
@@ -47,10 +52,8 @@ describe('Login', () => {
       });
   });
 
-  it('Logging out clears existing token', () => {
+  it('Clear the existing token after logout', () => {
     cy.dataCy('login-button').click({ force: true });
-    // cy.dataCy('login-button').click();
-
     cy.window().its('localStorage.token').should('not.exist');
   });
 });

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box } from '@material-ui/core';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import useMuiIcon from '@/hooks/useMuiIcon';
 
@@ -11,12 +10,12 @@ import NavGroup from '@/components/nav-group';
 import NavLink from '@/components/nav-link';
 import { useModel } from '@/hooks';
 import { AuthPermissions } from '@/types/auth';
-import { AppRoutes2, RouteLink } from '@/types/routes';
+import { AppRoutes, RouteLink } from '@/types/routes';
 
 interface AppDrawerProps {
   className?: string;
   permissions?: AuthPermissions;
-  routes: AppRoutes2;
+  routes: AppRoutes;
 }
 
 export default function Navigation({
@@ -38,7 +37,7 @@ export default function Navigation({
   };
 
   return (
-    <Box component="nav" className={clsx(classes.drawer, className ?? '')}>
+    <nav aria-label="Models" className={clsx(classes.drawer, className ?? '')}>
       {routes.map((route) => {
         if (route.type === 'group' && canAccessGroup(route.routes))
           return (
@@ -76,7 +75,7 @@ export default function Navigation({
             />
           );
       })}
-    </Box>
+    </nav>
   );
 }
 

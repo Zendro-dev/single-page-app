@@ -16,14 +16,14 @@ import {
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 
 import appRoutes from '@/build/routes.preval';
-import { AppRoutes2 } from '@/types/routes';
+import { AppRoutes } from '@/types/routes';
 
 import AppLayout from '../app/app-layout';
 const Models = dynamic(() => import('./model-main'), { ssr: false });
 
 export interface ModelLayoutProps {
   brand?: string;
-  routes?: AppRoutes2;
+  routes?: AppRoutes;
 }
 
 export default function ModelLayout(
