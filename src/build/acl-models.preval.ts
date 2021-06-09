@@ -2,7 +2,6 @@ import { AclSet } from 'acl';
 import preval from 'next-plugin-preval';
 import { mkdir, readdir, stat, writeFile } from 'fs/promises';
 import { parse } from 'path';
-import { zendrify } from '@/utils/logs';
 
 const defaultRoles = [
   {
@@ -52,11 +51,8 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
   try {
     await stat(overridePath);
     aclRules = require(overridePath);
-    console.log(zendrify('Loading "acl-models.json" override.'));
   } catch (error) {
-    console.log(
-      zendrify('Override for "acl-models.json" not found. Loading defaults.')
-    );
+    if (error.code !== 'ENOENT') throw error;
   }
 
   return aclRules;
