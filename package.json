@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "FORCE_COLOR=3 next dev -p ${PORT:-8080}",
+    "dev": "next dev -p ${PORT:-8080}",
     "build": "next build",
     "export": "next export",
     "start": "next start -p ${PORT:-8080}",
