@@ -2,7 +2,6 @@ import {
   Association,
   DataModel,
   ParsedAssociation,
-  ParsedAssociation2,
   ParsedAttribute,
 } from '@/types/models';
 
@@ -28,12 +27,15 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
   ): Set<string> => {
     if (keyIn === model) {
       switch (type) {
-        case 'to_one':
+        case 'one_to_one':
+        case 'many_to_one':
           return keys.add(targetKey);
-        case 'to_many':
+        case 'many_to_many':
           return sourceKey ? keys.add(sourceKey) : keys;
         default:
-          return keys;
+          throw new Error(
+            `Parsing foreign keys is not supported for association type ${type} in model ${model}.`
+          );
       }
     }
     return keys;
@@ -46,52 +48,21 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
   return foreignKeys;
 }
 
-export function parseAssociations2(
-  sourceModel: DataModel,
-  dataModels: Record<string, DataModel>
-): Record<string, ParsedAssociation2> | undefined {
-  const associations = sourceModel.associations;
-  if (!associations) return undefined;
+/**
+ * Read raw associations into a parsed array.
+ * @param model parsed data model object
+ */
+export function parseAssociations(model: DataModel): ParsedAssociation[] {
+  let parsedAssociations: ParsedAssociation[] = [];
 
-  const parsedAssociations = Object.entries(associations).reduce<{
-    [name: string]: ParsedAssociation2;
-  }>((acc, [assocName, association]) => {
-    // Check whether the target model exists in the provided data models
-    const targetModel = dataModels[association.target];
-    if (!targetModel)
-      throw new Error(
-        `Model "${association.target}" was not found, ` +
-          `but it is listed as a target in "${sourceModel.model}.${assocName}".`
-      );
-
-    // Check whether the target model has associations defined
-    const targetAssociations = targetModel.associations;
-    if (!targetAssociations)
-      throw new Error(
-        `Model "${targetModel}" does not have associations defined, ` +
-          `but it is listed as a target in "${sourceModel.model}.${assocName}".`
-      );
-
-    // Check whether the reverse association exists in the target model
-    const reverseAssociation = Object.values(targetAssociations).find(
-      ({ target }) => target === sourceModel.model
+  if (model.associations) {
+    parsedAssociations = Object.entries(model.associations).map(
+      ([name, values]) => ({
+        name,
+        ...values,
+      })
     );
-    if (!reverseAssociation)
-      throw new Error(
-        `The target model "${targetModel.model}" does not have an association ` +
-          `with "${sourceModel.model}" defined as target, ` +
-          `but it is listed as a target in "${sourceModel.model}.${assocName}".`
-      );
-
-    return {
-      ...acc,
-      [assocName]: {
-        ...association,
-        name: assocName,
-        reverseAssociationType: reverseAssociation.type,
-      },
-    };
-  }, {});
+  }
 
   return parsedAssociations;
 }
@@ -198,23 +169,4 @@ export function getAttributeList(
       });
 
   return attributes;
-}
-
-/**
- * Read raw associations into a parsed array.
- * @param model parsed data model object
- */
-export function parseAssociations(model: DataModel): ParsedAssociation[] {
-  let parsedAssociations: ParsedAssociation[] = [];
-
-  if (model.associations) {
-    parsedAssociations = Object.entries(model.associations).map(
-      ([name, values]) => ({
-        name,
-        ...values,
-      })
-    );
-  }
-
-  return parsedAssociations;
 }

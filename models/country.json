@@ -10,15 +10,18 @@
   },
   "associations": {
     "unique_capital": {
-      "type" : "to_one",
+      "type" : "one_to_one",
+      "implementation": "foreignkey",
+      "reverseAssociation": "unique_country",
       "target" : "capital",
       "targetKey" : "country_id",
       "keyIn": "capital",
       "targetStorageType" : "sql"
     },
     "rivers": {
-      "type": "to_many",
-      "reverseAssociationType": "to_many",
+      "type": "many_to_many",
+      "implementation": "foreignkey",
+      "reverseAssociation": "countries",
       "target": "river",
       "targetKey": "country_ids",
       "sourceKey": "river_ids",
@@ -26,7 +29,9 @@
       "targetStorageType": "sql"
     },
     "continent": {
-      "type" : "to_one",
+      "type" : "many_to_one",
+      "implementation": "foreignkey",
+      "reverseAssociation": "countries",
       "target": "continent",
       "targetKey": "continent_id",
       "keyIn": "country",

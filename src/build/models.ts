@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
 import { DataModel, ParsedDataModel, ParsedDataModel3 } from '@/types/models';
-import { parseAssociations2, parseAttributes } from '@/utils/models';
+import { parseAssociations, parseAttributes } from '@/utils/models';
 
 interface StaticModels {
   [name: string]: DataModel;
@@ -40,8 +40,6 @@ export async function getStaticModels2(): Promise<ParsedModels> {
     dataModels = await loadModels(file, dataModels);
   }
 
-  const allModels = { ...adminModels, ...dataModels };
-
   const parseModels = <
     T extends ParsedModels['admin'] | ParsedModels['models']
   >(
@@ -50,7 +48,7 @@ export async function getStaticModels2(): Promise<ParsedModels> {
   ): T => {
     const attributes = parseAttributes(schema, { excludeForeignKeys: true });
     const associations = schema.associations
-      ? parseAssociations2(schema, allModels)
+      ? parseAssociations(schema)
       : undefined;
     const primaryKey = Object.keys(attributes)[0];
     return {
