@@ -73,11 +73,6 @@ export interface ParsedAssociation extends Association {
   name: string;
 }
 
-export interface ParsedAssociation2 extends Association {
-  name: string;
-  reverseAssociationType: AssociationType;
-}
-
 /* DATA MODELS */
 
 export interface DataModel {
@@ -104,7 +99,7 @@ export type ParsedDataModel2 = Assign<
 export type ParsedDataModel3 = Assign<
   DataModel,
   {
-    associations?: Record<string, ParsedAssociation2>;
+    associations?: Record<string, ParsedAssociation>;
     attributes: Record<string, ParsedAttribute>;
     primaryKey: string;
   }
