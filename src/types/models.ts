@@ -63,7 +63,7 @@ export interface Association {
   target: string;
   targetKey: string;
   sourceKey?: string;
-  keyIn?: string;
+  keysIn?: string;
   keysIn?: string;
   label?: string;
   sublabel?: string;

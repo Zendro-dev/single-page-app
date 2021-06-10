@@ -12,7 +12,7 @@
       "reverseAssociation": "continent",
       "target" : "country",
       "targetKey" : "continent_id",
-      "keyIn": "country",
+      "keysIn": "country",
       "targetStorageType" : "sql"
     }
   },
