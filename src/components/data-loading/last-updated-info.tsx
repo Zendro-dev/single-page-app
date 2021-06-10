@@ -5,13 +5,15 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { createStyles, makeStyles } from '@material-ui/core';
 import { theme } from '@/styles/theme';
 
-interface LastUpdatedProps {
+interface LastUpdatedInfoProps {
   isLoading?: boolean;
   color?: string;
   date: string;
 }
 
-export default function Buffer(props: LastUpdatedProps): React.ReactElement {
+export default function LastUpdatedInfo(
+  props: LastUpdatedInfoProps
+): React.ReactElement {
   const classes = useStyles(props);
   return (
     <div className={classes.root}>
@@ -37,7 +39,7 @@ const useStyles = makeStyles((theme) =>
     updatedAt: {
       marginLeft: theme.spacing(2),
       fontSize: theme.spacing(3),
-      color: (props: LastUpdatedProps) =>
+      color: (props: LastUpdatedInfoProps) =>
         props.isLoading ? theme.palette.warning.main : props.color,
     },
   })

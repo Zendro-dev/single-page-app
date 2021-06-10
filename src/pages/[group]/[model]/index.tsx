@@ -20,7 +20,7 @@ import {
 import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
 import IconButton from '@/components/icon-button';
-import Buffer from '@/components/data-loading/buffer';
+import LastUpdatedInfo from '@/components/data-loading/last-updated-info';
 import { EXPORT_URL } from '@/config/globals';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
@@ -340,7 +340,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           />
 
           <div className={classes.toolbarActions}>
-            <Buffer
+            <LastUpdatedInfo
               date={new Date().toLocaleTimeString()}
               isLoading={isLoadingRecords}
               // color={
