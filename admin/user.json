@@ -9,6 +9,7 @@
     "roles": {
       "type": "many_to_many",
       "implementation": "sql_cross_table",
+      "reverseAssociation": "users",
       "target": "role",
       "targetKey": "roleId",
       "sourceKey": "userId",
