@@ -48,14 +48,18 @@ export interface DataRecord {
 /* ASSOCIATIONS */
 
 export type AssociationType =
-  | 'to_one'
-  | 'to_many'
-  | 'to_many_through_sql_cross_table';
+  | 'one_to_one'
+  | 'many_to_one'
+  | 'one_to_many'
+  | 'many_to_many';
+
+export type ImplementationType = 'foreignkey' | 'generic' | 'sql_cross_table';
 
 export interface Association {
   type: AssociationType;
-  reverseAssociationType?: AssociationType;
+  implementation: ImplementationType;
   targetStorageType: 'sql';
+  reverseAssociation: string;
   target: string;
   targetKey: string;
   sourceKey?: string;

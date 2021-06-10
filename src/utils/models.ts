@@ -28,9 +28,10 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
   ): Set<string> => {
     if (keyIn === model) {
       switch (type) {
-        case 'to_one':
+        case 'one_to_one':
+        case 'many_to_one':
           return keys.add(targetKey);
-        case 'to_many':
+        case 'many_to_many':
           return sourceKey ? keys.add(sourceKey) : keys;
         default:
           return keys;

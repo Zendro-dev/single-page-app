@@ -1,5 +1,4 @@
 import { ParsedDataModel } from '@/types/models';
-import { AssocQuery } from '@/types/queries';
 import { StaticAssocQueries, StaticQueries } from '@/types/static';
 import { getAttributeList, parseAssociations } from '@/utils/models';
 import {
@@ -56,42 +55,14 @@ export function getStaticAssociationQueries(
   if (!sourceModel.associations) return withFilter;
 
   for (const [
-    sourceAssociationName,
-    {
-      target: targetModelName,
-      type: sourceModelAssociationType,
-      targetKey: sourceModelTargetKey,
-    },
+    associationName,
+    { target, type, reverseAssociation },
   ] of Object.entries(sourceModel.associations)) {
-    const targetModel = targetModels[targetModelName];
+    const targetModel = targetModels[target];
+    const targetAttributes = getAttributeList(targetModel, {
+      excludeForeignKeys: true,
+    });
 
-    if (!targetModel.associations)
-      throw new Error(
-        `Model "${targetModel.model}" does not have associations defined, ` +
-          `but "${sourceModel.model}" has it listed as a target in "${sourceAssociationName}".`
-      );
-
-    const reverseAssociation = Object.entries(targetModel.associations).find(
-      ([_, association]) => {
-        if (
-          (sourceModelAssociationType === 'to_many' &&
-            association.type === 'to_many') ||
-          (sourceModelAssociationType === 'to_many_through_sql_cross_table' &&
-            association.type === 'to_many_through_sql_cross_table')
-        ) {
-          return association.sourceKey === sourceModelTargetKey;
-        } else {
-          return association.targetKey === sourceModelTargetKey;
-        }
-      }
-    );
-
-    if (!reverseAssociation)
-      throw new Error(
-        `The source association "${sourceAssociationName}" does not have a peer association ` +
-          `in the target model "${targetModel.model}".`
-      );
-    const [targetAssociationName, targetAssociation] = reverseAssociation;
     const {
       readOneRecordWithToOne,
       readOneRecordWithAssocCount,
@@ -99,64 +70,57 @@ export function getStaticAssociationQueries(
     } = readOneRecordWithAssoc(
       sourceModel.model,
       getAttributeList(sourceModel, { excludeForeignKeys: true }),
-      sourceAssociationName,
-      targetModelName,
-      getAttributeList(targetModel, { excludeForeignKeys: true })
+      associationName,
+      target,
+      targetAttributes
     );
-    // For editing associations we directly request records of the associated
-    // data-model. The distinction has to be made for the association type of
-    // the target to the source (reverse).
 
-    switch (targetAssociation.type) {
-      case 'to_one':
-        withFilter[sourceAssociationName] = {
-          readAll: queryRecordsWithToOne(
-            targetModelName,
-            getAttributeList(targetModel, { excludeForeignKeys: true }),
-            targetAssociationName,
-            sourceModel.model,
-            sourceModel.primaryKey
-          ),
-          readFiltered: {} as AssocQuery,
-        };
-        break;
-      case 'to_many_through_sql_cross_table':
-      case 'to_many':
-        withFilter[sourceAssociationName] = {
-          readAll: queryRecordsWithToMany(
-            targetModelName,
-            getAttributeList(targetModel, { excludeForeignKeys: true }),
-            targetAssociationName,
-            sourceModel.model,
-            sourceModel.primaryKey
-          ),
-          readFiltered: {} as AssocQuery,
-        };
+    const readAllWithToOne = queryRecordsWithToOne(
+      target,
+      getAttributeList(targetModel, { excludeForeignKeys: true }),
+      reverseAssociation,
+      sourceModel.model,
+      sourceModel.primaryKey
+    );
 
-        break;
+    const readAllWithToMany = queryRecordsWithToMany(
+      target,
+      getAttributeList(targetModel, { excludeForeignKeys: true }),
+      reverseAssociation,
+      sourceModel.model,
+      sourceModel.primaryKey
+    );
 
-      default:
-        break;
-    }
-    // For viewing/filtering associations we request only actually associated records.
-    // The distinction has to be made for the association type of the source to the target.
-    switch (sourceModelAssociationType) {
-      case 'to_one':
-        Object.assign(withFilter[sourceAssociationName], {
+    switch (type) {
+      case 'one_to_one':
+        withFilter[associationName] = {
+          readAll: readAllWithToOne,
           readFiltered: readOneRecordWithToOne,
-        });
+        };
         break;
-      case 'to_many_through_sql_cross_table':
-      case 'to_many':
-        Object.assign(withFilter[sourceAssociationName], {
+      case 'many_to_one':
+        withFilter[associationName] = {
+          readAll: readAllWithToMany,
+          readFiltered: readOneRecordWithToOne,
+        };
+        break;
+      case 'one_to_many':
+        withFilter[associationName] = {
+          readAll: readAllWithToOne,
           readFiltered: readOneRecordWithToMany,
           countFiltered: readOneRecordWithAssocCount,
-        });
+        };
+        break;
+      case 'many_to_many':
+        withFilter[associationName] = {
+          readAll: readAllWithToMany,
+          readFiltered: readOneRecordWithToMany,
+          countFiltered: readOneRecordWithAssocCount,
+        };
         break;
       default:
         break;
     }
   }
-
   return withFilter;
 }
