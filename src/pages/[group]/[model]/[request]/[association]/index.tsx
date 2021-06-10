@@ -261,7 +261,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         // If association type is "to_one", the count must be directly derived
         // from the data (no count resolver exists). The count should be 0 or 1.
         if (
-          association.type === 'to_one' &&
+          association.type.includes('to_one') &&
           (props.request === 'details' || recordsFilter === 'associated')
         ) {
           setRecordsTotal(data?.records.length ?? 0);
@@ -276,7 +276,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const { mutate: mutateCount } = useSWR<Record<'count', number> | undefined>(
     urlQuery.id &&
       !(
-        association.type === 'to_one' &&
+        association.type.includes('to_one') &&
         (props.request === 'details' || recordsFilter === 'associated')
       )
       ? [recordsFilter, tableSearch, urlQuery.id, zendro]
@@ -329,7 +329,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     switch (action) {
       case 'add':
         if (list === 'toAdd') {
-          if (association.type === 'to_one') {
+          if (association.type.includes('to_one')) {
             setSelectedRecords(({ toRemove }) => ({
               toAdd: [recordToMark],
               toRemove: currAssocRecordId
@@ -354,7 +354,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             toAdd: toAdd.filter((item) => item !== recordToMark),
             toRemove,
           }));
-          if (association.type === 'to_one') {
+          if (association.type.includes('to_one')) {
             setSelectedRecords(({ toAdd, toRemove }) => ({
               toAdd,
               toRemove: toRemove.filter((item) => item !== currAssocRecordId),
@@ -371,18 +371,20 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   const handleSubmit = async (): Promise<void> => {
     const { namePlCp, nameCp } = getInflections(association.name);
-    const mutationName = association.type === 'to_one' ? nameCp : namePlCp;
+    const mutationName = association.type.includes('to_one')
+      ? nameCp
+      : namePlCp;
     const variables = {
       [sourceModel.schema.primaryKey]: urlQuery.id,
       [`add${mutationName}`]:
         selectedRecords.toAdd.length > 0
-          ? association.type === 'to_one'
+          ? association.type.includes('to_one')
             ? selectedRecords.toAdd.toString()
             : selectedRecords.toAdd
           : undefined,
       [`remove${mutationName}`]:
         selectedRecords.toRemove.length > 0
-          ? association.type === 'to_one'
+          ? association.type.includes('to_one')
             ? selectedRecords.toRemove.toString()
             : selectedRecords.toRemove
           : undefined,
@@ -435,11 +437,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
               type: 'link',
               label: assoc.name,
               href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
-              icon:
-                assoc.type === 'to_many' ||
-                assoc.type === 'to_many_through_sql_cross_table'
-                  ? ToManyIcon
-                  : ToOneIcon,
+              icon: assoc.type.includes('to_many') ? ToManyIcon : ToOneIcon,
             })),
           },
         ]}
