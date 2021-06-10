@@ -15,7 +15,7 @@
       "reverseAssociation": "unique_country",
       "target" : "capital",
       "targetKey" : "country_id",
-      "keyIn": "capital",
+      "keysIn": "capital",
       "targetStorageType" : "sql"
     },
     "rivers": {
@@ -25,7 +25,7 @@
       "target": "river",
       "targetKey": "country_ids",
       "sourceKey": "river_ids",
-      "keyIn": "country",
+      "keysIn": "country",
       "targetStorageType": "sql"
     },
     "continent": {
@@ -34,7 +34,7 @@
       "reverseAssociation": "countries",
       "target": "continent",
       "targetKey": "continent_id",
-      "keyIn": "country",
+      "keysIn": "country",
       "targetStorageType" : "sql"
     }
   },

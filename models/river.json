@@ -16,7 +16,7 @@
       "target": "country",
       "targetKey": "river_ids",
       "sourceKey": "country_ids",
-      "keyIn": "river",
+      "keysIn": "river",
       "targetStorageType": "sql"
     }
   },

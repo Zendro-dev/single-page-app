@@ -14,7 +14,7 @@
       "reverseAssociation": "unique_capital",
       "target" : "country",
       "targetKey" : "country_id",
-      "keyIn": "capital",
+      "keysIn": "capital",
       "targetStorageType" : "sql"
     }
   },
