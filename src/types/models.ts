@@ -53,7 +53,7 @@ export type AssociationType =
   | 'one_to_many'
   | 'many_to_many';
 
-export type ImplementationType = 'foreignkey' | 'generic' | 'sql_cross_table';
+export type ImplementationType = 'foreignkeys' | 'generic' | 'sql_cross_table';
 
 export interface Association {
   type: AssociationType;

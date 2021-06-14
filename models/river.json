@@ -11,7 +11,7 @@
   "associations": {
     "countries": {
       "type": "many_to_many",
-      "implementation": "foreignkey",
+      "implementation": "foreignkeys",
       "reverseAssociation": "rivers",
       "target": "country",
       "targetKey": "river_ids",

@@ -11,7 +11,7 @@
   "associations": {
     "unique_capital": {
       "type" : "one_to_one",
-      "implementation": "foreignkey",
+      "implementation": "foreignkeys",
       "reverseAssociation": "unique_country",
       "target" : "capital",
       "targetKey" : "country_id",
@@ -20,7 +20,7 @@
     },
     "rivers": {
       "type": "many_to_many",
-      "implementation": "foreignkey",
+      "implementation": "foreignkeys",
       "reverseAssociation": "countries",
       "target": "river",
       "targetKey": "country_ids",
@@ -30,7 +30,7 @@
     },
     "continent": {
       "type" : "many_to_one",
-      "implementation": "foreignkey",
+      "implementation": "foreignkeys",
       "reverseAssociation": "countries",
       "target": "continent",
       "targetKey": "continent_id",
