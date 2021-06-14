@@ -23,9 +23,9 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
    */
   const parseAssociationsReducer = (
     keys: Set<string>,
-    { keyIn, targetKey, sourceKey, type }: Association
+    { keysIn, targetKey, sourceKey, type }: Association
   ): Set<string> => {
-    if (keyIn === model) {
+    if (keysIn === model) {
       switch (type) {
         case 'one_to_one':
         case 'many_to_one':
