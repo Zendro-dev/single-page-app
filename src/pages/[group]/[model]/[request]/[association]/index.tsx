@@ -91,7 +91,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const association = sourceModel.schema.associations?.find(
     (assoc) => assoc.name === props.association
   ) as ParsedAssociation;
-  const assocModel = getModel(association.target);
+  const targetModel = getModel(association.target);
 
   const [assocTable, setAssocTable] = useState<AssocTable>(() => {
     return {
@@ -123,8 +123,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
     associationFilter: recordsFilter,
-    attributes: assocModel.schema.attributes,
-    primaryKey: assocModel.schema.primaryKey,
+    attributes: targetModel.schema.attributes,
+    primaryKey: targetModel.schema.primaryKey,
     selectedRecords,
     searchText,
   });
@@ -323,7 +323,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     );
 
     const currAssocRecordId = currAssocRecord
-      ? (currAssocRecord.data[assocModel.schema.primaryKey] as string | number)
+      ? (currAssocRecord.data[targetModel.schema.primaryKey] as string | number)
       : undefined;
 
     switch (action) {
@@ -454,6 +454,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
               value={searchText}
               onSearch={(value) => setSearchText(value)}
               onReset={() => setSearchText('')}
+              disabled={!targetModel.apiPrivileges.textSearch}
             />
             {props.request !== 'details' && (
               <SelectInput
@@ -534,7 +535,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           >
             <TableHeader
               actionsColSpan={props.request !== 'details' ? 1 : 0}
-              attributes={assocModel.schema.attributes}
+              attributes={targetModel.schema.attributes}
               onSortLabelClick={(field) =>
                 setOrder((state) => ({
                   ...state,
@@ -546,13 +547,14 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                     : 'ASC',
                 }))
               }
-              activeOrder={order?.sortField ?? assocModel.schema.primaryKey}
+              activeOrder={order?.sortField ?? targetModel.schema.primaryKey}
               orderDirection={order?.sortDirection ?? 'ASC'}
+              disableSort={!targetModel.apiPrivileges.sort}
             />
 
             <TableBody>
               {assocTable.data.map((record) => {
-                const recordPK = assocModel.schema.primaryKey;
+                const recordPK = targetModel.schema.primaryKey;
                 const recordId = record.data[recordPK] as string | number;
                 const isSelected =
                   selectedRecords.toAdd.includes(recordId) ||
@@ -561,7 +563,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                   <TableRow
                     key={recordId}
                     hover
-                    attributes={assocModel.schema.attributes}
+                    attributes={targetModel.schema.attributes}
                     record={record.data}
                   >
                     {props.request !== 'details' && (
@@ -616,8 +618,12 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             options={[5, 10, 15, 20, 25, 50]}
             paginationLimit={tablePagination.first ?? tablePagination.last}
             hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
-            hasLastPage={assocTable.pageInfo?.hasNextPage}
-            hasPreviousPage={assocTable.pageInfo?.hasPreviousPage}
+            hasLastPage={
+              targetModel.apiPrivileges.backwardPagination ? true : undefined
+            }
+            hasPreviousPage={
+              targetModel.apiPrivileges.backwardPagination ? true : undefined
+            }
             hasNextPage={assocTable.pageInfo?.hasNextPage}
             startCursor={assocTable.pageInfo?.startCursor ?? null}
             endCursor={assocTable.pageInfo?.endCursor ?? null}

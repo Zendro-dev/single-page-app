@@ -381,6 +381,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             onSearch={(value) => setSearchText(value)}
             // onChange={(event) => setSearchText(event.target.value)}
             onReset={() => setSearchText('')}
+            disabled={!model.apiPrivileges.textSearch}
           />
 
           <div className={classes.toolbarActions}>
@@ -476,6 +477,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             activeOrder={order?.sortField ?? model.schema.primaryKey}
             orderDirection={order?.sortDirection ?? 'ASC'}
             data-cy="record-table-header"
+            disableSort={!model.apiPrivileges.sort}
           />
 
           <TableBody>
@@ -537,9 +539,13 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           count={count}
           options={[5, 10, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
-          hasFirstPage={pageInfo.hasPreviousPage}
-          hasLastPage={pageInfo.hasNextPage}
-          hasPreviousPage={pageInfo.hasPreviousPage}
+          hasFirstPage={true}
+          hasLastPage={
+            model.apiPrivileges.backwardPagination ? true : undefined
+          }
+          hasPreviousPage={
+            model.apiPrivileges.backwardPagination ? true : undefined
+          }
           hasNextPage={pageInfo.hasNextPage}
           startCursor={pageInfo.startCursor ?? null}
           endCursor={pageInfo.endCursor ?? null}
