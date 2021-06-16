@@ -14,6 +14,7 @@ interface SearchFieldProps {
   placeholder?: string;
   value?: string;
   onReset?: () => void;
+  disabled: boolean;
 }
 
 export default function SearchField({
@@ -21,6 +22,7 @@ export default function SearchField({
   placeholder,
   value,
   onReset,
+  disabled,
 }: SearchFieldProps): ReactElement {
   const [text, setText] = useState(value);
   const classes = useStyles();
@@ -53,6 +55,7 @@ export default function SearchField({
       variant="outlined"
       className={classes.searchField}
       data-cy="model-table-search-field"
+      disabled={disabled}
       InputProps={{
         onKeyDown: searchInputKeyDown,
         startAdornment: (

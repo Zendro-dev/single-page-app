@@ -17,6 +17,7 @@ interface TableHeaderProps {
   onSortLabelClick(value: string): void;
   activeOrder: string;
   orderDirection: OrderDirection;
+  disableSort: boolean;
 }
 
 export default function TableHeader({
@@ -25,6 +26,7 @@ export default function TableHeader({
   activeOrder,
   orderDirection,
   actionsColSpan,
+  disableSort,
 }: TableHeaderProps): ReactElement {
   const { t } = useTranslation();
 
@@ -62,7 +64,7 @@ export default function TableHeader({
                 ? 'right'
                 : 'left'
             }
-            disableSort={false}
+            disableSort={disableSort}
             activeOrder={activeOrder === attribute.name}
             orderDirection={
               activeOrder === attribute.name ? orderDirection : 'ASC'
