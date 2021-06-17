@@ -617,12 +617,20 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             count={recordsTotal}
             options={[5, 10, 15, 20, 25, 50]}
             paginationLimit={tablePagination.first ?? tablePagination.last}
-            hasFirstPage={assocTable.pageInfo?.hasPreviousPage}
+            hasFirstPage={
+              targetModel.apiPrivileges.backwardPagination
+                ? assocTable.pageInfo?.hasPreviousPage
+                : true
+            }
             hasLastPage={
-              targetModel.apiPrivileges.backwardPagination ? true : undefined
+              targetModel.apiPrivileges.backwardPagination
+                ? assocTable.pageInfo?.hasNextPage
+                : undefined
             }
             hasPreviousPage={
-              targetModel.apiPrivileges.backwardPagination ? true : undefined
+              targetModel.apiPrivileges.backwardPagination
+                ? assocTable.pageInfo?.hasPreviousPage
+                : undefined
             }
             hasNextPage={assocTable.pageInfo?.hasNextPage}
             startCursor={assocTable.pageInfo?.startCursor ?? null}

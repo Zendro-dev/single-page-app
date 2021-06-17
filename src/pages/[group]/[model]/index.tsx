@@ -539,12 +539,20 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           count={count}
           options={[5, 10, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
-          hasFirstPage={true}
+          hasFirstPage={
+            model.apiPrivileges.backwardPagination
+              ? pageInfo.hasPreviousPage
+              : true
+          }
           hasLastPage={
-            model.apiPrivileges.backwardPagination ? true : undefined
+            model.apiPrivileges.backwardPagination
+              ? pageInfo.hasNextPage
+              : undefined
           }
           hasPreviousPage={
-            model.apiPrivileges.backwardPagination ? true : undefined
+            model.apiPrivileges.backwardPagination
+              ? pageInfo.hasPreviousPage
+              : undefined
           }
           hasNextPage={pageInfo.hasNextPage}
           startCursor={pageInfo.startCursor ?? null}
