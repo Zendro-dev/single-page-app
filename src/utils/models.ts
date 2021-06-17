@@ -133,7 +133,7 @@ export function parseAttributes(
  * @returns Api priviledges
  */
 export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
-  const defaultPrivileges = {
+  const defaultPrivileges: ApiPrivileges = {
     operators: [
       'like',
       'notLike',
@@ -163,7 +163,7 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
     delete: true,
     bulkAddCsv: true,
     textSearch: true,
-  } as ApiPrivileges;
+  };
 
   switch (storageType) {
     case 'cassandra':
