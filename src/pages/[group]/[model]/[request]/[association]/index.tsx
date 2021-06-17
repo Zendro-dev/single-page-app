@@ -447,15 +447,16 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
       <div className={classes.root}>
         <div className={classes.toolbar}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <TableSearch
-              placeholder={t('model-table.search-label', {
-                modelName: association.name,
-              })}
-              value={searchText}
-              onSearch={(value) => setSearchText(value)}
-              onReset={() => setSearchText('')}
-              disabled={!targetModel.apiPrivileges.textSearch}
-            />
+            {targetModel.apiPrivileges.textSearch && (
+              <TableSearch
+                placeholder={t('model-table.search-label', {
+                  modelName: association.name,
+                })}
+                value={searchText}
+                onSearch={(value) => setSearchText(value)}
+                onReset={() => setSearchText('')}
+              />
+            )}
             {props.request !== 'details' && (
               <SelectInput
                 className={classes.toolbarFilters}

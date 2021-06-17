@@ -373,18 +373,19 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     <ModelBouncer object={props.model} action="read">
       <TableContainer className={classes.tableContainer}>
         <div className={classes.toolbar}>
-          <TableSearch
-            placeholder={t('model-table.search-label', {
-              modelName: props.model,
-            })}
-            value={searchText}
-            onSearch={(value) => setSearchText(value)}
-            // onChange={(event) => setSearchText(event.target.value)}
-            onReset={() => setSearchText('')}
-            disabled={!model.apiPrivileges.textSearch}
-          />
+          {model.apiPrivileges.textSearch && (
+            <TableSearch
+              placeholder={t('model-table.search-label', {
+                modelName: props.model,
+              })}
+              value={searchText}
+              onSearch={(value) => setSearchText(value)}
+              // onChange={(event) => setSearchText(event.target.value)}
+              onReset={() => setSearchText('')}
+            />
+          )}
 
-          <div className={classes.toolbarActions}>
+          <section className={classes.toolbarActions} aria-label="Actions menu">
             <IconButton
               tooltip={t('model-table.reload', { modelName: props.model })}
               onClick={() => {
@@ -392,24 +393,27 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                 mutateCount();
               }}
               data-cy="model-table-reload"
+              aria-label="Reload table"
             >
               <ReloadIcon />
             </IconButton>
 
-            {model.permissions.create && (
+            {model.permissions.create && model.apiPrivileges.create && (
               <IconButton
                 tooltip={t('model-table.add', { modelName: props.model })}
                 onClick={handleOnCreate}
                 data-cy="model-table-add"
+                aria-label="New record"
               >
                 <AddIcon />
               </IconButton>
             )}
 
-            {model.permissions.create && (
+            {model.permissions.create && model.apiPrivileges.bulkAddCsv && (
               <IconButton
                 component="label"
                 tooltip={t('model-table.import', { modelName: props.model })}
+                aria-label="Import from CSV"
               >
                 <input
                   style={{ display: 'none' }}
@@ -431,6 +435,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                   modelName: props.model,
                 })}
                 onClick={handleExportCsv}
+                aria-label="Export to CSV"
               >
                 <ExportIcon />
               </IconButton>
@@ -446,11 +451,12 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                   modelName: props.model,
                 })}
                 onClick={handleExportTemplateCsv}
+                aria-label="Download CSV template"
               >
                 <ImportTemplateIcon />
               </IconButton>
             </a>
-          </div>
+          </section>
         </div>
         <Table
           caption={t('model-table.caption', { modelName: props.model })}
@@ -505,7 +511,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                       </IconButton>
                     </MuiTableCell>
                   )}
-                  {model.permissions.update && (
+                  {model.permissions.update && model.apiPrivileges.update && (
                     <MuiTableCell padding="checkbox">
                       <IconButton
                         tooltip={t('model-table.edit', { recordId })}
@@ -517,7 +523,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                       </IconButton>
                     </MuiTableCell>
                   )}
-                  {model.permissions.delete && (
+                  {model.permissions.delete && model.apiPrivileges.delete && (
                     <MuiTableCell padding="checkbox">
                       <IconButton
                         tooltip={t('model-table.delete', { recordId })}
@@ -596,6 +602,9 @@ const useStyles = makeStyles((theme) =>
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
+      '& section:only-child': {
+        marginLeft: 'auto',
+      },
     },
     toolbarActions: {
       display: 'flex',

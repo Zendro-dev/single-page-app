@@ -330,7 +330,9 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
         actions={{
           cancel: handleOnCancel,
           delete:
-            props.request === 'edit' && model.permissions.update
+            props.request === 'edit' &&
+            model.permissions.delete &&
+            model.apiPrivileges.delete
               ? handleOnDelete
               : undefined,
           read:
@@ -342,12 +344,18 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
               ? handleOnReload
               : undefined,
           update:
-            props.request === 'details' && model.permissions.update
+            props.request === 'details' &&
+            model.permissions.update &&
+            model.apiPrivileges.update
               ? handleOnUpdate
               : undefined,
           submit:
-            (props.request === 'edit' && model.permissions.create) ||
-            (props.request === 'new' && model.permissions.update)
+            (props.request === 'edit' &&
+              model.permissions.create &&
+              model.apiPrivileges.create) ||
+            (props.request === 'new' &&
+              model.permissions.update &&
+              model.apiPrivileges.update)
               ? handleOnSubmit
               : undefined,
         }}
