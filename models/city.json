@@ -32,7 +32,7 @@
       "target": "country",
       "targetStorageType": "sql",
       "targetKey": "country_id",
-      "keysIn": "country"	
+      "keysIn": "city"	
 		}
   },
   "internalId": "city_id"
