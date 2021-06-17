@@ -62,7 +62,10 @@ export function getStaticAssociationQueries(
     const targetAttributes = getAttributeList(targetModel, {
       excludeForeignKeys: true,
     });
-
+    if (!targetModel.associations?.[reverseAssociation])
+      throw new Error(
+        `Association "${associationName}" in model "${sourceModel.model}" does not have a valid reverseAssociation "${reverseAssociation}" defined in "${targetModel.model}".`
+      );
     const {
       readOneRecordWithToOne,
       readOneRecordWithAssocCount,

@@ -1,6 +1,7 @@
 /* ATTRIBUTES */
 
 import { Assign } from 'utility-types';
+import { Operator } from './queries';
 
 export type AttributeScalarType =
   | 'Boolean'
@@ -16,6 +17,40 @@ export type AttributeArrayType =
   | '[Float]'
   | '[Int]'
   | '[String]';
+
+export type StorageType =
+  | 'sql'
+  | 'distributed-data-model'
+  | 'zendro-server'
+  | 'generic'
+  | 'cassandra'
+  | 'mongodb'
+  | 'amazon-s3'
+  | 'trino'
+  | 'presto'
+  | 'neo4j'
+  // ? to be ignored
+  | 'sql-adapter'
+  | 'ddm-adapter'
+  | 'zendro-webservice-adapter'
+  | 'generic-adapter'
+  | 'cassandra-adapter'
+  | 'mongodb-adapter'
+  | 'amazon-s3-adapter'
+  | 'trino-adapter'
+  | 'presto-adapter'
+  | 'neo4j-adapter';
+
+export interface ApiPrivileges {
+  operators: Operator[];
+  textSearch: boolean;
+  backwardPagination: boolean;
+  sort: boolean;
+  create: boolean;
+  update: boolean;
+  delete: boolean;
+  bulkAddCsv: boolean;
+}
 
 export interface Attributes {
   [key: string]: AttributeScalarType | AttributeArrayType;
@@ -58,7 +93,7 @@ export type ImplementationType = 'foreignkeys' | 'generic' | 'sql_cross_table';
 export interface Association {
   type: AssociationType;
   implementation: ImplementationType;
-  targetStorageType: 'sql';
+  targetStorageType: StorageType;
   reverseAssociation: string;
   target: string;
   targetKey: string;
@@ -79,7 +114,7 @@ export interface DataModel {
   attributes: Attributes;
   internalId?: string;
   model: string;
-  storageType: 'sql';
+  storageType: StorageType;
 }
 
 export interface ParsedDataModel extends DataModel {

@@ -18,12 +18,35 @@ export interface AssocQuery extends RawQuery {
 /**
  * MODEL
  */
+
+export type Operator =
+  | 'like'
+  | 'notLike'
+  | 'or'
+  | 'and'
+  | 'eq'
+  | 'between'
+  | 'notBetween'
+  | 'in'
+  | 'notIn'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'ne'
+  | 'regexp'
+  | 'notRegexp'
+  | 'contains'
+  | 'contained'
+  | 'not'
+  | 'all';
+
 export interface QueryVariableSearch {
   field?: string;
   value?: string;
   valueType?: AttributeScalarType;
   // TODO operator types
-  operator?: string;
+  operator?: Operator;
   // TODO recursive search
   search?: (QueryVariableSearch | undefined)[];
 }

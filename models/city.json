@@ -1,0 +1,39 @@
+{
+  "model": "city",
+  "storageType": "cassandra",
+  "attributes": {
+    "city_id": "String",
+    "name": "String",
+
+    "intArr": "[Int]",
+    "strArr": "[String]",
+    "floatArr": "[Float]",
+    "boolArr": "[Boolean]",
+    "dateTimeArr": "[DateTime]",
+
+    "river_ids": "[String]",
+		"country_id": "String"
+  },
+  "associations": {
+    "rivers": {
+      "type": "many_to_many",
+      "implementation": "foreignkeys",
+			"reverseAssociation": "cities",
+      "target": "river",
+      "targetStorageType": "sql",
+      "sourceKey": "river_ids",
+      "targetKey": "city_ids",
+      "keysIn": "city"
+    },
+		"country": {
+			"type": "many_to_one",
+      "implementation": "foreignkeys",
+			"reverseAssociation": "cities",
+      "target": "country",
+      "targetStorageType": "sql",
+      "targetKey": "country_id",
+      "keysIn": "city"	
+		}
+  },
+  "internalId": "city_id"
+}

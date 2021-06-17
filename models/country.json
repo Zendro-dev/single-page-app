@@ -18,6 +18,15 @@
       "keysIn": "capital",
       "targetStorageType" : "sql"
     },
+    "cities": {
+      "type": "one_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "country",
+      "target": "city",
+      "targetKey": "country_id",
+      "keysIn": "city",
+      "targetStorageType": "cassandra" 
+    },
     "rivers": {
       "type": "many_to_many",
       "implementation": "foreignkeys",

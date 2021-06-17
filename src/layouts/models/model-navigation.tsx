@@ -4,6 +4,7 @@ import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import dataModels from '@/build/models.preval';
 import useMuiIcon from '@/hooks/useMuiIcon';
 
 import NavGroup from '@/components/nav-group';
@@ -33,7 +34,8 @@ export default function Navigation({
   };
 
   const canAccessRoute = (route: RouteLink): boolean | undefined => {
-    return getModel(route.name).permissions.read;
+    const isModel = Object.keys(dataModels).includes(route.name);
+    return isModel ? getModel(route.name).permissions.read : true;
   };
 
   return (

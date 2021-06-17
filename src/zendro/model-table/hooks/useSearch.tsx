@@ -48,7 +48,7 @@ export default function useSearch({
           }
         : undefined;
 
-    const newSearch =
+    const newSearch: QueryVariableSearch | undefined =
       fieldSearch && filterSearch
         ? { operator: 'and', search: [fieldSearch, filterSearch] }
         : fieldSearch

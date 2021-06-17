@@ -1,8 +1,10 @@
 import {
+  ApiPrivileges,
   Association,
   DataModel,
   ParsedAssociation,
   ParsedAttribute,
+  StorageType,
 } from '@/types/models';
 
 /**
@@ -121,6 +123,149 @@ export function parseAttributes(
   }
 
   return sortedAttributes;
+}
+
+/**
+ * Depending on the storageType the model might have some restrictions on certain aspects of the zendro API (search, order, paginate).
+ * This function returns those privileges
+ *
+ * @param storageType storageType of the model
+ * @returns Api priviledges
+ */
+export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
+  const defaultPrivileges: ApiPrivileges = {
+    operators: [
+      'like',
+      'notLike',
+      'or',
+      'and',
+      'eq',
+      'between',
+      'notBetween',
+      'in',
+      'notIn',
+      'gt',
+      'gte',
+      'lt',
+      'lte',
+      'ne',
+      'regexp',
+      'notRegexp',
+      'contains',
+      'contained',
+      'not',
+      'all',
+    ],
+    backwardPagination: true,
+    sort: true,
+    create: true,
+    update: true,
+    delete: true,
+    bulkAddCsv: true,
+    textSearch: true,
+  };
+
+  switch (storageType) {
+    case 'cassandra':
+      return {
+        operators: ['eq', 'lt', 'gt', 'lte', 'gte', 'in', 'contains', 'and'],
+        backwardPagination: false,
+        sort: false,
+        create: true,
+        update: true,
+        delete: true,
+        bulkAddCsv: false,
+        textSearch: false,
+      };
+    case 'amazon-s3':
+      return {
+        operators: [
+          'eq',
+          'ne',
+          'lt',
+          'gt',
+          'lte',
+          'gte',
+          'like',
+          'and',
+          'or',
+          'not',
+          'between',
+          'in',
+        ],
+        backwardPagination: false,
+        sort: false,
+        create: false,
+        update: false,
+        delete: false,
+        bulkAddCsv: true,
+        textSearch: true,
+      };
+    case 'trino':
+    case 'presto':
+      return {
+        operators: [
+          'eq',
+          'ne',
+          'lt',
+          'gt',
+          'lte',
+          'gte',
+          'like',
+          'and',
+          'or',
+          'not',
+          'between',
+          'in',
+        ],
+        backwardPagination: true,
+        sort: true,
+        create: false,
+        update: false,
+        delete: false,
+        bulkAddCsv: false,
+        textSearch: true,
+      };
+    case 'mongodb':
+      return {
+        ...defaultPrivileges,
+        operators: [
+          'or',
+          'and',
+          'not',
+          'all',
+          'eq',
+          'ne',
+          'in',
+          'notIn',
+          'gt',
+          'gte',
+          'lt',
+          'lte',
+          'regexp',
+        ],
+      };
+    case 'neo4j':
+      return {
+        ...defaultPrivileges,
+        operators: [
+          'eq',
+          'ne',
+          'lt',
+          'gt',
+          'lte',
+          'gte',
+          'regexp',
+          'contains',
+          'and',
+          'or',
+          'not',
+          'in',
+        ],
+      };
+    default:
+      return defaultPrivileges;
+  }
 }
 
 /* DEPRECATED */

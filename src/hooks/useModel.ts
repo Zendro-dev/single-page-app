@@ -2,12 +2,14 @@ import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import dataModels from '@/build/models.preval';
 import { authSelector } from '@/store/auth-slice';
-import { ParsedDataModel2 } from '@/types/models';
+import { ApiPrivileges, ParsedDataModel2 } from '@/types/models';
 import { ParsedPermissions } from '@/types/acl';
 import { getResourcePermissions } from '@/utils/acl';
+import { getModelApiPrivileges } from '@/utils/models';
 
 interface Model {
   permissions: ParsedPermissions;
+  apiPrivileges: ApiPrivileges;
   schema: ParsedDataModel2;
 }
 
@@ -22,8 +24,13 @@ export function useModel(modelName?: string): Model | GetModel {
     (modelName: string): Model => {
       const permissions = getResourcePermissions(modelName, user?.permissions);
 
+      const apiPrivileges = getModelApiPrivileges(
+        dataModels[modelName].storageType
+      );
+
       return {
         permissions,
+        apiPrivileges,
         schema: dataModels[modelName],
       };
     },
