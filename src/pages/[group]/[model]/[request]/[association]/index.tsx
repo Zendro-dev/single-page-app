@@ -618,6 +618,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             options={[5, 10, 15, 20, 25, 50]}
             paginationLimit={tablePagination.first ?? tablePagination.last}
             hasFirstPage={
+              // storageTypes that don't support backward pagination default to hasPreviousPage = false.
               targetModel.apiPrivileges.backwardPagination
                 ? assocTable.pageInfo?.hasPreviousPage
                 : true

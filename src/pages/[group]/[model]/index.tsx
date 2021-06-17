@@ -540,6 +540,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           options={[5, 10, 15, 20, 25, 50]}
           paginationLimit={tablePagination.first ?? tablePagination.last}
           hasFirstPage={
+            // storageTypes that don't support backward pagination default to hasPreviousPage = false.
             model.apiPrivileges.backwardPagination
               ? pageInfo.hasPreviousPage
               : true
