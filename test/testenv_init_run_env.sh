@@ -41,7 +41,7 @@ cloneAndInstallRepository () {
   outpath=$3
   name=$(basename $outpath)
 
-  printCloneTaskStart "master" "$name"
+  printCloneTaskStart "$branch" "$name"
 
   # Clone graphql server instance from the upstream remote, using the appropriate branch
   git clone --branch $branch $repository $outpath
@@ -51,7 +51,7 @@ cloneAndInstallRepository () {
   NODE_JQ_SKIP_INSTALL_BINARY=true npm install
   cd - &>/dev/null
 
-  printCloneTaskEnd "master" "$name"
+  printCloneTaskEnd "$branch" "$name"
 
 }
 
