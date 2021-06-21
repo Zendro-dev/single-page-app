@@ -88,7 +88,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const urlQuery = router.query as AssociationUrlQuery;
 
   const sourceModel = getModel(props.model);
-  const association = sourceModel.schema.associations?.find(
+  const association = sourceModel.associations?.find(
     (assoc) => assoc.name === props.association
   ) as ParsedAssociation;
   const targetModel = getModel(association.target);
@@ -123,8 +123,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
     associationFilter: recordsFilter,
-    attributes: targetModel.schema.attributes,
-    primaryKey: targetModel.schema.primaryKey,
+    attributes: targetModel.attributes,
+    primaryKey: targetModel.primaryKey,
     selectedRecords,
     searchText,
   });
@@ -201,9 +201,9 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         order: tableOrder,
         pagination: tablePagination,
         assocPagination: { first: 1 },
-        [sourceModel.schema.primaryKey]: urlQuery.id,
+        [sourceModel.primaryKey]: urlQuery.id,
         assocSearch: {
-          field: sourceModel.schema.primaryKey,
+          field: sourceModel.primaryKey,
           value: urlQuery.id,
           operator: 'eq',
         },
@@ -222,7 +222,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           recordsFilter === 'associated'
             ? undefined
             : recordsQuery.assocResolver;
-        const assocPrimaryKey = sourceModel.schema.primaryKey;
+        const assocPrimaryKey = sourceModel.primaryKey;
         const assocPrimaryKeyValue = urlQuery.id as string;
 
         const parsedRecords = data.records.reduce<TableRecord[]>(
@@ -292,7 +292,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
-        [sourceModel.schema.primaryKey]: urlQuery.id,
+        [sourceModel.primaryKey]: urlQuery.id,
       };
 
       return await zendro.request(countQuery.query, {
@@ -323,7 +323,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     );
 
     const currAssocRecordId = currAssocRecord
-      ? (currAssocRecord.data[targetModel.schema.primaryKey] as string | number)
+      ? (currAssocRecord.data[targetModel.primaryKey] as string | number)
       : undefined;
 
     switch (action) {
@@ -375,7 +375,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
       ? nameCp
       : namePlCp;
     const variables = {
-      [sourceModel.schema.primaryKey]: urlQuery.id,
+      [sourceModel.primaryKey]: urlQuery.id,
       [`add${mutationName}`]:
         selectedRecords.toAdd.length > 0
           ? association.type.includes('to_one')
@@ -433,7 +433,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           {
             type: 'group',
             label: props.association,
-            links: sourceModel.schema.associations?.map((assoc) => ({
+            links: sourceModel.associations?.map((assoc) => ({
               type: 'link',
               label: assoc.name,
               href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
@@ -536,7 +536,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           >
             <TableHeader
               actionsColSpan={props.request !== 'details' ? 1 : 0}
-              attributes={targetModel.schema.attributes}
+              attributes={targetModel.attributes}
               onSortLabelClick={(field) =>
                 setOrder((state) => ({
                   ...state,
@@ -548,14 +548,14 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                     : 'ASC',
                 }))
               }
-              activeOrder={order?.sortField ?? targetModel.schema.primaryKey}
+              activeOrder={order?.sortField ?? targetModel.primaryKey}
               orderDirection={order?.sortDirection ?? 'ASC'}
               disableSort={!targetModel.apiPrivileges.sort}
             />
 
             <TableBody>
               {assocTable.data.map((record) => {
-                const recordPK = targetModel.schema.primaryKey;
+                const recordPK = targetModel.primaryKey;
                 const recordId = record.data[recordPK] as string | number;
                 const isSelected =
                   selectedRecords.toAdd.includes(recordId) ||
@@ -564,7 +564,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                   <TableRow
                     key={recordId}
                     hover
-                    attributes={targetModel.schema.attributes}
+                    attributes={targetModel.attributes}
                     record={record.data}
                   >
                     {props.request !== 'details' && (

@@ -1,18 +1,37 @@
 import { readdir, readFile, stat } from 'fs/promises';
 import { parse } from 'path';
 import { DataModel, ParsedDataModel } from '@/types/models';
+import {
+  getModelApiPrivileges,
+  parseAssociations,
+  parseAttributes,
+} from '@/utils/models';
 
 /**
  * Parse a data model into its javascript object representation.
  * @param name name of the model to parse
  */
 export async function getStaticModel(name: string): Promise<ParsedDataModel> {
+  // Find the model path
   const modelPath = await whichModel(name);
+
+  // Load the raw model JSON
   const json = await readFile(modelPath, { encoding: 'utf8' });
   const dataModel = JSON.parse(json) as DataModel;
+
+  // Parse attributes (including foreign keys) and associations
+  const attributes = parseAttributes(dataModel);
+  const associations = parseAssociations(dataModel);
+
+  // Compute supported API functionality
+  const apiPrivileges = getModelApiPrivileges(dataModel.storageType);
+
   return {
-    primaryKey: dataModel.internalId ?? 'id',
     ...dataModel,
+    apiPrivileges,
+    associations,
+    attributes,
+    primaryKey: dataModel.internalId ?? 'id',
   };
 }
 

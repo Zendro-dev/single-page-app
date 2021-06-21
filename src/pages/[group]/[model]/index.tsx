@@ -114,8 +114,8 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
-    attributes: model.schema.attributes,
-    primaryKey: model.schema.primaryKey,
+    attributes: model.attributes,
+    primaryKey: model.primaryKey,
     searchText,
   });
 
@@ -249,7 +249,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
       onOk: async () => {
         const query = zendro.queries[props.model].deleteOne.query;
         const variables = {
-          [model.schema.primaryKey]: primaryKey,
+          [model.primaryKey]: primaryKey,
         };
         try {
           await zendro.request(query, { variables });
@@ -468,7 +468,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                 ([action, allowed]) => allowed && action !== 'create'
               ).length
             }
-            attributes={model.schema.attributes}
+            attributes={model.attributes}
             onSortLabelClick={(field) =>
               setOrder((state) => ({
                 ...state,
@@ -480,7 +480,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                   : 'ASC',
               }))
             }
-            activeOrder={order?.sortField ?? model.schema.primaryKey}
+            activeOrder={order?.sortField ?? model.primaryKey}
             orderDirection={order?.sortDirection ?? 'ASC'}
             data-cy="record-table-header"
             disableSort={!model.apiPrivileges.sort}
@@ -488,12 +488,10 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
           <TableBody>
             {records.map((record) => {
-              const recordId = record.data[model.schema.primaryKey] as
-                | string
-                | number;
+              const recordId = record.data[model.primaryKey] as string | number;
               return (
                 <TableRow
-                  attributes={model.schema.attributes}
+                  attributes={model.attributes}
                   record={record.data}
                   key={recordId}
                   onDoubleClick={() => handleOnRead(recordId)}

@@ -169,10 +169,10 @@ export async function getStaticAssociationPaths(): Promise<
       const model = route.name;
       const { associations } = await getStaticModel(model);
       if (associations) {
-        Object.keys(associations).forEach((association) =>
+        associations.forEach((assoc) =>
           requests.forEach((request) => {
             associationPaths.push({
-              params: { group, model, request, association },
+              params: { group, model, request, association: assoc.name },
             });
           })
         );

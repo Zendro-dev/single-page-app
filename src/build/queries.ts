@@ -1,6 +1,5 @@
-import { ParsedDataModel } from '@/types/models';
+import { ParsedAttribute, ParsedDataModel } from '@/types/models';
 import { StaticAssocQueries, StaticQueries } from '@/types/static';
-import { parseAttributes, parseAssociations } from '@/utils/models';
 import {
   queryBulkCreate,
   queryCsvTemplate,
@@ -21,14 +20,20 @@ export async function getStaticQueries(): Promise<
   const dataModels = await getStaticModels();
 
   Object.entries(dataModels).map(([name, schema]) => {
-    const attributes = parseAttributes(schema, { excludeForeignKeys: true });
-    const associations = parseAssociations(schema);
-    const recordQueries = queryRecord(name, attributes, associations);
+    const nonFkAttributes = schema.attributes.filter(
+      (attribute) => !attribute.foreignKey
+    );
+
+    const recordQueries = queryRecord(
+      name,
+      nonFkAttributes,
+      schema.associations
+    );
 
     const withFilter = getStaticAssociationQueries(schema, dataModels);
 
     staticModels[name] = {
-      readAll: queryRecords(name, attributes),
+      readAll: queryRecords(name, nonFkAttributes),
       countAll: queryRecordsCount(name),
       createOne: recordQueries.create,
       deleteOne: recordQueries.delete,
@@ -54,68 +59,75 @@ export function getStaticAssociationQueries(
 
   if (!sourceModel.associations) return withFilter;
 
-  for (const [
-    associationName,
-    { target, type, reverseAssociation },
-  ] of Object.entries(sourceModel.associations)) {
-    const targetModel = targetModels[target];
-    const targetAttributes = parseAttributes(targetModel, {
-      excludeForeignKeys: true,
-    });
-    if (!targetModel.associations?.[reverseAssociation])
+  const filterForeignKeys = (attribute: ParsedAttribute): boolean =>
+    !attribute.foreignKey;
+
+  for (const sourceAssoc of sourceModel.associations) {
+    const targetModel = targetModels[sourceAssoc.target];
+    const targetAttributes = targetModel.attributes.filter(filterForeignKeys);
+
+    const foundReverseAssociation = targetModel.associations?.find(
+      (targetAssoc) => targetAssoc.name === sourceAssoc.reverseAssociation
+    );
+
+    if (!foundReverseAssociation) {
       throw new Error(
-        `Association "${associationName}" in model "${sourceModel.model}" does not have a valid reverseAssociation "${reverseAssociation}" defined in "${targetModel.model}".`
+        `Association "${sourceAssoc.name}" in model "${sourceModel.model}"` +
+          ` does not have a valid reverseAssociation "${sourceAssoc.reverseAssociation}"` +
+          ` defined in "${targetModel.model}".`
       );
+    }
+
     const {
       readOneRecordWithToOne,
       readOneRecordWithAssocCount,
       readOneRecordWithToMany,
     } = readOneRecordWithAssoc(
       sourceModel.model,
-      parseAttributes(sourceModel, { excludeForeignKeys: true }),
-      associationName,
-      target,
+      sourceModel.attributes.filter(filterForeignKeys),
+      sourceAssoc.name,
+      sourceAssoc.target,
       targetAttributes
     );
 
     const readAllWithToOne = queryRecordsWithToOne(
-      target,
-      parseAttributes(targetModel, { excludeForeignKeys: true }),
-      reverseAssociation,
+      sourceAssoc.target,
+      targetModel.attributes.filter(filterForeignKeys),
+      sourceAssoc.reverseAssociation,
       sourceModel.model,
       sourceModel.primaryKey
     );
 
     const readAllWithToMany = queryRecordsWithToMany(
-      target,
-      parseAttributes(targetModel, { excludeForeignKeys: true }),
-      reverseAssociation,
+      sourceAssoc.target,
+      targetModel.attributes.filter(filterForeignKeys),
+      sourceAssoc.reverseAssociation,
       sourceModel.model,
       sourceModel.primaryKey
     );
 
-    switch (type) {
+    switch (sourceAssoc.type) {
       case 'one_to_one':
-        withFilter[associationName] = {
+        withFilter[sourceAssoc.name] = {
           readAll: readAllWithToOne,
           readFiltered: readOneRecordWithToOne,
         };
         break;
       case 'many_to_one':
-        withFilter[associationName] = {
+        withFilter[sourceAssoc.name] = {
           readAll: readAllWithToMany,
           readFiltered: readOneRecordWithToOne,
         };
         break;
       case 'one_to_many':
-        withFilter[associationName] = {
+        withFilter[sourceAssoc.name] = {
           readAll: readAllWithToOne,
           readFiltered: readOneRecordWithToMany,
           countFiltered: readOneRecordWithAssocCount,
         };
         break;
       case 'many_to_many':
-        withFilter[associationName] = {
+        withFilter[sourceAssoc.name] = {
           readAll: readAllWithToMany,
           readFiltered: readOneRecordWithToMany,
           countFiltered: readOneRecordWithAssocCount,
