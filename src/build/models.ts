@@ -47,10 +47,10 @@ export async function getStaticModels(): Promise<
   const dataModels = await readdir('./models');
   const adminModels = await readdir('./admin');
 
-  for (const file of [...adminModels, ...dataModels]) {
-    const { name } = parse(file);
-    const dataModel = await getStaticModel(name);
-    models[name] = dataModel;
+  for (const filePath of [...adminModels, ...dataModels]) {
+    const file = parse(filePath);
+    const dataModel = await getStaticModel(file.name);
+    models[file.name] = dataModel;
   }
 
   return models;
