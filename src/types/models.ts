@@ -129,12 +129,3 @@ export type ParsedDataModel2 = Assign<
     primaryKey: string;
   }
 >;
-
-export type ParsedDataModel3 = Assign<
-  DataModel,
-  {
-    associations?: Record<string, ParsedAssociation>;
-    attributes: Record<string, ParsedAttribute>;
-    primaryKey: string;
-  }
->;
