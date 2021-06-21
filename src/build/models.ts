@@ -148,6 +148,10 @@ export async function parseStaticModels(
 
   for (const filePath of modelFiles.models) {
     const dataModel = await parseStaticModel(filePath);
+
+    // Skip distributed data model adapters
+    if (dataModel.model.includes('-adapter')) continue;
+
     models[dataModel.model] = dataModel;
   }
 
