@@ -8,7 +8,7 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { getStaticModel } from './models';
+import { parseStaticModel } from './models';
 import { ParsedDataModel } from '@/types/models';
 
 /**
@@ -24,7 +24,7 @@ export async function parseDataModels(): Promise<{
     modelFilePath: string
   ): Promise<void> => {
     const file = parse(modelFilePath);
-    const adminModel = await getStaticModel(file.name);
+    const adminModel = await parseStaticModel(file.name);
     modelStorage.push(adminModel);
   };
 

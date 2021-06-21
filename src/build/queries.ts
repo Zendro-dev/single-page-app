@@ -10,14 +10,14 @@ import {
   queryRecordsWithToMany,
   readOneRecordWithAssoc,
 } from '@/utils/queries';
-import { getStaticModels } from './models';
+import { parseStaticModels } from './models';
 
 export async function getStaticQueries(): Promise<
   Record<string, StaticQueries>
 > {
   const staticModels: Record<string, StaticQueries> = {};
 
-  const dataModels = await getStaticModels();
+  const dataModels = await parseStaticModels();
 
   Object.entries(dataModels).map(([name, schema]) => {
     const nonFkAttributes = schema.attributes.filter(

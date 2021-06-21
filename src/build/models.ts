@@ -11,7 +11,7 @@ import {
  * Parse a data model into its javascript object representation.
  * @param name name of the model to parse
  */
-export async function getStaticModel(name: string): Promise<ParsedDataModel> {
+export async function parseStaticModel(name: string): Promise<ParsedDataModel> {
   // Find the model path
   const modelPath = await whichModel(name);
 
@@ -39,7 +39,7 @@ export async function getStaticModel(name: string): Promise<ParsedDataModel> {
  * Parse each data model into its javascript object representation.
  * @param modelPaths array of paths to each data model file
  */
-export async function getStaticModels(): Promise<
+export async function parseStaticModels(): Promise<
   Record<string, ParsedDataModel>
 > {
   const models: Record<string, ParsedDataModel> = {};
@@ -49,7 +49,7 @@ export async function getStaticModels(): Promise<
 
   for (const filePath of [...adminModels, ...dataModels]) {
     const file = parse(filePath);
-    const dataModel = await getStaticModel(file.name);
+    const dataModel = await parseStaticModel(file.name);
     models[dataModel.model] = dataModel;
   }
 
