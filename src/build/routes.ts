@@ -9,26 +9,32 @@ import {
   RouteLink,
 } from '@/types/routes';
 import { getStaticModel } from './models';
+import { ParsedDataModel } from '@/types/models';
 
 /**
  * Parse each data model path into a valid application route.
  * @param modelPaths array of paths to each data model file
  */
-export async function getModelRoutes(): Promise<ModelRoutes> {
-  const parseModelsAsRoutes = (group: string) => (file: string): RouteLink => {
-    const { name } = parse(file);
-    return {
-      type: 'link',
-      name,
-      href: `/${group}/${name}`,
-    };
+export async function parseDataModels(): Promise<{
+  admin: ParsedDataModel[];
+  models: ParsedDataModel[];
+}> {
+  const parseModel = async (
+    modelStorage: ParsedDataModel[],
+    modelFilePath: string
+  ): Promise<void> => {
+    const file = parse(modelFilePath);
+    const adminModel = await getStaticModel(file.name);
+    modelStorage.push(adminModel);
   };
 
-  const adminModels = await readdir('./admin');
-  const admin = adminModels.map(parseModelsAsRoutes('admin'));
+  const admin: ParsedDataModel[] = [];
+  const adminModelPaths = await readdir('./admin');
+  for (const filePath of adminModelPaths) await parseModel(admin, filePath);
 
-  const dataModels = await readdir('./models');
-  const models = dataModels.map(parseModelsAsRoutes('models'));
+  const models: ParsedDataModel[] = [];
+  const dataModelPaths = await readdir('./models');
+  for (const filePath of dataModelPaths) await parseModel(models, filePath);
 
   return {
     admin,
@@ -41,7 +47,17 @@ export async function getModelRoutes(): Promise<ModelRoutes> {
  * @returns an array of route groups and links
  */
 export async function getModelNavRoutes(): Promise<AppRoutes> {
-  const modelRoutes = await getModelRoutes();
+  const parsedModels = await parseDataModels();
+
+  const parseModelAsRoute = (group: string) => ({
+    model,
+  }: ParsedDataModel): RouteLink => {
+    return {
+      type: 'link',
+      name: model,
+      href: `/${group}/${model}`,
+    };
+  };
 
   return [
     {
@@ -54,13 +70,13 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
       type: 'group',
       name: 'Models',
       icon: 'BubbleChart',
-      routes: modelRoutes.models,
+      routes: parsedModels.models.map(parseModelAsRoute('models')),
     },
     {
       type: 'group',
       name: 'Admin',
       icon: 'SupervisorAccountRounded',
-      routes: modelRoutes.admin,
+      routes: parsedModels.admin.map(parseModelAsRoute('admin')),
     },
   ];
 }
@@ -72,8 +88,19 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
 export async function getStaticModelPaths(): Promise<
   Array<{ params: ModelUrlQuery }>
 > {
-  const modelRoutes = await getModelRoutes();
+  const parsedModels = await parseDataModels();
 
+  // Generate model paths
+  const composeUrlQuery = (group: string) => ({
+    model,
+  }: ParsedDataModel): { params: ModelUrlQuery } => ({
+    params: { group, model },
+  });
+
+  let adminPaths = parsedModels.admin.map(composeUrlQuery('admin'));
+  let modelPaths = parsedModels.models.map(composeUrlQuery('models'));
+
+  // Remove custom overrides from generated paths
   try {
     const overridesJson = await readFile('./src/config/page-overrides.json', {
       encoding: 'utf8',
@@ -81,23 +108,14 @@ export async function getStaticModelPaths(): Promise<
 
     const overrides: string[] = JSON.parse(overridesJson);
 
-    const removeOverrides = (route: RouteLink): boolean =>
-      !overrides.includes(route.href);
+    const removeOverrides = (path: { params: ModelUrlQuery }): boolean =>
+      !overrides.includes(`/${path.params.group}/${path.params.model}`);
 
-    modelRoutes.admin = modelRoutes.admin.filter(removeOverrides);
-    modelRoutes.models = modelRoutes.models.filter(removeOverrides);
+    adminPaths = adminPaths.filter(removeOverrides);
+    modelPaths = modelPaths.filter(removeOverrides);
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
-
-  const composeUrlQuery = (group: string) => ({
-    name,
-  }: RouteLink): { params: ModelUrlQuery } => ({
-    params: { group, model: name },
-  });
-
-  const adminPaths = modelRoutes.admin.map(composeUrlQuery('admin'));
-  const modelPaths = modelRoutes.models.map(composeUrlQuery('models'));
 
   return [...adminPaths, ...modelPaths];
 }
@@ -110,25 +128,36 @@ export async function getStaticRecordPaths(): Promise<
   Array<{ params: RecordUrlQuery }>
 > {
   // Compose record page requests
-  const modelRoutes = await getModelRoutes();
+  const parsedModels = await parseDataModels();
   const requests = ['details', 'edit', 'new'];
 
   const composeRecordUrlQuery = (group: string) => (
     recordPaths: Array<{ params: RecordUrlQuery }>,
-    { name: model }: RouteLink
+    parsedModel: ParsedDataModel
   ): Array<{ params: RecordUrlQuery }> => {
-    requests.forEach((request) => {
-      recordPaths.push({ params: { group, model, request } });
-    });
+    for (const request of requests) {
+      // Skip not supported operations
+      if (
+        (request === 'edit' && !parsedModel.apiPrivileges.update) ||
+        (request === 'new' && !parsedModel.apiPrivileges.create)
+      ) {
+        continue;
+      }
+
+      // Add path to attributes page
+      recordPaths.push({
+        params: { group, model: parsedModel.model, request },
+      });
+    }
     return recordPaths;
   };
 
-  const adminPaths = modelRoutes.admin.reduce(
+  const adminPaths = parsedModels.admin.reduce(
     composeRecordUrlQuery('admin'),
     []
   );
 
-  const modelPaths = modelRoutes.models.reduce(
+  const modelPaths = parsedModels.models.reduce(
     composeRecordUrlQuery('models'),
     []
   );
@@ -159,21 +188,32 @@ export async function getStaticAssociationPaths(): Promise<
   Array<{ params: AssociationUrlQuery }>
 > {
   // Compose association page requests
-  const routeGroups = await getModelRoutes();
+  const parsedModels = await parseDataModels();
   const requests = ['details', 'edit', 'new'];
 
   let associationPaths: Array<{ params: AssociationUrlQuery }> = [];
-  for (const group in routeGroups) {
-    const modelRoutes = routeGroups[group as keyof ModelRoutes];
-    for (const route of modelRoutes) {
-      const model = route.name;
-      const { associations } = await getStaticModel(model);
-      if (associations) {
-        associations.forEach((assoc) =>
-          requests.forEach((request) => {
-            associationPaths.push({
-              params: { group, model, request, association: assoc.name },
-            });
+  for (const group in parsedModels) {
+    const groupModels = parsedModels[group as keyof ModelRoutes];
+
+    for (const parsedModel of groupModels) {
+      for (const request of requests) {
+        // Skip not supported operations
+        if (
+          (request === 'edit' && !parsedModel.apiPrivileges.update) ||
+          (request === 'new' && !parsedModel.apiPrivileges.create)
+        ) {
+          continue;
+        }
+
+        // Add path to association pages
+        parsedModel.associations?.forEach((assoc) =>
+          associationPaths.push({
+            params: {
+              group,
+              model: parsedModel.model,
+              request,
+              association: assoc.name,
+            },
           })
         );
       }
