@@ -1,6 +1,6 @@
 import { ParsedDataModel } from '@/types/models';
 import { StaticAssocQueries, StaticQueries } from '@/types/static';
-import { getAttributeList, parseAssociations } from '@/utils/models';
+import { parseAttributes, parseAssociations } from '@/utils/models';
 import {
   queryBulkCreate,
   queryCsvTemplate,
@@ -21,7 +21,7 @@ export async function getStaticQueries(): Promise<
   const dataModels = await getStaticModels();
 
   Object.entries(dataModels).map(([name, schema]) => {
-    const attributes = getAttributeList(schema, { excludeForeignKeys: true });
+    const attributes = parseAttributes(schema, { excludeForeignKeys: true });
     const associations = parseAssociations(schema);
     const recordQueries = queryRecord(name, attributes, associations);
 
@@ -59,7 +59,7 @@ export function getStaticAssociationQueries(
     { target, type, reverseAssociation },
   ] of Object.entries(sourceModel.associations)) {
     const targetModel = targetModels[target];
-    const targetAttributes = getAttributeList(targetModel, {
+    const targetAttributes = parseAttributes(targetModel, {
       excludeForeignKeys: true,
     });
     if (!targetModel.associations?.[reverseAssociation])
@@ -72,7 +72,7 @@ export function getStaticAssociationQueries(
       readOneRecordWithToMany,
     } = readOneRecordWithAssoc(
       sourceModel.model,
-      getAttributeList(sourceModel, { excludeForeignKeys: true }),
+      parseAttributes(sourceModel, { excludeForeignKeys: true }),
       associationName,
       target,
       targetAttributes
@@ -80,7 +80,7 @@ export function getStaticAssociationQueries(
 
     const readAllWithToOne = queryRecordsWithToOne(
       target,
-      getAttributeList(targetModel, { excludeForeignKeys: true }),
+      parseAttributes(targetModel, { excludeForeignKeys: true }),
       reverseAssociation,
       sourceModel.model,
       sourceModel.primaryKey
@@ -88,7 +88,7 @@ export function getStaticAssociationQueries(
 
     const readAllWithToMany = queryRecordsWithToMany(
       target,
-      getAttributeList(targetModel, { excludeForeignKeys: true }),
+      parseAttributes(targetModel, { excludeForeignKeys: true }),
       reverseAssociation,
       sourceModel.model,
       sourceModel.primaryKey

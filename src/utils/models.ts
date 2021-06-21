@@ -74,55 +74,45 @@ export function parseAttributes(
   options?: {
     excludeForeignKeys: boolean;
   }
-): { [name: string]: ParsedAttribute } {
-  // Get the model foreign keys
+): Array<ParsedAttribute> {
+  // Get an array of Attribute objects
   const foreignKeys = getForeignKeys(model);
+  let attributes: Array<ParsedAttribute> = Object.keys(model.attributes).map(
+    (attribute) => {
+      return {
+        name: attribute,
+        type: model.attributes[attribute],
+        primaryKey: model.internalId === attribute,
+        foreignKey: foreignKeys.has(attribute),
+      };
+    }
+  );
 
-  // Parse the model attributes
-  let hasInternalId = false;
-  const attributes = Object.entries(model.attributes).reduce<{
-    [name: string]: ParsedAttribute;
-  }>((attrs, [name, type]) => {
-    const primaryKey = model.internalId === name;
-    const foreignKey = foreignKeys.has(name);
-
-    if (primaryKey) hasInternalId = true;
-    if (options?.excludeForeignKeys && foreignKey) return attrs;
-
-    return {
-      ...attrs,
-      [name]: {
-        name,
-        type,
-        primaryKey,
-        foreignKey,
-      },
-    };
-  }, {});
+  // Parse all attributes contained in associated models
+  if (options?.excludeForeignKeys) {
+    attributes = attributes.filter(({ foreignKey }) => !foreignKey);
+  }
 
   // Sort or unshift the id attribute
-  let sortedAttributes: typeof attributes;
-  if (hasInternalId) {
-    sortedAttributes = Object.fromEntries(
-      Object.entries(
-        attributes
-      ).sort(([, parsedAttribute1], [, parsedAttribute2]) =>
-        parsedAttribute1.primaryKey ? -1 : parsedAttribute2.primaryKey ? 1 : 0
+  model.internalId
+    ? attributes.splice(
+        0,
+        0,
+        attributes.splice(
+          attributes.findIndex((attr) => {
+            return attr.name === model.internalId;
+          }),
+          1
+        )[0]
       )
-    );
-  } else {
-    sortedAttributes = {
-      id: {
+    : attributes.unshift({
         name: 'id',
         type: 'Int',
         primaryKey: true,
         automaticId: true,
-      },
-      ...attributes,
-    };
-  }
+      });
 
-  return sortedAttributes;
+  return attributes;
 }
 
 /**
@@ -266,52 +256,4 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
     default:
       return defaultPrivileges;
   }
-}
-
-/* DEPRECATED */
-
-export function getAttributeList(
-  model: DataModel,
-  options?: {
-    excludeForeignKeys: boolean;
-  }
-): Array<ParsedAttribute> {
-  // Get an array of Attribute objects
-  const foreignKeys = getForeignKeys(model);
-  let attributes: Array<ParsedAttribute> = Object.keys(model.attributes).map(
-    (attribute) => {
-      return {
-        name: attribute,
-        type: model.attributes[attribute],
-        primaryKey: model.internalId === attribute,
-        foreignKey: foreignKeys.has(attribute),
-      };
-    }
-  );
-
-  // Parse all attributes contained in associated models
-  if (options?.excludeForeignKeys) {
-    attributes = attributes.filter(({ foreignKey }) => !foreignKey);
-  }
-
-  // Sort or unshift the id attribute
-  model.internalId
-    ? attributes.splice(
-        0,
-        0,
-        attributes.splice(
-          attributes.findIndex((attr) => {
-            return attr.name === model.internalId;
-          }),
-          1
-        )[0]
-      )
-    : attributes.unshift({
-        name: 'id',
-        type: 'Int',
-        primaryKey: true,
-        automaticId: true,
-      });
-
-  return attributes;
 }
