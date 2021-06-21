@@ -12,6 +12,11 @@ import {
 } from '@/utils/queries';
 import { parseStaticModels } from './models';
 
+/**
+ * Create the static queries used in the default model, record,
+ * and association pages.
+ * @returns all generated static queries
+ */
 export async function getStaticQueries(): Promise<
   Record<string, StaticQueries>
 > {
@@ -49,7 +54,10 @@ export async function getStaticQueries(): Promise<
 }
 
 /**
- * generates the static queries used to request association related data.
+ * Generate static queries used in the default association pages.
+ * @param sourceModel model that contains an association reference
+ * @param targetModels record of associated models
+ * @returns static queries used in default association pages
  */
 export function getStaticAssociationQueries(
   sourceModel: ParsedDataModel,
