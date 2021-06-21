@@ -7,7 +7,7 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { getStaticModels, parseStaticModel } from './models';
+import { parseStaticModels } from './models';
 import { ParsedDataModel } from '@/types/models';
 
 /**
@@ -18,25 +18,11 @@ export async function parseDataModels(): Promise<{
   admin: ParsedDataModel[];
   models: ParsedDataModel[];
 }> {
-  const parseModel = async (
-    modelStorage: ParsedDataModel[],
-    modelFilePath: string
-  ): Promise<void> => {
-    const adminModel = await parseStaticModel(modelFilePath);
-    modelStorage.push(adminModel);
-  };
-
-  const modelFiles = await getStaticModels();
-
-  const admin: ParsedDataModel[] = [];
-  for (const filePath of modelFiles.admin) await parseModel(admin, filePath);
-
-  const models: ParsedDataModel[] = [];
-  for (const filePath of modelFiles.models) await parseModel(models, filePath);
+  const modelFiles = await parseStaticModels(true);
 
   return {
-    admin,
-    models,
+    admin: Object.values(modelFiles.admin),
+    models: Object.values(modelFiles.models),
   };
 }
 

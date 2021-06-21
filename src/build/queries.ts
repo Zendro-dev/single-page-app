@@ -17,9 +17,9 @@ export async function getStaticQueries(): Promise<
 > {
   const staticModels: Record<string, StaticQueries> = {};
 
-  const dataModels = await parseStaticModels();
+  const allModels = await parseStaticModels();
 
-  Object.entries(dataModels).map(([name, schema]) => {
+  Object.entries(allModels).map(([name, schema]) => {
     const nonFkAttributes = schema.attributes.filter(
       (attribute) => !attribute.foreignKey
     );
@@ -30,7 +30,7 @@ export async function getStaticQueries(): Promise<
       schema.associations
     );
 
-    const withFilter = getStaticAssociationQueries(schema, dataModels);
+    const withFilter = getStaticAssociationQueries(schema, allModels);
 
     staticModels[name] = {
       readAll: queryRecords(name, nonFkAttributes),

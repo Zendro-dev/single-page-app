@@ -108,20 +108,61 @@ export async function parseStaticModel(
 }
 
 /**
- * Parse each data model into its javascript object representation.
- * @param modelPaths array of paths to each data model file
+ * Parse static model files into their JavaScript object representation.
+ * @param group group models by their source (i.e. admin, models)
  */
-export async function parseStaticModels(): Promise<
-  Record<string, ParsedDataModel>
+export async function parseStaticModels(
+  group?: false
+): Promise<Record<string, ParsedDataModel>>;
+
+/**
+ * Parse static model files into their JavaScript object representation and
+ * group them according to the source (i.e. admin, models).
+ * @param group group models by their source
+ */
+export async function parseStaticModels(
+  group: true
+): Promise<{
+  admin: Record<string, ParsedDataModel>;
+  models: Record<string, ParsedDataModel>;
+}>;
+
+export async function parseStaticModels(
+  group?: boolean
+): Promise<
+  | Record<string, ParsedDataModel>
+  | {
+      admin: Record<string, ParsedDataModel>;
+      models: Record<string, ParsedDataModel>;
+    }
 > {
+  const admin: Record<string, ParsedDataModel> = {};
   const models: Record<string, ParsedDataModel> = {};
 
   const modelFiles = await getStaticModels();
 
-  for (const filePath of [...modelFiles.admin, ...modelFiles.models]) {
+  for (const filePath of modelFiles.admin) {
+    const adminModel = await parseStaticModel(filePath);
+    admin[adminModel.model] = adminModel;
+  }
+
+  for (const filePath of modelFiles.models) {
     const dataModel = await parseStaticModel(filePath);
     models[dataModel.model] = dataModel;
   }
 
-  return models;
+  // Return models grouped by their source type
+  if (group) {
+    return {
+      admin,
+      models,
+    };
+  }
+
+  // Return all models in a single object
+  return Object.assign<
+    Record<string, ParsedDataModel>,
+    Record<string, ParsedDataModel>,
+    Record<string, ParsedDataModel>
+  >({}, models, admin);
 }
