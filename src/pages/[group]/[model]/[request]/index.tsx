@@ -56,7 +56,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
   /* STATE */
 
   const [recordData, setRecordData] = useState<DataRecord>({
-    [model.schema.primaryKey]: urlQuery.id ?? null,
+    [model.primaryKey]: urlQuery.id ?? null,
   });
   const [ajvErrors, setAjvErrors] = useState<Record<string, string[]>>();
 
@@ -134,7 +134,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
         try {
           const query = zendro.queries[props.model].deleteOne.query;
           const variables = {
-            [model.schema.primaryKey]: recordData[model.schema.primaryKey],
+            [model.primaryKey]: recordData[model.primaryKey],
           };
           await zendro.request(query, { variables });
           router.push(`/${props.group}/${props.model}`);
@@ -203,7 +203,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
         mutateRecord(response[request.resolver]);
 
         if (props.request === 'new') {
-          const newId = response[request.resolver][model.schema.primaryKey];
+          const newId = response[request.resolver][model.primaryKey];
           router.push(`/${props.group}/${props.model}/edit?id=${newId}`);
         } else {
           router.push(`/${props.group}/${props.model}`);
@@ -254,7 +254,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
     async () => {
       const request = zendro.queries[props.model].readOne;
       const variables = {
-        [model.schema.primaryKey]: urlQuery.id,
+        [model.primaryKey]: urlQuery.id,
       };
       const response = await zendro.request<Record<string, DataRecord>>(
         request.query,
@@ -268,7 +268,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
       onSuccess: (data) => {
         setRecordData(
           data ?? {
-            [model.schema.primaryKey]: urlQuery.id ?? null,
+            [model.primaryKey]: urlQuery.id ?? null,
           }
         );
         setAjvErrors(undefined);
@@ -303,7 +303,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
             links:
               props.request === 'new'
                 ? []
-                : model.schema.associations?.map((assoc) => ({
+                : model.associations?.map((assoc) => ({
                     type: 'link',
                     label: assoc.name,
                     href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
@@ -313,7 +313,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
       />
 
       <AttributesForm
-        attributes={model.schema.attributes}
+        attributes={model.attributes}
         className={classes.root}
         data={recordData}
         disabled={props.request === 'details'}

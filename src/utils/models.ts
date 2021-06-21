@@ -51,81 +51,6 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
 }
 
 /**
- * Read raw associations into a parsed array.
- * @param model parsed data model object
- */
-export function parseAssociations(model: DataModel): ParsedAssociation[] {
-  let parsedAssociations: ParsedAssociation[] = [];
-
-  if (model.associations) {
-    parsedAssociations = Object.entries(model.associations).map(
-      ([name, values]) => ({
-        name,
-        ...values,
-      })
-    );
-  }
-
-  return parsedAssociations;
-}
-
-export function parseAttributes(
-  model: DataModel,
-  options?: {
-    excludeForeignKeys: boolean;
-  }
-): { [name: string]: ParsedAttribute } {
-  // Get the model foreign keys
-  const foreignKeys = getForeignKeys(model);
-
-  // Parse the model attributes
-  let hasInternalId = false;
-  const attributes = Object.entries(model.attributes).reduce<{
-    [name: string]: ParsedAttribute;
-  }>((attrs, [name, type]) => {
-    const primaryKey = model.internalId === name;
-    const foreignKey = foreignKeys.has(name);
-
-    if (primaryKey) hasInternalId = true;
-    if (options?.excludeForeignKeys && foreignKey) return attrs;
-
-    return {
-      ...attrs,
-      [name]: {
-        name,
-        type,
-        primaryKey,
-        foreignKey,
-      },
-    };
-  }, {});
-
-  // Sort or unshift the id attribute
-  let sortedAttributes: typeof attributes;
-  if (hasInternalId) {
-    sortedAttributes = Object.fromEntries(
-      Object.entries(
-        attributes
-      ).sort(([, parsedAttribute1], [, parsedAttribute2]) =>
-        parsedAttribute1.primaryKey ? -1 : parsedAttribute2.primaryKey ? 1 : 0
-      )
-    );
-  } else {
-    sortedAttributes = {
-      id: {
-        name: 'id',
-        type: 'Int',
-        primaryKey: true,
-        automaticId: true,
-      },
-      ...attributes,
-    };
-  }
-
-  return sortedAttributes;
-}
-
-/**
  * Depending on the storageType the model might have some restrictions on certain aspects of the zendro API (search, order, paginate).
  * This function returns those privileges
  *
@@ -268,9 +193,26 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
   }
 }
 
-/* DEPRECATED */
+/**
+ * Read raw associations into a parsed array.
+ * @param model parsed data model object
+ */
+export function parseAssociations(model: DataModel): ParsedAssociation[] {
+  let parsedAssociations: ParsedAssociation[] = [];
 
-export function getAttributeList(
+  if (model.associations) {
+    parsedAssociations = Object.entries(model.associations).map(
+      ([name, values]) => ({
+        name,
+        ...values,
+      })
+    );
+  }
+
+  return parsedAssociations;
+}
+
+export function parseAttributes(
   model: DataModel,
   options?: {
     excludeForeignKeys: boolean;

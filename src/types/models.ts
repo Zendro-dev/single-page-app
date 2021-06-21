@@ -41,17 +41,6 @@ export type StorageType =
   | 'presto-adapter'
   | 'neo4j-adapter';
 
-export interface ApiPrivileges {
-  operators: Operator[];
-  textSearch: boolean;
-  backwardPagination: boolean;
-  sort: boolean;
-  create: boolean;
-  update: boolean;
-  delete: boolean;
-  bulkAddCsv: boolean;
-}
-
 export interface Attributes {
   [key: string]: AttributeScalarType | AttributeArrayType;
 }
@@ -109,6 +98,17 @@ export interface ParsedAssociation extends Association {
 
 /* DATA MODELS */
 
+export interface ApiPrivileges {
+  operators: Operator[];
+  textSearch: boolean;
+  backwardPagination: boolean;
+  sort: boolean;
+  create: boolean;
+  update: boolean;
+  delete: boolean;
+  bulkAddCsv: boolean;
+}
+
 export interface DataModel {
   associations?: Record<string, Association>;
   attributes: Attributes;
@@ -117,24 +117,12 @@ export interface DataModel {
   storageType: StorageType;
 }
 
-export interface ParsedDataModel extends DataModel {
-  primaryKey: string;
-}
-
-export type ParsedDataModel2 = Assign<
+export type ParsedDataModel = Assign<
   DataModel,
   {
+    apiPrivileges: ApiPrivileges;
     associations?: ParsedAssociation[];
     attributes: ParsedAttribute[];
-    primaryKey: string;
-  }
->;
-
-export type ParsedDataModel3 = Assign<
-  DataModel,
-  {
-    associations?: Record<string, ParsedAssociation>;
-    attributes: Record<string, ParsedAttribute>;
     primaryKey: string;
   }
 >;

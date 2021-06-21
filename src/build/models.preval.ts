@@ -1,23 +1,30 @@
 import preval from 'next-plugin-preval';
-import { ParsedDataModel2 } from '@/types/models';
-import { getAttributeList, parseAssociations } from '@/utils/models';
+import { ParsedDataModel } from '@/types/models';
 import { getStaticModels } from './models';
 
-async function buildModels(): Promise<Record<string, ParsedDataModel2>> {
+async function buildModels(): Promise<Record<string, ParsedDataModel>> {
   const models = await getStaticModels();
 
-  return Object.entries(models).reduce((acc, [name, schema]) => {
-    const attributes = getAttributeList(schema, { excludeForeignKeys: true });
-    const associations = parseAssociations(schema);
-    return {
-      ...acc,
-      [name]: {
-        ...schema,
-        associations,
-        attributes,
-      },
-    };
-  }, {} as Promise<Record<string, ParsedDataModel2>>);
+  // Filter out foreign key attributes
+  const dataModelEntries = Object.entries(models).map(
+    ([modelName, modelData]) => {
+      const attributes = modelData.attributes.filter(
+        (attribute) => !attribute.foreignKey
+      );
+
+      return [
+        modelName,
+        {
+          ...modelData,
+          attributes,
+        },
+      ];
+    }
+  );
+
+  const dataModels = Object.fromEntries(dataModelEntries);
+
+  return dataModels;
 }
 
 export default preval(buildModels());
