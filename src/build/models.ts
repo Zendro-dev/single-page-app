@@ -50,7 +50,7 @@ export async function getStaticModels(): Promise<
   for (const filePath of [...adminModels, ...dataModels]) {
     const file = parse(filePath);
     const dataModel = await getStaticModel(file.name);
-    models[file.name] = dataModel;
+    models[dataModel.model] = dataModel;
   }
 
   return models;
