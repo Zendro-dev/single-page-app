@@ -1,7 +1,8 @@
 import { AclSet } from 'acl';
 import preval from 'next-plugin-preval';
-import { mkdir, readdir, stat, writeFile } from 'fs/promises';
+import { mkdir, stat, writeFile } from 'fs/promises';
 import { parse } from 'path';
+import { getStaticModels } from './models';
 
 const defaultRoles = [
   {
@@ -26,11 +27,10 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
   /**
    * Re-generate the default file and write them to file.
    */
-  const admin = await readdir('./admin');
-  const models = await readdir('./models');
+  const modelPaths = await getStaticModels();
 
-  const adminResources = admin.map((file) => parse(file).name);
-  const modelResources = models.map((file) => parse(file).name);
+  const adminResources = modelPaths.admin.map((file) => parse(file).name);
+  const modelResources = modelPaths.models.map((file) => parse(file).name);
 
   let aclRules: AclSet[] = defaultRoles.map(({ roles, permissions }) => ({
     roles,

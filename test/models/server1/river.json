@@ -6,17 +6,29 @@
     "length" : "Int",
     "river_id": "String",
 
-    "country_ids": "[String]"
+    "country_ids": "[String]",
+    "city_ids": "[String]"
   },
   "associations": {
     "countries": {
-      "type": "to_many",
-      "reverseAssociationType": "to_many",
+      "type": "many_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "rivers",
       "target": "country",
       "targetKey": "river_ids",
       "sourceKey": "country_ids",
-      "keyIn": "river",
+      "keysIn": "river",
       "targetStorageType": "sql"
+    },
+    "cities": {
+      "type": "many_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "rivers",
+      "target": "city",
+      "targetKey": "river_ids",
+      "sourceKey": "city_ids",
+      "keysIn": "river",
+      "targetStorageType": "cassandra"
     }
   },
   "internalId": "river_id"
