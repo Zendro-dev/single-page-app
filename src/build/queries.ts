@@ -10,16 +10,21 @@ import {
   queryRecordsWithToMany,
   readOneRecordWithAssoc,
 } from '@/utils/queries';
-import { getStaticModels } from './models';
+import { parseStaticModels } from './models';
 
+/**
+ * Create the static queries used in the default model, record,
+ * and association pages.
+ * @returns all generated static queries
+ */
 export async function getStaticQueries(): Promise<
   Record<string, StaticQueries>
 > {
   const staticModels: Record<string, StaticQueries> = {};
 
-  const dataModels = await getStaticModels();
+  const allModels = await parseStaticModels();
 
-  Object.entries(dataModels).map(([name, schema]) => {
+  Object.entries(allModels).map(([name, schema]) => {
     const nonFkAttributes = schema.attributes.filter(
       (attribute) => !attribute.foreignKey
     );
@@ -30,7 +35,7 @@ export async function getStaticQueries(): Promise<
       schema.associations
     );
 
-    const withFilter = getStaticAssociationQueries(schema, dataModels);
+    const withFilter = getStaticAssociationQueries(schema, allModels);
 
     staticModels[name] = {
       readAll: queryRecords(name, nonFkAttributes),
@@ -49,7 +54,10 @@ export async function getStaticQueries(): Promise<
 }
 
 /**
- * generates the static queries used to request association related data.
+ * Generate static queries used in the default association pages.
+ * @param sourceModel model that contains an association reference
+ * @param targetModels record of associated models
+ * @returns static queries used in default association pages
  */
 export function getStaticAssociationQueries(
   sourceModel: ParsedDataModel,

@@ -1,0 +1,5 @@
+FROM cassandra:3.11.6
+
+RUN mkdir -p /home/cassandra/.cassandra && chown -R cassandra /home/cassandra
+
+CMD ["cassandra", "-f"]

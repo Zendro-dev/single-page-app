@@ -1,5 +1,4 @@
-import { readdir, readFile } from 'fs/promises';
-import { parse } from 'path';
+import { readFile } from 'fs/promises';
 import {
   AssociationUrlQuery,
   AppRoutes,
@@ -8,7 +7,7 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { getStaticModel } from './models';
+import { parseStaticModels } from './models';
 import { ParsedDataModel } from '@/types/models';
 
 /**
@@ -19,26 +18,11 @@ export async function parseDataModels(): Promise<{
   admin: ParsedDataModel[];
   models: ParsedDataModel[];
 }> {
-  const parseModel = async (
-    modelStorage: ParsedDataModel[],
-    modelFilePath: string
-  ): Promise<void> => {
-    const file = parse(modelFilePath);
-    const adminModel = await getStaticModel(file.name);
-    modelStorage.push(adminModel);
-  };
-
-  const admin: ParsedDataModel[] = [];
-  const adminModelPaths = await readdir('./admin');
-  for (const filePath of adminModelPaths) await parseModel(admin, filePath);
-
-  const models: ParsedDataModel[] = [];
-  const dataModelPaths = await readdir('./models');
-  for (const filePath of dataModelPaths) await parseModel(models, filePath);
+  const modelFiles = await parseStaticModels(true);
 
   return {
-    admin,
-    models,
+    admin: Object.values(modelFiles.admin),
+    models: Object.values(modelFiles.models),
   };
 }
 

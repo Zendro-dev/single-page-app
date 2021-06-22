@@ -10,26 +10,40 @@
   },
   "associations": {
     "unique_capital": {
-      "type" : "to_one",
+      "type" : "one_to_one",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "unique_country",
       "target" : "capital",
       "targetKey" : "country_id",
-      "keyIn": "capital",
+      "keysIn": "capital",
       "targetStorageType" : "sql"
     },
+    "cities": {
+      "type": "one_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "country",
+      "target": "city",
+      "targetKey": "country_id",
+      "keysIn": "city",
+      "targetStorageType": "cassandra" 
+    },
     "rivers": {
-      "type": "to_many",
-      "reverseAssociationType": "to_many",
+      "type": "many_to_many",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "countries",
       "target": "river",
       "targetKey": "country_ids",
       "sourceKey": "river_ids",
-      "keyIn": "country",
+      "keysIn": "country",
       "targetStorageType": "sql"
     },
     "continent": {
-      "type" : "to_one",
+      "type" : "many_to_one",
+      "implementation": "foreignkeys",
+      "reverseAssociation": "countries",
       "target": "continent",
       "targetKey": "continent_id",
-      "keyIn": "country",
+      "keysIn": "country",
       "targetStorageType" : "sql"
     }
   },

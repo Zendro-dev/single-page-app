@@ -143,9 +143,9 @@ describe('Record association page', () => {
       expect(response?.body.data).to.deep.eq({
         pageInfo: {
           startCursor:
-            'eyJuYW1lIjoicmhpbmUiLCJsZW5ndGgiOjEwMDAsInJpdmVyX2lkIjoicml2ZXJfMSIsImNvdW50cnlfaWRzIjpbImNvdW50cnlfMSIsImNvdW50cnlfNSIsImNvdW50cnlfNiJdfQ==',
+            'eyJuYW1lIjoicmhpbmUiLCJsZW5ndGgiOjEwMDAsInJpdmVyX2lkIjoicml2ZXJfMSIsImNvdW50cnlfaWRzIjpbImNvdW50cnlfMSIsImNvdW50cnlfNSIsImNvdW50cnlfNiJdLCJjaXR5X2lkcyI6W119',
           endCursor:
-            'eyJuYW1lIjoiZGFudWIiLCJsZW5ndGgiOjIwMDAsInJpdmVyX2lkIjoicml2ZXJfMiIsImNvdW50cnlfaWRzIjpbImNvdW50cnlfMSJdfQ==',
+            'eyJuYW1lIjoiZGFudWIiLCJsZW5ndGgiOjIwMDAsInJpdmVyX2lkIjoicml2ZXJfMiIsImNvdW50cnlfaWRzIjpbImNvdW50cnlfMSJdLCJjaXR5X2lkcyI6W119',
           hasPreviousPage: false,
           hasNextPage: false,
         },

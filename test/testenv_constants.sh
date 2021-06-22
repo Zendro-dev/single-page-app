@@ -13,8 +13,7 @@ GRAPHQL_SERVER_BRANCH=master
 GRAPHQL_SERVER_1="${ENV_DIR}/gql_science_db_graphql_server1"
 # GRAPHQL_SERVER_2="${ENV_DIR}/gql_science_db_graphql_server2"
 
-# GRAPHQL_SERVER_1_MODELS="${TEST_DIR}/config/integration_test_models_instance1"
-GRAPHQL_SERVER_1_MODELS="models"
+GRAPHQL_SERVER_1_MODELS="${TEST_DIR}/models/server1"
 # GRAPHQL_SERVER_2_MODELS="${TEST_DIR}/config/integration_test_models_instance2"
 
 GRAPHQL_SERVER_1_URL="localhost:3000/graphql"

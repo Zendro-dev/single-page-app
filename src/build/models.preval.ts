@@ -1,9 +1,9 @@
 import preval from 'next-plugin-preval';
 import { ParsedDataModel } from '@/types/models';
-import { getStaticModels } from './models';
+import { parseStaticModels } from './models';
 
 async function buildModels(): Promise<Record<string, ParsedDataModel>> {
-  const models = await getStaticModels();
+  const models = await parseStaticModels();
 
   // Filter out foreign key attributes
   const dataModelEntries = Object.entries(models).map(

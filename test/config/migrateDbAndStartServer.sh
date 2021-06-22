@@ -53,12 +53,17 @@ for object in ${DB_KEYS[@]}; do
 
   fi
 
+  if [[ "$storageType" == "cassandra" ]]; then
+    # Run the migrations
+    node ./scripts/setup_cassandra_db.js
+  fi
+
 done
 
 psql \
   -h gql_postgres1 \
-  -U sciencedb \
-  -d sciencedb_development \
+  -U zendro \
+  -d zendro_development \
   -P pager=off \
   --single-transaction \
   -f ./integration-test.sql

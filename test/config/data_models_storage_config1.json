@@ -1,10 +1,18 @@
 {
   "default-sql": {
     "storageType": "sql",
-    "username": "sciencedb",
-    "password": "sciencedb",
-    "database": "sciencedb_development",
+    "username": "zendro",
+    "password": "zendro",
+    "database": "zendro_development",
     "host": "gql_postgres1",
     "dialect": "postgres"
+  },
+  "default-cassandra": {
+    "storageType": "cassandra",
+    "username": "zendro",
+    "password": "zendro",
+    "keyspace": "zendro",
+    "host": "gql_cassandra1",
+    "port": "9042"
   }
 }
