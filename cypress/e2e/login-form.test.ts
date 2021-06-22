@@ -45,9 +45,8 @@ describe('Login form', () => {
         expect(decodedToken.email).to.equal('admin@zen.dro');
         expect(decodedToken.roles).to.deep.equal([
           'administrator',
-          'reader',
           'editor',
-          'acl_validations-role',
+          'reader',
         ]);
       });
   });
