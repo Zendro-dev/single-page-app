@@ -25,7 +25,7 @@
     "@material-ui/core": "^5.0.0-alpha.25",
     "@material-ui/icons": "^5.0.0-alpha.24",
     "@material-ui/lab": "^5.0.0-alpha.25",
-    "@reduxjs/toolkit": "^1.5.0",
+    "@reduxjs/toolkit": "^1.6.0",
     "@types/acl": "^0.4.37",
     "acl2": "^2.0.0",
     "axios": "^0.21.1",
