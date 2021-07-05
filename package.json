@@ -52,9 +52,9 @@
     "@babel/core": "^7.14.0",
     "@cypress/code-coverage": "^3.9.5",
     "@types/inflection": "^1.5.28",
-    "@types/node": "^15.0.1",
+    "@types/node": "^16.0.0",
     "@types/prettier": "^2.3.1",
-    "@types/react": "^17.0.4",
+    "@types/react": "^17.0.13",
     "@types/react-test-renderer": "^17.0.1",
     "@types/redux-logger": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
@@ -73,7 +73,7 @@
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.2",
     "serve": "^11.3.2",
-    "typescript": "^4.2.4",
+    "typescript": "^4.3.5",
     "utility-types": "^3.10.0"
   }
 }
