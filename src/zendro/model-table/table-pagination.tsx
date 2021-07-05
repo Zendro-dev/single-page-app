@@ -105,7 +105,7 @@ export default function RecordsTablePagination({
       )}
 
       <Tooltip
-        title={t('model-table.pagination-first')}
+        title={t('model-table.pagination-first') ?? ''}
         style={{ marginLeft: 'auto' }}
       >
         <span>
@@ -119,7 +119,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-previous')}>
+      <Tooltip title={t('model-table.pagination-previous') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('previous')}
@@ -131,7 +131,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-next')}>
+      <Tooltip title={t('model-table.pagination-next') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('next')}
@@ -143,7 +143,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-last')}>
+      <Tooltip title={t('model-table.pagination-last') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('last')}

@@ -87,9 +87,10 @@ export default function AttributesForm({
     initForm
   );
 
-  const formStats = useMemo(() => computeStats(formAttributes), [
-    formAttributes,
-  ]);
+  const formStats = useMemo(
+    () => computeStats(formAttributes),
+    [formAttributes]
+  );
 
   /* EFFECTS */
 
@@ -119,26 +120,23 @@ export default function AttributesForm({
 
   /* HANDLERS */
 
-  const handleOnAction = ({
-    handler,
-  }: {
-    action: FormAction;
-    handler: ActionHandler;
-  }) => (event: React.FormEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  const handleOnAction =
+    ({ handler }: { action: FormAction; handler: ActionHandler }) =>
+    (event: React.FormEvent<HTMLButtonElement>) => {
+      event.preventDefault();
 
-    formAttributes.reduce(
-      (acc, { value, clientError }) => {
-        if (isNullorEmpty(value)) acc.unset += 1;
-        if (clientError) acc.clientErrors += 1;
-        return acc;
-      },
-      { clientErrors: 0, unset: 0 } as FormStats
-    );
+      formAttributes.reduce(
+        (acc, { value, clientError }) => {
+          if (isNullorEmpty(value)) acc.unset += 1;
+          if (clientError) acc.clientErrors += 1;
+          return acc;
+        },
+        { clientErrors: 0, unset: 0 } as FormStats
+      );
 
-    // let callback: (() => void) | undefined;
-    handler(formAttributes, formStats);
-  };
+      // let callback: (() => void) | undefined;
+      handler(formAttributes, formStats);
+    };
 
   /**
    * Update an attribute value in the internal state.
@@ -255,7 +253,7 @@ export default function AttributesForm({
         <FormHeader
           locked={disabled}
           prefix={t(
-            (`record-form.${formView}` as unknown) as TemplateStringsArray
+            `record-form.${formView}` as unknown as TemplateStringsArray
           )}
           title={modelName}
           subtitle={`${t('record-form.completed')} ${
@@ -305,7 +303,9 @@ export default function AttributesForm({
                 label={name}
                 actionLeft={
                   primaryKey && (
-                    <Tooltip title={t('record-fields.primary-key', { name })}>
+                    <Tooltip
+                      title={t('record-fields.primary-key', { name }) ?? ''}
+                    >
                       <KeyIcon fontSize="small" color="action" />
                     </Tooltip>
                   )
@@ -313,7 +313,7 @@ export default function AttributesForm({
                 readOnly={readOnly}
                 actionRight={
                   readOnly ? (
-                    <Tooltip title={t('record-fields.read-only')}>
+                    <Tooltip title={t('record-fields.read-only') ?? ''}>
                       <LockIcon fontSize="small" color="secondary" />
                     </Tooltip>
                   ) : null

@@ -26,7 +26,7 @@ export default function FormHeader({
       <div>
         <h1>
           {locked && (
-            <Tooltip title={t('record-form.read-only')}>
+            <Tooltip title={t('record-form.read-only') ?? ''}>
               <LockIcon color="secondary" />
             </Tooltip>
           )}
