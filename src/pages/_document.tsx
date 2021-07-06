@@ -6,13 +6,11 @@ import Document, {
   Main,
   NextScript,
 } from 'next/document';
-import { ServerStyleSheets } from '@material-ui/core/styles';
+import { ServerStyleSheets } from '@material-ui/styles';
 import { theme } from '../styles/theme';
 
 export default class MyDocument extends Document {
-  static async getInitialProps(
-    ctx: DocumentContext
-  ): Promise<{
+  static async getInitialProps(ctx: DocumentContext): Promise<{
     styles: Record<string, unknown>[];
     html: string;
     head?: (JSX.Element | null)[] | undefined;

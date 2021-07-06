@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import clsx from 'clsx';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   Box,
   Button,
@@ -124,7 +125,7 @@ export default function ConfirmationDialog({
   );
 }
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     content: {
       minHeight: theme.spacing(30),

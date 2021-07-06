@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import SiteLink from '@/components/site-link';
 import TabMenu from './tab-menu';
 import { SvgIconType } from '@/types/elements';
@@ -78,7 +79,7 @@ export default function NavigationTabs(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     nav: {
       marginBottom: theme.spacing(6),

@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
 import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   FilterAltOutlined as FilterIcon,
   Link as LinkIcon,
@@ -107,9 +108,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
 
-  const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
-    'no-filter'
-  );
+  const [recordsFilter, setRecordsFilter] =
+    useState<AssociationFilter>('no-filter');
   const [selectedRecords, setSelectedRecords] = useState<{
     toAdd: (string | number)[];
     toRemove: (string | number)[];
@@ -653,7 +653,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 Association.layout = ModelLayout;
 export default Association;
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',

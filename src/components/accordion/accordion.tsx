@@ -1,6 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
 import { Box, Collapse, IconButton, Typography } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 
 import {
   ExpandLess as CollapseIcon,
@@ -47,7 +48,7 @@ export default function Accordion(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       position: 'relative',

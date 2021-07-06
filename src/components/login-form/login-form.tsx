@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { Button } from '@material-ui/core';
 
 import EmailField from './login-field';
@@ -32,11 +33,11 @@ export default function LoginForm(props: LoginFormProps): ReactElement {
     password: '',
   });
 
-  const onFieldChange = (prop: keyof LoginFormState) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setState({ ...state, [prop]: event.target.value });
-  };
+  const onFieldChange =
+    (prop: keyof LoginFormState) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setState({ ...state, [prop]: event.target.value });
+    };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
+import { createStyles, makeStyles } from '@material-ui/styles';
 
 import { getStaticRecordPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
@@ -20,7 +21,6 @@ import AttributesForm, {
   ActionHandler,
   computeDiffs,
 } from '@/zendro/record-form';
-import { createStyles, makeStyles } from '@material-ui/core';
 
 export const getStaticPaths: GetStaticPaths<RecordUrlQuery> = async () => {
   const paths = await getStaticRecordPaths();

@@ -7,7 +7,7 @@ import {
   TableProps as MuiTableProps,
   Typography,
 } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { DataRecord } from '@/types/models';
 
 export interface TableRecord {

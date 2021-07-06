@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   IconButton,
   Tooltip,
@@ -10,7 +11,6 @@ import {
   Select,
   Box,
   FormControl,
-  createStyles,
 } from '@material-ui/core';
 import {
   FirstPage,
@@ -158,7 +158,7 @@ export default function RecordsTablePagination({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     pagination: {
       padding: theme.spacing(6, 2),

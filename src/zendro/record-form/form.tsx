@@ -9,7 +9,8 @@ import React, {
 import { useTranslation } from 'react-i18next';
 
 import { Container, ContainerProps, Tooltip } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   Cached as Reload,
   Clear as CancelIcon,
@@ -331,7 +332,7 @@ export default function AttributesForm({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     form: {
       display: 'flex',

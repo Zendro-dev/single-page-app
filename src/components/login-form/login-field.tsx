@@ -1,13 +1,8 @@
 import React, { ReactElement } from 'react';
-import {
-  createStyles,
-  makeStyles,
-  TextField,
-  TextFieldProps,
-  Theme,
-} from '@material-ui/core';
-
-import { SvgIconType } from '../../types/elements';
+import { TextField, TextFieldProps } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
+import { SvgIconType } from '@/types/elements';
 
 export type LoginFieldProps = TextFieldProps & {
   icon?: SvgIconType;

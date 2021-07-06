@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { Box } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   InfoOutlined as InfoIcon,
   WarningAmber as WarningIcon,
@@ -38,7 +39,7 @@ export default function AlertCard(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     card: {
       // Layout

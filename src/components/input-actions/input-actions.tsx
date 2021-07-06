@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { ReactElement, ReactNode, PropsWithChildren } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 
 interface InputActionsProps {
   className?: string;
@@ -56,7 +57,7 @@ export default function InputActions({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       position: 'relative',

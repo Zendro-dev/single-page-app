@@ -1,6 +1,5 @@
 import { ReactElement, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
   IconButtonProps,
@@ -9,6 +8,8 @@ import {
   Tooltip,
   Typography,
 } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
 import ClientOnly from '@/components/client-only';
 
