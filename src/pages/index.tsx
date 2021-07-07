@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
       [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(2, 8),
-        flexBasis: '45%',
+        flexBasis: '40%',
         '&:nth-child(even)': {
           marginLeft: theme.spacing(2),
         },
