@@ -1,5 +1,5 @@
 import { AppProps } from 'next/app';
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider } from 'notistack5';
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 

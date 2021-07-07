@@ -8,7 +8,7 @@ import {
   SnackbarKey,
   VariantType,
   SnackbarMessage,
-} from 'notistack';
+} from 'notistack5';
 import {
   Collapse,
   Paper,

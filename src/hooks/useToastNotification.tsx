@@ -1,5 +1,5 @@
 import ToastAlert from '@/components/toast-alert';
-import { SnackbarMessage, useSnackbar, VariantType } from 'notistack';
+import { SnackbarMessage, useSnackbar, VariantType } from 'notistack5';
 import { useCallback } from 'react';
 
 type showNotification = (
