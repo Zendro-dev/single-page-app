@@ -1,7 +1,8 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { Lock as LockIcon } from '@material-ui/icons';
 
 interface FormHeaderProps {
@@ -26,7 +27,7 @@ export default function FormHeader({
       <div>
         <h1>
           {locked && (
-            <Tooltip title={t('record-form.read-only')}>
+            <Tooltip title={t('record-form.read-only') ?? ''}>
               <LockIcon color="secondary" />
             </Tooltip>
           )}
@@ -44,7 +45,7 @@ export default function FormHeader({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     legend: {
       // Layout

@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
 import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   AddCircleOutline as AddIcon,
   Replay as ReloadIcon,
@@ -574,7 +575,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     tableContainer: {
       display: 'flex',

@@ -1,5 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   FormControl,
   FormHelperText,
@@ -39,7 +40,7 @@ export default function TextInput({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',

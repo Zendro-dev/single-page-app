@@ -35,7 +35,7 @@ export default function AttributeField({
         endAdornment={
           props.onChange && (
             <InputAdornment position="end">
-              <Tooltip title={t('record-fields.unset')}>
+              <Tooltip title={t('record-fields.unset') ?? ''}>
                 <span>
                   <IconButton
                     tabIndex="-1"

@@ -1,6 +1,6 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 
-const defaultTheme = createMuiTheme();
+const defaultTheme = createTheme();
 
 const blue = {
   50: '#f0f4f8',
@@ -54,7 +54,7 @@ const green = {
   900: '#014d40',
 };
 
-export const theme = createMuiTheme({
+export const theme = createTheme({
   spacing: (value: number) => defaultTheme.typography.pxToRem(value / 0.25),
   // spacing: (value: number) => `${0.25 * value}rem`,
   palette: {

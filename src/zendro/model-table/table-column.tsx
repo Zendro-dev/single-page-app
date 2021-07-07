@@ -7,7 +7,8 @@ import {
   Box,
   TableCellProps,
 } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { SvgIconType } from '@/types/elements';
 import { OrderDirection } from '@/types/queries';
 
@@ -63,7 +64,7 @@ export default function TableColumn({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     icon: {
       marginRight: theme.spacing(1),

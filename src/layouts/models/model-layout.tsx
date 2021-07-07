@@ -13,7 +13,8 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@material-ui/icons';
-import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, useTheme } from '@material-ui/styles';
 
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';
@@ -33,7 +34,7 @@ export default function ModelLayout(
   const router = useRouter();
   const routePath = useRef(router.asPath);
   const [showNav, setShowNav] = useState(true);
-  const theme = useTheme();
+  const theme = useTheme<Theme>();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   useEffect(
@@ -76,7 +77,7 @@ export default function ModelLayout(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       width: theme.spacing(9),

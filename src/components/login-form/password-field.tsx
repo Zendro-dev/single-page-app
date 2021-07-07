@@ -41,8 +41,8 @@ export default function PasswordField(props: LoginFieldProps): ReactElement {
             <Tooltip
               title={
                 state.showPassword
-                  ? t('login-form.hide-password')
-                  : t('login-form.show-password')
+                  ? t('login-form.hide-password') ?? ''
+                  : t('login-form.show-password') ?? ''
               }
             >
               <IconButton

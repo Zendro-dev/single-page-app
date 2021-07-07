@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { ReactElement } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   Divider,
   OutlinedInput,
@@ -83,7 +84,7 @@ export default function SelectInput(props: StyledSelectProps): ReactElement {
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formControl: {
       minWidth: theme.spacing(60),

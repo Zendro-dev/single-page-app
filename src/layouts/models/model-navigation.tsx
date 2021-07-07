@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import dataModels from '@/build/models.preval';
 import useMuiIcon from '@/hooks/useMuiIcon';
 
@@ -47,7 +48,7 @@ export default function Navigation({
               key={route.name}
               icon={route.icon ? getIcon(route.icon) : undefined}
               label={t(
-                ((`models-layout.${route.name.toLowerCase()}` as unknown) as TemplateStringsArray) ??
+                (`models-layout.${route.name.toLowerCase()}` as unknown as TemplateStringsArray) ??
                   route.name
               )}
             >
@@ -81,7 +82,7 @@ export default function Navigation({
   );
 }
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     drawer: {
       display: 'flex',

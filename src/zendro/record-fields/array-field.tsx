@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Overwrite } from 'utility-types';
 
 import { Button, FormHelperText, InputAdornment } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import {
   Add as AddIcon,
   Clear as ClearIcon,
@@ -51,25 +52,27 @@ export default function ArrayField({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const handleOnChange = (index: number) => (
-    v: AttributeScalarValue | AttributeArrayValue
-  ): void => {
-    const scalarValue = v as AttributeScalarValue;
-    if (onChange && arrayValue) {
-      arrayValue[index] = scalarValue;
-      onChange(arrayValue);
-    }
-  };
+  const handleOnChange =
+    (index: number) =>
+    (v: AttributeScalarValue | AttributeArrayValue): void => {
+      const scalarValue = v as AttributeScalarValue;
+      if (onChange && arrayValue) {
+        arrayValue[index] = scalarValue;
+        onChange(arrayValue);
+      }
+    };
 
-  const addItem = (index: number) => (
-    event: React.MouseEvent<HTMLButtonElement>
-  ): void => {
-    event.preventDefault();
-    arrayValue ? arrayValue.splice(index + 1, 0, null) : (arrayValue = [null]);
-    if (onChange) {
-      onChange(arrayValue);
-    }
-  };
+  const addItem =
+    (index: number) =>
+    (event: React.MouseEvent<HTMLButtonElement>): void => {
+      event.preventDefault();
+      arrayValue
+        ? arrayValue.splice(index + 1, 0, null)
+        : (arrayValue = [null]);
+      if (onChange) {
+        onChange(arrayValue);
+      }
+    };
 
   const handleOnClear = (index: number): void => {
     if (arrayValue && onChange && !props.readOnly) {
@@ -188,7 +191,7 @@ export default function ArrayField({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     accordion: {
       boxShadow: 'none',

@@ -1,6 +1,5 @@
 import { ReactElement, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   IconButton,
   IconButtonProps,
@@ -9,6 +8,8 @@ import {
   Tooltip,
   Typography,
 } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
 import ClientOnly from '@/components/client-only';
 
@@ -31,11 +32,10 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
     i18n.changeLanguage(translations.current[index].lcode);
   };
 
-  const handleTranslationIconClick: React.MouseEventHandler<HTMLButtonElement> = (
-    event
-  ) => {
-    setTranslationAnchorEl(event.currentTarget);
-  };
+  const handleTranslationIconClick: React.MouseEventHandler<HTMLButtonElement> =
+    (event) => {
+      setTranslationAnchorEl(event.currentTarget);
+    };
 
   const handleTranslationMenuClose: React.MouseEventHandler<
     HTMLButtonElement | HTMLLIElement
@@ -46,7 +46,7 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
     <>
       {/* Translate.icon */}
       <ClientOnly>
-        <Tooltip title={t('toolbar.change-language')}>
+        <Tooltip title={t('toolbar.change-language') ?? ''}>
           <IconButton
             {...props}
             id="language-switcher-button"
