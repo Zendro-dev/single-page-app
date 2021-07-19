@@ -170,3 +170,19 @@ export async function parseStaticModels(
     Record<string, ParsedDataModel>
   >({}, models, admin);
 }
+
+/**
+ * Parse a list of parsed Data models models and their associations to filter for cross-table models
+ * @param parsedModels List of parsed Data models.
+ * @returns A list of unique names for models that are representing a sql cross table.
+ */
+export function getCrossModels(parsedModels: ParsedDataModel[]): string[] {
+  const cross_models = parsedModels.reduce<string[]>((acc, curr) => {
+    curr.associations?.forEach((assoc) => {
+      if (assoc.implementation === 'sql_cross_table')
+        acc.push(assoc.keysIn as string);
+    });
+    return acc;
+  }, []);
+  return [...new Set(cross_models)];
+}
