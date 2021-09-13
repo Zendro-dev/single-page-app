@@ -1,84 +1,84 @@
-// import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import preval from 'next-plugin-preval';
-// import { join } from 'path';
-// import { format } from 'prettier';
+import { join } from 'path';
+import { format } from 'prettier';
 import { StaticQueries } from '@/types/static';
 import { getStaticQueries } from './queries';
 
-// function formatQuery(
-//   name: string,
-//   query: string,
-//   resolver: string,
-//   transform: string
-// ): string {
-//   const graphqlQuery = format(query, { parser: 'graphql' });
+function formatQuery(
+  name: string,
+  query: string,
+  resolver: string,
+  transform: string
+): string {
+  const graphqlQuery = format(query, { parser: 'graphql' });
 
-//   const data = `
-//         import { gql } from 'graphql-request';
+  const data = `
+        import { gql } from 'graphql-request';
 
-//         export const name = '${name}';
+        export const name = '${name}';
 
-//         export const query = gql\`${graphqlQuery}\`;
+        export const query = gql\`${graphqlQuery}\`;
 
-//         export const resolver = '${resolver}';
+        export const resolver = '${resolver}';
 
-//         export const transform = ${
-//           transform ? "'" + transform + "'" : undefined
-//         };
+        export const transform = ${
+          transform ? "'" + transform + "'" : undefined
+        };
 
-//         export default {
-//           name,
-//           query,
-//           resolver,
-//           transform,
-//         }
-//       `;
+        export default {
+          name,
+          query,
+          resolver,
+          transform,
+        }
+      `;
 
-//   return format(data, {
-//     parser: 'typescript',
-//     semi: true,
-//     singleQuote: true,
-//     trailingComma: 'es5',
-//   });
-// }
+  return format(data, {
+    parser: 'typescript',
+    semi: true,
+    singleQuote: true,
+    trailingComma: 'es5',
+  });
+}
 
 async function buildQueries(): Promise<Record<string, StaticQueries>> {
   const modelQueries = await getStaticQueries();
 
-  // for (const [model, { withFilter, ...queries }] of Object.entries(
-  //   modelQueries
-  // )) {
-  //   const modelQueriesDir = `src/custom/queries/${model}`;
-  //   await mkdir(modelQueriesDir, { recursive: true });
+  for (const [model, { withFilter, ...queries }] of Object.entries(
+    modelQueries
+  )) {
+    const modelQueriesDir = `src/custom/queries/${model}`;
+    await mkdir(modelQueriesDir, { recursive: true });
 
-  //   /**
-  //    * Model table queries
-  //    */
-  //   for (const { name, query, resolver, transform } of Object.values(queries)) {
-  //     const formattedQuery = formatQuery(name, query, resolver, transform);
-  //     await writeFile(join(modelQueriesDir, name) + '.ts', formattedQuery);
-  //   }
+    /**
+     * Model table queries
+     */
+    for (const { name, query, resolver, transform } of Object.values(queries)) {
+      const formattedQuery = formatQuery(name, query, resolver, transform);
+      await writeFile(join(modelQueriesDir, name) + '.ts', formattedQuery);
+    }
 
-  //   /**
-  //    * Association table queries
-  //    */
-  //   const modelAssocQueriesDir = join(modelQueriesDir, 'associations');
+    /**
+     * Association table queries
+     */
+    const modelAssocQueriesDir = join(modelQueriesDir, 'associations');
 
-  //   await mkdir(modelAssocQueriesDir, { recursive: true });
+    await mkdir(modelAssocQueriesDir, { recursive: true });
 
-  //   for (const assocQueries of Object.values(withFilter)) {
-  //     for (const { name, query, resolver, transform } of Object.values(
-  //       assocQueries
-  //     )) {
-  //       const formattedQuery = formatQuery(name, query, resolver, transform);
+    for (const assocQueries of Object.values(withFilter)) {
+      for (const { name, query, resolver, transform } of Object.values(
+        assocQueries
+      )) {
+        const formattedQuery = formatQuery(name, query, resolver, transform);
 
-  //       await writeFile(
-  //         join(modelQueriesDir, 'associations', name) + '.ts',
-  //         formattedQuery
-  //       );
-  //     }
-  //   }
-  // }
+        await writeFile(
+          join(modelQueriesDir, 'associations', name) + '.ts',
+          formattedQuery
+        );
+      }
+    }
+  }
 
   return modelQueries;
 }
