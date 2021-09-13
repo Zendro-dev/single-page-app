@@ -9,12 +9,12 @@ import {
   ListItemText,
   ListProps,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import {
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { SvgIconType } from '@/types/elements';
 

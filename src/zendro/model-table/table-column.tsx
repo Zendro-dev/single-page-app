@@ -6,9 +6,9 @@ import {
   Tooltip,
   Box,
   TableCellProps,
-} from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+} from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import { SvgIconType } from '@/types/elements';
 import { OrderDirection } from '@/types/queries';
 

@@ -1,14 +1,14 @@
 import React, { useState, forwardRef } from 'react';
 import clsx from 'clsx';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   useSnackbar,
   SnackbarContent,
   SnackbarKey,
   VariantType,
   SnackbarMessage,
-} from 'notistack5';
+} from 'notistack';
 import {
   Collapse,
   Paper,
@@ -17,12 +17,12 @@ import {
   CardActions,
   IconButton,
   Box,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   Close as CloseIcon,
   ExpandMore as ExpandMoreIcon,
-} from '@material-ui/icons';
-import { green, red, blue, orange } from '@material-ui/core/colors';
+} from '@mui/icons-material';
+import { green, red, blue, orange } from '@mui/material/colors';
 
 export interface AlertToastProps {
   id: SnackbarKey;

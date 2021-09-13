@@ -1,13 +1,13 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
-} from '@material-ui/core';
+} from '@mui/material';
 import { TextInputProps } from '@/components/text-input';
 
 type BoolFieldProps = Overwrite<

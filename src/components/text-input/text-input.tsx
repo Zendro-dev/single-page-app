@@ -1,13 +1,13 @@
 import { ReactElement, ReactNode } from 'react';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   FormControl,
   FormHelperText,
   InputLabel,
   OutlinedInput,
   OutlinedInputProps,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export interface TextInputProps extends OutlinedInputProps {
   helperText?: {

@@ -45,15 +45,8 @@ export const queryRecord = (
   const updateResolver = `update${nameCp}`;
   const deleteResolver = `delete${nameCp}`;
 
-  const {
-    args,
-    argsNoAutoId,
-    idArg,
-    idVar,
-    fields,
-    vars,
-    varsNoAutoId,
-  } = parseQueryAttributes(attributes);
+  const { args, argsNoAutoId, idArg, idVar, fields, vars, varsNoAutoId } =
+    parseQueryAttributes(attributes);
 
   const { assocArgs, assocVars } = associations
     ? parseQueryAssociations(associations)
@@ -104,9 +97,8 @@ export const readOneRecordWithAssoc = (
 } => {
   const { nameCp: modelNameCp } = getInflections(modelName);
   const { nameCp: assocModelNameCp } = getInflections(assocModelName);
-  const { nameCp: assocNameCp, nameLc: assocNameLc } = getInflections(
-    assocName
-  );
+  const { nameCp: assocNameCp, nameLc: assocNameLc } =
+    getInflections(assocName);
   const readResolver = `readOne${modelNameCp}`;
 
   const { idArg, idVar } = parseQueryAttributes(attributes);
@@ -264,9 +256,8 @@ export const queryRecordsWithToMany = (
 
   const { nameCp: assocModelNameCp } = getInflections(assocModelName);
 
-  const { namePlCp: assocNamePlCp, nameLc: assocNameLc } = getInflections(
-    assocName
-  );
+  const { namePlCp: assocNamePlCp, nameLc: assocNameLc } =
+    getInflections(assocName);
 
   const modelResolver = `${modelNamePlLc}Connection`;
   const assocResolver = `${assocNameLc}Connection`;
@@ -383,9 +374,7 @@ export const queryRecordsWithToOne = (
  * - fields: all attribute fields.
  * @param attributes raw attribute array
  */
-function parseQueryAttributes(
-  attributes: ParsedAttribute[]
-): {
+function parseQueryAttributes(attributes: ParsedAttribute[]): {
   args: string;
   argsNoAutoId: string;
   idArg: string;
@@ -468,9 +457,10 @@ function parseQueryAttributes(
   };
 }
 
-function parseQueryAssociations(
-  associations: ParsedAssociation[]
-): { assocArgs: string; assocVars: string } {
+function parseQueryAssociations(associations: ParsedAssociation[]): {
+  assocArgs: string;
+  assocVars: string;
+} {
   return {
     get assocArgs() {
       return associations

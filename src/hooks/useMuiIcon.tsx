@@ -3,7 +3,7 @@ import {
   BubbleChart,
   SupervisorAccountRounded,
   WarningAmber,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { SvgIconType } from '@/types/elements';
 
 const Icons = {

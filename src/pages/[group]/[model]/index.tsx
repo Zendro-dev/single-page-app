@@ -4,9 +4,9 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   AddCircleOutline as AddIcon,
   Replay as ReloadIcon,
@@ -16,7 +16,7 @@ import {
   DeleteOutline as DeleteIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailsIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';

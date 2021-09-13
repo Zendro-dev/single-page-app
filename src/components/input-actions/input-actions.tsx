@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { ReactElement, ReactNode, PropsWithChildren } from 'react';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 
 interface InputActionsProps {
   className?: string;

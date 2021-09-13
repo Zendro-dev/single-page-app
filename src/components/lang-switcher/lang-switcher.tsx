@@ -7,10 +7,10 @@ import {
   MenuItem,
   Tooltip,
   Typography,
-} from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
-import { TranslateRounded as TranslateIcon } from '@material-ui/icons';
+} from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
+import { TranslateRounded as TranslateIcon } from '@mui/icons-material';
 import ClientOnly from '@/components/client-only';
 
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {

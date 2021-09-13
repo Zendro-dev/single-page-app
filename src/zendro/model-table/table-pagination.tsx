@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   IconButton,
   Tooltip,
@@ -11,13 +11,14 @@ import {
   Select,
   Box,
   FormControl,
-} from '@material-ui/core';
+  SelectChangeEvent,
+} from '@mui/material';
 import {
   FirstPage,
   KeyboardArrowLeft,
   KeyboardArrowRight,
   LastPage,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { TablePaginationPosition } from './hooks/usePagination';
 
@@ -66,10 +67,9 @@ export default function RecordsTablePagination({
     props.onPageChange(position, cursor);
   };
 
-  const handlePageLimitChange = (
-    event: React.ChangeEvent<{ value: number }>
-  ): void => {
-    if (props.onPageSizeChange) props.onPageSizeChange(event.target.value);
+  const handlePageLimitChange = (event: SelectChangeEvent<number>): void => {
+    if (props.onPageSizeChange)
+      props.onPageSizeChange(event.target.value as number);
   };
 
   return (

@@ -12,15 +12,15 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   CheckCircleOutline as SuccessIcon,
   Close as CloseIcon,
   ErrorOutline as ErrorIcon,
   WarningAmber as WarningIcon,
-} from '@material-ui/icons';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+} from '@mui/icons-material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 
 import IconButton, { IconButtonProps } from '@/components/icon-button';
 import useAuth from '@/hooks/useAuth';

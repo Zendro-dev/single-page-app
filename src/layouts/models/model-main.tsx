@@ -3,15 +3,15 @@ import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Divider } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Divider } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   AddCircle as NewIcon,
   BubbleChart as ModelIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailsIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import AlertCard from '@/components/alert-card';
 import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';

@@ -1,5 +1,5 @@
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
 import ClientOnly from '@/components/client-only';

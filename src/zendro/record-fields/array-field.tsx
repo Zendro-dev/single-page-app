@@ -3,23 +3,23 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Overwrite } from 'utility-types';
 
-import { Button, FormHelperText, InputAdornment } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Button, FormHelperText, InputAdornment } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Add as AddIcon,
   Clear as ClearIcon,
   Delete as DeleteIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import IconButton from '@/components/icon-button';
 import InputActions from '@/components/input-actions';
 import { TextInputProps } from '@/components/text-input';
 
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import {
   AttributeArrayType,

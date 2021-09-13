@@ -1,9 +1,9 @@
 import { useReducer } from 'react';
 import { enUS as en, es, de } from 'date-fns/locale';
 import { Overwrite } from 'utility-types';
-import { InputBaseComponentProps } from '@material-ui/core';
-import { MobileDateTimePicker, LocalizationProvider } from '@material-ui/lab';
-import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
+import { InputBaseComponentProps } from '@mui/material';
+import { MobileDateTimePicker, LocalizationProvider } from '@mui/lab';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import TextInput, { TextInputProps } from '@/components/text-input';
 
 type DateTimeFieldProps = Overwrite<

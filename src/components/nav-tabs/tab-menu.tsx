@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  Button,
-  ButtonProps,
-  Menu,
-  MenuItem,
-  MenuProps,
-} from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import { Button, ButtonProps, Menu, MenuItem, MenuProps } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import SiteLink from '@/components/site-link';
 import { SvgIconType } from '@/types/elements';
 

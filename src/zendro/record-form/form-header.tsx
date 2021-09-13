@@ -1,9 +1,9 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tooltip } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
-import { Lock as LockIcon } from '@material-ui/icons';
+import { Tooltip } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
+import { Lock as LockIcon } from '@mui/icons-material';
 
 interface FormHeaderProps {
   locked?: boolean;

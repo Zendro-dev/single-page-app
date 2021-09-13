@@ -8,13 +8,13 @@ import React, {
   useState,
 } from 'react';
 
-import { Fab, useMediaQuery, Zoom } from '@material-ui/core';
+import { Fab, useMediaQuery, Zoom } from '@mui/material';
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
-} from '@material-ui/icons';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles, useTheme } from '@material-ui/styles';
+} from '@mui/icons-material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles, useTheme } from '@mui/styles';
 
 import appRoutes from '@/build/routes.preval';
 import { AppRoutes } from '@/types/routes';

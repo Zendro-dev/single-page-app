@@ -7,7 +7,7 @@
 
 import React, { ReactElement, Ref } from 'react';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import { Link as MuiLink, LinkProps as MuiLinkProps } from '@material-ui/core';
+import { Link as MuiLink, LinkProps as MuiLinkProps } from '@mui/material';
 
 type LinkRef = HTMLAnchorElement;
 type SiteLinkProps = Omit<MuiLinkProps, 'href' | 'classes'> & NextLinkProps;

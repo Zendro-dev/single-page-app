@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import dataModels from '@/build/models.preval';
 import useMuiIcon from '@/hooks/useMuiIcon';
 

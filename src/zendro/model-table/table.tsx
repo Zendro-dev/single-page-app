@@ -6,8 +6,8 @@ import {
   Table as MuiTable,
   TableProps as MuiTableProps,
   Typography,
-} from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/styles';
+} from '@mui/material';
+import { createStyles, makeStyles } from '@mui/styles';
 import { DataRecord } from '@/types/models';
 
 export interface TableRecord {

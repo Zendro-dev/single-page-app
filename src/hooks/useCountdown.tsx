@@ -19,7 +19,7 @@ export default function useCountdown(count = 0): UseCountdown {
         const id = setInterval(() => {
           setTimer((state) => (state > 0 ? state - 1 : state));
         }, 1000);
-        timerId.current = (id as unknown) as number;
+        timerId.current = id as unknown as number;
       }
       return () => clearInterval(timerId.current);
     },

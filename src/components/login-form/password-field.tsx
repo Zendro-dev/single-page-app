@@ -1,11 +1,11 @@
 import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
 
 import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import LoginField, { LoginFieldProps } from './login-field';
 

@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import SiteLink from '@/components/site-link';
 import TabMenu from './tab-menu';
 import { SvgIconType } from '@/types/elements';

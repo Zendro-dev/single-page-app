@@ -1,12 +1,12 @@
 import { PropsWithChildren, useState } from 'react';
-import { Box, Collapse, IconButton, Typography } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Box, Collapse, IconButton, Typography } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 
 import {
   ExpandLess as CollapseIcon,
   ExpandMore as ExpandIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 interface AccordionProps {
   label: string;

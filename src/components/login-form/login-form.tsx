@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
-import { Button } from '@material-ui/core';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
+import { Button } from '@mui/material';
 
 import EmailField from './login-field';
 import PasswordField from './password-field';
@@ -10,7 +10,7 @@ import PasswordField from './password-field';
 import {
   AccountCircleOutlined as AccountCircleIcon,
   LockOutlined as LockIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { useTranslation } from 'react-i18next';
 

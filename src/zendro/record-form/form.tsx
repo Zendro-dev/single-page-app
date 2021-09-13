@@ -8,9 +8,9 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Container, ContainerProps, Tooltip } from '@material-ui/core';
-import { Theme } from '@material-ui/core/styles';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import { Container, ContainerProps, Tooltip } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Cached as Reload,
   Clear as CancelIcon,
@@ -20,7 +20,7 @@ import {
   Visibility as ReadIcon,
   VpnKey as KeyIcon,
   Save as SaveIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import ActionButton from '@/components/float-button';
 
