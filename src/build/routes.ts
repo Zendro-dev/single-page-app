@@ -7,7 +7,7 @@ import {
   RecordUrlQuery,
   RouteLink,
 } from '@/types/routes';
-import { parseStaticModels } from './models';
+import { parseStaticModels, getCrossModels } from './models';
 import { ParsedDataModel } from '@/types/models';
 
 /**
@@ -33,6 +33,11 @@ export async function parseDataModels(): Promise<{
 export async function getModelNavRoutes(): Promise<AppRoutes> {
   const parsedModels = await parseDataModels();
 
+  const crossModels = {
+    models: getCrossModels(parsedModels.models),
+    admin: getCrossModels(parsedModels.admin),
+  };
+
   const parseModelAsRoute = (group: string) => ({
     model,
   }: ParsedDataModel): RouteLink => {
@@ -54,13 +59,17 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
       type: 'group',
       name: 'Models',
       icon: 'BubbleChart',
-      routes: parsedModels.models.map(parseModelAsRoute('models')),
+      routes: parsedModels.models
+        .filter((model) => !crossModels.models.includes(model.model))
+        .map(parseModelAsRoute('models')),
     },
     {
       type: 'group',
       name: 'Admin',
       icon: 'SupervisorAccountRounded',
-      routes: parsedModels.admin.map(parseModelAsRoute('admin')),
+      routes: parsedModels.admin
+        .filter((model) => !crossModels.admin.includes(model.model))
+        .map(parseModelAsRoute('admin')),
     },
   ];
 }
