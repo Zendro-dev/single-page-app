@@ -3,7 +3,7 @@ import {
   IconButton as MuiIconButton,
   IconButtonProps as MuiIconButtonProps,
   Tooltip,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export interface IconButtonProps extends MuiIconButtonProps {
   component?: React.ElementType;

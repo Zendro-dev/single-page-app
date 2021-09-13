@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { TableCell as MuiTableCell, TableContainer } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   FilterAltOutlined as FilterIcon,
   Link as LinkIcon,
@@ -14,7 +15,7 @@ import {
   RepeatOne as ToOneIcon,
   Replay as ReloadIcon,
   Save as SaveIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { getStaticAssociationPaths } from '@/build/routes';
 
@@ -107,9 +108,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
 
-  const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
-    'no-filter'
-  );
+  const [recordsFilter, setRecordsFilter] =
+    useState<AssociationFilter>('no-filter');
   const [selectedRecords, setSelectedRecords] = useState<{
     toAdd: (string | number)[];
     toRemove: (string | number)[];
@@ -653,7 +653,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 Association.layout = ModelLayout;
 export default Association;
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',

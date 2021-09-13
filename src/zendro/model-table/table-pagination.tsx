@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   IconButton,
   Tooltip,
@@ -10,14 +11,14 @@ import {
   Select,
   Box,
   FormControl,
-  createStyles,
-} from '@material-ui/core';
+  SelectChangeEvent,
+} from '@mui/material';
 import {
   FirstPage,
   KeyboardArrowLeft,
   KeyboardArrowRight,
   LastPage,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { TablePaginationPosition } from './hooks/usePagination';
 
@@ -66,10 +67,9 @@ export default function RecordsTablePagination({
     props.onPageChange(position, cursor);
   };
 
-  const handlePageLimitChange = (
-    event: React.ChangeEvent<{ value: number }>
-  ): void => {
-    if (props.onPageSizeChange) props.onPageSizeChange(event.target.value);
+  const handlePageLimitChange = (event: SelectChangeEvent<number>): void => {
+    if (props.onPageSizeChange)
+      props.onPageSizeChange(event.target.value as number);
   };
 
   return (
@@ -105,7 +105,7 @@ export default function RecordsTablePagination({
       )}
 
       <Tooltip
-        title={t('model-table.pagination-first')}
+        title={t('model-table.pagination-first') ?? ''}
         style={{ marginLeft: 'auto' }}
       >
         <span>
@@ -119,7 +119,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-previous')}>
+      <Tooltip title={t('model-table.pagination-previous') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('previous')}
@@ -131,7 +131,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-next')}>
+      <Tooltip title={t('model-table.pagination-next') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('next')}
@@ -143,7 +143,7 @@ export default function RecordsTablePagination({
         </span>
       </Tooltip>
 
-      <Tooltip title={t('model-table.pagination-last')}>
+      <Tooltip title={t('model-table.pagination-last') ?? ''}>
         <span>
           <IconButton
             onClick={handleOnPageChange('last')}
@@ -158,7 +158,7 @@ export default function RecordsTablePagination({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     pagination: {
       padding: theme.spacing(6, 2),

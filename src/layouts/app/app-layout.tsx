@@ -2,12 +2,13 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   BubbleChart as ModelsIcon,
   Home as HomeIcon,
   PowerSettingsNew as LoginIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import ClientOnly from '@/components/client-only';
 import SiteLink from '@/components/site-link';
@@ -112,8 +113,8 @@ export default function ModelsLayout({
   );
 }
 
-const useStyles = makeStyles((theme) => {
-  return createStyles({
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
     root: {
       display: 'flex',
       flexDirection: 'column',
@@ -227,5 +228,5 @@ const useStyles = makeStyles((theme) => {
     footerLogo: {
       height: theme.spacing(6),
     },
-  });
-});
+  })
+);

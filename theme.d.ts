@@ -1,11 +1,11 @@
-import { Color as MuiColor } from '@material-ui/core';
+import { Color as MuiColor } from '@mui/material';
 
 type Colors = Record<
   'blue' | 'red' | 'yellow',
   Omit<MuiColor, 'A100' | 'A200' | 'A400' | 'A700'>
 >;
 
-declare module '@material-ui/core/styles' {
+declare module '@mui/material/styles' {
   interface Theme {
     color: Colors;
   }

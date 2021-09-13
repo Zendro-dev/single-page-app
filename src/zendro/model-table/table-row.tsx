@@ -3,7 +3,7 @@ import {
   TableCell as MuiTableCell,
   TableRow as MuiTableRow,
   TableRowProps as MuiTableRowProps,
-} from '@material-ui/core';
+} from '@mui/material';
 import { DataRecord, ParsedAttribute } from '@/types/models';
 
 export type TableRowActionHandler = (primaryKey: string | number) => void;

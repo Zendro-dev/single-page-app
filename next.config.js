@@ -6,9 +6,7 @@ const withNextPluginPreval = createNextPluginPreval();
  * @type {NextConfig}
  */
 const config = {
-  future: {
-    webpack5: true,
-  },
+  webpack5: true,
   reactStrictMode: true,
 };
 

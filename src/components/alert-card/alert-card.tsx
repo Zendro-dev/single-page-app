@@ -1,11 +1,12 @@
 import clsx from 'clsx';
 import React, { PropsWithChildren, ReactElement } from 'react';
-import { Box } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { Box } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   InfoOutlined as InfoIcon,
   WarningAmber as WarningIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 interface ModelBouncerProps {
   title: string;
@@ -38,7 +39,7 @@ export default function AlertCard(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     card: {
       // Layout

@@ -5,22 +5,22 @@ import { useTranslation } from 'react-i18next';
 import {
   Box,
   CircularProgress,
-  createStyles,
   Dialog,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  makeStyles,
   Typography,
   useMediaQuery,
   useTheme,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   CheckCircleOutline as SuccessIcon,
   Close as CloseIcon,
   ErrorOutline as ErrorIcon,
   WarningAmber as WarningIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 
 import IconButton, { IconButtonProps } from '@/components/icon-button';
 import useAuth from '@/hooks/useAuth';
@@ -59,14 +59,15 @@ export default function LoginButton({
 
   /* TOOLBAR EVENTS */
 
-  const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-    if (auth.user && auth.status === 'success') {
-      auth.logout();
-      if (onLogout) onLogout();
-    } else {
-      setIsFormOpen(true);
-    }
-  };
+  const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> =
+    () => {
+      if (auth.user && auth.status === 'success') {
+        auth.logout();
+        if (onLogout) onLogout();
+      } else {
+        setIsFormOpen(true);
+      }
+    };
 
   /* FORM EVENTS */
 
@@ -155,7 +156,7 @@ export default function LoginButton({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
       '& .MuiDialog-paper': {

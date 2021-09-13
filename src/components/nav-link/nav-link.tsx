@@ -6,7 +6,7 @@ import {
   ListItemText,
   Typography,
   TypographyProps,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import { SvgIconType } from '@/types/elements';
 

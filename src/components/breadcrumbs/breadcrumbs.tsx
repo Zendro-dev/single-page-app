@@ -1,13 +1,13 @@
 import NextLink from 'next/link';
 import {
   Breadcrumbs as MuiBreadcrumbs,
-  createStyles,
   Link as MuiLink,
-  makeStyles,
   Typography,
   useMediaQuery,
   useTheme,
-} from '@material-ui/core';
+} from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import { SvgIconType } from '@/types/elements';
 import clsx from 'clsx';
 
@@ -58,7 +58,7 @@ export default function Breadcrumbs(
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     crumb: {
       display: 'flex',

@@ -1,8 +1,8 @@
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
-import { Clear as ClearIcon } from '@material-ui/icons';
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
+import { Clear as ClearIcon } from '@mui/icons-material';
 
 import InputActions, { WithActions } from '@/components/input-actions';
 import { AttributeValue, AttributeArrayValue } from '@/types/models';
@@ -35,10 +35,10 @@ export default function AttributeField({
         endAdornment={
           props.onChange && (
             <InputAdornment position="end">
-              <Tooltip title={t('record-fields.unset')}>
+              <Tooltip title={t('record-fields.unset') ?? ''}>
                 <span>
                   <IconButton
-                    tabIndex="-1"
+                    tabIndex={-1}
                     onClick={handleOnClear}
                     data-cy="record-fields-unset"
                   >

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Fab, FabProps, Tooltip } from '@material-ui/core';
+import { Fab, FabProps, Tooltip } from '@mui/material';
 import { SvgIconType } from '@/types/elements';
 
 export interface FloatButtonProps extends FabProps {

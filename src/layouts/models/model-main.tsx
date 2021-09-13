@@ -3,14 +3,15 @@ import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Divider } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Divider } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   AddCircle as NewIcon,
   BubbleChart as ModelIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailsIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import AlertCard from '@/components/alert-card';
 import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
@@ -41,7 +42,7 @@ export default function Models({
     .slice(1)
     .map((chunk, index, chunks) => {
       const crumb = {
-        text: t((`models-layout.${chunk}` as unknown) as TemplateStringsArray, {
+        text: t(`models-layout.${chunk}` as unknown as TemplateStringsArray, {
           defaultValue: chunk,
         }),
         href:
@@ -126,8 +127,8 @@ export default function Models({
   );
 }
 
-const useStyles = makeStyles((theme) => {
-  return createStyles({
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
     breadcrumbs: {
       display: 'flex',
       alignItems: 'center',
@@ -194,5 +195,5 @@ const useStyles = makeStyles((theme) => {
       borderRight: 0,
       width: 0,
     },
-  });
-});
+  })
+);

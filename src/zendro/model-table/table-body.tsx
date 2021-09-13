@@ -3,7 +3,7 @@ import {
   Fade,
   TableBody as MuiTableBody,
   TableBodyProps as MuiTableBodyProps,
-} from '@material-ui/core';
+} from '@mui/material';
 
 interface TableBodyProps extends MuiTableBodyProps {
   isLoading?: boolean;

@@ -1,6 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   useSnackbar,
   SnackbarContent,
@@ -16,12 +17,12 @@ import {
   CardActions,
   IconButton,
   Box,
-} from '@material-ui/core';
+} from '@mui/material';
 import {
   Close as CloseIcon,
   ExpandMore as ExpandMoreIcon,
-} from '@material-ui/icons';
-import { green, red, blue, orange } from '@material-ui/core/colors';
+} from '@mui/icons-material';
+import { green, red, blue, orange } from '@mui/material/colors';
 
 export interface AlertToastProps {
   id: SnackbarKey;
@@ -107,64 +108,66 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
 
 export default toast;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    [theme.breakpoints.up('sm')]: {
-      minWidth: '344px !important',
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      [theme.breakpoints.up('sm')]: {
+        minWidth: '344px !important',
+      },
     },
-  },
-  card: {
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    flexGrow: 1,
-  },
-  actionRoot: {
-    padding: '8px 8px 8px 16px',
-    justifyContent: 'space-between',
-    display: 'flex',
-    width: '100%',
-  },
-  expand: {
-    padding: '8px 8px',
-    transform: 'rotate(0deg)',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-  collapse: {
-    padding: 16,
-    maxWidth: '80vw',
-    minWidth: 344,
-    maxHeight: '80vh',
-    minHeight: 344,
-    overflow: 'auto',
-  },
-  successBackgroundColor: {
-    backgroundColor: green[600],
-  },
-  errorBackgroundColor: {
-    backgroundColor: red[700],
-  },
-  warningBackgroundColor: {
-    backgroundColor: orange[500],
-  },
-  infoBackgroundColor: {
-    backgroundColor: blue[500],
-  },
-  successContrastColor: {
-    color: theme.palette.getContrastText(green[600]),
-  },
-  errorContrastColor: {
-    color: theme.palette.getContrastText(red[700]),
-  },
-  warningContrastColor: {
-    color: theme.palette.getContrastText(orange[500]),
-  },
-  infoContrastColor: {
-    color: theme.palette.getContrastText(blue[500]),
-  },
-}));
+    card: {
+      display: 'flex',
+      flexDirection: 'column',
+      flexWrap: 'wrap',
+      flexGrow: 1,
+    },
+    actionRoot: {
+      padding: '8px 8px 8px 16px',
+      justifyContent: 'space-between',
+      display: 'flex',
+      width: '100%',
+    },
+    expand: {
+      padding: '8px 8px',
+      transform: 'rotate(0deg)',
+      transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+      }),
+    },
+    expandOpen: {
+      transform: 'rotate(180deg)',
+    },
+    collapse: {
+      padding: 16,
+      maxWidth: '80vw',
+      minWidth: 344,
+      maxHeight: '80vh',
+      minHeight: 344,
+      overflow: 'auto',
+    },
+    successBackgroundColor: {
+      backgroundColor: green[600],
+    },
+    errorBackgroundColor: {
+      backgroundColor: red[700],
+    },
+    warningBackgroundColor: {
+      backgroundColor: orange[500],
+    },
+    infoBackgroundColor: {
+      backgroundColor: blue[500],
+    },
+    successContrastColor: {
+      color: theme.palette.getContrastText(green[600]),
+    },
+    errorContrastColor: {
+      color: theme.palette.getContrastText(red[700]),
+    },
+    warningContrastColor: {
+      color: theme.palette.getContrastText(orange[500]),
+    },
+    infoContrastColor: {
+      color: theme.palette.getContrastText(blue[500]),
+    },
+  })
+);

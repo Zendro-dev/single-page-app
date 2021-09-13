@@ -1,12 +1,13 @@
 import { ReactElement } from 'react';
 import { Overwrite } from 'utility-types';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
-} from '@material-ui/core';
+} from '@mui/material';
 import { TextInputProps } from '@/components/text-input';
 
 type BoolFieldProps = Overwrite<
@@ -86,7 +87,7 @@ export default function BoolField({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     error: {
       color: 'red',

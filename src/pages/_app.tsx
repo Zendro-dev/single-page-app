@@ -3,8 +3,8 @@ import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 
-import { ThemeProvider } from '@material-ui/core/styles';
-import { CssBaseline } from '@material-ui/core';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
 
 import { DialogProvider } from '@/components/dialog-popup';
 import { PageWithLayout } from '@/layouts';

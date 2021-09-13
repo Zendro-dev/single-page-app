@@ -1,4 +1,5 @@
-import { makeStyles, createStyles, Theme } from '@material-ui/core';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
 import ClientOnly from '@/components/client-only';
@@ -92,7 +93,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
       [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(2, 8),
-        flexBasis: '45%',
+        flexBasis: '40%',
         '&:nth-child(even)': {
           marginLeft: theme.spacing(2),
         },

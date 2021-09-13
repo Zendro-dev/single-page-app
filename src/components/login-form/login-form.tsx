@@ -1,7 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
+import { Button } from '@mui/material';
 
 import EmailField from './login-field';
 import PasswordField from './password-field';
@@ -9,7 +10,7 @@ import PasswordField from './password-field';
 import {
   AccountCircleOutlined as AccountCircleIcon,
   LockOutlined as LockIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { useTranslation } from 'react-i18next';
 
@@ -32,11 +33,11 @@ export default function LoginForm(props: LoginFormProps): ReactElement {
     password: '',
   });
 
-  const onFieldChange = (prop: keyof LoginFormState) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setState({ ...state, [prop]: event.target.value });
-  };
+  const onFieldChange =
+    (prop: keyof LoginFormState) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setState({ ...state, [prop]: event.target.value });
+    };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();

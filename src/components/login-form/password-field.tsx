@@ -1,11 +1,11 @@
 import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconButton, InputAdornment, Tooltip } from '@material-ui/core';
+import { IconButton, InputAdornment, Tooltip } from '@mui/material';
 
 import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import LoginField, { LoginFieldProps } from './login-field';
 
@@ -41,8 +41,8 @@ export default function PasswordField(props: LoginFieldProps): ReactElement {
             <Tooltip
               title={
                 state.showPassword
-                  ? t('login-form.hide-password')
-                  : t('login-form.show-password')
+                  ? t('login-form.hide-password') ?? ''
+                  : t('login-form.show-password') ?? ''
               }
             >
               <IconButton

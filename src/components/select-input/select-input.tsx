@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { ReactElement } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Divider,
   OutlinedInput,
@@ -8,7 +9,8 @@ import {
   MenuItem,
   FormControl,
   Select,
-} from '@material-ui/core';
+  SelectChangeEvent,
+} from '@mui/material';
 import { SvgIconType } from '@/types/elements';
 
 interface SelectItem {
@@ -31,9 +33,7 @@ interface StyledSelectProps {
 export default function SelectInput(props: StyledSelectProps): ReactElement {
   const classes = useStyles();
 
-  const handleOnChange = (
-    event: React.ChangeEvent<{ value: string }>
-  ): void => {
+  const handleOnChange = (event: SelectChangeEvent<string>): void => {
     if (props.onChange) props.onChange(event.target.value);
   };
 
@@ -83,7 +83,7 @@ export default function SelectInput(props: StyledSelectProps): ReactElement {
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formControl: {
       minWidth: theme.spacing(60),

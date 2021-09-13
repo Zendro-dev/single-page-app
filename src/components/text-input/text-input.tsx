@@ -1,12 +1,13 @@
 import { ReactElement, ReactNode } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   FormControl,
   FormHelperText,
   InputLabel,
   OutlinedInput,
   OutlinedInputProps,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export interface TextInputProps extends OutlinedInputProps {
   helperText?: {
@@ -39,7 +40,7 @@ export default function TextInput({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',

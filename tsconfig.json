@@ -24,7 +24,8 @@
         "./src/*"
       ]
     },
-    "types": ["cypress"]
+    "types": ["cypress"],
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "**/*.d.ts",

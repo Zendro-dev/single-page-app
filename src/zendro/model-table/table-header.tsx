@@ -5,8 +5,8 @@ import {
   TableHead as MuiTableHead,
   TableRow as MuiTableRow,
   Typography,
-} from '@material-ui/core';
-import { VpnKey as KeyIcon } from '@material-ui/icons';
+} from '@mui/material';
+import { VpnKey as KeyIcon } from '@mui/icons-material';
 import { ParsedAttribute } from '@/types/models';
 import { OrderDirection } from '@/types/queries';
 import TableColumn from './table-column';

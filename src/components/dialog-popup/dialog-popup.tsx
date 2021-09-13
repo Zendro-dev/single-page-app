@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import clsx from 'clsx';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Box,
   Button,
@@ -12,7 +13,7 @@ import {
   DialogProps,
   DialogTitle,
   Divider,
-} from '@material-ui/core';
+} from '@mui/material';
 
 const DEFAULT_OK_COLOR = 'primary';
 const DEFAULT_CANCEL_COLOR = 'secondary';
@@ -124,7 +125,7 @@ export default function ConfirmationDialog({
   );
 }
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     content: {
       minHeight: theme.spacing(30),

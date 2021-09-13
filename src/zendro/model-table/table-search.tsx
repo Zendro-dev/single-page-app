@@ -1,11 +1,12 @@
 import { KeyboardEventHandler, ReactElement, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InputAdornment, TextField } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { InputAdornment, TextField } from '@mui/material';
+import { Theme } from '@mui/material/styles';
+import { createStyles, makeStyles } from '@mui/styles';
 import {
   Backspace as ClearIcon,
   Search as SearchIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import IconButton from '@/components/icon-button';
 
@@ -30,9 +31,10 @@ export default function SearchField({
     setText(value);
   }, [value, setText]);
 
-  const searchIconClick: React.MouseEventHandler<HTMLButtonElement> = (): void => {
-    if (text) search(text);
-  };
+  const searchIconClick: React.MouseEventHandler<HTMLButtonElement> =
+    (): void => {
+      if (text) search(text);
+    };
 
   const search = (value: string): void => {
     onSearch(value);
@@ -90,7 +92,7 @@ export default function SearchField({
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     searchField: {
       '& .MuiOutlinedInput-input': {
