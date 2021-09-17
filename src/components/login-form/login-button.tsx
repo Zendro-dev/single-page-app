@@ -1,10 +1,7 @@
-import clsx from 'clsx';
 import React, { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  Box,
-  CircularProgress,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -13,18 +10,14 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import {
-  CheckCircleOutline as SuccessIcon,
-  Close as CloseIcon,
-  ErrorOutline as ErrorIcon,
-  WarningAmber as WarningIcon,
-} from '@mui/icons-material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 
 import IconButton, { IconButtonProps } from '@/components/icon-button';
 import useAuth from '@/hooks/useAuth';
 import LoginForm from './login-form';
+import LoginStatus from './login-status';
 
 interface LogoutButtonProps extends IconButtonProps {
   onLogin?: () => void;
@@ -40,7 +33,6 @@ export default function LoginButton({
   const classes = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -81,9 +73,9 @@ export default function LoginButton({
   return (
     <>
       <IconButton
-        {...props}
         tooltip={t('toolbar.login')}
         onClick={handleOnButtonClick}
+        {...props}
       >
         {props.children}
       </IconButton>
@@ -113,40 +105,7 @@ export default function LoginButton({
             {t('login-dialog.content')}
           </DialogContentText>
 
-          {auth.status !== 'idle' && (
-            <Box
-              className={clsx(classes.card, {
-                [classes.cardError]: auth.status === 'failed',
-                [classes.cardSuccess]: auth.status === 'success',
-                [classes.cardWarning]: auth.status === 'expired',
-                [classes.cardLoading]: auth.status === 'loading',
-              })}
-            >
-              {auth.status === 'failed' ? (
-                <>
-                  <ErrorIcon />
-                  <h1 data-cy="login-dialog-login-failed">
-                    {t('login-dialog.login-failed')}
-                  </h1>
-                </>
-              ) : auth.status === 'success' ? (
-                <>
-                  <SuccessIcon />
-                  <h1>{t('login-dialog.login-successful')}</h1>
-                </>
-              ) : auth.status === 'expired' ? (
-                <>
-                  <WarningIcon />
-                  <h1>{t('login-dialog.login-expired')}</h1>
-                </>
-              ) : (
-                <>
-                  <CircularProgress size={mobile ? 20 : 22} />
-                  <h1>{t('login-dialog.login-loading')}</h1>
-                </>
-              )}
-            </Box>
-          )}
+          {auth.status !== 'idle' && <LoginStatus />}
 
           <LoginForm onSubmit={handleOnLogin} />
         </DialogContent>
@@ -169,81 +128,6 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.grey[500],
       '&:hover': {
         color: theme.palette.secondary.main,
-      },
-    },
-    card: {
-      // Layout
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-
-      // Spacing
-      margin: theme.spacing(6, 0, 4, 0),
-      padding: theme.spacing(3),
-
-      // Background & border styles
-      border: '2px solid',
-      borderRadius: 10,
-
-      // Heading
-      '& h1': {
-        padding: 0,
-        margin: theme.spacing(0, 0, 0, 2),
-        fontSize: theme.spacing(4),
-        textAlign: 'center',
-        [theme.breakpoints.up('sm')]: {
-          fontSize: theme.spacing(5),
-        },
-      },
-
-      // Icon
-      '& > svg': {
-        width: theme.spacing(6),
-        height: theme.spacing(6),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(7),
-          height: theme.spacing(7),
-        },
-      },
-    },
-    cardError: {
-      backgroundColor: theme.palette.error.background,
-      borderColor: theme.palette.error.main,
-      '& h1': {
-        color: theme.palette.error.dark,
-      },
-      '& svg': {
-        color: theme.palette.error.main,
-      },
-    },
-    cardLoading: {
-      backgroundColor: theme.palette.primary.background,
-      borderColor: theme.palette.primary.main,
-      '& h1': {
-        color: theme.palette.primary.dark,
-      },
-      '& svg': {
-        color: theme.palette.primary.main,
-      },
-    },
-    cardSuccess: {
-      backgroundColor: theme.palette.success.background,
-      borderColor: theme.palette.success.main,
-      '& h1': {
-        color: theme.palette.success.dark,
-      },
-      '& svg': {
-        color: theme.palette.success.main,
-      },
-    },
-    cardWarning: {
-      backgroundColor: theme.palette.warning.background,
-      borderColor: theme.palette.warning.main,
-      '& h1': {
-        color: theme.palette.warning.dark,
-      },
-      '& svg': {
-        color: theme.palette.warning.main,
       },
     },
   })
