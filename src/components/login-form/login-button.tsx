@@ -59,15 +59,14 @@ export default function LoginButton({
 
   /* TOOLBAR EVENTS */
 
-  const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> =
-    () => {
-      if (auth.user && auth.status === 'success') {
-        auth.logout();
-        if (onLogout) onLogout();
-      } else {
-        setIsFormOpen(true);
-      }
-    };
+  const handleOnButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
+    if (auth.user && auth.status === 'success') {
+      auth.logout();
+      if (onLogout) onLogout();
+    } else {
+      setIsFormOpen(true);
+    }
+  };
 
   /* FORM EVENTS */
 

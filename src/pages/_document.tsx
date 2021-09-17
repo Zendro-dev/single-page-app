@@ -10,7 +10,9 @@ import { ServerStyleSheets } from '@mui/styles';
 import { theme } from '../styles/theme';
 
 export default class MyDocument extends Document {
-  static async getInitialProps(ctx: DocumentContext): Promise<{
+  static async getInitialProps(
+    ctx: DocumentContext
+  ): Promise<{
     styles: Record<string, unknown>[];
     html: string;
     head?: (JSX.Element | null)[] | undefined;

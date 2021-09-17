@@ -48,7 +48,7 @@ export default function Navigation({
               key={route.name}
               icon={route.icon ? getIcon(route.icon) : undefined}
               label={t(
-                (`models-layout.${route.name.toLowerCase()}` as unknown as TemplateStringsArray) ??
+                ((`models-layout.${route.name.toLowerCase()}` as unknown) as TemplateStringsArray) ??
                   route.name
               )}
             >
