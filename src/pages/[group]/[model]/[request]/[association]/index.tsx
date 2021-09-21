@@ -296,10 +296,13 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         [sourceModel.primaryKey]: urlQuery.id,
       };
 
-      return await zendro.request(countQuery.query, {
-        jq: countQuery.transform,
-        variables,
-      });
+      return await zendro.request<Record<'count', number> | undefined>(
+        countQuery.query,
+        {
+          jq: countQuery.transform,
+          variables,
+        }
+      );
     },
     {
       onSuccess: (data) => {
