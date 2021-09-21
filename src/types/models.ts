@@ -1,6 +1,7 @@
 /* ATTRIBUTES */
 
 import { Assign } from 'utility-types';
+import { ParsedPermissions } from './acl';
 import { Operator } from './queries';
 
 export type AttributeScalarType =
@@ -126,3 +127,7 @@ export type ParsedDataModel = Assign<
     primaryKey: string;
   }
 >;
+
+export interface Model extends ParsedDataModel {
+  permissions: ParsedPermissions;
+}
