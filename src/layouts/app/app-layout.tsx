@@ -7,7 +7,7 @@ import { createStyles, makeStyles } from '@mui/styles';
 import {
   BubbleChart as ModelsIcon,
   Home as HomeIcon,
-  PowerSettingsNew as LoginIcon,
+  Login as LoginIcon,
 } from '@mui/icons-material';
 
 import ClientOnly from '@/components/client-only';
@@ -24,7 +24,7 @@ export interface AppLayoutProps {
 
 export default function ModelsLayout({
   brand = 'Zendro',
-  footer = true,
+  footer = false,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
   const auth = useAuth();
