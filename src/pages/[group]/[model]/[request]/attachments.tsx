@@ -1,10 +1,9 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
+import { TableCell as MuiTableCell, TableContainer, Box } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
@@ -16,8 +15,6 @@ import {
   Replay as ReloadIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
-
-import { getStaticAssociationPaths } from '@/build/routes';
 
 import IconButton from '@/components/icon-button';
 import NavTabs from '@/components/nav-tabs';
@@ -39,7 +36,6 @@ import {
   AssociationFilter,
   Table,
   TableBody,
-  TableHeader,
   TablePagination,
   TableRow,
   TableRowAssociationHandler,
@@ -52,47 +48,37 @@ import {
   UseOrderProps,
 } from '@/zendro/model-table';
 
+import readAttachmentsWithBook from '@/overrides/readAttachmentsWithBook';
+import readOneBookWithAttachments from '@/overrides/readOneBookWithAttachments';
+
+import AttachmentTableHeader from '@/overrides/attachments/table-header';
+
+import mime from 'mime-types';
+import { FileIcon, defaultStyles, DefaultExtensionType } from 'react-file-icon';
+
 interface AssocTable {
   data: TableRecord[];
   pageInfo?: PageInfo;
 }
 
-export const getStaticPaths: GetStaticPaths<AssociationUrlQuery> = async () => {
-  const paths = await getStaticAssociationPaths();
-  return {
-    paths,
-    fallback: false,
-  };
-};
-
-export const getStaticProps: GetStaticProps<AssociationUrlQuery> = async (
-  context
-) => {
-  const params = context.params as AssociationUrlQuery;
-
-  return {
-    props: {
-      key: `${params.group}/${params.model}/${params.request}/${params.association}`,
-      ...params,
-    },
-  };
-};
-
-const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
+const Association: PageWithLayout<AssociationUrlQuery> = () => {
   const { showSnackbar } = useToastNotification();
-  const getModel = useModel();
   const router = useRouter();
   const classes = useStyles();
   const zendro = useZendroClient();
   const { t } = useTranslation();
+  const getModel = useModel();
 
   const urlQuery = router.query as AssociationUrlQuery;
 
-  const sourceModel = getModel(props.model);
+  const sourceModel = getModel(urlQuery.model);
   const association = sourceModel.associations?.find(
-    (assoc) => assoc.name === props.association
+    (assoc) => assoc.name === 'attachments'
   ) as ParsedAssociation;
-  const targetModel = getModel(association.target);
+  const targetModel = getModel('attachment');
+  const filteredAttributes = targetModel.attributes.filter(
+    (x) => x.name !== 'fileURL'
+  );
 
   const [assocTable, setAssocTable] = useState<AssocTable>(() => {
     return {
@@ -191,11 +177,16 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         ]
       : null,
     async () => {
+      // const recordsQuery: AssocQuery =
+      //   urlQuery.request === 'details' || recordsFilter === 'associated'
+      //     ? zendro.queries[urlQuery.model].withFilter[association.name]
+      //         .readFiltered
+      //     : zendro.queries[urlQuery.model].withFilter[association.name].readAll;
+
       const recordsQuery: AssocQuery =
-        props.request === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[props.model].withFilter[association.name]
-              .readFiltered
-          : zendro.queries[props.model].withFilter[association.name].readAll;
+        urlQuery.request === 'details' || recordsFilter === 'associated'
+          ? readOneBookWithAttachments
+          : readAttachmentsWithBook;
 
       const variables: QueryModelTableRecordsVariables = {
         search: tableSearch,
@@ -263,7 +254,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         // from the data (no count resolver exists). The count should be 0 or 1.
         if (
           association.type.includes('to_one') &&
-          (props.request === 'details' || recordsFilter === 'associated')
+          (urlQuery.request === 'details' || recordsFilter === 'associated')
         ) {
           setRecordsTotal(data?.records.length ?? 0);
         }
@@ -278,14 +269,14 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     urlQuery.id &&
       !(
         association.type.includes('to_one') &&
-        (props.request === 'details' || recordsFilter === 'associated')
+        (urlQuery.request === 'details' || recordsFilter === 'associated')
       )
       ? [recordsFilter, tableSearch, urlQuery.id, zendro]
       : null,
     async () => {
       const countQuery =
-        props.request === 'details' || recordsFilter === 'associated'
-          ? zendro.queries[props.model].withFilter[association.name]
+        urlQuery.request === 'details' || recordsFilter === 'associated'
+          ? zendro.queries[urlQuery.model].withFilter[association.name]
               .countFiltered
           : zendro.queries[association.target].countAll;
 
@@ -395,7 +386,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     };
     try {
       await zendro.request<Record<string, DataRecord>>(
-        zendro.queries[props.model].updateOne.query,
+        zendro.queries[urlQuery.model].updateOne.query,
         { variables }
       );
       showSnackbar(t('success.assoc-update'), 'success');
@@ -416,11 +407,11 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   return (
     <ModelBouncer
-      object={props.model}
+      object={urlQuery.model}
       action={
-        props.request === 'details'
+        urlQuery.request === 'details'
           ? 'read'
-          : props.request === 'edit'
+          : urlQuery.request === 'edit'
           ? 'update'
           : 'create'
       }
@@ -432,20 +423,19 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           {
             type: 'link',
             label: 'attributes',
-            href: `/${props.group}/${props.model}/${props.request}?id=${urlQuery.id}`,
+            href: `/${urlQuery.group}/${urlQuery.model}/${urlQuery.request}?id=${urlQuery.id}`,
           },
           {
             type: 'group',
-            label: props.association,
+            label: 'attachments',
             links: sourceModel.associations?.map((assoc) => ({
               type: 'link',
               label: assoc.name,
-              href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+              href: `/${urlQuery.group}/${urlQuery.model}/${urlQuery.request}/${assoc.name}?id=${urlQuery.id}`,
               icon: assoc.type.includes('to_many') ? ToManyIcon : ToOneIcon,
             })),
           },
         ]}
-        data-cy={`${props.model}-associations-tab`}
       />
 
       <div className={classes.root}>
@@ -461,10 +451,10 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                 onReset={() => setSearchText('')}
               />
             )}
-            {props.request !== 'details' && (
+            {urlQuery.request !== 'details' && (
               <SelectInput
                 className={classes.toolbarFilters}
-                id={`${props.model}-association-filters`}
+                id={`${urlQuery.model}-association-filters`}
                 label={t('associations.filter-select', {
                   assocName: association.name,
                 })}
@@ -514,7 +504,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             >
               <ReloadIcon />
             </IconButton>
-            {props.request !== 'details' && (
+            {urlQuery.request !== 'details' && (
               <IconButton
                 // tooltip={`Save ${selectedAssoc.target} data`}
                 tooltip={t('associations.save', {
@@ -535,12 +525,12 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
         <TableContainer className={classes.table}>
           <Table
-            caption={`${association.name} associations table for ${props.model}`}
+            caption={`${association.name} associations table for ${urlQuery.model}`}
             isEmpty={assocTable.data.length === 0}
           >
-            <TableHeader
-              actionsColSpan={props.request !== 'details' ? 1 : 0}
-              attributes={targetModel.attributes}
+            <AttachmentTableHeader
+              actionsColSpan={urlQuery.request !== 'details' ? 1 : 0}
+              attributes={filteredAttributes}
               onSortLabelClick={(field) =>
                 setOrder((state) => ({
                   ...state,
@@ -564,14 +554,25 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                 const isSelected =
                   selectedRecords.toAdd.includes(recordId) ||
                   selectedRecords.toRemove.includes(recordId);
+
+                const thumbnailURL = record.data.urlThumbnail as
+                  | string
+                  | undefined;
+
+                const fileExtension = (mime.extension(
+                  record.data['mimeType'] as string
+                ) || 'txt') as DefaultExtensionType;
+                const isImage = (record.data['mimeType'] as string).includes(
+                  'image'
+                );
                 return (
                   <TableRow
                     key={recordId}
                     hover
-                    attributes={targetModel.attributes}
+                    attributes={filteredAttributes}
                     record={record.data}
                   >
-                    {props.request !== 'details' && (
+                    {urlQuery.request !== 'details' && (
                       <MuiTableCell align="center">
                         <IconButton
                           tooltip={
@@ -612,6 +613,18 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                         </IconButton>
                       </MuiTableCell>
                     )}
+                    <MuiTableCell>
+                      {isImage ? (
+                        <img alt="Not Found" src={thumbnailURL}></img>
+                      ) : (
+                        <Box maxWidth="1.5rem">
+                          <FileIcon
+                            extension={fileExtension}
+                            {...defaultStyles[fileExtension]}
+                          />
+                        </Box>
+                      )}
+                    </MuiTableCell>
                   </TableRow>
                 );
               })}

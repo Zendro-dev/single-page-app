@@ -27,15 +27,15 @@ import ActionButton from '@/components/float-button';
 import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 
-import FormErrors from './form-errors';
-import FormHeader from './form-header';
-import FormField from './form-field';
+import FormErrors from '@/zendro/record-form/form-errors';
+import FormHeader from '@/zendro/record-form/./form-header';
+import FormField from '@/zendro/record-form/./form-field';
 import {
   computeStats,
   formAttributesReducer,
   FormStats,
   initForm,
-} from './form-utils';
+} from '@/zendro/record-form/./form-utils';
 
 type FormAction = 'cancel' | 'delete' | 'read' | 'reload' | 'update' | 'submit';
 export type ActionHandler = (

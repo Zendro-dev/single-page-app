@@ -6,7 +6,7 @@ import { ParsedDataModel } from '@/types/models';
 import { ParsedPermissions } from '@/types/acl';
 import { getResourcePermissions } from '@/utils/acl';
 
-interface Model extends ParsedDataModel {
+export interface Model extends ParsedDataModel {
   permissions: ParsedPermissions;
 }
 
