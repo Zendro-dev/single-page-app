@@ -31,7 +31,7 @@ export function createSearch(
       acc.push({
         field: name,
         value: `%${value}%`,
-        operator: 'like',
+        operator: 'iLike',
       });
     } else if (type === '[Int]') {
       const validIntArray = value.split(',').every(isIntValue);
