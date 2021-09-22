@@ -22,24 +22,27 @@ export interface AssocQuery extends RawQuery {
 export type Operator =
   | 'like'
   | 'notLike'
-  | 'or'
-  | 'and'
+  | 'iLike'
+  | 'notILike'
+  | 'regexp'
+  | 'iRegexp'
+  | 'notIRegexp'
+  | 'notRegexp'
   | 'eq'
-  | 'between'
-  | 'notBetween'
-  | 'in'
-  | 'notIn'
   | 'gt'
   | 'gte'
   | 'lt'
   | 'lte'
   | 'ne'
-  | 'regexp'
-  | 'notRegexp'
+  | 'between'
+  | 'notBetween'
+  | 'in'
+  | 'notIn'
   | 'contains'
-  | 'contained'
-  | 'not'
-  | 'all';
+  | 'notContains'
+  | 'or'
+  | 'and'
+  | 'not';
 
 export interface QueryVariableSearch {
   field?: string;

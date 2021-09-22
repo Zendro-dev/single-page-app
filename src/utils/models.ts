@@ -31,6 +31,7 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
       switch (type) {
         case 'one_to_one':
         case 'many_to_one':
+        case 'one_to_many':
           return keys.add(targetKey);
         case 'many_to_many':
           return sourceKey ? keys.add(sourceKey) : keys;
@@ -59,28 +60,6 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
  */
 export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
   const defaultPrivileges: ApiPrivileges = {
-    operators: [
-      'like',
-      'notLike',
-      'or',
-      'and',
-      'eq',
-      'between',
-      'notBetween',
-      'in',
-      'notIn',
-      'gt',
-      'gte',
-      'lt',
-      'lte',
-      'ne',
-      'regexp',
-      'notRegexp',
-      'contains',
-      'contained',
-      'not',
-      'all',
-    ],
     backwardPagination: true,
     sort: true,
     create: true,
@@ -93,7 +72,6 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
   switch (storageType) {
     case 'cassandra':
       return {
-        operators: ['eq', 'lt', 'gt', 'lte', 'gte', 'in', 'contains', 'and'],
         backwardPagination: false,
         sort: false,
         create: true,
@@ -104,20 +82,6 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
       };
     case 'amazon-s3':
       return {
-        operators: [
-          'eq',
-          'ne',
-          'lt',
-          'gt',
-          'lte',
-          'gte',
-          'like',
-          'and',
-          'or',
-          'not',
-          'between',
-          'in',
-        ],
         backwardPagination: false,
         sort: false,
         create: false,
@@ -129,20 +93,6 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
     case 'trino':
     case 'presto':
       return {
-        operators: [
-          'eq',
-          'ne',
-          'lt',
-          'gt',
-          'lte',
-          'gte',
-          'like',
-          'and',
-          'or',
-          'not',
-          'between',
-          'in',
-        ],
         backwardPagination: true,
         sort: true,
         create: false,
@@ -154,39 +104,10 @@ export function getModelApiPrivileges(storageType: StorageType): ApiPrivileges {
     case 'mongodb':
       return {
         ...defaultPrivileges,
-        operators: [
-          'or',
-          'and',
-          'not',
-          'all',
-          'eq',
-          'ne',
-          'in',
-          'notIn',
-          'gt',
-          'gte',
-          'lt',
-          'lte',
-          'regexp',
-        ],
       };
     case 'neo4j':
       return {
         ...defaultPrivileges,
-        operators: [
-          'eq',
-          'ne',
-          'lt',
-          'gt',
-          'lte',
-          'gte',
-          'regexp',
-          'contains',
-          'and',
-          'or',
-          'not',
-          'in',
-        ],
       };
     default:
       return defaultPrivileges;
