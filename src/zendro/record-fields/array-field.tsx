@@ -52,27 +52,25 @@ export default function ArrayField({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const handleOnChange =
-    (index: number) =>
-    (v: AttributeScalarValue | AttributeArrayValue): void => {
-      const scalarValue = v as AttributeScalarValue;
-      if (onChange && arrayValue) {
-        arrayValue[index] = scalarValue;
-        onChange(arrayValue);
-      }
-    };
+  const handleOnChange = (index: number) => (
+    v: AttributeScalarValue | AttributeArrayValue
+  ): void => {
+    const scalarValue = v as AttributeScalarValue;
+    if (onChange && arrayValue) {
+      arrayValue[index] = scalarValue;
+      onChange(arrayValue);
+    }
+  };
 
-  const addItem =
-    (index: number) =>
-    (event: React.MouseEvent<HTMLButtonElement>): void => {
-      event.preventDefault();
-      arrayValue
-        ? arrayValue.splice(index + 1, 0, null)
-        : (arrayValue = [null]);
-      if (onChange) {
-        onChange(arrayValue);
-      }
-    };
+  const addItem = (index: number) => (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
+    event.preventDefault();
+    arrayValue ? arrayValue.splice(index + 1, 0, null) : (arrayValue = [null]);
+    if (onChange) {
+      onChange(arrayValue);
+    }
+  };
 
   const handleOnClear = (index: number): void => {
     if (arrayValue && onChange && !props.readOnly) {

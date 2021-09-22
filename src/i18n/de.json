@@ -94,7 +94,7 @@
   },
   "record-form": {
     "action-delete": "Eintrag löschen",
-    "action-exit": "Formular verlassen",
+    "action-exit": "{{ modelName }} Tabelle anzeigen",
     "action-read": "Details anzeigen",
     "action-reload": "Daten aktualisieren",
     "action-submit": "Änderungen speichern",

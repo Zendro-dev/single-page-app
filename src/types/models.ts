@@ -1,7 +1,7 @@
 /* ATTRIBUTES */
 
 import { Assign } from 'utility-types';
-import { Operator } from './queries';
+import { ParsedPermissions } from './acl';
 
 export type AttributeScalarType =
   | 'Boolean'
@@ -99,7 +99,6 @@ export interface ParsedAssociation extends Association {
 /* DATA MODELS */
 
 export interface ApiPrivileges {
-  operators: Operator[];
   textSearch: boolean;
   backwardPagination: boolean;
   sort: boolean;
@@ -126,3 +125,7 @@ export type ParsedDataModel = Assign<
     primaryKey: string;
   }
 >;
+
+export interface Model extends ParsedDataModel {
+  permissions: ParsedPermissions;
+}

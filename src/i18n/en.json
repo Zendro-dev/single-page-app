@@ -95,7 +95,7 @@
   },
   "record-form": {
     "action-delete": "Delete record",
-    "action-exit": "Exit form",
+    "action-exit": "View {{ modelName }} table",
     "action-read": "View record details",
     "action-reload": "Reload data",
     "action-submit": "Submit changes",

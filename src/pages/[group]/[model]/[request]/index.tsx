@@ -350,10 +350,10 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
               ? handleOnUpdate
               : undefined,
           submit:
-            (props.request === 'edit' &&
+            (props.request === 'new' &&
               model.permissions.create &&
               model.apiPrivileges.create) ||
-            (props.request === 'new' &&
+            (props.request === 'edit' &&
               model.permissions.update &&
               model.apiPrivileges.update)
               ? handleOnSubmit

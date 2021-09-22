@@ -2,13 +2,8 @@ import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import dataModels from '@/build/models.preval';
 import { authSelector } from '@/store/auth-slice';
-import { ParsedDataModel } from '@/types/models';
-import { ParsedPermissions } from '@/types/acl';
+import { Model } from '@/types/models';
 import { getResourcePermissions } from '@/utils/acl';
-
-interface Model extends ParsedDataModel {
-  permissions: ParsedPermissions;
-}
 
 type GetModel = (modelName: string) => Model;
 

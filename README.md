@@ -13,7 +13,7 @@ The project leverages [Next.js](https://nextjs.org/) APIs to create a static sit
 
 Two steps are required before using the Zendro frontend:
 
-- Adding your custom data model definitions (using our unified JSON schema format) to the `models` folder.
+- Adding your custom data model definitions (using our unified JSON schema format) to a folder, defined by `ZENDRO_DATA_MODELS` environment variable.
 - Configuring of the Zendro GraphQL endpoint to be used. This is done in the `env.local` file.
 
 ### Data Models
@@ -28,7 +28,7 @@ For the Zendro frontend to know the location of its GraphQL endpoint, as well as
 
 This file is also used by Next.js to set any environment variables that should be available to either the built-in generator, or in the browser. Read more about Next.js environmental variables [in the official documentation](https://nextjs.org/docs/basic-features/environment-variables).
 
-For security reasons, `env.local` is never committed to the remote repository. However, we have included a `.env.local.development` file with some reasonable defaults that may be used in development. In production, you can copy `.env.development` to a new `.env.production` file and modify it accordingly.
+For security reasons, `env.local` is never committed to the remote repository. However, we have included a `.env.development` file with some reasonable defaults that may be used in development. In production, you can copy `.env.development` to a new `.env.production` file and modify it accordingly.
 
 Below there is a brief explanation of what each variable is used for.
 
@@ -50,6 +50,9 @@ NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE=500
 
 # Maximum number of records that can be returned per request.
 NEXT_PUBLIC_ZENDRO_MAX_RECORD_LIMIT=10000
+
+# relative path from the root of the directory to your models folder
+ZENDRO_DATA_MODELS='../data_model_definitions'
 ```
 
 #### Sending GraphQL Requests

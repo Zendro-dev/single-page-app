@@ -178,12 +178,12 @@ describe('Model page', () => {
           {
             field: 'idField',
             value: '%true%',
-            operator: 'like',
+            operator: 'iLike',
           },
           {
             field: 'stringField',
             value: '%true%',
-            operator: 'like',
+            operator: 'iLike',
           },
           {
             field: 'booleanField',

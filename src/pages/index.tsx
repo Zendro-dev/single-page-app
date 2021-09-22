@@ -3,18 +3,47 @@ import { createStyles, makeStyles } from '@mui/styles';
 import { AppLayout, PageWithLayout } from '@/layouts';
 import { useTranslation } from 'react-i18next';
 import ClientOnly from '@/components/client-only';
+import LoginForm from '@/components/login-form';
+import { useAuth } from '@/hooks';
+import { useRouter } from 'next/router';
+import { Box } from '@mui/material';
+import LoginStatus from '@/components/login-form/login-status';
+import { useEffect, useState } from 'react';
 
 const Home: PageWithLayout = () => {
   const classes = useStyles();
   const { t } = useTranslation();
 
+  const auth = useAuth();
+  const router = useRouter();
+
+  const [redirect, setRedirect] = useState<boolean>(false);
+
+  const handleOnLogin = (email: string, password: string): void => {
+    if (email && password) auth.login(email, password);
+    setRedirect(true);
+  };
+
+  useEffect(() => {
+    if (redirect && auth.status === 'success')
+      setTimeout(() => {
+        if (router.asPath === '/') router.push('/models');
+      }, 700);
+  }, [redirect, auth.status, router]);
+
   return (
     <main className={classes.main}>
-      <div className={classes.banner}>
-        <img src="/banner.png" alt="zendro banner" />
-      </div>
-
       <ClientOnly>
+        <div className={classes.banner} style={{ marginTop: '2rem' }}>
+          <img src="/banner.png" alt="zendro banner" />
+        </div>
+
+        {auth.status !== 'success' && (
+          <Box className={classes.login}>
+            {auth.status !== 'idle' && <LoginStatus />}
+            <LoginForm onSubmit={handleOnLogin} />
+          </Box>
+        )}
         <div className={classes.cardContainer}>
           <a
             className={classes.card}
@@ -56,8 +85,14 @@ const useStyles = makeStyles((theme: Theme) =>
       // Spacing
       padding: theme.spacing(4, 8),
       [theme.breakpoints.up('sm')]: {
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
       },
+    },
+
+    login: {
+      borderRadius: 5,
+      boxShadow: theme.shadows[3],
+      padding: '1rem',
     },
 
     banner: {

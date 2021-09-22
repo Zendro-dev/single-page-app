@@ -15,6 +15,7 @@ import {
   RepeatOne as ToOneIcon,
   Replay as ReloadIcon,
   Save as SaveIcon,
+  VisibilityTwoTone as DetailsIcon,
 } from '@mui/icons-material';
 
 import { getStaticAssociationPaths } from '@/build/routes';
@@ -414,6 +415,12 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     setRecordsFilter(filter as AssociationFilter);
   };
 
+  const handleOnRead = (primaryKey: string | number): void => {
+    router.push(
+      `/${props.group}/${targetModel.model}/details?id=${primaryKey}`
+    );
+  };
+
   return (
     <ModelBouncer
       object={props.model}
@@ -539,7 +546,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             isEmpty={assocTable.data.length === 0}
           >
             <TableHeader
-              actionsColSpan={props.request !== 'details' ? 1 : 0}
+              actionsColSpan={props.request !== 'details' ? 2 : 1}
               attributes={targetModel.attributes}
               onSortLabelClick={(field) =>
                 setOrder((state) => ({
@@ -570,9 +577,20 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                     hover
                     attributes={targetModel.attributes}
                     record={record.data}
+                    onDoubleClick={() => handleOnRead(recordId)}
                   >
+                    <MuiTableCell padding="checkbox">
+                      <IconButton
+                        tooltip={t('model-table.view', { recordId })}
+                        onClick={() => handleOnRead(recordId)}
+                        className={classes.rowActionPrimary}
+                        data-cy={`model-table-view-${recordId}`}
+                      >
+                        <DetailsIcon fontSize="small" />
+                      </IconButton>
+                    </MuiTableCell>
                     {props.request !== 'details' && (
-                      <MuiTableCell align="center">
+                      <MuiTableCell align="center" padding="checkbox">
                         <IconButton
                           tooltip={
                             record.isAssociated
@@ -696,6 +714,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     iconLinkOffMarked: {
       color: 'red',
+    },
+    rowActionPrimary: {
+      '&:hover': {
+        backgroundColor: 'transparent',
+        color: theme.palette.primary.main,
+      },
     },
   })
 );

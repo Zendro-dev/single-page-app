@@ -186,12 +186,12 @@ describe('Record association page', () => {
             {
               field: 'river_id',
               value: '%rhine%',
-              operator: 'like',
+              operator: 'iLike',
             },
             {
               field: 'name',
               value: '%rhine%',
-              operator: 'like',
+              operator: 'iLike',
             },
           ],
         },
@@ -219,12 +219,12 @@ describe('Record association page', () => {
             {
               field: 'river_id',
               value: '%rhine%',
-              operator: 'like',
+              operator: 'iLike',
             },
             {
               field: 'name',
               value: '%rhine%',
-              operator: 'like',
+              operator: 'iLike',
             },
           ],
         },
@@ -603,12 +603,12 @@ describe('Record association page', () => {
                 {
                   field: 'river_id',
                   value: '%rhine%',
-                  operator: 'like',
+                  operator: 'iLike',
                 },
                 {
                   field: 'name',
                   value: '%rhine%',
-                  operator: 'like',
+                  operator: 'iLike',
                 },
               ],
             },
@@ -767,12 +767,12 @@ describe('Record association page', () => {
             {
               field: 'country_id',
               value: '%er%',
-              operator: 'like',
+              operator: 'iLike',
             },
             {
               field: 'name',
               value: '%er%',
-              operator: 'like',
+              operator: 'iLike',
             },
           ],
         },

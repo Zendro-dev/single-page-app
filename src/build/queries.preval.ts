@@ -9,7 +9,8 @@ function formatQuery(
   name: string,
   query: string,
   resolver: string,
-  transform: string
+  transform: string,
+  assocResolver?: string
 ): string {
   const graphqlQuery = format(query, { parser: 'graphql' });
 
@@ -25,12 +26,17 @@ function formatQuery(
         export const transform = ${
           transform ? "'" + transform + "'" : undefined
         };
+        
+        ${
+          assocResolver ? `export const assocResolver = '${assocResolver}'` : ''
+        }
 
         export default {
           name,
           query,
           resolver,
           transform,
+          ${assocResolver ? 'assocResolver' : ''}
         }
       `;
 
@@ -67,10 +73,20 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
     await mkdir(modelAssocQueriesDir, { recursive: true });
 
     for (const assocQueries of Object.values(withFilter)) {
-      for (const { name, query, resolver, transform } of Object.values(
-        assocQueries
-      )) {
-        const formattedQuery = formatQuery(name, query, resolver, transform);
+      for (const {
+        name,
+        query,
+        resolver,
+        transform,
+        assocResolver,
+      } of Object.values(assocQueries)) {
+        const formattedQuery = formatQuery(
+          name,
+          query,
+          resolver,
+          transform,
+          assocResolver
+        );
 
         await writeFile(
           join(modelQueriesDir, 'associations', name) + '.ts',

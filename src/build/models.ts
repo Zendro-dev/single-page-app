@@ -71,10 +71,8 @@ export async function getStaticModels(): Promise<{
   }
 
   // Resolve model paths
-  const resolvePaths =
-    (folderPath: string) =>
-    (file: string): string =>
-      path.resolve(path.join(folderPath, file));
+  const resolvePaths = (folderPath: string) => (file: string): string =>
+    path.resolve(path.join(folderPath, file));
 
   return {
     admin: adminFiles.map(resolvePaths(ADMIN_PATH)),
@@ -122,12 +120,16 @@ export async function parseStaticModels(
  * group them according to the source (i.e. admin, models).
  * @param group group models by their source
  */
-export async function parseStaticModels(group: true): Promise<{
+export async function parseStaticModels(
+  group: true
+): Promise<{
   admin: Record<string, ParsedDataModel>;
   models: Record<string, ParsedDataModel>;
 }>;
 
-export async function parseStaticModels(group?: boolean): Promise<
+export async function parseStaticModels(
+  group?: boolean
+): Promise<
   | Record<string, ParsedDataModel>
   | {
       admin: Record<string, ParsedDataModel>;
