@@ -95,7 +95,7 @@
   },
   "record-form": {
     "action-delete": "Eliminar registro",
-    "action-exit": "Cerrar formulario",
+    "action-exit": "Ver tabla de {{ modelName }}",
     "action-read": "Ver detalles del registro",
     "action-reload": "Recargar registro",
     "action-submit": "Enviar cambios",

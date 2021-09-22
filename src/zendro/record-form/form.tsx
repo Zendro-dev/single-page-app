@@ -13,13 +13,13 @@ import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
   Cached as Reload,
-  Clear as CancelIcon,
   Create as EditIcon,
   Delete as DeleteIcon,
   Lock as LockIcon,
   Visibility as ReadIcon,
   VpnKey as KeyIcon,
   Save as SaveIcon,
+  ViewList as TableIcon,
 } from '@mui/icons-material';
 
 import ActionButton from '@/components/float-button';
@@ -168,14 +168,14 @@ export default function AttributesForm({
       <div className={classes.actionsContainer}>
         {actions?.cancel && (
           <ActionButton
-            className="secondary"
+            className="support"
             form={formId}
             onClick={handleOnAction({
               action: 'cancel',
               handler: actions.cancel,
             })}
-            icon={CancelIcon}
-            tooltip={t('record-form.action-exit')}
+            icon={TableIcon}
+            tooltip={t('record-form.action-exit', { modelName: modelName })}
             data-cy="record-form-exit"
           />
         )}
