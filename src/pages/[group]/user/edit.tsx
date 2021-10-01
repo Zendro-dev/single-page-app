@@ -313,42 +313,39 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
               : undefined,
         }}
         info={
-          auth.user?.id == recordData.id &&
-          auth.user?.email === recordData.email ? (
-            <>
-              <Button variant="contained" onClick={handlePasswordDialogOpen}>
-                Change password
-              </Button>
-              <Dialog
-                open={passwordDialogOpen}
-                onClose={handlePasswordDialogClose}
-              >
-                <DialogTitle>Change password</DialogTitle>
-                <DialogContent className={classes.changePasswordDialog}>
-                  <PasswordField
-                    label="New password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                  <div className={classes.changePasswordDialogButtons}>
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={handlePasswordDialogClose}
-                    >
-                      cancel
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={handlePasswordChangeConfirm}
-                    >
-                      confirm
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </>
-          ) : undefined
+          <>
+            <Button variant="contained" onClick={handlePasswordDialogOpen}>
+              Change password
+            </Button>
+            <Dialog
+              open={passwordDialogOpen}
+              onClose={handlePasswordDialogClose}
+            >
+              <DialogTitle>Change password</DialogTitle>
+              <DialogContent className={classes.changePasswordDialog}>
+                <PasswordField
+                  label="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <div className={classes.changePasswordDialogButtons}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={handlePasswordDialogClose}
+                  >
+                    cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handlePasswordChangeConfirm}
+                  >
+                    confirm
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
         }
       />
     </ModelBouncer>
