@@ -317,7 +317,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   );
 
   /* HANDLERS */
-
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
     recordToMark,
     list,
@@ -455,7 +454,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         data-cy={`${props.model}-associations-tab`}
       />
 
-      <div className={classes.root}>
+      <TableContainer className={classes.tableContainer}>
         <div className={classes.toolbar}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {targetModel.apiPrivileges.textSearch && (
@@ -540,134 +539,132 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           </div>
         </div>
 
-        <TableContainer className={classes.table}>
-          <Table
-            caption={`${association.name} associations table for ${props.model}`}
-            isEmpty={assocTable.data.length === 0}
-          >
-            <TableHeader
-              actionsColSpan={props.request !== 'details' ? 2 : 1}
-              attributes={targetModel.attributes}
-              onSortLabelClick={(field) =>
-                setOrder((state) => ({
-                  ...state,
-                  sortField: field,
-                  sortDirection: !state?.sortDirection
-                    ? 'ASC'
-                    : state.sortDirection === 'ASC'
-                    ? 'DESC'
-                    : 'ASC',
-                }))
-              }
-              activeOrder={order?.sortField ?? targetModel.primaryKey}
-              orderDirection={order?.sortDirection ?? 'ASC'}
-              disableSort={!targetModel.apiPrivileges.sort}
-            />
+        <Table
+          caption={`${association.name} associations table for ${props.model}`}
+          isEmpty={assocTable.data.length === 0}
+        >
+          <TableHeader
+            actionsColSpan={props.request !== 'details' ? 2 : 1}
+            attributes={targetModel.attributes}
+            onSortLabelClick={(field) =>
+              setOrder((state) => ({
+                ...state,
+                sortField: field,
+                sortDirection: !state?.sortDirection
+                  ? 'ASC'
+                  : state.sortDirection === 'ASC'
+                  ? 'DESC'
+                  : 'ASC',
+              }))
+            }
+            activeOrder={order?.sortField ?? targetModel.primaryKey}
+            orderDirection={order?.sortDirection ?? 'ASC'}
+            disableSort={!targetModel.apiPrivileges.sort}
+          />
 
-            <TableBody>
-              {assocTable.data.map((record) => {
-                const recordPK = targetModel.primaryKey;
-                const recordId = record.data[recordPK] as string | number;
-                const isSelected =
-                  selectedRecords.toAdd.includes(recordId) ||
-                  selectedRecords.toRemove.includes(recordId);
-                return (
-                  <TableRow
-                    key={recordId}
-                    hover
-                    attributes={targetModel.attributes}
-                    record={record.data}
-                    onDoubleClick={() => handleOnRead(recordId)}
-                  >
-                    <MuiTableCell padding="checkbox">
+          <TableBody>
+            {assocTable.data.map((record) => {
+              const recordPK = targetModel.primaryKey;
+              const recordId = record.data[recordPK] as string | number;
+              const isSelected =
+                selectedRecords.toAdd.includes(recordId) ||
+                selectedRecords.toRemove.includes(recordId);
+              return (
+                <TableRow
+                  key={recordId}
+                  hover
+                  attributes={targetModel.attributes}
+                  record={record.data}
+                  onDoubleClick={() => handleOnRead(recordId)}
+                >
+                  <MuiTableCell padding="checkbox">
+                    <IconButton
+                      tooltip={t('model-table.view', { recordId })}
+                      onClick={() => handleOnRead(recordId)}
+                      className={classes.rowActionPrimary}
+                      data-cy={`model-table-view-${recordId}`}
+                    >
+                      <DetailsIcon fontSize="small" />
+                    </IconButton>
+                  </MuiTableCell>
+                  {props.request !== 'details' && (
+                    <MuiTableCell align="center" padding="checkbox">
                       <IconButton
-                        tooltip={t('model-table.view', { recordId })}
-                        onClick={() => handleOnRead(recordId)}
-                        className={classes.rowActionPrimary}
-                        data-cy={`model-table-view-${recordId}`}
+                        tooltip={
+                          record.isAssociated
+                            ? isSelected
+                              ? t('associations.mark-to-disassociate')
+                              : t('associations.click-to-disassociate')
+                            : isSelected
+                            ? t('associations.mark-to-associate')
+                            : t('associations.click-to-associate')
+                        }
+                        onClick={() =>
+                          handleOnMarkForAssociationClick(
+                            recordId,
+                            record.isAssociated ? 'toRemove' : 'toAdd',
+                            isSelected ? 'remove' : 'add'
+                          )
+                        }
+                        data-cy={`associations-table-mark-${recordId}`}
                       >
-                        <DetailsIcon fontSize="small" />
-                      </IconButton>
-                    </MuiTableCell>
-                    {props.request !== 'details' && (
-                      <MuiTableCell align="center" padding="checkbox">
-                        <IconButton
-                          tooltip={
-                            record.isAssociated
-                              ? isSelected
-                                ? t('associations.mark-to-disassociate')
-                                : t('associations.click-to-disassociate')
-                              : isSelected
-                              ? t('associations.mark-to-associate')
-                              : t('associations.click-to-associate')
-                          }
-                          onClick={() =>
-                            handleOnMarkForAssociationClick(
-                              recordId,
-                              record.isAssociated ? 'toRemove' : 'toAdd',
-                              isSelected ? 'remove' : 'add'
-                            )
-                          }
-                          data-cy={`associations-table-mark-${recordId}`}
-                        >
-                          {record.isAssociated ? (
-                            isSelected ? (
-                              <LinkOffIcon
-                                fontSize="small"
-                                className={classes.iconLinkOffMarked}
-                              />
-                            ) : (
-                              <LinkIcon fontSize="small" />
-                            )
-                          ) : isSelected ? (
-                            <LinkIcon
+                        {record.isAssociated ? (
+                          isSelected ? (
+                            <LinkOffIcon
                               fontSize="small"
-                              className={classes.iconLinkMarked}
+                              className={classes.iconLinkOffMarked}
                             />
                           ) : (
-                            <LinkOffIcon fontSize="small" />
-                          )}
-                        </IconButton>
-                      </MuiTableCell>
-                    )}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                            <LinkIcon fontSize="small" />
+                          )
+                        ) : isSelected ? (
+                          <LinkIcon
+                            fontSize="small"
+                            className={classes.iconLinkMarked}
+                          />
+                        ) : (
+                          <LinkOffIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </MuiTableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
 
-          <TablePagination
-            count={recordsTotal}
-            options={[5, 10, 15, 20, 25, 50]}
-            paginationLimit={tablePagination.first ?? tablePagination.last}
-            hasFirstPage={
-              // storageTypes that don't support backward pagination default to hasPreviousPage = false.
-              targetModel.apiPrivileges.backwardPagination
-                ? assocTable.pageInfo?.hasPreviousPage
-                : true
-            }
-            hasLastPage={
-              targetModel.apiPrivileges.backwardPagination
-                ? assocTable.pageInfo?.hasNextPage
-                : undefined
-            }
-            hasPreviousPage={
-              targetModel.apiPrivileges.backwardPagination
-                ? assocTable.pageInfo?.hasPreviousPage
-                : undefined
-            }
-            hasNextPage={assocTable.pageInfo?.hasNextPage}
-            startCursor={assocTable.pageInfo?.startCursor ?? null}
-            endCursor={assocTable.pageInfo?.endCursor ?? null}
-            onPageChange={(position, cursor) => {
-              setPagination((state) => ({ ...state, position, cursor }));
-            }}
-            onPageSizeChange={(limit) => {
-              setPagination((state) => ({ ...state, limit }));
-            }}
-          />
-        </TableContainer>
-      </div>
+        <TablePagination
+          count={recordsTotal}
+          options={[5, 10, 15, 20, 25, 50]}
+          paginationLimit={tablePagination.first ?? tablePagination.last}
+          hasFirstPage={
+            // storageTypes that don't support backward pagination default to hasPreviousPage = false.
+            targetModel.apiPrivileges.backwardPagination
+              ? assocTable.pageInfo?.hasPreviousPage
+              : true
+          }
+          hasLastPage={
+            targetModel.apiPrivileges.backwardPagination
+              ? assocTable.pageInfo?.hasNextPage
+              : undefined
+          }
+          hasPreviousPage={
+            targetModel.apiPrivileges.backwardPagination
+              ? assocTable.pageInfo?.hasPreviousPage
+              : undefined
+          }
+          hasNextPage={assocTable.pageInfo?.hasNextPage}
+          startCursor={assocTable.pageInfo?.startCursor ?? null}
+          endCursor={assocTable.pageInfo?.endCursor ?? null}
+          onPageChange={(position, cursor) => {
+            setPagination((state) => ({ ...state, position, cursor }));
+          }}
+          onPageSizeChange={(limit) => {
+            setPagination((state) => ({ ...state, limit }));
+          }}
+        />
+      </TableContainer>
     </ModelBouncer>
   );
 };
@@ -690,6 +687,14 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       flexGrow: 1,
       overflow: 'auto',
+    },
+    tableContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      flexGrow: 1,
+      padding: theme.spacing(2, 4),
+      marginTop: theme.spacing(8),
     },
     toolbar: {
       display: 'flex',

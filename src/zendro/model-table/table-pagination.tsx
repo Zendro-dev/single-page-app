@@ -6,12 +6,12 @@ import {
   IconButton,
   Tooltip,
   InputBase,
-  InputLabel,
   MenuItem,
   Select,
   Box,
   FormControl,
   SelectChangeEvent,
+  FormHelperText,
 } from '@mui/material';
 import {
   FirstPage,
@@ -75,11 +75,8 @@ export default function RecordsTablePagination({
   return (
     <Box display="flex" className={classes.pagination}>
       <FormControl className={classes.paginationLimit}>
-        <InputLabel id="pagination">
-          {t('model-table.pagination-rows')}
-        </InputLabel>
+        <FormHelperText>{t('model-table.pagination-rows')}</FormHelperText>
         <Select
-          labelId="pagination"
           variant="standard"
           value={paginationLimit}
           onChange={handlePageLimitChange}
@@ -99,7 +96,7 @@ export default function RecordsTablePagination({
 
       {count >= 0 && (
         <div>
-          <InputLabel shrink>{t('model-table.pagination-count')}</InputLabel>
+          <FormHelperText>{t('model-table.pagination-count')}</FormHelperText>
           <InputBase value={count} disabled={true} />
         </div>
       )}
@@ -161,9 +158,12 @@ export default function RecordsTablePagination({
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     pagination: {
+      alignItems: 'center',
       padding: theme.spacing(6, 2),
     },
     paginationLimit: {
+      display: 'flex',
+      alignItems: 'center',
       minWidth: '5rem',
       marginLeft: '1rem',
       marginRight: '1rem',

@@ -106,7 +106,11 @@
     "read-only": "The form is in read-only mode",
     "tab-associations": "Associations",
     "tab-attributes": "Attributes",
-    "update": "Edit"
+    "update": "Edit",
+    "change-password": "Change password",
+    "new-password": "New password",
+    "cancel-password": "Cancel",
+    "confirm-password": "Confirm"
   },
   "restricted": {
     "not-logged-header": "You are not logged in",

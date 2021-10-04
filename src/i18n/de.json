@@ -105,7 +105,11 @@
     "read-only": "Das Formular ist schreibgeschützt",
     "tab-associations": "Assoziationen",
     "tab-attributes": "Attribute",
-    "update": "Aktualisieren"
+    "update": "Aktualisieren",
+    "change-password": "Passwort ändern",
+    "new-password": "Neues Passwort",
+    "cancel-password": "Abbrechen",
+    "confirm-password": "Bestätigen"
   },
   "restricted": {
     "not-logged-header": "Sie sind nicht eingeloggt",
