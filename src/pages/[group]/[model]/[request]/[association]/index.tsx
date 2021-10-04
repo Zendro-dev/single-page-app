@@ -317,7 +317,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   );
 
   /* HANDLERS */
-
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
     recordToMark,
     list,
