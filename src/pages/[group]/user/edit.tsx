@@ -178,7 +178,6 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
     );
-    console.log({ dataRecord });
 
     const submit = async (): Promise<void> => {
       try {
@@ -315,16 +314,16 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
         info={
           <>
             <Button variant="contained" onClick={handlePasswordDialogOpen}>
-              Change password
+              {t('record-form.change-password')}
             </Button>
             <Dialog
               open={passwordDialogOpen}
               onClose={handlePasswordDialogClose}
             >
-              <DialogTitle>Change password</DialogTitle>
+              <DialogTitle>{t('record-form.change-password')}</DialogTitle>
               <DialogContent className={classes.changePasswordDialog}>
                 <PasswordField
-                  label="New password"
+                  label={t('record-form.new-password')}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
@@ -334,13 +333,13 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
                     color="secondary"
                     onClick={handlePasswordDialogClose}
                   >
-                    cancel
+                    {t('record-form.cancel-password')}
                   </Button>
                   <Button
                     variant="contained"
                     onClick={handlePasswordChangeConfirm}
                   >
-                    confirm
+                    {t('record-form.confirm-password')}
                   </Button>
                 </div>
               </DialogContent>
