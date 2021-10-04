@@ -10,12 +10,7 @@ import { Theme } from '@mui/material/styles';
 import { useDialog } from '@/components/dialog-popup';
 import NavTabs from '@/components/nav-tabs';
 import { PasswordField } from '@/components/login-form';
-import {
-  useAuth,
-  useModel,
-  useToastNotification,
-  useZendroClient,
-} from '@/hooks';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
@@ -38,7 +33,6 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const { t } = useTranslation();
-  const auth = useAuth();
 
   const filteredAttributes = model.attributes.filter(
     (attribute) => attribute.name !== 'password'
@@ -217,6 +211,9 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
     submit();
   };
 
+  /**
+   * Handle on password change confirm click
+   */
   const handlePasswordChangeConfirm = async (): Promise<void> => {
     try {
       const request = zendro.queries['user'].updateOne;
@@ -225,6 +222,7 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
         variables: { id: recordData.id, password: newPassword },
       });
       setPasswordDialogOpen(false);
+      setNewPassword('');
       showSnackbar('Password successfully updated', 'success');
     } catch (error) {
       parseAndDisplayErrorResponse(error);
