@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme: Theme) => {
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
-      overflow: 'hidden',
+      overflow: 'auto',
       '& ul > a': {
         paddingLeft: theme.spacing(18),
       },

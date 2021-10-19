@@ -282,7 +282,7 @@ const Record: PageWithLayout<RecordUrlQuery> = () => {
             links: model.associations?.map((assoc) => ({
               type: 'link',
               label: assoc.name,
-              href: `/admin/user/details/${assoc.name}?id=${urlQuery.id}`,
+              href: `/admin/user/edit/${assoc.name}?id=${urlQuery.id}`,
             })),
           },
         ]}
