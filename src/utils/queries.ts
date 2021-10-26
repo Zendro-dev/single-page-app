@@ -55,9 +55,19 @@ export const queryRecord = (
     varsNoAutoId,
   } = parseQueryAttributes(attributes);
 
-  const { assocArgs, assocVars } = associations
+  const {
+    assocArgs,
+    assocVars,
+    assocCreateArgs,
+    assocCreateVars,
+  } = associations
     ? parseQueryAssociations(associations)
-    : { assocArgs: '', assocVars: '' };
+    : {
+        assocArgs: '',
+        assocVars: '',
+        assocCreateArgs: '',
+        assocCreateVars: '',
+      };
 
   const primaryKey = attributes.find(({ primaryKey }) => primaryKey)?.name;
 
@@ -71,7 +81,7 @@ export const queryRecord = (
     create: {
       name: createResolver,
       resolver: createResolver,
-      query: `mutation ${createResolver}(${argsNoAutoId}) { ${createResolver}(${varsNoAutoId}) { ${fields} } }`,
+      query: `mutation ${createResolver}(${argsNoAutoId} ${assocCreateArgs}) { ${createResolver}(${varsNoAutoId} ${assocCreateVars}) { ${fields} asCursor} }`,
     },
     read: {
       name: readResolver,
@@ -473,6 +483,8 @@ function parseQueryAssociations(
 ): {
   assocArgs: string;
   assocVars: string;
+  assocCreateArgs: string;
+  assocCreateVars: string;
 } {
   return {
     get assocArgs() {
@@ -502,6 +514,32 @@ function parseQueryAssociations(
           const mutationName = curr.type.includes('to_one') ? nameCp : namePlCp;
           acc.push(`add${mutationName}: $add${mutationName}`);
           acc.push(`remove${mutationName}: $remove${mutationName}`);
+          return acc;
+        }, [])
+        .join(' ');
+    },
+
+    get assocCreateArgs() {
+      return associations
+        .reduce((acc: string[], curr) => {
+          const { namePlCp, nameCp } = getInflections(curr.name);
+          const mutationName = curr.type.includes('to_one') ? nameCp : namePlCp;
+          acc.push(
+            `$add${mutationName}: ${
+              curr.type.includes('to_one') ? 'ID' : '[ID]'
+            }`
+          );
+          return acc;
+        }, [])
+        .join(' ');
+    },
+
+    get assocCreateVars() {
+      return associations
+        .reduce((acc: string[], curr) => {
+          const { namePlCp, nameCp } = getInflections(curr.name);
+          const mutationName = curr.type.includes('to_one') ? nameCp : namePlCp;
+          acc.push(`add${mutationName}: $add${mutationName}`);
           return acc;
         }, [])
         .join(' ');
