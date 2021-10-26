@@ -725,10 +725,19 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           startCursor={assocTable.pageInfo?.startCursor ?? null}
           endCursor={assocTable.pageInfo?.endCursor ?? null}
           onPageChange={(position, cursor) => {
-            setPagination((state) => ({ ...state, position, cursor }));
+            setPagination((state) => ({
+              ...state,
+              position,
+              cursor,
+              includeCursor: false,
+            }));
           }}
           onPageSizeChange={(limit) => {
-            setPagination((state) => ({ ...state, limit }));
+            setPagination((state) => ({
+              ...state,
+              limit,
+              includeCursor: false,
+            }));
           }}
         />
       </TableContainer>
