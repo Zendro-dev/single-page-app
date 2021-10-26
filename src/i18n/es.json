@@ -11,7 +11,8 @@
     "filter-to-remove": "Marcados para desasociar",
     "mark-to-associate": "Marcado para asociar, pincha para desmarcar",
     "mark-to-disassociate": "Marcado para desasociar, pincha para desmarcar",
-    "save": "Guarda asociaciones para {{ assocName }}"
+    "save": "Guarda asociaciones para {{ assocName }}",
+    "new-associated-record": "Crea y asocia nuevo {{ modelName }}"
   },
   "dialogs": {
     "cancel-text": "No",

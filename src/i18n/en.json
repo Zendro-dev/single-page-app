@@ -11,7 +11,8 @@
     "filter-to-remove": "Marked for Disassociation",
     "mark-to-associate": "Marked to be associated, click to reset",
     "mark-to-disassociate": "Marked to be disassociated, click to reset",
-    "save": "Save {{ assocName }} data"
+    "save": "Save {{ assocName }} data",
+    "new-associated-record": "Create and associate new {{ modelName }}"
   },
   "dialogs": {
     "cancel-text": "No",
