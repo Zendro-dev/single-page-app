@@ -397,7 +397,10 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
     if (currAssocRecordId && action === 'add' && list === 'toAdd') {
       showSnackbar(
-        `The record you are editing already has an associated ${targetModel.model} (${currAssocRecordId})`,
+        `${t('warnings.already-associated', {
+          modelName: targetModel.model,
+          recordId: currAssocRecordId,
+        })}`,
         'warning'
       );
     }
