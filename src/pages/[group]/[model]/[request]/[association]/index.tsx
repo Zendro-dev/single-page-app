@@ -9,6 +9,9 @@ import {
   TableContainer,
   Dialog,
   DialogTitle,
+  DialogContent,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
@@ -22,6 +25,7 @@ import {
   Replay as ReloadIcon,
   Save as SaveIcon,
   VisibilityTwoTone as DetailsIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 
 import { getStaticAssociationPaths } from '@/build/routes';
@@ -94,6 +98,9 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const zendro = useZendroClient();
   const { t } = useTranslation();
 
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.only('xs'));
+
   const urlQuery = router.query as AssociationUrlQuery;
 
   const sourceModel = getModel(props.model);
@@ -114,6 +121,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     };
   });
 
+  const [associatedRecord, setAssociatedRecord] = useState<DataRecord>();
+
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
 
   const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
@@ -128,7 +137,23 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   });
 
   const [newAssocRecordOpen, setNewAssocRecordOpen] = useState(false);
-  const handleNewAssocRecordOpen = (): void => setNewAssocRecordOpen(true);
+  const handleNewAssocRecordOpen = async (): Promise<void> => {
+    const currAssocRecordId = associatedRecord
+      ? (associatedRecord[targetModel.primaryKey] as string)
+      : undefined;
+
+    if (currAssocRecordId && association.type.includes('to_one')) {
+      showSnackbar(
+        `${t('warnings.already-associated', {
+          modelName: targetModel.model,
+          recordId: currAssocRecordId,
+        })}`,
+        'warning'
+      );
+    }
+
+    setNewAssocRecordOpen(true);
+  };
   const handleNewAssocRecordClose = (): void => setNewAssocRecordOpen(false);
 
   /* VARIABLES */
@@ -327,19 +352,55 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     }
   );
 
+  /* FETCH Assoc record in case of to_one */
+  const { mutate: mutateAssociatedRecord } = useSWR<{
+    records: DataRecord[];
+  }>(
+    urlQuery.id && association.type.includes('to_one')
+      ? [urlQuery.id, zendro, association]
+      : null,
+    async () => {
+      const assocRecordQuery =
+        zendro.queries[props.model].withFilter[association.name].readFiltered;
+
+      const variables: QueryModelTableRecordsVariables = {
+        [sourceModel.primaryKey]: urlQuery.id,
+      };
+
+      return await zendro.request<{
+        records: DataRecord[];
+      }>(assocRecordQuery.query, {
+        jq: assocRecordQuery.transform,
+        variables,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        if (data) {
+          setAssociatedRecord(data.records[0]);
+        }
+      },
+      onError: parseAndDisplayErrorResponse,
+      shouldRetryOnError: false,
+    }
+  );
+
   /* HANDLERS */
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
     recordToMark,
     list,
     action
   ) => {
-    const currAssocRecord = assocTable.data.find(
-      (record) => record.isAssociated
-    );
-
-    const currAssocRecordId = currAssocRecord
-      ? (currAssocRecord.data[targetModel.primaryKey] as string | number)
+    const currAssocRecordId = associatedRecord
+      ? (associatedRecord[targetModel.primaryKey] as string)
       : undefined;
+
+    if (currAssocRecordId && action === 'add' && list === 'toAdd') {
+      showSnackbar(
+        `The record you are editing already has an associated ${targetModel.model} (${currAssocRecordId})`,
+        'warning'
+      );
+    }
 
     switch (action) {
       case 'add':
@@ -434,7 +495,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   /**
    * Submit the form values to the Zendro GraphQL endpoint. Triggers a revalidation.
    */
-  const handleNewAssocRecordSubmit: ActionHandler = (formData) => {
+  const handleNewAssocRecordSubmit: ActionHandler = async (formData) => {
     const dataRecord = formData.reduce<DataRecord>(
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {}
@@ -469,8 +530,15 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     };
 
     submit();
-    mutateRecords();
-    mutateCount();
+
+    showSnackbar(
+      `${t('success.new-associated-record', { modelName: targetModel.model })}`,
+      'success'
+    );
+
+    await mutateRecords();
+    await mutateCount();
+    mutateAssociatedRecord();
   };
 
   return (
@@ -589,7 +657,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             </IconButton>
             {props.request !== 'details' && (
               <IconButton
-                // tooltip={`Save ${selectedAssoc.target} data`}
                 tooltip={t('associations.save', {
                   assocName: association.target,
                 })}
@@ -642,7 +709,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                   hover
                   attributes={targetModel.attributes}
                   record={record.data}
-                  onDoubleClick={() => handleOnRead(recordId)}
                 >
                   <MuiTableCell padding="checkbox">
                     <IconButton
@@ -674,6 +740,11 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                           )
                         }
                         data-cy={`associations-table-mark-${recordId}`}
+                        disabled={
+                          association.type.includes('to_one') &&
+                          selectedRecords.toAdd.length > 0 &&
+                          selectedRecords.toRemove.includes(recordId)
+                        }
                       >
                         {record.isAssociated ? (
                           isSelected ? (
@@ -741,23 +812,34 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           }}
         />
       </TableContainer>
-      <Dialog open={newAssocRecordOpen} onClose={handleNewAssocRecordClose}>
-        <DialogTitle id="alert-dialog-title" className={classes.dialogTitle}>
-          {t('associations.new-associated-record', {
-            modelName: targetModel.model,
-          })}
-        </DialogTitle>
-        <AttributesForm
-          attributes={targetModel.attributes}
-          className={classes.root}
-          disabled={props.request === 'details'}
-          formId={router.asPath}
-          formView="create"
-          modelName={targetModel.model}
-          actions={{
-            submit: handleNewAssocRecordSubmit,
-          }}
-        />
+      <Dialog
+        open={newAssocRecordOpen}
+        onClose={handleNewAssocRecordClose}
+        fullScreen={mobile}
+      >
+        <div className={classes.dialogTitleContainer}>
+          <DialogTitle id="alert-dialog-title" className={classes.dialogTitle}>
+            {t('associations.new-associated-record', {
+              modelName: targetModel.model,
+            })}
+          </DialogTitle>
+          <IconButton aria-label="close" onClick={handleNewAssocRecordClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
+        <DialogContent style={{ padding: 0 }}>
+          <AttributesForm
+            attributes={targetModel.attributes}
+            className={classes.root}
+            disabled={props.request === 'details'}
+            formId={router.asPath}
+            formView="create"
+            modelName={targetModel.model}
+            actions={{
+              submit: handleNewAssocRecordSubmit,
+            }}
+          />
+        </DialogContent>
       </Dialog>
     </ModelBouncer>
   );
@@ -822,6 +904,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogTitle: {
       fontSize: 24,
+      padding: 0,
+    },
+    dialogTitleContainer: {
+      display: 'flex',
+      padding: '1rem',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
   })
 );

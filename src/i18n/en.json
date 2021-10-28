@@ -123,11 +123,15 @@
   },
   "success": {
     "assoc-update": "Associations updated successfully",
-    "csv-import": "The data has been sent. A report with the status of the import process will be sent to your email."
+    "csv-import": "The data has been sent. A report with the status of the import process will be sent to your email.",
+    "new-associated-record": "Successfully updated table to show new {{ modelName }} in first row (reloaded table accordingly)."
   },
   "toolbar": {
     "change-language": "Change language",
     "login": "Login",
     "models": "Models"
+  },
+  "warnings": {
+    "already-associated": "The record you are editing already has an associated {{ modelName }} ({{ recordId }}). {{ recordId }} will be automatically disassociated."
   }
 }
