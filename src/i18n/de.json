@@ -11,7 +11,8 @@
     "filter-to-remove": "Für Disassoziation markiert",
     "mark-to-associate": "Markiert für Assoziation, zum zurücksetzen klicken",
     "mark-to-disassociate": "Markiert für Disassoziation, zum zurücksetzen klicken",
-    "save": "{{ assocName }} Daten speichern"
+    "save": "{{ assocName }} Daten speichern",
+    "new-associated-record": "Neuen {{ modelName }} erstellen und assoziieren"
   },
   "dialogs": {
     "cancel-text": "Nein",
@@ -121,12 +122,16 @@
   },
   "success": {
     "assoc-update": "Assoziation erfolgreich aktualisiert",
-    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt."
+    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt.",
+    "new-associated-record": "Tabelle wurde aktualisiert, um neuen {{ modelName }} in der ersten Zeile zu zeigen (Tabelle wurde enstprechend geladen)."
   },
   "toolbar": {
     "change-language": "Sprache ändern",
     "login": "Einloggen",
     "logout": "Ausloggen",
     "models": "Modelle"
+  },
+  "warnings": {
+    "already-associated": "Das aktuelle zu editierende Element ist bereits assoziiert zu {{ modelName }} ({{ recordId }}). {{ recordId }} wird automatisch disassoziiert."
   }
 }

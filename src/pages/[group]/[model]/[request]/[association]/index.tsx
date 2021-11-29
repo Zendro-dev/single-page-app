@@ -4,10 +4,19 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 
-import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
+import {
+  TableCell as MuiTableCell,
+  TableContainer,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
+  AddCircleOutline as AddIcon,
   FilterAltOutlined as FilterIcon,
   Link as LinkIcon,
   LinkOff as LinkOffIcon,
@@ -16,6 +25,7 @@ import {
   Replay as ReloadIcon,
   Save as SaveIcon,
   VisibilityTwoTone as DetailsIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 
 import { getStaticAssociationPaths } from '@/build/routes';
@@ -52,6 +62,7 @@ import {
   TableRecord,
   UseOrderProps,
 } from '@/zendro/model-table';
+import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
 interface AssocTable {
   data: TableRecord[];
@@ -87,6 +98,9 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const zendro = useZendroClient();
   const { t } = useTranslation();
 
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.only('xs'));
+
   const urlQuery = router.query as AssociationUrlQuery;
 
   const sourceModel = getModel(props.model);
@@ -107,6 +121,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     };
   });
 
+  const [associatedRecord, setAssociatedRecord] = useState<DataRecord>();
+
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
 
   const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
@@ -119,6 +135,26 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     toAdd: [],
     toRemove: [],
   });
+
+  const [newAssocRecordOpen, setNewAssocRecordOpen] = useState(false);
+  const handleNewAssocRecordOpen = async (): Promise<void> => {
+    const currAssocRecordId = associatedRecord
+      ? (associatedRecord[targetModel.primaryKey] as string)
+      : undefined;
+
+    if (currAssocRecordId && association.type.includes('to_one')) {
+      showSnackbar(
+        `${t('warnings.already-associated', {
+          modelName: targetModel.model,
+          recordId: currAssocRecordId,
+        })}`,
+        'warning'
+      );
+    }
+
+    setNewAssocRecordOpen(true);
+  };
+  const handleNewAssocRecordClose = (): void => setNewAssocRecordOpen(false);
 
   /* VARIABLES */
 
@@ -316,19 +352,58 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     }
   );
 
+  /* FETCH Assoc record in case of to_one */
+  const { mutate: mutateAssociatedRecord } = useSWR<{
+    records: DataRecord[];
+  }>(
+    urlQuery.id && association.type.includes('to_one')
+      ? [urlQuery.id, zendro, association]
+      : null,
+    async () => {
+      const assocRecordQuery =
+        zendro.queries[props.model].withFilter[association.name].readFiltered;
+
+      const variables: QueryModelTableRecordsVariables = {
+        [sourceModel.primaryKey]: urlQuery.id,
+      };
+
+      return await zendro.request<{
+        records: DataRecord[];
+      }>(assocRecordQuery.query, {
+        jq: assocRecordQuery.transform,
+        variables,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        if (data) {
+          setAssociatedRecord(data.records[0]);
+        }
+      },
+      onError: parseAndDisplayErrorResponse,
+      shouldRetryOnError: false,
+    }
+  );
+
   /* HANDLERS */
   const handleOnMarkForAssociationClick: TableRowAssociationHandler = (
     recordToMark,
     list,
     action
   ) => {
-    const currAssocRecord = assocTable.data.find(
-      (record) => record.isAssociated
-    );
-
-    const currAssocRecordId = currAssocRecord
-      ? (currAssocRecord.data[targetModel.primaryKey] as string | number)
+    const currAssocRecordId = associatedRecord
+      ? (associatedRecord[targetModel.primaryKey] as string)
       : undefined;
+
+    if (currAssocRecordId && action === 'add' && list === 'toAdd') {
+      showSnackbar(
+        `${t('warnings.already-associated', {
+          modelName: targetModel.model,
+          recordId: currAssocRecordId,
+        })}`,
+        'warning'
+      );
+    }
 
     switch (action) {
       case 'add':
@@ -420,6 +495,55 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     );
   };
 
+  /**
+   * Submit the form values to the Zendro GraphQL endpoint. Triggers a revalidation.
+   */
+  const handleNewAssocRecordSubmit: ActionHandler = async (formData) => {
+    const dataRecord = formData.reduce<DataRecord>(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {}
+    );
+
+    const { namePlCp, nameCp } = getInflections(association.reverseAssociation);
+    const mutationName = association.type.includes('to_one')
+      ? `add${nameCp}`
+      : `add${namePlCp}`;
+
+    dataRecord[mutationName] = urlQuery.id;
+
+    const submit = async (): Promise<void> => {
+      try {
+        const request = zendro.queries[targetModel.model].createOne;
+
+        const response = await zendro.request<Record<string, DataRecord>>(
+          request.query,
+          { variables: dataRecord }
+        );
+        const cursor = response?.[request.resolver].asCursor as string;
+        setPagination((state) => ({
+          ...state,
+          cursor: cursor,
+          position: 'next',
+          includeCursor: true,
+        }));
+        handleNewAssocRecordClose();
+      } catch (error) {
+        parseAndDisplayErrorResponse(error);
+      }
+    };
+
+    submit();
+
+    showSnackbar(
+      `${t('success.new-associated-record', { modelName: targetModel.model })}`,
+      'success'
+    );
+
+    await mutateRecords();
+    await mutateCount();
+    mutateAssociatedRecord();
+  };
+
   return (
     <ModelBouncer
       object={props.model}
@@ -437,7 +561,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         tabs={[
           {
             type: 'link',
-            label: 'attributes',
+            label: `${t('record-form.tab-attributes')}`,
             href: `/${props.group}/${props.model}/${props.request}?id=${urlQuery.id}`,
           },
           {
@@ -508,6 +632,20 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           </div>
 
           <div className={classes.toolbarActions}>
+            {props.request !== 'details' &&
+              targetModel.permissions.create &&
+              targetModel.apiPrivileges.create && (
+                <IconButton
+                  tooltip={t('associations.new-associated-record', {
+                    modelName: targetModel.model,
+                  })}
+                  onClick={handleNewAssocRecordOpen}
+                  data-cy="model-table-add"
+                  aria-label="New record"
+                >
+                  <AddIcon />
+                </IconButton>
+              )}
             <IconButton
               tooltip={t('model-table.reload', {
                 modelName: association.target,
@@ -522,7 +660,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
             </IconButton>
             {props.request !== 'details' && (
               <IconButton
-                // tooltip={`Save ${selectedAssoc.target} data`}
                 tooltip={t('associations.save', {
                   assocName: association.target,
                 })}
@@ -575,7 +712,6 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                   hover
                   attributes={targetModel.attributes}
                   record={record.data}
-                  onDoubleClick={() => handleOnRead(recordId)}
                 >
                   <MuiTableCell padding="checkbox">
                     <IconButton
@@ -607,6 +743,11 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                           )
                         }
                         data-cy={`associations-table-mark-${recordId}`}
+                        disabled={
+                          association.type.includes('to_one') &&
+                          selectedRecords.toAdd.length > 0 &&
+                          selectedRecords.toRemove.includes(recordId)
+                        }
                       >
                         {record.isAssociated ? (
                           isSelected ? (
@@ -658,13 +799,51 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
           startCursor={assocTable.pageInfo?.startCursor ?? null}
           endCursor={assocTable.pageInfo?.endCursor ?? null}
           onPageChange={(position, cursor) => {
-            setPagination((state) => ({ ...state, position, cursor }));
+            setPagination((state) => ({
+              ...state,
+              position,
+              cursor,
+              includeCursor: false,
+            }));
           }}
           onPageSizeChange={(limit) => {
-            setPagination((state) => ({ ...state, limit }));
+            setPagination((state) => ({
+              ...state,
+              limit,
+              includeCursor: false,
+            }));
           }}
         />
       </TableContainer>
+      <Dialog
+        open={newAssocRecordOpen}
+        onClose={handleNewAssocRecordClose}
+        fullScreen={mobile}
+      >
+        <div className={classes.dialogTitleContainer}>
+          <DialogTitle id="alert-dialog-title" className={classes.dialogTitle}>
+            {t('associations.new-associated-record', {
+              modelName: targetModel.model,
+            })}
+          </DialogTitle>
+          <IconButton aria-label="close" onClick={handleNewAssocRecordClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
+        <DialogContent style={{ padding: 0 }}>
+          <AttributesForm
+            attributes={targetModel.attributes}
+            className={classes.root}
+            disabled={props.request === 'details'}
+            formId={router.asPath}
+            formView="create"
+            modelName={targetModel.model}
+            actions={{
+              submit: handleNewAssocRecordSubmit,
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </ModelBouncer>
   );
 };
@@ -725,6 +904,17 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: 'transparent',
         color: theme.palette.primary.main,
       },
+    },
+    dialogTitle: {
+      fontSize: 24,
+      padding: 0,
+    },
+    dialogTitleContainer: {
+      display: 'flex',
+      padding: '1rem',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
   })
 );
