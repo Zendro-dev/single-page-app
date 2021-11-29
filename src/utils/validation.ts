@@ -56,6 +56,15 @@ export function isObject(x: unknown): x is Record<string, unknown> {
 }
 
 /**
+ * Check whether a given string value is a number.
+ * @param value string to check 
+ * @returns wheter the given value is a valid number (float or integer)
+ */
+ export function isNumber(value: string): boolean {
+  return /(^\d+(?:\.\d+)?)+$/.test(value)
+}
+
+/**
  * Check whether a given string value (e.g. from an input) is a valid integer.
  * @param value string to convert and check
  * @returns whether the given value is a valid integer
