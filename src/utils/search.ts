@@ -1,6 +1,6 @@
 import { ParsedAttribute } from '@/types/models';
 import { QueryVariableSearch } from '@/types/queries';
-import { isIntValue } from './validation';
+import { isIntValue, isNumber } from './validation';
 
 export function createSearch(
   value: string,
@@ -9,13 +9,13 @@ export function createSearch(
   const operator = 'or';
 
   const search = attributes.reduce((acc, { name, type }) => {
-    if (type === 'Int' && isIntValue(value)) {
+    if (type === 'Int' && isNumber(value) && isIntValue(value)) {
       acc.push({
         field: name,
         value,
         operator: 'eq',
       });
-    } else if (type === 'Float' && !isNaN(parseFloat(value))) {
+    } else if (type === 'Float' && isNumber(value) && !isNaN(parseFloat(value))) {
       acc.push({
         field: name,
         value,
