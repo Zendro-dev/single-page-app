@@ -15,11 +15,12 @@ import {
 
 import AlertCard from '@/components/alert-card';
 import Breadcrumbs, { Breadcrumb } from '@/components/breadcrumbs';
-import useAuth from '@/hooks/useAuth';
 import { AppRoutes, RecordUrlQuery } from '@/types/routes';
 import { parseRoute } from '@/utils/router';
 
 import Navigation from './model-navigation';
+
+import { useSession } from 'next-auth/react';
 
 export interface ModelsProps {
   routes: AppRoutes;
@@ -31,7 +32,7 @@ export default function Models({
   showNav,
   ...props
 }: PropsWithChildren<ModelsProps>): ReactElement {
-  const auth = useAuth();
+  const { data: session } = useSession();
   const classes = useStyles();
   const router = useRouter();
   const { t } = useTranslation();
@@ -93,7 +94,7 @@ export default function Models({
         className={clsx(classes.navDrawer, {
           [classes.navDrawerClosed]: !showNav,
         })}
-        permissions={auth.user?.permissions}
+        permissions={session?.permissions}
         routes={routes}
       />
       <main
@@ -107,13 +108,14 @@ export default function Models({
           crumbs={crumbs}
         />
         <Divider />
-        {!auth.user ? (
+        {!session ? (
           <AlertCard
             title={t('restricted.not-logged-header')}
             body={t('restricted.not-logged-info')}
             type="info"
           />
-        ) : auth.status === 'expired' ? (
+        ) : session.accessTokenExpires !== undefined &&
+          Date.now() > session.accessTokenExpires ? (
           <AlertCard
             title={t('restricted.token-exp-header')}
             body={t('restricted.token-exp-info')}

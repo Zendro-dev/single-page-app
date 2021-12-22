@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Theme } from '@mui/material/styles';
@@ -8,13 +7,15 @@ import {
   BubbleChart as ModelsIcon,
   Home as HomeIcon,
   Login as LoginIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 
 import ClientOnly from '@/components/client-only';
 import SiteLink from '@/components/site-link';
 import LanguageSwitcher from '@/components/lang-switcher';
-import { LoginButton } from '@/components/login-form';
-import { useAuth } from '@/hooks';
+import IconButton from '@/components/icon-button';
+
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 export interface AppLayoutProps {
   brand?: string;
@@ -27,18 +28,9 @@ export default function ModelsLayout({
   footer = false,
   ...props
 }: PropsWithChildren<AppLayoutProps>): ReactElement {
-  const auth = useAuth();
-  const router = useRouter();
   const classes = useStyles();
   const { t } = useTranslation();
-
-  const handleOnLoginAction = (): void => {
-    if (router.asPath === '/') router.push('/models');
-  };
-
-  const handleOnLogoutAction = (): void => {
-    router.push('/');
-  };
+  const { data: session } = useSession();
 
   return (
     <div className={classes.root}>
@@ -58,7 +50,7 @@ export default function ModelsLayout({
           </SiteLink>
 
           <ClientOnly>
-            {auth.user && (
+            {session?.user && (
               <SiteLink href="/models" className={classes.navlink}>
                 <ModelsIcon />
                 <span>{t('toolbar.models')}</span>
@@ -71,18 +63,27 @@ export default function ModelsLayout({
         <div className={classes.actionButtons}>
           <LanguageSwitcher color="inherit" size="small" />
           <ClientOnly>
-            <LoginButton
-              className={
-                auth.status === 'success' ? 'login-normal' : 'login-warning'
-              }
-              color="inherit"
-              size="small"
-              onLogin={handleOnLoginAction}
-              onLogout={handleOnLogoutAction}
-              data-cy="login-button"
-            >
-              <LoginIcon />
-            </LoginButton>
+            {!session ? (
+              <IconButton
+                size="small"
+                className="login-normal"
+                color="inherit"
+                tooltip={t('toolbar.login')}
+                onClick={() => signIn('zendro', { callbackUrl: '/models' })}
+              >
+                <LoginIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                size="small"
+                className="login-warning"
+                color="inherit"
+                tooltip={t('toolbar.logout')}
+                onClick={() => signOut({ callbackUrl: '/' })}
+              >
+                <LogoutIcon />
+              </IconButton>
+            )}
           </ClientOnly>
         </div>
       </header>
@@ -154,16 +155,15 @@ const useStyles = makeStyles((theme: Theme) =>
         color: theme.palette.success.main,
       },
       '& button.login-normal:hover': {
-        backgroundColor: theme.palette.secondary.background,
-        color: theme.palette.secondary.main,
+        backgroundColor: theme.palette.success.light,
       },
       '& button.login-warning': {
         backgroundColor: theme.palette.secondary.background,
         color: theme.palette.secondary.main,
       },
       '& button.login-warning:hover': {
-        backgroundColor: theme.palette.primary.background,
-        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.secondary.light,
+        // color: theme.palette.primary.main,
       },
     },
     loginButtonWarning: {

@@ -22,12 +22,8 @@ import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
 import IconButton from '@/components/icon-button';
 import { EXPORT_URL } from '@/config/globals';
-import {
-  useAuth,
-  useModel,
-  useToastNotification,
-  useZendroClient,
-} from '@/hooks';
+import { useModel, useToastNotification, useZendroClient } from '@/hooks';
+import { useSession } from 'next-auth/react';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 
 import { ExtendedClientError } from '@/types/errors';
@@ -104,7 +100,6 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   /* HOOKS */
 
-  const auth = useAuth();
   const dialog = useDialog();
   const model = useModel(props.model);
   const router = useRouter();
@@ -112,6 +107,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
   const { showSnackbar } = useToastNotification();
   const { t } = useTranslation();
   const zendro = useZendroClient();
+  const { data: session } = useSession();
 
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({
@@ -139,7 +135,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     try {
       const response = await fetch(EXPORT_URL + `?model=${props.model}`, {
         headers: {
-          Authorization: 'Bearer ' + auth.user?.token,
+          Authorization: 'Bearer ' + session?.accessToken,
         },
       });
 
