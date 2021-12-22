@@ -129,6 +129,7 @@
   "toolbar": {
     "change-language": "Cambiar idioma",
     "login": "Iniciar sesión",
+    "logout": "Cierre de sesión",
     "models": "Modelos"
   },
   "warnings": {
