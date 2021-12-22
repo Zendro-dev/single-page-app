@@ -29,7 +29,6 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
    */
   const modelPaths = await getStaticModels();
 
-  const adminResources = modelPaths.admin.map((file) => parse(file).name);
   const modelResources = modelPaths.models.map((file) => parse(file).name);
 
   let aclRules: AclSet[] = defaultRoles.map(({ roles, permissions }) => ({
@@ -37,7 +36,7 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
     allows: [
       {
         permissions,
-        resources: roles === 'administrator' ? adminResources : modelResources,
+        resources: modelResources,
       },
     ],
   }));

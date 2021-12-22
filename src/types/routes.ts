@@ -3,7 +3,6 @@ import { ParsedUrlQuery } from 'querystring';
 export type AppRoutes = Array<RouteGroup | RouteLink>;
 
 export interface ModelRoutes {
-  admin: RouteLink[];
   models: RouteLink[];
 }
 
