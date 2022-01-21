@@ -7,6 +7,7 @@ const OAUTH2_ISSUER = String(process.env.OAUTH2_ISSUER ?? '');
 const OAUTH2_TOKEN_URI = String(process.env.OAUTH2_TOKEN_URI ?? '');
 const OAUTH2_CLIENT_ID = String(process.env.OAUTH2_CLIENT_ID ?? '');
 const OAUTH2_CLIENT_SECRET = String(process.env.OAUTH2_CLIENT_SECRET ?? '');
+const NEXTAUTH_SECRET = String(process.env.NEXTAUTH_SECRET ?? '');
 
 if (!OAUTH2_TOKEN_URI || !OAUTH2_CLIENT_ID || !OAUTH2_CLIENT_SECRET) {
   throw new Error(
@@ -78,7 +79,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 }
 
 export default NextAuth({
-  secret: 'my-secret',
+  secret: NEXTAUTH_SECRET,
   // Configure one or more authentication providers
   providers: [
     // ...add more providers here
@@ -86,7 +87,9 @@ export default NextAuth({
       id: 'zendro',
       name: 'zendro',
       type: 'oauth',
-      wellKnown: `${OAUTH2_ISSUER}/.well-known/openid-configuration`, // OpenID spec
+      wellKnown: `${OAUTH2_ISSUER}/.well-known/openid-configuration`, // for OpenID connect clients. If your OAuth provider
+      // does not implement OpenID connect you need to manually configure your endpoints.
+      // See https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider
       clientId: OAUTH2_CLIENT_ID,
       clientSecret: OAUTH2_CLIENT_SECRET,
       checks: ['state', 'pkce'],
