@@ -15,19 +15,17 @@ import { ParsedDataModel } from '@/types/models';
  * @param modelPaths array of paths to each data model file
  */
 export async function parseDataModels(): Promise<{
-  admin: ParsedDataModel[];
   models: ParsedDataModel[];
 }> {
   const modelFiles = await parseStaticModels(true);
 
   return {
-    admin: Object.values(modelFiles.admin),
     models: Object.values(modelFiles.models),
   };
 }
 
 /**
- * Parse admin and data models into an array of routes.
+ * Parse data models into an array of routes.
  * @returns an array of route groups and links
  */
 export async function getModelNavRoutes(): Promise<AppRoutes> {
@@ -35,7 +33,6 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
 
   const crossModels = {
     models: getCrossModels(parsedModels.models),
-    admin: getCrossModels(parsedModels.admin),
   };
 
   const parseModelAsRoute = (group: string) => ({
@@ -63,14 +60,6 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
         .filter((model) => !crossModels.models.includes(model.model))
         .map(parseModelAsRoute('models')),
     },
-    {
-      type: 'group',
-      name: 'Admin',
-      icon: 'SupervisorAccountRounded',
-      routes: parsedModels.admin
-        .filter((model) => !crossModels.admin.includes(model.model))
-        .map(parseModelAsRoute('admin')),
-    },
   ];
 }
 
@@ -90,7 +79,6 @@ export async function getStaticModelPaths(): Promise<
     params: { group, model },
   });
 
-  let adminPaths = parsedModels.admin.map(composeUrlQuery('admin'));
   let modelPaths = parsedModels.models.map(composeUrlQuery('models'));
 
   // Remove custom overrides from generated paths
@@ -104,13 +92,12 @@ export async function getStaticModelPaths(): Promise<
     const removeOverrides = (path: { params: ModelUrlQuery }): boolean =>
       !overrides.includes(`/${path.params.group}/${path.params.model}`);
 
-    adminPaths = adminPaths.filter(removeOverrides);
     modelPaths = modelPaths.filter(removeOverrides);
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
 
-  return [...adminPaths, ...modelPaths];
+  return [...modelPaths];
 }
 
 /**
@@ -145,17 +132,12 @@ export async function getStaticRecordPaths(): Promise<
     return recordPaths;
   };
 
-  const adminPaths = parsedModels.admin.reduce(
-    composeRecordUrlQuery('admin'),
-    []
-  );
-
   const modelPaths = parsedModels.models.reduce(
     composeRecordUrlQuery('models'),
     []
   );
 
-  let recordPaths = [...adminPaths, ...modelPaths];
+  let recordPaths = [...modelPaths];
 
   // Remove user-defined overrides
   try {

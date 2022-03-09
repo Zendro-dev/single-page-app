@@ -8,17 +8,14 @@ import {
 } from '@/utils/models';
 
 /**
- * Get the full paths to the static admin and data model files.
+ * Get the full paths to the static data model files.
  * @returns the resolved static model paths
  */
 export async function getStaticModels(): Promise<{
-  admin: string[];
   models: string[];
 }> {
-  const ADMIN_PATH = './src/config/admin';
   const MODELS_PATH = process.env.ZENDRO_DATA_MODELS;
 
-  let adminFiles: string[];
   let modelFiles: string[];
 
   // The ZENDRO_DATA_MODELS env variable is mandatory
@@ -27,29 +24,6 @@ export async function getStaticModels(): Promise<{
       'No data models folder defined, ' +
         'please make sure the "ZENDRO_DATA_MODELS" env variable has been set'
     );
-  }
-
-  // Throw if somehow the admin models are not present
-  try {
-    await stat(ADMIN_PATH);
-
-    adminFiles = await readdir(ADMIN_PATH);
-
-    if (
-      adminFiles.length === 0 ||
-      adminFiles.join(',') !== 'role.json,role_to_user.json,user.json'
-    ) {
-      throw new Error(
-        `The admin data models folder in ${ADMIN_PATH} is missing models`
-      );
-    }
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      console.error(
-        `The admin data models in ${ADMIN_PATH} could not be found`
-      );
-    }
-    throw error;
   }
 
   // Ensure the models folders exist
@@ -75,7 +49,6 @@ export async function getStaticModels(): Promise<{
     path.resolve(path.join(folderPath, file));
 
   return {
-    admin: adminFiles.map(resolvePaths(ADMIN_PATH)),
     models: modelFiles.map(resolvePaths(MODELS_PATH)),
   };
 }
@@ -109,7 +82,7 @@ export async function parseStaticModel(
 
 /**
  * Parse static model files into their JavaScript object representation.
- * @param group group models by their source (i.e. admin, models)
+ * @param group group models by their source (i.e. models)
  */
 export async function parseStaticModels(
   group?: false
@@ -117,13 +90,12 @@ export async function parseStaticModels(
 
 /**
  * Parse static model files into their JavaScript object representation and
- * group them according to the source (i.e. admin, models).
+ * group them according to the source (i.e. models).
  * @param group group models by their source
  */
 export async function parseStaticModels(
   group: true
 ): Promise<{
-  admin: Record<string, ParsedDataModel>;
   models: Record<string, ParsedDataModel>;
 }>;
 
@@ -132,19 +104,12 @@ export async function parseStaticModels(
 ): Promise<
   | Record<string, ParsedDataModel>
   | {
-      admin: Record<string, ParsedDataModel>;
       models: Record<string, ParsedDataModel>;
     }
 > {
-  const admin: Record<string, ParsedDataModel> = {};
   const models: Record<string, ParsedDataModel> = {};
 
   const modelFiles = await getStaticModels();
-
-  for (const filePath of modelFiles.admin) {
-    const adminModel = await parseStaticModel(filePath);
-    admin[adminModel.model] = adminModel;
-  }
 
   for (const filePath of modelFiles.models) {
     const dataModel = await parseStaticModel(filePath);
@@ -158,7 +123,6 @@ export async function parseStaticModels(
   // Return models grouped by their source type
   if (group) {
     return {
-      admin,
       models,
     };
   }
@@ -166,9 +130,8 @@ export async function parseStaticModels(
   // Return all models in a single object
   return Object.assign<
     Record<string, ParsedDataModel>,
-    Record<string, ParsedDataModel>,
     Record<string, ParsedDataModel>
-  >({}, models, admin);
+  >({}, models);
 }
 
 /**

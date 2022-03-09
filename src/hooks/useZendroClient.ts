@@ -13,7 +13,7 @@ import { StaticQueries } from '@/types/static';
 import { ExtendedClientError } from '@/types/errors';
 import { OneOf } from '@/types/utility';
 
-import useAuth from './useAuth';
+import { useSession } from 'next-auth/react';
 
 type LegacyRequest = <T = unknown>(
   query: string,
@@ -41,32 +41,30 @@ interface UseZendroClient {
 }
 
 export default function useZendroClient(): UseZendroClient {
-  const { user, checkValidToken } = useAuth();
+  const { data: session } = useSession({ required: false });
 
   const client = useMemo(
     () =>
       new GraphQLClient(GRAPHQL_URL, {
         headers: {
-          authorization: 'Bearer ' + user?.token,
+          authorization: 'Bearer ' + session?.accessToken,
         },
       }),
-    [user?.token]
+    [session?.accessToken]
   );
 
   const metaClient = useMemo(
     () =>
       new GraphQLClient(METAQUERY_URL, {
         headers: {
-          authorization: 'Bearer ' + user?.token,
+          authorization: 'Bearer ' + session?.accessToken,
         },
       }),
-    [user?.token]
+    [session?.accessToken]
   );
 
   const request: GraphQLRequest = useCallback(
     (query, options) => {
-      if (user) checkValidToken();
-
       const variables = options?.variables;
       const jq = options?.jq;
       const jsonPath = options?.jsonPath;
@@ -79,7 +77,7 @@ export default function useZendroClient(): UseZendroClient {
         return client.request(query, variables);
       }
     },
-    [client, metaClient, user, checkValidToken]
+    [client, metaClient]
   );
 
   const legacyRequest: LegacyRequest = useCallback(
@@ -99,7 +97,7 @@ export default function useZendroClient(): UseZendroClient {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json;charset=UTF-8',
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           data: formData,
         });
@@ -130,7 +128,7 @@ export default function useZendroClient(): UseZendroClient {
 
       return response.data.data;
     },
-    [user?.token]
+    [session?.accessToken]
   );
 
   return useMemo(() => ({ legacyRequest, queries, request }), [

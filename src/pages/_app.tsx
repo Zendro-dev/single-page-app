@@ -1,27 +1,29 @@
 import { AppProps } from 'next/app';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
-import { Provider } from 'react-redux';
 
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 
 import { DialogProvider } from '@/components/dialog-popup';
 import { PageWithLayout } from '@/layouts';
-import store from '@/store';
 import { theme } from '@/styles/theme';
 import '@/styles/globals.css';
 import '@/i18n';
 
+import { SessionProvider } from 'next-auth/react';
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;
 }
 
-function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
+function Zendro({
+  Component,
+  pageProps: { session, ...pageProps },
+}: ZendroProps): ReactElement {
   const Layout = Component.layout;
   const withLayout = Component.withLayout;
   return (
-    <Provider store={store}>
+    <SessionProvider session={session} refetchInterval={9.5 * 60}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider
@@ -43,7 +45,7 @@ function Zendro({ Component, pageProps }: ZendroProps): ReactElement {
           </DialogProvider>
         </SnackbarProvider>
       </ThemeProvider>
-    </Provider>
+    </SessionProvider>
   );
 }
 

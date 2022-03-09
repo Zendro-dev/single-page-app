@@ -129,6 +129,7 @@
   "toolbar": {
     "change-language": "Change language",
     "login": "Login",
+    "logout": "Logout",
     "models": "Models"
   },
   "warnings": {

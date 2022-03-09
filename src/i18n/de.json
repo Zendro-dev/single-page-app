@@ -128,7 +128,7 @@
   "toolbar": {
     "change-language": "Sprache ändern",
     "login": "Einloggen",
-    "logout": "Ausloggen",
+    "logout": "Abmelden",
     "models": "Modelle"
   },
   "warnings": {
