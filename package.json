@@ -26,7 +26,6 @@
     "@mui/lab": "^5.0.0-alpha.46",
     "@mui/material": "^5.0.0-rc.1",
     "@mui/styles": "^5.0.0-rc.1",
-    "@reduxjs/toolkit": "^1.6.0",
     "@types/acl": "^0.4.37",
     "acl2": "^2.0.0",
     "axios": "^0.21.1",
@@ -45,8 +44,6 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-i18next": "^11.11.0",
-    "react-redux": "^7.2.4",
-    "redux-logger": "^3.0.6",
     "swr": "^0.5.6"
   },
   "devDependencies": {
@@ -58,7 +55,6 @@
     "@types/prettier": "^2.3.1",
     "@types/react": "^17.0.13",
     "@types/react-test-renderer": "^17.0.1",
-    "@types/redux-logger": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "ajv": "^7.2.4",
