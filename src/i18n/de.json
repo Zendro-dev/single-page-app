@@ -28,7 +28,7 @@
     "validation-title": "Validierungs Fehler"
   },
   "errors": {
-    "csv-import": "Es ist ein Fehler während des CSV Imports aufgetreten. Bitte kontaktieren sie ihren Administrator.",
+    "csv-import": "Beim Versuch, die Datei zu importieren, ist ein Fehler aufgetreten. Bitte kontaktieren sie ihren Administrator.",
     "server-error": "Fehler {{ status }} in Anfrage zum Server"
   },
   "home": {

@@ -21,7 +21,7 @@ import {
 import { getStaticModelPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
 import IconButton from '@/components/icon-button';
-import { EXPORT_URL } from '@/config/globals';
+import globals from '@/config/globals';
 import { useModel, useToastNotification, useZendroClient } from '@/hooks';
 import { useSession } from 'next-auth/react';
 import { ModelLayout, PageWithLayout } from '@/layouts';
@@ -40,7 +40,8 @@ import { PageInfo } from '@/types/requests';
 import { isSafari } from '@/utils/browser';
 import { hasTokenExpiredErrors, parseErrorResponse } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
-
+import { csvProcessing, jsonProcessing } from 'zendro-bulk-create';
+import XLSX from 'xlsx';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {
   Table,
@@ -133,11 +134,14 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   const handleExportCsv = async (): Promise<void> => {
     try {
-      const response = await fetch(EXPORT_URL + `?model=${props.model}`, {
-        headers: {
-          Authorization: 'Bearer ' + session?.accessToken,
-        },
-      });
+      const response = await fetch(
+        globals.EXPORT_URL + `?model=${props.model}`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + session?.accessToken,
+          },
+        }
+      );
 
       const csvData = await response.text();
 
@@ -195,19 +199,103 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     }
   };
 
-  const handleImportCsv = async (
+  const handleImportFile = async (
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> => {
-    const csvFile = event.target.files?.item(0);
+    const file = event.target.files?.item(0);
 
-    if (!csvFile) return;
+    if (!file) return;
 
     // Support selecting the same file
     event.target.value = '';
-    // Send request
-    const query = zendro.queries[props.model].bulkAddCsv.query;
     try {
-      await zendro.legacyRequest(query, { csv_file: csvFile });
+      const file_extension = file.name.split('.').pop()?.toLowerCase();
+      const attr: { [key: string]: string } = {};
+      model.attributes.map((obj) => (attr[obj.name] = obj.type));
+
+      if (file_extension === 'csv') {
+        console.log('file type: csv');
+        await csvProcessing(
+          file,
+          props.model,
+          attr,
+          model.primaryKey,
+          true,
+          globals,
+          zendro.request
+        );
+        console.log('finish validation!');
+        await csvProcessing(
+          file,
+          props.model,
+          attr,
+          model.primaryKey,
+          false,
+          globals,
+          zendro.request
+        );
+        console.log('finish uploading!');
+      } else if (file_extension === 'xlsx') {
+        console.log('file type: xlsx');
+        const work_book = XLSX.read(await file.arrayBuffer());
+        let sheet_name = globals.SHEET_NAME
+          ? globals.SHEET_NAME
+          : work_book.SheetNames[0];
+        sheet_name =
+          globals.SHEET_NAME == ''
+            ? work_book.SheetNames[0]
+            : globals.SHEET_NAME;
+
+        const work_sheet = work_book.Sheets[sheet_name];
+        const records = XLSX.utils.sheet_to_json(work_sheet, { raw: false });
+
+        await jsonProcessing(
+          records,
+          props.model,
+          attr,
+          model.primaryKey,
+          true,
+          globals,
+          zendro.request
+        );
+        console.log('finish validation!');
+        await jsonProcessing(
+          records,
+          props.model,
+          attr,
+          model.primaryKey,
+          false,
+          globals,
+          zendro.request
+        );
+        console.log('finish uploading!');
+      } else if (file_extension === 'json') {
+        console.log('file type: json');
+        const records = JSON.parse(await file.text());
+        await jsonProcessing(
+          records,
+          props.model,
+          attr,
+          model.primaryKey,
+          true,
+          globals,
+          zendro.request
+        );
+        console.log('finish validation!');
+        await jsonProcessing(
+          records,
+          props.model,
+          attr,
+          model.primaryKey,
+          false,
+          globals,
+          zendro.request
+        );
+        console.log('finish uploading!');
+      } else {
+        throw new Error('the file extension is not supported!');
+      }
+
       showSnackbar(t('success.csv-import'), 'success');
     } catch (error) {
       const clientError = error as ExtendedClientError;
@@ -410,13 +498,13 @@ const Model: PageWithLayout<ModelProps> = (props) => {
               <IconButton
                 component="label"
                 tooltip={t('model-table.import', { modelName: props.model })}
-                aria-label="Import from CSV"
+                aria-label="Import from file"
               >
                 <input
                   style={{ display: 'none' }}
                   type="file"
-                  accept=".csv"
-                  onChange={handleImportCsv}
+                  accept=".csv, .xlsx, .json"
+                  onChange={handleImportFile}
                 />
                 <ImportIcon />
               </IconButton>
