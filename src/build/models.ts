@@ -76,6 +76,7 @@ export async function parseStaticModel(
     apiPrivileges,
     associations,
     attributes,
+    foreignKeys: [],
     primaryKey: dataModel.internalId ?? 'id',
   };
 }

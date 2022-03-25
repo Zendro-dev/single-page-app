@@ -212,6 +212,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
       const file_extension = file.name.split('.').pop()?.toLowerCase();
       const attr: { [key: string]: string } = {};
       model.attributes.map((obj) => (attr[obj.name] = obj.type));
+      model.foreignKeys.map((obj) => (attr[obj.name] = obj.type));
 
       if (file_extension === 'csv') {
         console.log('file type: csv');

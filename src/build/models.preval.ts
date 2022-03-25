@@ -11,12 +11,15 @@ async function buildModels(): Promise<Record<string, ParsedDataModel>> {
       const attributes = modelData.attributes.filter(
         (attribute) => !attribute.foreignKey
       );
-
+      const foreignKeys = modelData.attributes.filter(
+        (attribute) => attribute.foreignKey
+      );
       return [
         modelName,
         {
           ...modelData,
           attributes,
+          foreignKeys,
         },
       ];
     }
