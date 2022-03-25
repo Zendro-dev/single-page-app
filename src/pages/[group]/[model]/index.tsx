@@ -461,9 +461,12 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         >
           <TableHeader
             actionsColSpan={
-              Object.entries(model.permissions).filter(
-                ([action, allowed]) => allowed && action !== 'create'
-              ).length
+              Object.entries(model.permissions).filter(([action, allowed]) => {
+                let apiPrivilege = true;
+                if (action === 'update' || action === 'delete')
+                  apiPrivilege = model.apiPrivileges[action];
+                return allowed && apiPrivilege && action !== 'create';
+              }).length
             }
             attributes={model.attributes}
             onSortLabelClick={(field) =>
