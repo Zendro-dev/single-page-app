@@ -79,7 +79,7 @@ export default function ModelsLayout({
                 className="login-warning"
                 color="inherit"
                 tooltip={t('toolbar.logout')}
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => signOut({ callbackUrl: '/api/auth/logout' })}
               >
                 <LogoutIcon />
               </IconButton>

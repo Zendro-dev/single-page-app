@@ -102,7 +102,6 @@ export default NextAuth({
       },
     },
   ],
-  // debug: true,
   callbacks: {
     async jwt({ token, account, user }) {
       // Initial login
@@ -123,6 +122,12 @@ export default NextAuth({
         token.accessTokenExpires &&
         Date.now() < token.accessTokenExpires - 60 * 1000
       ) {
+        if (!token.permissions && token.accessToken && token.name) {
+          // revalidate permissions if not available
+          const roles = await getRolesFromToken(token.accessToken);
+          const permissions = await getUserPermissions(token.name, roles);
+          token.permissions = permissions;
+        }
         return token;
       }
       // Access token has expired, try to update it
