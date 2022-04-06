@@ -42,6 +42,7 @@ import { hasTokenExpiredErrors, parseErrorResponse } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
 import { csvProcessing, jsonProcessing } from 'zendro-bulk-create';
 import XLSX from 'xlsx';
+import inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {
   Table,
@@ -210,17 +211,16 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     event.target.value = '';
     try {
       const file_extension = file.name.split('.').pop()?.toLowerCase();
-      const attr: { [key: string]: string } = {};
-      model.attributes.map((obj) => (attr[obj.name] = obj.type));
-      model.foreignKeys.map((obj) => (attr[obj.name] = obj.type));
-
+      const name = props.model.slice(0, 1).toLowerCase() + props.model.slice(1);
+      const plural_name = inflection.pluralize(name);
+      const res: any = await zendro.request(`{${plural_name}ZendroDefinition}`);
+      const data_model_definition = res[`${plural_name}ZendroDefinition`];
+      console.log(data_model_definition);
       if (file_extension === 'csv') {
         console.log('file type: csv');
         await csvProcessing(
           file,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           true,
           globals,
           zendro.request
@@ -228,9 +228,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         console.log('finish validation!');
         await csvProcessing(
           file,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           false,
           globals,
           zendro.request
@@ -252,9 +250,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
         await jsonProcessing(
           records,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           true,
           globals,
           zendro.request
@@ -262,9 +258,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         console.log('finish validation!');
         await jsonProcessing(
           records,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           false,
           globals,
           zendro.request
@@ -275,9 +269,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         const records = JSON.parse(await file.text());
         await jsonProcessing(
           records,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           true,
           globals,
           zendro.request
@@ -285,9 +277,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         console.log('finish validation!');
         await jsonProcessing(
           records,
-          props.model,
-          attr,
-          model.primaryKey,
+          data_model_definition,
           false,
           globals,
           zendro.request
