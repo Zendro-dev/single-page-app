@@ -9,7 +9,7 @@ const MAX_RECORD_LIMIT = Number(
 );
 const MAX_UPLOAD_SIZE = Number(process.env.NEXT_PUBLIC_ZENDRO_MAX_UPLOAD_SIZE); // size in MB
 const REDUX_LOGGER = String(process.env.NEXT_PUBLIC_REDUX_LOGGER ?? '');
-const BATCH_SIZE = Number(process.env.BATCH_SIZE || 200);
+const BATCH_SIZE = Number(process.env.BATCH_SIZE || 20);
 const RECORD_DELIMITER = process.env.RECORD_DELIMITER || '\n';
 const FIELD_DELIMITER = process.env.FIELD_DELIMITER || ',';
 const ARRAY_DELIMITER = process.env.ARRAY_DELIMITER || ';';
