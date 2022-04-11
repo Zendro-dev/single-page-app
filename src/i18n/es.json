@@ -28,7 +28,7 @@
     "validation-title": "Se han encontrado errores de validación"
   },
   "errors": {
-    "csv-import": "Se ha encontrado un error al importar el archivo CSV. Por favor, contacte con su administrador.",
+    "csv-import": "Se ha encontrado un error al importar el archivo. Por favor, contacte con su administrador.",
     "server-error": "El servidor ha encontrado un error {{ status }} en la petición"
   },
   "home": {

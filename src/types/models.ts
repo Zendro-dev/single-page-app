@@ -122,6 +122,7 @@ export type ParsedDataModel = Assign<
     apiPrivileges: ApiPrivileges;
     associations?: ParsedAssociation[];
     attributes: ParsedAttribute[];
+    foreignKeys: ParsedAttribute[];
     primaryKey: string;
   }
 >;
