@@ -215,7 +215,6 @@ const Model: PageWithLayout<ModelProps> = (props) => {
       const plural_name = inflection.pluralize(name);
       const res: any = await zendro.request(`{${plural_name}ZendroDefinition}`);
       const data_model_definition = res[`${plural_name}ZendroDefinition`];
-      console.log(data_model_definition);
       if (file_extension === 'csv') {
         console.log('file type: csv');
         await csvProcessing(
