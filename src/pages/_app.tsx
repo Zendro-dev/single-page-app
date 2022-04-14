@@ -2,7 +2,7 @@ import { AppProps } from 'next/app';
 import { SnackbarProvider } from 'notistack';
 import { ReactElement } from 'react';
 
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/styles';
 import { CssBaseline } from '@mui/material';
 
 import { DialogProvider } from '@/components/dialog-popup';
