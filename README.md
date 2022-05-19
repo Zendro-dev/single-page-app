@@ -39,9 +39,6 @@ NEXT_PUBLIC_ZENDRO_GRAPHQL_URL='http://localhost:3000/graphql'
 # Endpoing login address. Used for authentication.
 NEXT_PUBLIC_ZENDRO_LOGIN_URL='http://localhost:3000/login'
 
-# Endpoint export address. Used to request table downloads in CSV format.
-NEXT_PUBLIC_ZENDRO_EXPORT_URL='http://localhost:3000/export'
-
 # GraphQL meta-query endpoint address. Used to send meta- queries and mutations.
 NEXT_PUBLIC_ZENDRO_METAQUERY_URL='http://localhost:3000/meta_query'
 
