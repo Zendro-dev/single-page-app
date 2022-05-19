@@ -40,7 +40,11 @@ import { PageInfo } from '@/types/requests';
 import { isSafari } from '@/utils/browser';
 import { hasTokenExpiredErrors, parseErrorResponse } from '@/utils/errors';
 import { isNullorEmpty } from '@/utils/validation';
-import { csvProcessing, jsonProcessing } from 'zendro-bulk-create';
+import {
+  csvProcessing,
+  jsonProcessing,
+  bulkDownload,
+} from 'zendro-bulk-create';
 import XLSX from 'xlsx';
 import inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
@@ -135,21 +139,20 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   const handleExportCsv = async (): Promise<void> => {
     try {
-      const response = await fetch(
-        globals.EXPORT_URL + `?model=${props.model}`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + session?.accessToken,
-          },
-        }
+      const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
+      const csvTemplate = await zendro.request<Record<string, string[]>>(query);
+      const header = csvTemplate[resolver][0];
+      const data = await bulkDownload(
+        props.model,
+        header,
+        globals,
+        zendro.request,
+        true
       );
-
-      const csvData = await response.text();
-
       if (csvExportAnchor.current) {
         const type = isSafari() ? 'application/csv' : 'text/csv';
-
-        const blob = new Blob([csvData], { type });
+        const blob = new Blob(data, { type });
+        const csvData = await blob.text();
         const dataURI = `data:${type};charset=utf-8,${csvData}`;
 
         const URL = window.URL || window.webkitURL;
