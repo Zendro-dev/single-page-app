@@ -23,7 +23,11 @@ function Zendro({
   const Layout = Component.layout;
   const withLayout = Component.withLayout;
   return (
-    <SessionProvider session={session} refetchInterval={9.5 * 60}>
+    <SessionProvider
+      session={session}
+      refetchInterval={9.5 * 60}
+      basePath="/spa/api/auth"
+    >
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider
