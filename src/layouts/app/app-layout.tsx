@@ -69,7 +69,7 @@ export default function ModelsLayout({
                 className="login-normal"
                 color="inherit"
                 tooltip={t('toolbar.login')}
-                onClick={() => signIn('zendro', { callbackUrl: '/models' })}
+                onClick={() => signIn('zendro', { callbackUrl: '/spa/models' })}
               >
                 <LoginIcon />
               </IconButton>
@@ -79,7 +79,7 @@ export default function ModelsLayout({
                 className="login-warning"
                 color="inherit"
                 tooltip={t('toolbar.logout')}
-                onClick={() => signOut({ callbackUrl: '/api/auth/logout' })}
+                onClick={() => signOut({ callbackUrl: '/spa/api/auth/logout' })}
               >
                 <LogoutIcon />
               </IconButton>
