@@ -17,7 +17,7 @@ const Home: PageWithLayout = () => {
     <main className={classes.main}>
       <ClientOnly>
         <div className={classes.banner} style={{ marginTop: '2rem' }}>
-          <img src="/banner.png" alt="zendro banner" />
+          <img src="/spa/banner.png" alt="zendro banner" />
         </div>
 
         {!session && (
@@ -26,7 +26,7 @@ const Home: PageWithLayout = () => {
             variant="outlined"
             color="success"
             endIcon={<LoginIcon />}
-            onClick={() => signIn('zendro', { callbackUrl: '/models' })}
+            onClick={() => signIn('zendro', { callbackUrl: '/spa/models' })}
           >
             LOGIN
           </Button>

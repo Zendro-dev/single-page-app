@@ -8,6 +8,7 @@ const withNextPluginPreval = createNextPluginPreval();
 const config = {
   webpack5: true,
   reactStrictMode: true,
+  basePath: '/spa',
 };
 
 module.exports = withNextPluginPreval(config);
