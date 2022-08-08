@@ -113,7 +113,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
   const { showSnackbar } = useToastNotification();
   const { t } = useTranslation();
   const zendro = useZendroClient();
-  const { data: session } = useSession();
+  useSession();
 
   const [searchText, setSearchText] = useState('');
   const tableSearch = useTableSearch({

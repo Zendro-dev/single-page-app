@@ -2,6 +2,8 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import { ModelLayout, PageWithLayout } from '@/layouts';
 import { GroupUrlQuery } from '@/types/routes';
 
+import { useSession } from 'next-auth/react';
+
 export const getStaticPaths: GetStaticPaths<GroupUrlQuery> = async () => {
   return {
     paths: [{ params: { group: 'models' } }],
@@ -23,6 +25,7 @@ export const getStaticProps: GetStaticProps<GroupUrlQuery> = async (
 };
 
 const ModelsHome: PageWithLayout<GroupUrlQuery> = ({ group }) => {
+  useSession();
   return <div>{group} Home</div>;
 };
 ModelsHome.layout = ModelLayout;

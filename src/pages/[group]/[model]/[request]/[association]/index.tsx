@@ -64,6 +64,8 @@ import {
 } from '@/zendro/model-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
+import { useSession } from 'next-auth/react';
+
 interface AssocTable {
   data: TableRecord[];
   pageInfo?: PageInfo;
@@ -97,6 +99,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const classes = useStyles();
   const zendro = useZendroClient();
   const { t } = useTranslation();
+  useSession();
 
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.only('xs'));

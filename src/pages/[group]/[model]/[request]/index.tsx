@@ -26,6 +26,8 @@ import AttributesForm, {
   computeDiffs,
 } from '@/zendro/record-form';
 
+import { useSession } from 'next-auth/react';
+
 export const getStaticPaths: GetStaticPaths<RecordUrlQuery> = async () => {
   const paths = await getStaticRecordPaths();
   return {
@@ -56,6 +58,7 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
   const { showSnackbar } = useToastNotification();
   const zendro = useZendroClient();
   const { t } = useTranslation();
+  useSession();
 
   /* STATE */
 
