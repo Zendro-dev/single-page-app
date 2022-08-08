@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { createStyles, makeStyles } from '@mui/styles';
+import {
+  Repeat as ToManyIcon,
+  RepeatOne as ToOneIcon,
+} from '@mui/icons-material';
 
 import { getStaticRecordPaths } from '@/build/routes';
 import { useDialog } from '@/components/dialog-popup';
@@ -307,6 +311,9 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
                     type: 'link',
                     label: assoc.name,
                     href: `/${props.group}/${props.model}/${props.request}/${assoc.name}?id=${urlQuery.id}`,
+                    icon: assoc.type.includes('to_many')
+                      ? ToManyIcon
+                      : ToOneIcon,
                   })),
           },
         ]}
