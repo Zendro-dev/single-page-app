@@ -35,15 +35,15 @@ export async function getModelNavRoutes(): Promise<AppRoutes> {
     models: getCrossModels(parsedModels.models),
   };
 
-  const parseModelAsRoute = (group: string) => ({
-    model,
-  }: ParsedDataModel): RouteLink => {
-    return {
-      type: 'link',
-      name: model,
-      href: `/${group}/${model}`,
+  const parseModelAsRoute =
+    (group: string) =>
+    ({ model }: ParsedDataModel): RouteLink => {
+      return {
+        type: 'link',
+        name: model,
+        href: `/${group}/${model}`,
+      };
     };
-  };
 
   return [
     {
@@ -73,11 +73,11 @@ export async function getStaticModelPaths(): Promise<
   const parsedModels = await parseDataModels();
 
   // Generate model paths
-  const composeUrlQuery = (group: string) => ({
-    model,
-  }: ParsedDataModel): { params: ModelUrlQuery } => ({
-    params: { group, model },
-  });
+  const composeUrlQuery =
+    (group: string) =>
+    ({ model }: ParsedDataModel): { params: ModelUrlQuery } => ({
+      params: { group, model },
+    });
 
   let modelPaths = parsedModels.models.map(composeUrlQuery('models'));
 
@@ -111,26 +111,28 @@ export async function getStaticRecordPaths(): Promise<
   const parsedModels = await parseDataModels();
   const requests = ['details', 'edit', 'new'];
 
-  const composeRecordUrlQuery = (group: string) => (
-    recordPaths: Array<{ params: RecordUrlQuery }>,
-    parsedModel: ParsedDataModel
-  ): Array<{ params: RecordUrlQuery }> => {
-    for (const request of requests) {
-      // Skip not supported operations
-      if (
-        (request === 'edit' && !parsedModel.apiPrivileges.update) ||
-        (request === 'new' && !parsedModel.apiPrivileges.create)
-      ) {
-        continue;
-      }
+  const composeRecordUrlQuery =
+    (group: string) =>
+    (
+      recordPaths: Array<{ params: RecordUrlQuery }>,
+      parsedModel: ParsedDataModel
+    ): Array<{ params: RecordUrlQuery }> => {
+      for (const request of requests) {
+        // Skip not supported operations
+        if (
+          (request === 'edit' && !parsedModel.apiPrivileges.update) ||
+          (request === 'new' && !parsedModel.apiPrivileges.create)
+        ) {
+          continue;
+        }
 
-      // Add path to attributes page
-      recordPaths.push({
-        params: { group, model: parsedModel.model, request },
-      });
-    }
-    return recordPaths;
-  };
+        // Add path to attributes page
+        recordPaths.push({
+          params: { group, model: parsedModel.model, request },
+        });
+      }
+      return recordPaths;
+    };
 
   const modelPaths = parsedModels.models.reduce(
     composeRecordUrlQuery('models'),

@@ -15,7 +15,11 @@ export function createSearch(
         value,
         operator: 'eq',
       });
-    } else if (type === 'Float' && isNumber(value) && !isNaN(parseFloat(value))) {
+    } else if (
+      type === 'Float' &&
+      isNumber(value) &&
+      !isNaN(parseFloat(value))
+    ) {
       acc.push({
         field: name,
         value,

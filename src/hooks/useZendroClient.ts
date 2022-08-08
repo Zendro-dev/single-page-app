@@ -131,8 +131,8 @@ export default function useZendroClient(): UseZendroClient {
     [session?.accessToken]
   );
 
-  return useMemo(() => ({ legacyRequest, queries, request }), [
-    legacyRequest,
-    request,
-  ]);
+  return useMemo(
+    () => ({ legacyRequest, queries, request }),
+    [legacyRequest, request]
+  );
 }

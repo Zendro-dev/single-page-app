@@ -43,7 +43,7 @@ export default function Models({
     .slice(1)
     .map((chunk, index, chunks) => {
       const crumb = {
-        text: t((`models-layout.${chunk}` as unknown) as TemplateStringsArray, {
+        text: t(`models-layout.${chunk}` as unknown as TemplateStringsArray, {
           defaultValue: chunk,
         }),
         href:

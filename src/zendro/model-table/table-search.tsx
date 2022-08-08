@@ -31,7 +31,9 @@ export default function SearchField({
     setText(value);
   }, [value, setText]);
 
-  const searchIconClick: React.MouseEventHandler<HTMLButtonElement> = (): void => {
+  const searchIconClick: React.MouseEventHandler<
+    HTMLButtonElement
+  > = (): void => {
     if (text) search(text);
   };
 
