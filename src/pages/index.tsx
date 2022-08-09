@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import { AppLayout, PageWithLayout } from '@/layouts';
@@ -16,8 +18,20 @@ const Home: PageWithLayout = () => {
   return (
     <main className={classes.main}>
       <ClientOnly>
-        <div className={classes.banner} style={{ marginTop: '2rem' }}>
-          <img src="/spa/banner.png" alt="zendro banner" />
+        <div
+          style={{
+            marginTop: '2rem',
+            position: 'relative',
+            height: '200px',
+            width: '100%',
+          }}
+        >
+          <Image
+            src="/spa/banner.png"
+            alt="zendro banner"
+            layout="fill"
+            objectFit="contain"
+          />
         </div>
 
         {!session && (
@@ -85,16 +99,18 @@ const useStyles = makeStyles((theme: Theme) =>
     banner: {
       width: '100%',
       maxWidth: theme.breakpoints.values.md,
+      position: 'relative',
+      height: 'unset',
 
       margin: theme.spacing(5, 0, 0, 0),
       [theme.breakpoints.up('sm')]: {
         margin: 0,
       },
 
-      '& img': {
-        width: '100%',
-        objectFit: 'contain',
-      },
+      // '& img': {
+      //   width: '100%',
+      //   objectFit: 'contain',
+      // },
     },
 
     cardContainer: {

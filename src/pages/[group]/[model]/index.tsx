@@ -216,6 +216,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
       const file_extension = file.name.split('.').pop()?.toLowerCase();
       const name = props.model.slice(0, 1).toLowerCase() + props.model.slice(1);
       const plural_name = inflection.pluralize(name);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await zendro.request(`{${plural_name}ZendroDefinition}`);
       const data_model_definition = res[`${plural_name}ZendroDefinition`];
       if (file_extension === 'csv') {

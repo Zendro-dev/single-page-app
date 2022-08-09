@@ -65,7 +65,7 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
         <Card className={backgroundColor}>
           <CardActions classes={{ root: classes.actionRoot }}>
             <Box display="flex" alignItems="center">
-              {details && (
+              {!!details && (
                 <IconButton
                   aria-label="Show more"
                   className={clsx(classes.expand, {
@@ -88,7 +88,7 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
               <CloseIcon className={textColor} />
             </IconButton>
           </CardActions>
-          {details && (
+          {!!details && (
             <Collapse in={expanded} timeout="auto" unmountOnExit>
               <Paper className={classes.collapse}>
                 <Typography variant="subtitle1" gutterBottom>

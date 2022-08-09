@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import React, { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Theme } from '@mui/material/styles';
@@ -99,7 +100,7 @@ export default function ModelsLayout({
             rel="noopener noreferrer"
           >
             <span>Powered by</span>
-            <img
+            <Image
               style={{
                 paddingLeft: '.5rem',
               }}

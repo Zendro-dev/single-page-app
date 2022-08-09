@@ -39,7 +39,9 @@ export default function DateTimePicker({
         onClose={toggleAdornment}
         onOpen={toggleAdornment}
         readOnly={props.readOnly || !onChange}
-        renderInput={(textFieldProps) => {
+        renderInput={(textFieldProps: {
+          inputProps: Omit<InputBaseComponentProps, 'color'>;
+        }) => {
           const inputProps = textFieldProps.inputProps as Omit<
             InputBaseComponentProps,
             'color'

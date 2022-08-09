@@ -56,6 +56,7 @@ export interface DialogOptions extends ConfirmationDialogProps {
 
 interface DialogProviderProps {
   context?: (context: DialogContext) => void;
+  children?: React.ReactNode;
 }
 
 export const DialogProvider: React.FunctionComponent<DialogProviderProps> = ({

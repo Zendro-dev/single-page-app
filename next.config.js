@@ -6,7 +6,6 @@ const withNextPluginPreval = createNextPluginPreval();
  * @type {NextConfig}
  */
 const config = {
-  webpack5: true,
   reactStrictMode: true,
   basePath: '/spa',
 };

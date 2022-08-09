@@ -11,7 +11,13 @@ import { theme } from '../styles/theme';
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext): Promise<{
-    styles: Record<string, unknown>[];
+    styles: (
+      | string
+      | number
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+      | React.ReactFragment
+    )[];
     html: string;
     head?: (JSX.Element | null)[] | undefined;
   }> {

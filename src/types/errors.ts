@@ -10,9 +10,10 @@ export interface GenericError extends Error {
   status: number;
 }
 
-export type GraphQLError = GraphQLFormattedError<{
-  validationErrors?: ErrorObject[];
-}>;
+// Workaround? to add add well-defined Graphql error extensions object. Generics were removed in https://github.com/graphql/graphql-js/pull/3131
+export type GraphQLError = Omit<GraphQLFormattedError, 'extensions'> & {
+  extensions?: { validationErrors?: ErrorObject[] };
+};
 
 export interface ParsedGraphQLErrors {
   nonValidationErrors: GraphQLError[];
