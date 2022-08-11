@@ -1,10 +1,11 @@
-import { ParsedAttribute } from '@/types/models';
+import { ParsedAttribute, TextSearchOperator } from '@/types/models';
 import { QueryVariableSearch } from '@/types/queries';
 import { isIntValue, isNumber } from './validation';
 
 export function createSearch(
   value: string,
-  attributes: ParsedAttribute[]
+  attributes: ParsedAttribute[],
+  textSearchOperator: TextSearchOperator = 'iLike'
 ): QueryVariableSearch {
   const operator = 'or';
 
@@ -35,7 +36,7 @@ export function createSearch(
       acc.push({
         field: name,
         value: `%${value}%`,
-        operator: 'iLike',
+        operator: textSearchOperator,
       });
     } else if (type === '[Int]') {
       const validIntArray = value.split(',').every(isIntValue);

@@ -120,6 +120,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     attributes: model.attributes,
     primaryKey: model.primaryKey,
     searchText,
+    textSearchOperator: model.textSearchOperator,
   });
 
   const [order, setOrder] = useState<UseOrderProps>();

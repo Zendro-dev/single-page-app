@@ -57,6 +57,8 @@ export type AttributeArrayValue =
   | null[]
   | null;
 
+export type TextSearchOperator = 'like' | 'iLike';
+
 export interface ParsedAttribute {
   name: string;
   type: AttributeScalarType | AttributeArrayType;
@@ -114,6 +116,7 @@ export interface DataModel {
   internalId?: string;
   model: string;
   storageType: StorageType;
+  textSearchOperator?: TextSearchOperator;
 }
 
 export type ParsedDataModel = Assign<
