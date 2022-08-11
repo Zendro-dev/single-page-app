@@ -18,6 +18,8 @@ import IconButton from '@/components/icon-button';
 
 import { useSession, signIn, signOut } from 'next-auth/react';
 
+import { BASEPATH } from '@/config/globals';
+
 export interface AppLayoutProps {
   brand?: string;
   action?: ReactNode;
@@ -37,7 +39,7 @@ export default function ModelsLayout({
     <div className={classes.root}>
       <Head>
         <title>{brand}</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href={`${BASEPATH}/favicon.ico`} />
       </Head>
 
       <header className={classes.header}>
@@ -70,7 +72,9 @@ export default function ModelsLayout({
                 className="login-normal"
                 color="inherit"
                 tooltip={t('toolbar.login')}
-                onClick={() => signIn('zendro', { callbackUrl: '/spa/models' })}
+                onClick={() =>
+                  signIn('zendro', { callbackUrl: `${BASEPATH}/models` })
+                }
               >
                 <LoginIcon />
               </IconButton>
@@ -80,7 +84,9 @@ export default function ModelsLayout({
                 className="login-warning"
                 color="inherit"
                 tooltip={t('toolbar.logout')}
-                onClick={() => signOut({ callbackUrl: '/spa/api/auth/logout' })}
+                onClick={() =>
+                  signOut({ callbackUrl: `${BASEPATH}/api/auth/logout` })
+                }
               >
                 <LogoutIcon />
               </IconButton>

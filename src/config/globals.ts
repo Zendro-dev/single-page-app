@@ -12,6 +12,16 @@ const RECORD_DELIMITER = process.env.RECORD_DELIMITER || '\n';
 const FIELD_DELIMITER = process.env.FIELD_DELIMITER || ',';
 const ARRAY_DELIMITER = process.env.ARRAY_DELIMITER || ';';
 const SHEET_NAME = process.env.SHEET_NAME || '';
+
+const BASEPATH = String(
+  process.env.NEXT_PUBLIC_ZENDRO_BASEPATH
+    ? process.env.NEXT_PUBLIC_ZENDRO_BASEPATH.replace(
+        /\/*([a-zA-Z]+)\/*/g,
+        '/$1'
+      )
+    : ''
+);
+
 interface Config {
   GRAPHQL_URL: string;
   ROLES_URL: string;
@@ -23,6 +33,7 @@ interface Config {
   FIELD_DELIMITER: string;
   ARRAY_DELIMITER: string;
   SHEET_NAME: string;
+  BASEPATH: string;
 }
 
 const config: Config = {
@@ -36,6 +47,7 @@ const config: Config = {
   FIELD_DELIMITER,
   ARRAY_DELIMITER,
   SHEET_NAME,
+  BASEPATH,
 };
 
 if (
@@ -60,6 +72,7 @@ export {
   FIELD_DELIMITER,
   ARRAY_DELIMITER,
   SHEET_NAME,
+  BASEPATH,
 };
 
 export default config;

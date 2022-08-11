@@ -10,6 +10,8 @@ import { Login as LoginIcon } from '@mui/icons-material';
 
 import { useSession, signIn } from 'next-auth/react';
 
+import { BASEPATH } from '@/config/globals';
+
 const Home: PageWithLayout = () => {
   const { data: session } = useSession();
   const classes = useStyles();
@@ -27,7 +29,7 @@ const Home: PageWithLayout = () => {
           }}
         >
           <Image
-            src="/spa/banner.png"
+            src={`${BASEPATH}/banner.png`}
             alt="zendro banner"
             layout="fill"
             objectFit="contain"
@@ -40,7 +42,9 @@ const Home: PageWithLayout = () => {
             variant="outlined"
             color="success"
             endIcon={<LoginIcon />}
-            onClick={() => signIn('zendro', { callbackUrl: '/spa/models' })}
+            onClick={() =>
+              signIn('zendro', { callbackUrl: `${BASEPATH}/models` })
+            }
           >
             LOGIN
           </Button>

@@ -12,6 +12,8 @@ import '@/styles/globals.css';
 import '@/i18n';
 
 import { SessionProvider } from 'next-auth/react';
+
+import { BASEPATH } from '@/config/globals';
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;
 }
@@ -26,7 +28,7 @@ function Zendro({
     <SessionProvider
       session={session}
       refetchInterval={9.5 * 60}
-      basePath="/spa/api/auth"
+      basePath={BASEPATH ? `${BASEPATH}/api/auth` : undefined}
     >
       <ThemeProvider theme={theme}>
         <CssBaseline />
