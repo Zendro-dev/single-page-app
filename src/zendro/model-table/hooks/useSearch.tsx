@@ -1,4 +1,4 @@
-import { ParsedAttribute, TextSearchOperator } from '@/types/models';
+import { ParsedAttribute, spaSearchOperator } from '@/types/models';
 import { QueryVariableSearch } from '@/types/queries';
 import { createSearch } from '@/utils/search';
 import { useMemo } from 'react';
@@ -19,7 +19,7 @@ export interface UseSearchProps {
   };
   attributes: ParsedAttribute[];
   primaryKey: string;
-  textSearchOperator?: TextSearchOperator;
+  spaSearchOperator?: spaSearchOperator;
 }
 
 export default function useSearch({
@@ -28,12 +28,12 @@ export default function useSearch({
   searchText,
   primaryKey,
   selectedRecords,
-  textSearchOperator,
+  spaSearchOperator,
 }: UseSearchProps): QueryVariableSearch | undefined {
   const search = useMemo(() => {
     const fieldSearch =
       searchText !== ''
-        ? createSearch(searchText, attributes, textSearchOperator)
+        ? createSearch(searchText, attributes, spaSearchOperator)
         : undefined;
     const filterSearch: QueryVariableSearch | undefined =
       associationFilter === 'records-to-add' && selectedRecords
@@ -67,7 +67,7 @@ export default function useSearch({
     primaryKey,
     searchText,
     selectedRecords,
-    textSearchOperator,
+    spaSearchOperator,
   ]);
 
   return search;

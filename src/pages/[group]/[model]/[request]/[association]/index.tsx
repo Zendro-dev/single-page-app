@@ -167,7 +167,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     primaryKey: targetModel.primaryKey,
     selectedRecords,
     searchText,
-    textSearchOperator: targetModel.textSearchOperator,
+    spaSearchOperator: targetModel.spaSearchOperator,
   });
 
   const [order, setOrder] = useState<UseOrderProps>();
