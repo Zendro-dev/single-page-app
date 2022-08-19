@@ -6,7 +6,7 @@ import { Provider } from 'next-auth/providers';
 
 const OAUTH2_ISSUER = String(process.env.OAUTH2_ISSUER ?? '');
 const OAUTH2_TOKEN_URI = String(process.env.OAUTH2_TOKEN_URI ?? '');
-const OAUTH2_AUTH_URI = String(process.env.OATUH2_AUTH_URI ?? '');
+const OAUTH2_AUTH_URI = String(process.env.OAUTH2_AUTH_URI ?? '');
 const OAUTH2_CLIENT_ID = String(process.env.OAUTH2_CLIENT_ID ?? '');
 const OAUTH2_CLIENT_SECRET = String(process.env.OAUTH2_CLIENT_SECRET ?? '');
 const NEXTAUTH_SECRET = String(process.env.NEXTAUTH_SECRET ?? '');
