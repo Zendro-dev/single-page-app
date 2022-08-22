@@ -9,6 +9,9 @@ export function createSearch(
 ): QueryVariableSearch {
   const operator = 'or';
 
+  const textSearchOperator =
+    spaSearchOperator.toLowerCase() === 'like' ? 'like' : 'iLike';
+
   const search = attributes.reduce((acc, { name, type }) => {
     if (type === 'Int' && isNumber(value) && isIntValue(value)) {
       acc.push({
@@ -36,7 +39,7 @@ export function createSearch(
       acc.push({
         field: name,
         value: `%${value}%`,
-        operator: spaSearchOperator,
+        operator: textSearchOperator,
       });
     } else if (type === '[Int]') {
       const validIntArray = value.split(',').every(isIntValue);
