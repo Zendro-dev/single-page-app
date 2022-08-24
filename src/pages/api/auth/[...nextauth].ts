@@ -80,6 +80,11 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
   }
 }
 
+// In case your oauth provider does _not_ support OIDC, you can use the
+// OAUTH2_AUTH_URI instead of the OAUTH2_ISSUER environment variable to setup
+// your provider. See
+// https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider
+// for more info and in case your provider needs some more configuration.
 const defaultProvider: Provider =
   !OAUTH2_ISSUER && OAUTH2_AUTH_URI
     ? {

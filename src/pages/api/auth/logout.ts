@@ -8,6 +8,9 @@ const OAUTH2_CLIENT_ID = String(process.env.OAUTH2_CLIENT_ID ?? '');
 
 const ORIGIN = `${new URL(NEXTAUTH_URL).origin}${BASEPATH}/`;
 
+// Use OAUTH2_LOGOUT_URL in case you want to customize the logout endpoint of
+// your provider. If not provided it will use the OAUTH2_ISSUER to build the
+// Url.
 const LOGOUT =
   LOGOUT_URL !== ''
     ? LOGOUT_URL
