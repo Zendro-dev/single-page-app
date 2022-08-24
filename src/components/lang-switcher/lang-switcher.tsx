@@ -32,9 +32,9 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
     i18n.changeLanguage(translations.current[index].lcode);
   };
 
-  const handleTranslationIconClick: React.MouseEventHandler<HTMLButtonElement> = (
-    event
-  ) => {
+  const handleTranslationIconClick: React.MouseEventHandler<
+    HTMLButtonElement
+  > = (event) => {
     setTranslationAnchorEl(event.currentTarget);
   };
 

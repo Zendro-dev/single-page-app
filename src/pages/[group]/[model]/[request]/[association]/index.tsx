@@ -64,6 +64,8 @@ import {
 } from '@/zendro/model-table';
 import AttributesForm, { ActionHandler } from '@/zendro/record-form';
 
+import { useSession } from 'next-auth/react';
+
 interface AssocTable {
   data: TableRecord[];
   pageInfo?: PageInfo;
@@ -97,6 +99,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
   const classes = useStyles();
   const zendro = useZendroClient();
   const { t } = useTranslation();
+  useSession();
 
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.only('xs'));
@@ -125,9 +128,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
 
   const [recordsTotal, setRecordsTotal] = useState<number>(0);
 
-  const [recordsFilter, setRecordsFilter] = useState<AssociationFilter>(
-    'no-filter'
-  );
+  const [recordsFilter, setRecordsFilter] =
+    useState<AssociationFilter>('no-filter');
   const [selectedRecords, setSelectedRecords] = useState<{
     toAdd: (string | number)[];
     toRemove: (string | number)[];
@@ -165,6 +167,7 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
     primaryKey: targetModel.primaryKey,
     selectedRecords,
     searchText,
+    spaSearchOperator: targetModel.spaSearchOperator,
   });
 
   const [order, setOrder] = useState<UseOrderProps>();

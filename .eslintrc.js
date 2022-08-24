@@ -25,6 +25,7 @@ module.exports = {
         'plugin:react-hooks/recommended', // React hooks rules
         'plugin:jsx-a11y/recommended', // Accessibility rules
         'plugin:prettier/recommended', // Prettier recommended rules
+        'plugin:@next/next/recommended', // Next.js recommended rules
       ],
       rules: {
         // This rule is not compatible with Next.js's <Link /> components

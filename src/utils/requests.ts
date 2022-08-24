@@ -40,7 +40,7 @@ export async function graphqlRequest<T = unknown>(
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json;charset=UTF-8',
-      Authorization: token ? `Bearer ${token}` : null,
+      Authorization: token ? `Bearer ${token}` : '',
     },
     data: formData,
   });
