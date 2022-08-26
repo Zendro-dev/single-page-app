@@ -9,7 +9,7 @@ function formatQuery(
   name: string,
   query: string,
   resolver: string,
-  transform: string,
+  transform?: string,
   assocResolver?: string
 ): string {
   const graphqlQuery = format(query, { parser: 'graphql' });
