@@ -58,8 +58,8 @@ export function parseGraphqlErrors(
 
     // Parse validation errors
     error.extensions.validationErrors.forEach(
-      ({ dataPath, keyword, message }) => {
-        const attributeName = dataPath.slice(1);
+      ({ instancePath, keyword, message }) => {
+        const attributeName = instancePath.slice(1);
         const errors = new Set(acc.validationErrors[attributeName]);
         errors.add(message ?? keyword);
         acc.validationErrors[attributeName] = Array.from(errors);
