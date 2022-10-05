@@ -351,18 +351,31 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     ];
     const rows = [];
     for (const [num, info] of Object.entries(error)) {
-      const fields = info.errors.extensions.validationErrors
-        ? new Set(
-            info.errors.extensions.validationErrors.map(
-              (obj: Record<string, any>) => obj.dataPath.slice(1)
+      const fields = info.errors.extensions
+        ? info.errors.extensions.validationErrors
+          ? new Set(
+              info.errors.extensions.validationErrors.map(
+                (obj: Record<string, any>) => obj.instancePath.slice(1)
+              )
             )
-          )
+          : undefined
         : undefined;
       const row = [
         num,
         ...(internalID
-          ? info.errors.extensions.input
-            ? [info.errors.extensions.input[internalID]]
+          ? info.errors.extensions
+            ? info.errors.extensions.input
+              ? [info.errors.extensions.input[internalID]]
+              : JSON.parse(
+                  info.subquery
+                    .split('(')[1]
+                    .split(')')[0]
+                    .split(',')
+                    .filter(
+                      (pair: string) => pair.split(':')[0] === internalID
+                    )[0]
+                    .split(':')[1]
+                )
             : JSON.parse(
                 info.subquery
                   .split('(')[1]
@@ -374,8 +387,17 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                   .split(':')[1]
               )
           : []),
-        ...(fields ? [[...fields].join(',')] : ['undefined']),
-        JSON.stringify(info.errors.extensions ?? info.errors.errors ?? info),
+        ...(fields ? [[...fields].join(',')] : ['']),
+        JSON.stringify(
+          info.errors.extensions
+            ? info.errors.message === 'validation failed'
+              ? info.errors.extensions
+              : {
+                  message: info.errors.message,
+                  extensions: info.errors.extensions,
+                }
+            : info.errors.errors ?? info
+        ),
       ];
       rows.push(row);
     }
