@@ -141,17 +141,107 @@ Routes in the application automatically mirror the structure of the pages folder
 
 Overriding a model route with a custom page only requires to provide an appropriately named file within the pages folder. Because in Next.js predefined routes take precedence over dynamic routes, all requests for that model will now point to the new page.
 
-In the example below, a custom `books.tsx` page is overriding the default `/books` route that would be otherwise provided by `[model]/index.tsx`.
+Let's take a book model as an example, which by default is dynamically rendered by `[model]/index.tsx` and can be accessed via the browser at 'http://localhost:8080/models/book'. If this page is to be overridden by a custom page, all that needs to be done is to create a file named `book.tsx` in the pages folder. The following figure illustrates this idea
 
 ```
 pages
 ├── [model]
 │   ├── index.tsx
 │   └── [item].tsx
-├── books.tsx
+|   └── book.tsx
+|
 ├── index.tsx
 └── login.tsx
 ```
+### Demonstration
+
+Consider we have the books data model
+```
+{
+    "model": "book",
+    "storageType": "sql",
+    "attributes": {
+      "book_id": "String",
+      "name": "String",
+      "author": "String"
+    },
+    "internalId": "book_id"
+  }
+```
+It appears as follows on our SPA
+![example_page1](public/example_page1.png)
+
+Now, to override this page lets create an empty 'books.tsx' file and place it in the '/src/pages/models' folder and past the following code in it
+
+```
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import ButtonBase from '@mui/material/ButtonBase';
+
+const Img = styled('img')({
+  margin: 'auto',
+  display: 'block',
+  maxWidth: '100%',
+  maxHeight: '100%',
+});
+
+export default function ComplexGrid() {
+  return (
+    <Paper
+      sx={{
+        p: 2,
+        mr:100,
+        // margin: 'auto',
+        maxWidth: 500,
+        flexGrow: 1,
+        backgroundColor: (theme) =>
+          theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+      }}
+    >
+      <Grid container spacing={1}>
+        <Grid item>
+          <ButtonBase sx={{ width: 150, height: 200 }}>
+            <Img alt="DaVinciCode" src="/DaVinciCode.jpg" />
+          </ButtonBase>
+        </Grid>
+        <Grid item xs={12} sm container>
+          <Grid item xs container direction="column" spacing={2}>
+            <Grid item xs>
+              <Typography gutterBottom variant="subtitle1" component="div">
+                Da Vinci Code
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                ID: 1030114
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+              The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown. It is Brown's second novel to include the character Robert Langdon: the first was his 2000 novel Angels & Demons. 
+              </Typography>
+           
+            </Grid>
+            <Grid item>
+              <Typography sx={{ cursor: 'pointer' }} variant="body2">
+                Remove
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle1" component="div">
+              $19.00
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}
+
+
+```
+Now the same root for the book model appears as follows on our SPA
+![over_ride_page](public/override_books_model.png)
 
 ### Next.js Resources
 
