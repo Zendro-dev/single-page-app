@@ -12,10 +12,12 @@ import '@/styles/globals.css';
 import '@/i18n';
 
 import { SessionProvider } from 'next-auth/react';
+import { Session } from 'next-auth';
 
 import { BASEPATH } from '@/config/globals';
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;
+  pageProps: { session?: Session };
 }
 
 function Zendro({
