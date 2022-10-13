@@ -23,6 +23,12 @@ import {
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { green, red, blue, orange } from '@mui/material/colors';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 export interface AlertToastProps {
   id: SnackbarKey;
@@ -94,9 +100,52 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
                 <Typography variant="subtitle1" gutterBottom>
                   Error details:
                 </Typography>
-                <Typography component="pre" variant="subtitle2" gutterBottom>
-                  {JSON.stringify(details, null, 5)}
-                </Typography>
+                {Array.isArray(details) &&
+                Array.isArray(details[0]) &&
+                details[0][0] == 'record_number' ? (
+                  <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          {details[0].map((field_name: string) => (
+                            <TableCell key={field_name + '_key'} align="left">
+                              {field_name}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {details[1].map(
+                          (row: Array<string>, row_index: number) => (
+                            <TableRow
+                              key={row[0] + '_key'}
+                              sx={{
+                                '&:last-child td, &:last-child th': {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              {row.map((field, col_index) => (
+                                <TableCell
+                                  component="th"
+                                  scope="row"
+                                  key={`index_${row_index}_${col_index}`}
+                                  align="left"
+                                >
+                                  {field}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography component="pre" variant="subtitle2" gutterBottom>
+                    {JSON.stringify(details, null, 5)}
+                  </Typography>
+                )}
               </Paper>
             </Collapse>
           )}

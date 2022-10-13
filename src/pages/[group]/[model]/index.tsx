@@ -45,7 +45,7 @@ import {
   jsonProcessing,
   bulkDownload,
 } from 'zendro-bulk-create';
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 import inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {
@@ -140,12 +140,40 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
   const handleExportCsv = async (): Promise<void> => {
     try {
-      const { query, resolver } = zendro.queries[props.model].csvTableTemplate;
-      const csvTemplate = await zendro.request<Record<string, string[]>>(query);
-      const header = csvTemplate[resolver][0];
+      const name = props.model.slice(0, 1).toLowerCase() + props.model.slice(1);
+      const plural_name = inflection.pluralize(name);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any = await zendro.request(`{${plural_name}ZendroDefinition}`);
+      const definition = res[`${plural_name}ZendroDefinition`];
+
+      const attributes = Object.keys(definition.attributes);
+      const addAssociations: Record<string, string> = {};
+      let header = '';
+      const associations = definition.associations;
+      for (const [assocName, assocObj] of Object.entries<
+        Record<string, string>
+      >(associations)) {
+        const addAssocName =
+          'add' + assocName.slice(0, 1).toUpperCase() + assocName.slice(1);
+        if (assocObj.sourceKey) {
+          addAssociations[assocObj.sourceKey] = addAssocName;
+        } else if (assocObj.keysIn == props.model) {
+          addAssociations[assocObj.targetKey] = addAssocName;
+        }
+      }
+      const foreignKeys = Object.keys(addAssociations);
+      for (const attr of attributes) {
+        if (foreignKeys.includes(attr)) {
+          header += addAssociations[attr] + globals.FIELD_DELIMITER;
+        } else {
+          header += attr + globals.FIELD_DELIMITER;
+        }
+      }
+      header = header.slice(0, -1);
       const data = await bulkDownload(
         props.model,
         header,
+        attributes,
         globals,
         zendro.request,
         true
@@ -213,13 +241,14 @@ const Model: PageWithLayout<ModelProps> = (props) => {
 
     // Support selecting the same file
     event.target.value = '';
+    let data_model_definition;
     try {
       const file_extension = file.name.split('.').pop()?.toLowerCase();
       const name = props.model.slice(0, 1).toLowerCase() + props.model.slice(1);
       const plural_name = inflection.pluralize(name);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await zendro.request(`{${plural_name}ZendroDefinition}`);
-      const data_model_definition = res[`${plural_name}ZendroDefinition`];
+      data_model_definition = res[`${plural_name}ZendroDefinition`];
       if (file_extension === 'csv') {
         console.log('file type: csv');
         await csvProcessing(
@@ -238,6 +267,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           zendro.request
         );
         console.log('finish uploading!');
+        showSnackbar(t('success.csv-import'), 'success');
       } else if (file_extension === 'xlsx') {
         console.log('file type: xlsx');
         const work_book = XLSX.read(await file.arrayBuffer());
@@ -268,6 +298,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           zendro.request
         );
         console.log('finish uploading!');
+        showSnackbar(t('success.csv-import'), 'success');
       } else if (file_extension === 'json') {
         console.log('file type: json');
         const records = JSON.parse(await file.text());
@@ -287,20 +318,91 @@ const Model: PageWithLayout<ModelProps> = (props) => {
           zendro.request
         );
         console.log('finish uploading!');
+        showSnackbar(t('success.csv-import'), 'success');
       } else {
         throw new Error('the file extension is not supported!');
       }
-
-      showSnackbar(t('success.csv-import'), 'success');
     } catch (error) {
       const clientError = error as ExtendedClientError;
-
       if (
         clientError.response?.errors &&
         !hasTokenExpiredErrors(clientError.response.errors)
-      )
+      ) {
         showSnackbar(t('errors.csv-import'), 'error', error);
+      } else if (
+        Object.keys(error).length > 0 &&
+        Object.keys(error)[0].includes('record')
+      ) {
+        showErrorTable(data_model_definition, error);
+      }
     }
+  };
+
+  const showErrorTable = (
+    data_model_definition: Record<string, any>,
+    error: Record<string, Record<string, any>>
+  ): void => {
+    const internalID = data_model_definition['internalId'];
+    const header = [
+      'record_number',
+      ...(internalID ? [internalID] : []),
+      'fields',
+      'error_message',
+    ];
+    const rows = [];
+    for (const [num, info] of Object.entries(error)) {
+      const fields = info.errors.extensions
+        ? info.errors.extensions.validationErrors
+          ? new Set(
+              info.errors.extensions.validationErrors.map(
+                (obj: Record<string, any>) => obj.instancePath.slice(1)
+              )
+            )
+          : undefined
+        : undefined;
+      const row = [
+        num,
+        ...(internalID
+          ? info.errors.extensions
+            ? info.errors.extensions.input
+              ? [info.errors.extensions.input[internalID]]
+              : JSON.parse(
+                  info.subquery
+                    .split('(')[1]
+                    .split(')')[0]
+                    .split(',')
+                    .filter(
+                      (pair: string) => pair.split(':')[0] === internalID
+                    )[0]
+                    .split(':')[1]
+                )
+            : JSON.parse(
+                info.subquery
+                  .split('(')[1]
+                  .split(')')[0]
+                  .split(',')
+                  .filter(
+                    (pair: string) => pair.split(':')[0] === internalID
+                  )[0]
+                  .split(':')[1]
+              )
+          : []),
+        ...(fields ? [[...fields].join(',')] : ['']),
+        JSON.stringify(
+          info.errors.extensions
+            ? info.errors.message === 'validation failed'
+              ? info.errors.extensions
+              : {
+                  message: info.errors.message,
+                  extensions: info.errors.extensions,
+                }
+            : info.errors.errors ?? info
+        ),
+      ];
+      rows.push(row);
+    }
+    const table = [header, rows];
+    showSnackbar(t('errors.csv-import'), 'error', table);
   };
 
   /* HANDLERS */
