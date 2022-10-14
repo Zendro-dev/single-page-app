@@ -150,15 +150,17 @@ const Model: PageWithLayout<ModelProps> = (props) => {
       const addAssociations: Record<string, string> = {};
       let header = '';
       const associations = definition.associations;
-      for (const [assocName, assocObj] of Object.entries<
-        Record<string, string>
-      >(associations)) {
-        const addAssocName =
-          'add' + assocName.slice(0, 1).toUpperCase() + assocName.slice(1);
-        if (assocObj.sourceKey) {
-          addAssociations[assocObj.sourceKey] = addAssocName;
-        } else if (assocObj.keysIn == props.model) {
-          addAssociations[assocObj.targetKey] = addAssocName;
+      if (associations) {
+        for (const [assocName, assocObj] of Object.entries<
+          Record<string, string>
+        >(associations)) {
+          const addAssocName =
+            'add' + assocName.slice(0, 1).toUpperCase() + assocName.slice(1);
+          if (assocObj.sourceKey) {
+            addAssociations[assocObj.sourceKey] = addAssocName;
+          } else if (assocObj.keysIn == props.model) {
+            addAssociations[assocObj.targetKey] = addAssocName;
+          }
         }
       }
       const foreignKeys = Object.keys(addAssociations);
