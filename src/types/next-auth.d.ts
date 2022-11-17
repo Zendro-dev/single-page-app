@@ -13,6 +13,8 @@ declare module 'next-auth' {
     accessTokenExpires?: number;
     expires?: string;
     permissions?: AuthPermissions;
+    roles?: string[];
+    error?: string;
   }
   /**
    * Usually contains information about the provider being used
@@ -35,5 +37,7 @@ declare module 'next-auth/jwt' {
     accessTokenExpires?: number;
     refreshToken?: string;
     permissions?: AuthPermissions;
+    roles?: string[];
+    error?: string;
   }
 }

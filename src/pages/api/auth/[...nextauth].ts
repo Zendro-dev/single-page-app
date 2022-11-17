@@ -93,6 +93,12 @@ const defaultProvider: Provider =
         type: 'oauth',
         authorization: OAUTH2_AUTH_URI,
         token: OAUTH2_TOKEN_URI,
+        profile(profile) {
+          return {
+            id: profile.sub,
+            name: profile.name ?? profile.preferred_username,
+          };
+        },
       }
     : {
         id: 'zendro',
