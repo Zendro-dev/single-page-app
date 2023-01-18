@@ -6,6 +6,7 @@ import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
   BubbleChart as ModelsIcon,
+  AlignVerticalBottom as PlotsIcon,
   Home as HomeIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,

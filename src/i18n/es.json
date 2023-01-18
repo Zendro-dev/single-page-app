@@ -84,7 +84,8 @@
     "details": "Detalles",
     "home": "Inicio",
     "models": "Modelos",
-    "new": "Nuevo"
+    "new": "Nuevo",
+    "plots": "Figuras"
   },
   "record-fields": {
     "array-add": "Añadir nuevo campo",

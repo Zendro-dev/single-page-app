@@ -84,7 +84,8 @@
     "details": "details",
     "home": "Home",
     "models": "Models",
-    "new": "new"
+    "new": "new",
+    "plots": "Plots"
   },
   "record-fields": {
     "array-add": "Add New Item",

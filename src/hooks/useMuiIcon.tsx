@@ -1,6 +1,7 @@
 import {
   Home,
   BubbleChart,
+  AlignVerticalBottom,
   SupervisorAccountRounded,
   WarningAmber,
 } from '@mui/icons-material';
@@ -9,6 +10,7 @@ import { SvgIconType } from '@/types/elements';
 const Icons = {
   Home,
   BubbleChart,
+  AlignVerticalBottom,
   SupervisorAccountRounded,
 };
 

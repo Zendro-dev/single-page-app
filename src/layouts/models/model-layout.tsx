@@ -30,6 +30,16 @@ export interface ModelLayoutProps {
 export default function ModelLayout(
   props: PropsWithChildren<ModelLayoutProps>
 ): ReactElement {
+  const customRoutes = JSON.parse(JSON.stringify(appRoutes));
+  const plotRoutes = [];
+  if (plotRoutes.length) {
+    customRoutes.push({
+      type: 'group',
+      name: 'Plotss',
+      icon: 'AlignVerticalBottom',
+      routes: plotRoutes,
+    });
+  }
   const classes = useStyles();
   const router = useRouter();
   const routePath = useRef(router.asPath);
@@ -70,7 +80,7 @@ export default function ModelLayout(
       brand={props.brand}
       footer={false}
     >
-      <Models showNav={showNav} routes={props.routes ?? appRoutes}>
+      <Models showNav={showNav} routes={props.routes ?? customRoutes}>
         {props.children}
       </Models>
     </AppLayout>
