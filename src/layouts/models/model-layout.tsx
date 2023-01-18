@@ -35,7 +35,7 @@ export default function ModelLayout(
   if (plotRoutes.length) {
     customRoutes.push({
       type: 'group',
-      name: 'Plotss',
+      name: 'Plots',
       icon: 'AlignVerticalBottom',
       routes: plotRoutes,
     });
