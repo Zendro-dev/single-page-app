@@ -31,7 +31,7 @@ export default function ModelLayout(
   props: PropsWithChildren<ModelLayoutProps>
 ): ReactElement {
   const customRoutes = JSON.parse(JSON.stringify(appRoutes));
-  const plotRoutes = [];
+  const plotRoutes: any[] = [];
   if (plotRoutes.length) {
     customRoutes.push({
       type: 'group',

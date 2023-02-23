@@ -134,6 +134,7 @@
     "models": "Models"
   },
   "warnings": {
-    "already-associated": "The record you are editing already has an associated {{ modelName }} ({{ recordId }}). {{ recordId }} will be automatically disassociated."
+    "already-associated": "The record you are editing already has an associated {{ modelName }} ({{ recordId }}). {{ recordId }} will be automatically disassociated.",
+    "exceed-time-limit": "Reach time limit for fetching data. First {{ number }} records for model {{ modelName }} will be used for plots."
   }
 }

@@ -133,6 +133,7 @@
     "models": "Modelle"
   },
   "warnings": {
-    "already-associated": "Das aktuelle zu editierende Element ist bereits assoziiert zu {{ modelName }} ({{ recordId }}). {{ recordId }} wird automatisch disassoziiert."
+    "already-associated": "Das aktuelle zu editierende Element ist bereits assoziiert zu {{ modelName }} ({{ recordId }}). {{ recordId }} wird automatisch disassoziiert.",
+    "exceed-time-limit": "Erreichen des Zeitlimits für das Abrufen von Daten. Die ersten { number }} Datensätze für das Modell {{ modelName }} werden für die Plots verwendet."
   }
 }

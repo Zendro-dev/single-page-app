@@ -134,6 +134,7 @@
     "models": "Modelos"
   },
   "warnings": {
-    "already-associated": "El registro que está editando ya tiene un {{ modelName }} ({{ recordId }}) asociado. {{ recordId }} se disociará automáticamente."
+    "already-associated": "El registro que está editando ya tiene un {{ modelName }} ({{ recordId }}) asociado. {{ recordId }} se disociará automáticamente.",
+    "exceed-time-limit": "Alcanzar el límite de tiempo para obtener datos. Los primeros { number }} registros del modelo {{ modelName }} se utilizarán para los gráficos."
   }
 }
