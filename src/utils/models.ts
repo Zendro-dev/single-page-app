@@ -5,6 +5,7 @@ import {
   ParsedAssociation,
   ParsedAttribute,
   StorageType,
+  AttributeWithDescription,
 } from '@/types/models';
 
 /**
@@ -143,9 +144,10 @@ export function parseAttributes(
   const foreignKeys = getForeignKeys(model);
   let attributes: Array<ParsedAttribute> = Object.keys(model.attributes).map(
     (attribute) => {
+      const type = model.attributes[attribute];
       return {
         name: attribute,
-        type: model.attributes[attribute],
+        type: (type as AttributeWithDescription).type ?? type,
         primaryKey: model.internalId === attribute,
         foreignKey: foreignKeys.has(attribute),
       };

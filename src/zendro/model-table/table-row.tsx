@@ -4,7 +4,11 @@ import {
   TableRow as MuiTableRow,
   TableRowProps as MuiTableRowProps,
 } from '@mui/material';
-import { DataRecord, ParsedAttribute } from '@/types/models';
+import {
+  DataRecord,
+  ParsedAttribute,
+  AttributeWithDescription,
+} from '@/types/models';
 
 export type TableRowActionHandler = (primaryKey: string | number) => void;
 
@@ -30,11 +34,14 @@ export default function TableRow({
       {attributes.map((attribute, index) => (
         <MuiTableCell
           key={`${attribute.name}-${index}`}
-          align={
-            attribute.type.includes('Int') || attribute.type.includes('Float')
+          align={(() => {
+            const type =
+              (attribute.type as AttributeWithDescription).type ??
+              attribute.type;
+            return type.includes('Int') || type.includes('Float')
               ? 'right'
-              : 'left'
-          }
+              : 'left';
+          })()}
         >
           {String(
             record[attribute.name] !== null ? record[attribute.name] : ''

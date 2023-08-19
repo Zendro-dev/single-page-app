@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import { VpnKey as KeyIcon } from '@mui/icons-material';
-import { ParsedAttribute } from '@/types/models';
+import { ParsedAttribute, AttributeWithDescription } from '@/types/models';
 import { OrderDirection } from '@/types/queries';
 import TableColumn from './table-column';
 
@@ -59,11 +59,14 @@ export default function TableHeader({
                 ? t('model-table.header-id-tooltip')
                 : undefined
             }
-            align={
-              attribute.type.includes('Int') || attribute.type.includes('Float')
+            align={(() => {
+              const type =
+                (attribute.type as AttributeWithDescription).type ??
+                attribute.type;
+              return type.includes('Int') || type.includes('Float')
                 ? 'right'
-                : 'left'
-            }
+                : 'left';
+            })()}
             disableSort={disableSort}
             activeOrder={activeOrder === attribute.name}
             orderDirection={

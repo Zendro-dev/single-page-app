@@ -42,7 +42,14 @@ export type StorageType =
   | 'neo4j-adapter';
 
 export interface Attributes {
-  [key: string]: AttributeScalarType | AttributeArrayType;
+  [key: string]: AttributeType | AttributeWithDescription;
+}
+
+export type AttributeType = AttributeScalarType | AttributeArrayType;
+
+export interface AttributeWithDescription {
+  description: string;
+  type: AttributeType;
 }
 
 export type AttributeValue = AttributeScalarValue | AttributeArrayValue;
@@ -61,7 +68,7 @@ export type spaSearchOperator = 'like' | 'iLike';
 
 export interface ParsedAttribute {
   name: string;
-  type: AttributeScalarType | AttributeArrayType;
+  type: AttributeType | AttributeWithDescription;
   primaryKey?: boolean;
   foreignKey?: boolean;
   automaticId?: boolean;

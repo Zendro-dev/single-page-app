@@ -24,7 +24,12 @@ import {
 
 import ActionButton from '@/components/float-button';
 
-import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
+import {
+  AttributeValue,
+  DataRecord,
+  ParsedAttribute,
+  AttributeWithDescription,
+} from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 
 import FormErrors from './form-errors';
@@ -286,7 +291,7 @@ export default function AttributesForm({
             return (
               <FormField
                 key={name}
-                type={type}
+                type={(type as AttributeWithDescription).type ?? type}
                 error={clientError || serverErrors ? true : false}
                 helperText={
                   clientError || serverErrors
