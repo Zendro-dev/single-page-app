@@ -10,7 +10,7 @@ source "${SCRIPT_DIR}/testenv_constants.sh"
 printBlockHeader "START" "REMOVE TESTING ENVIRONMENT"
 
 # Remove docker containers, images, and volumes
-docker-compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v --rmi all
+docker compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v --rmi all
 
 # Remove testing environment
 echo "Removing ${ENV_DIR}"
