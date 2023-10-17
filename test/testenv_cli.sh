@@ -98,7 +98,7 @@ fi
 # 1. Stop docker containers and remove anonymous volumes
 # 2. Re-start the docker containers
 if [[ $OPT_RESTART_DOCKER == "true" ]]; then
-  docker-compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v
+  docker compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v
   bash "${TEST_DIR}/testenv_docker_up.sh"
   exit 0
 fi
@@ -126,7 +126,7 @@ fi
 # 4. Run integration tests
 # 5. Perform a full cleanup (optionally disabled)
 if [[ $OPT_GENCODE_RUNTESTS == "true" ]]; then
-  docker-compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v
+  docker compose -f "${TEST_DIR}/config/docker-compose-test.yml" down -v
   bash "${TEST_DIR}/testenv_generate_code.sh"
   bash "${TEST_DIR}/testenv_sync.sh"
   bash "${TEST_DIR}/testenv_docker_up.sh"

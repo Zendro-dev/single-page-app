@@ -35,7 +35,7 @@ source "${SCRIPT_DIR}/testenv_constants.sh"
 printBlockHeader "START" "UP DOCKER CONTAINERS"
 
 # Up detached docker containers
-docker-compose \
+docker compose \
   -f "${TEST_DIR}/config/docker-compose-test.yml" up -d \
   --force-recreate \
   --remove-orphans \
