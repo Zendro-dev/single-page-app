@@ -33,7 +33,7 @@ export function getForeignKeys(dataModel: DataModel): Set<string> {
         case 'one_to_one':
         case 'many_to_one':
         case 'one_to_many':
-          return keys.add(targetKey);
+          return sourceKey ? keys.add(sourceKey) : keys.add(targetKey);
         case 'many_to_many':
           return sourceKey ? keys.add(sourceKey) : keys;
         default:
