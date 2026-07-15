@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p ${PORT:-8080}",
+    "dev": "cd vite-spa && npm install && GQS_ORIGIN=http://zendro-graphql-server:3000 npm run dev",
     "dev:win": "next dev -p 8080",
     "build": "next build",
     "export": "next export",

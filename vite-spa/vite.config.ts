@@ -9,7 +9,10 @@ import react from '@vitejs/plugin-react';
 // server.js's production proxy so `npm run dev` behaves the same way
 // without needing the separate Express server.
 const GQS_ORIGIN = process.env.GQS_ORIGIN || 'http://localhost:3000';
-const DEV_PORT = 5174;
+// 8080 matches the rest of the stack's convention (docker-compose publishes
+// this app on host port 8080, same as the original Next.js app's own
+// default) - overridable via PORT for anyone running this standalone.
+const DEV_PORT = Number(process.env.PORT) || 8080;
 const DEV_ORIGIN = `http://localhost:${DEV_PORT}`;
 
 // https://vite.dev/config/
@@ -22,6 +25,9 @@ export default defineConfig({
   },
   server: {
     port: DEV_PORT,
+    // Required for docker: the compose port mapping (8080:8080) only
+    // reaches a server bound to all interfaces, not just loopback.
+    host: true,
     proxy: {
       '/graphql': { target: GQS_ORIGIN, changeOrigin: true },
       '/meta_query': { target: GQS_ORIGIN, changeOrigin: true },
