@@ -2,14 +2,17 @@
 
 # DIRECTORIES
 # TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-TEST_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
-ROOT_DIR="$(dirname ${TEST_DIR})"
+TEST_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+ROOT_DIR="$(dirname "${TEST_DIR}")"
 ENV_DIR="${TEST_DIR}/test_env"
 
 GRAPHQL_CODEGEN_BRANCH=master
 GRAPHQL_CODEGEN_DIR="${ENV_DIR}/gql_server_codegen"
 
-GRAPHQL_SERVER_BRANCH=master
+# vite-spa is master plus the /auth/permissions endpoint this app's
+# AuthProvider fetches - not yet merged to master, so the harness clones
+# that branch specifically. Switch back to master once it's merged.
+GRAPHQL_SERVER_BRANCH=vite-spa
 GRAPHQL_SERVER_1="${ENV_DIR}/gql_science_db_graphql_server1"
 # GRAPHQL_SERVER_2="${ENV_DIR}/gql_science_db_graphql_server2"
 
@@ -18,7 +21,9 @@ GRAPHQL_SERVER_1_MODELS="${TEST_DIR}/models/server1"
 
 GRAPHQL_SERVER_1_URL="localhost:3000/graphql"
 # GRAPHQL_SERVER_2_URL="localhost:3030/graphql"
-SERVER_CHECK_WAIT_TIME=60
+# First boot runs every model's migration, including per-column Cassandra
+# index creation (several hundred ms each) - comfortably over 60s.
+SERVER_CHECK_WAIT_TIME=180
 
 SPA_PORT=${PORT:-8080}
 

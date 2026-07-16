@@ -7,7 +7,7 @@
 set -e
 
 # Load integration test constants
-SCRIPT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 source "${SCRIPT_DIR}/testenv_constants.sh"
 
 # Process command line options
@@ -157,8 +157,9 @@ if [[ $DEFAULT_RUN == "true" ]]; then
   bash "${TEST_DIR}/testenv_generate_code.sh"
   bash "${TEST_DIR}/testenv_sync.sh"
   bash "${TEST_DIR}/testenv_docker_up.sh"
+  export ZENDRO_DATA_MODELS="${GRAPHQL_SERVER_1_MODELS}"
   yarn build
-  yarn start & wait-on http://localhost:${SPA_PORT}
+  yarn start & "${ROOT_DIR}/node_modules/.bin/wait-on" "http://localhost:${SPA_PORT}"
   yarn cy:run
 
   # 1. Remove docker containers, images, and volumes

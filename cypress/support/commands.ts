@@ -28,40 +28,68 @@ Cypress.Commands.add('dataCy', (value) => {
   return cy.get(`[data-cy=${value}]`);
 });
 
+// Auth is owned entirely by graphql-server now (see graphql-server/utils/auth/)
+// - there's no local login form anymore. Clicking "login-button" is a real,
+// full-page navigation to /auth/login, which redirects the browser to
+// Keycloak's own hosted login page on a different origin (localhost:8082).
+// cy.origin() is required here, not just convenient: Keycloak's session
+// cookies (AUTH_SESSION_ID, KC_RESTART, ...) are Secure + SameSite=None, and
+// a real browser won't carry those across a same-tab cross-origin
+// navigation the way cy.origin()'s isolated sandbox does - the old
+// `chromeWebSecurity: false` workaround (pre-cy.origin(), Cypress <9.6)
+// allows the navigation itself but silently drops those cookies, which
+// breaks the login right after the credentials are submitted.
 Cypress.Commands.add('login', () => {
-  // cy.intercept('http://localhost:3000/login').as('login');
+  const username = Cypress.env('keycloak-username');
+  const password = Cypress.env('keycloak-password');
+
   cy.visit('/');
   cy.dataCy('login-button').click({ force: true });
-  // fill out the inputs and click the button
-  cy.dataCy('login-form-email').type('admin@zen.dro');
-  cy.dataCy('login-form-password').type('admin');
-  cy.dataCy('login-form-login').click();
-  cy.wait(1000);
+
+  cy.origin('http://localhost:8082', { args: { username, password } }, ({ username, password }) => {
+    cy.get('#username', { timeout: 10000 }).type(username);
+    cy.get('#password').type(password);
+    cy.get('#kc-login').click();
+
+    // The seeded zendro-admin user has no email/name set, so a fresh realm
+    // requires a one-time VERIFY_PROFILE step on first login - fill it in
+    // if Keycloak asks for it, otherwise this is a no-op.
+    cy.location('pathname', { timeout: 10000 }).then((pathname) => {
+      if (pathname.includes('required-action')) {
+        cy.get('#email').type(`${username}@example.com`);
+        cy.get('#firstName').type('Zendro');
+        cy.get('#lastName').type('Admin');
+        cy.get('input[type=submit], #kc-login').click();
+      }
+    });
+  });
+
+  // Back on the SPA's own origin after the redirect chain completes.
+  cy.location('origin', { timeout: 10000 }).should('eq', 'http://localhost:8080');
+  cy.dataCy('login-button').should('be.visible');
+  cy.wait(500);
 });
 
-Cypress.LocalStorage.clear = function () {
-  console.log('--Running LocalStorage.clear--');
-  return;
-};
-
+// There's no login endpoint to pre-authenticate against anymore - auth is a
+// signed httpOnly session cookie set by graphql-server (zendro_giql_session).
+// cy.request() automatically sends cookies for the current origin, so as
+// long as cy.login() has already run in this test, this rides along on that
+// same session - no bearer token to attach. The URL is relative (resolved
+// against cypress.config.ts's baseUrl, the SPA's own origin) because
+// /graphql is now reverse-proxied by the SPA itself (server.cjs), not
+// called directly on graphql-server's origin the way the old Next app's
+// NEXT_PUBLIC_GRAPHQL_URL did.
 Cypress.Commands.add('gqlRequest', (query) => {
   cy.request({
-    url: 'http://localhost:3000/login',
-    body: { email: 'admin@zen.dro', password: 'admin' },
+    url: '/graphql',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json;charset=UTF-8',
+    },
+    body: { query },
     method: 'POST',
   }).then((response) => {
-    cy.request({
-      url: 'http://localhost:3000/graphql',
-      headers: {
-        authorization: 'Bearer ' + response.body.token,
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      body: { query },
-      method: 'POST',
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-    });
+    expect(response.status).to.eq(200);
   });
 });
 

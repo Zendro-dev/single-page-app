@@ -12,7 +12,7 @@ describe('Model page', () => {
   });
 
   beforeEach('Intercept requests and navigate to the model page', () => {
-    cy.intercept('http://localhost:3000/meta_query', (req) => {
+    cy.intercept('http://localhost:8080/meta_query', (req) => {
       if ((req.body.query as string).includes('readAliens')) {
         req.alias = 'read-table-records';
       } else if ((req.body.query as string).includes('countAliens')) {
@@ -20,7 +20,7 @@ describe('Model page', () => {
       }
     });
 
-    cy.intercept('http://localhost:3000/graphql', (req) => {
+    cy.intercept('http://localhost:8080/graphql', (req) => {
       if ((req.body.query as string).includes('deleteAlien')) {
         req.alias = 'delete-table-record';
       }

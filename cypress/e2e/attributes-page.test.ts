@@ -30,7 +30,7 @@ describe('Record attributes page', () => {
       }
     `);
 
-    cy.intercept('http://localhost:3000/graphql', (req) => {
+    cy.intercept('http://localhost:8080/graphql', (req) => {
       if ((req.body.query as string).includes('readOneAlien')) {
         req.alias = 'read-record-alien';
       } else if ((req.body.query as string).includes('readOneCountry')) {
@@ -118,23 +118,15 @@ describe('Record attributes page', () => {
 
     /* FETCH EDIT ATTRIBUTES */
 
-    // Navigate to alien edit attributes page
+    // Navigate to alien edit attributes page - same record id as details, so
+    // SWR serves the already-cached data instead of firing a new request
+    // (the route change only swaps the "request" param, and RecordForm
+    // doesn't unmount for it).
     cy.dataCy('record-form-update').click();
     cy.url().should('include', '/models/country/edit?id=country_1');
-
-    // Verify request and success response
-    cy.wait('@read-record-country').then(({ request, response }) => {
-      expect(request.body.variables).to.deep.eq({
-        country_id: 'country_1',
-      });
-      expect(response?.statusCode).to.eq(200);
-      expect(response?.body.data).to.deep.eq({
-        readOneCountry: {
-          country_id: 'country_1',
-          name: 'germany',
-        },
-      });
-    });
+    cy.dataCy('record-form-fields-name')
+      .find('input')
+      .should('have.value', 'germany');
 
     /* RELOAD EDIT ATTRIBUTES */
 
@@ -204,12 +196,15 @@ describe('Record attributes page', () => {
     cy.get(
       'button[aria-label="calendar view is open, go to text input view"]'
     ).click();
-    cy.get('div[class="MuiPickersMobileKeyboardInputView-root"]').within(() => {
-      cy.dataCy('record-form-fields-datetimeField').type(
-        '2021-06-01T08:43:30.000Z'
-      );
+    // The picker dialog's keyboard-input view reuses this field's own
+    // data-cy on its wrapping element (not the <input> itself), and while
+    // the dialog is open there are two matches for it (the form's own
+    // field, behind the dialog, and the dialog's copy) - scope to the
+    // dialog's container class and target the <input> tag directly instead.
+    cy.get('.MuiCalendarOrClockPicker-mobileKeyboardInputView').within(() => {
+      cy.get('input').clear().type('2021-06-01T08:43:30.000Z');
     });
-    cy.get('span').contains('OK').click();
+    cy.get('button').contains('OK').click();
 
     // Update stringArrayField
     cy.get('div').contains('stringArrayField').click();
@@ -290,14 +285,20 @@ describe('Record attributes page', () => {
     cy.get(
       'button[aria-label="calendar view is open, go to text input view"]'
     ).click();
-    cy.get('div[class="MuiPickersMobileKeyboardInputView-root"]').within(() => {
-      cy.dataCy('record-form-fields-datetimeField').type(date);
+    cy.get('.MuiCalendarOrClockPicker-mobileKeyboardInputView').within(() => {
+      cy.get('input').clear().type(date);
     });
-    cy.get('span').contains('OK').click();
+    cy.get('button').contains('OK').click();
 
-    // Set stringArrayField
-    cy.get('div').contains('stringArrayField').click();
-    cy.get('span').contains('Add New Item').click();
+    // Set stringArrayField - the alien model has several array fields, each
+    // with its own identically data-cy'd "unshift" button, so scope to the
+    // one inside the accordion just opened.
+    cy.contains('div', 'stringArrayField')
+      .closest('.MuiAccordion-root')
+      .within(() => {
+        cy.get('div').contains('stringArrayField').click();
+        cy.dataCy('arrayfield-unshift-item').click();
+      });
     cy.dataCy('arrayfield-inputfield-0').type('my_first_string');
     cy.dataCy('arrayfield-add-item-0').click({ force: true });
     cy.dataCy('arrayfield-inputfield-1').type('my_second_string');
@@ -350,16 +351,20 @@ describe('Record attributes page', () => {
     cy.dataCy('record-form-fields-country_id').type('country_1');
     cy.dataCy('record-form-fields-name').type('USA');
 
-    // Submit form
+    // Submit form - continent_id/river_ids are left unset, which prompts a
+    // confirmation dialog before the mutation actually fires.
     cy.dataCy('record-form-submit').click();
+    cy.dataCy('dialog-ok').click();
 
-    // Verify mutation request and error response
+    // Verify mutation request and error response - a duplicate primary key
+    // surfaces as a normal GraphQL error in a 200 response, not a raw 500.
     cy.wait('@create-record-country').then(({ request, response }) => {
       expect(request.body.variables).to.deep.equal({
         country_id: 'country_1',
         name: 'USA',
       });
-      expect(response?.statusCode).to.eq(500);
+      expect(response?.statusCode).to.eq(200);
+      expect(response?.body.errors).to.exist;
     });
 
     /* VALIDATION ERRORS */
@@ -373,8 +378,12 @@ describe('Record attributes page', () => {
 
     // Submit form
     cy.dataCy('record-form-submit').click();
+    cy.dataCy('dialog-ok').click();
 
-    // Verify mutation request and error response
+    // Verify mutation request and error response - also a normal GraphQL
+    // error in a 200 response. The validation error's own shape has also
+    // moved on to ajv 8's conventions (instancePath replacing dataPath,
+    // "must match" replacing "should match").
     cy.wait('@create-record-country').then(({ response }) => {
       expect(response?.body.errors).to.deep.eq([
         {
@@ -382,26 +391,26 @@ describe('Record attributes page', () => {
           locations: [
             {
               line: 1,
-              column: 55,
+              column: 130,
             },
           ],
           extensions: {
             validationErrors: [
               {
                 keyword: 'pattern',
-                dataPath: '.name',
+                instancePath: '/name',
                 schemaPath: '#/properties/name/pattern',
                 params: {
                   pattern: '^[A-Za-z]+$',
                 },
-                message: 'should match pattern "^[A-Za-z]+$"',
+                message: 'must match pattern "^[A-Za-z]+$"',
               },
             ],
           },
           path: ['addCountry'],
         },
       ]);
-      expect(response?.statusCode).to.eq(500);
+      expect(response?.statusCode).to.eq(200);
     });
   });
 });

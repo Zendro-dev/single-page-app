@@ -29,17 +29,35 @@ isServerReadyForRequests() {
 
 
 # Load integration test constants
-SCRIPT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 source "${SCRIPT_DIR}/testenv_constants.sh"
 
 printBlockHeader "START" "UP DOCKER CONTAINERS"
 
-# Up detached docker containers
+# Keycloak has to be up, and the realm/clients bootstrapped, *before*
+# graphql-server's container starts - it only ever reads its .env once, at
+# process boot (see testenv_keycloak_setup.sh, which writes the real OAuth2
+# config into config/.env once Keycloak answers).
 docker compose \
   -f "${TEST_DIR}/config/docker-compose-test.yml" up -d \
   --force-recreate \
   --remove-orphans \
-  --renew-anon-volumes
+  --renew-anon-volumes \
+  keycloak_postgres keycloak
+
+bash "${SCRIPT_DIR}/testenv_keycloak_setup.sh"
+
+# Now bring up everything else - graphql-server picks up the .env
+# testenv_keycloak_setup.sh just wrote. keycloak_postgres/keycloak are
+# deliberately excluded here: they're already up and just got bootstrapped
+# with the zendro realm above - --force-recreate/--renew-anon-volumes would
+# blow that away by recreating them with a fresh, empty anonymous volume.
+docker compose \
+  -f "${TEST_DIR}/config/docker-compose-test.yml" up -d \
+  --force-recreate \
+  --remove-orphans \
+  --renew-anon-volumes \
+  $(docker compose -f "${TEST_DIR}/config/docker-compose-test.yml" config --services | grep -v -E '^(keycloak_postgres|keycloak)$')
 
 
 # Wait for the graphql server instances to get ready
@@ -54,7 +72,7 @@ pids+="$! "
 
 # Wait for the check responses
 for id in ${pids[@]}; do
-  wait $id || exit 0
+  wait $id || exit 1
 done
 
 printBlockHeader "END" "UP DOCKER CONTAINERS"

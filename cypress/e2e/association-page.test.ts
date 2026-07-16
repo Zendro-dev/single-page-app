@@ -25,22 +25,29 @@ describe('Record association page', () => {
     `);
 
     // Intercept standard graphql requests
-    cy.intercept('http://localhost:3000/graphql', (req) => {
+    cy.intercept('http://localhost:8080/graphql', (req) => {
       if ((req.body.query as string).includes('update')) {
         req.alias = 'update-record';
       }
     });
 
     // Intercept meta_query graphql requests
-    // ! Needs a better check
-    cy.intercept('http://localhost:3000/meta_query', (req) => {
+    cy.intercept('http://localhost:8080/meta_query', (req) => {
       if (
         (req.body.query as string).match('countFiltered[A-Z][a-z]+\\s*\\(') ||
         (req.body.query as string).match('count[A-Z][a-z]+\\(')
       ) {
         req.alias = 'count-assoc-table';
-      } else {
+      } else if (req.body.variables?.pagination) {
+        // For a to_one association, AssociationTable.tsx fires two requests
+        // that share this exact query text but differ in variables: this
+        // one (the paginated candidate listing, always has `pagination`)
+        // and a separate, simpler fetch of the single currently-associated
+        // record (no pagination at all) - only the former is what these
+        // tests actually want to assert on.
         req.alias = 'read-assoc-table';
+      } else {
+        req.alias = 'read-assoc-record';
       }
     });
   });
@@ -324,12 +331,19 @@ describe('Record association page', () => {
 
     /* FETCH ASSOCIATION TABLE DATA */
 
-    // cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-    //   ([read, count]) => {
-    //     expect(read.response?.statusCode).to.eq(200);
-    //     expect(count.response?.statusCode).to.eq(200);
-    //   }
-    // );
+    // Drain the on-mount requests, including the to_one association's own
+    // "currently associated record" fetch (read-assoc-record) - otherwise
+    // the later cy.wait('@read-assoc-record') after the first submit would
+    // consume this one instead (aliases are matched in request order), and
+    // resolve immediately without actually waiting for the revalidation
+    // that submit triggers.
+    cy.wait(['@read-assoc-table', '@count-assoc-table', '@read-assoc-record']).then(
+      ([read, count, assocRecord]) => {
+        expect(read.response?.statusCode).to.eq(200);
+        expect(count.response?.statusCode).to.eq(200);
+        expect(assocRecord.response?.statusCode).to.eq(200);
+      }
+    );
 
     /* ADD NEW ASSOCIATION */
 
@@ -346,15 +360,13 @@ describe('Record association page', () => {
       expect(response?.statusCode).to.eq(200);
     });
 
-    // // Verify the revalidation successful response
-    // cy.wait(['@read-assoc-table', '@count-assoc-table']).then(
-    //   ([read, count]) => {
-    //     expect(read.response?.statusCode).to.eq(200);
-    //     expect(count.response?.statusCode).to.eq(200);
-    //   }
-    // );
-
-    cy.wait(2000);
+    // Wait for the post-mutation revalidation (mutateAssociatedRecord()) to
+    // land before marking the next association - otherwise the component's
+    // notion of "currently associated" is stale, and it won't know to
+    // remove continent_2 when continent_1 is marked next.
+    cy.wait('@read-assoc-record').then(({ response }) => {
+      expect(response?.statusCode).to.eq(200);
+    });
 
     /* MODIFY THE ASSOCIATION TO A DIFFERENT RECORD */
 
@@ -771,6 +783,13 @@ describe('Record association page', () => {
             },
             {
               field: 'name',
+              value: '%er%',
+              operator: 'iLike',
+            },
+            // country's own continent_id FK column is a searchable scalar
+            // field too, alongside country_id/name.
+            {
+              field: 'continent_id',
               value: '%er%',
               operator: 'iLike',
             },

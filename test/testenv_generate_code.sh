@@ -5,42 +5,45 @@ set -e
 
 printCodegenTaskStart () {
   path=$1
-  name=$(basename $path)
+  name=$(basename "$path")
   echo -e "${GRAY}${SINGLE_SEP}${NC}\n${GREEN}START${NC} ... Generating code in ${YELLOW}${name}${NC}\n"
 }
 
 printCodegenTaskEnd () {
   path=$1
-  name=$(basename $path)
+  name=$(basename "$path")
   echo -e "\n${GREEN}END${NC} ... Generated code in ${YELLOW}${name}${NC}\n${GRAY}${SINGLE_SEP}${NC}"
 }
 
 generateGraphqlServerCode () {
 
-  echo ${ROOT_DIR}
+  echo "${ROOT_DIR}"
   models=$1
   output=$2
   branch=$3
 
-  printCodegenTaskStart $output
+  printCodegenTaskStart "$output"
 
   # Restore the graphql server repository to a clean state
-  cd $output
+  cd "$output"
   echo node_modules > .gitignore
   git clean -fd &>/dev/null
-  git reset --hard origin/${branch} &>/dev/null
+  git reset --hard "origin/${branch}" &>/dev/null
+  # reset --hard doesn't update an already-initialized submodule's checkout
+  # to match the (possibly new) commit now recorded by the superproject.
+  git submodule update --init --recursive &>/dev/null
   cd - &>/dev/null
 
   # Run the code generator
-  # node "${ROOT_DIR}/index.js" -f "$models" --migrations -o $output
-  node "${GRAPHQL_CODEGEN_DIR}/index.js" -f "$models" --migrations -o $output
+  # node "${ROOT_DIR}/index.js" -f "$models" --migrations -o "$output"
+  node "${GRAPHQL_CODEGEN_DIR}/index.js" -f "$models" --migrations -o "$output"
 
-  printCodegenTaskEnd $output
+  printCodegenTaskEnd "$output"
 }
 
 
 # Load integration test constants
-SCRIPT_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 source "${SCRIPT_DIR}/testenv_constants.sh"
 
 printBlockHeader "START" "RUN GRAPHQL SERVER CODE GENERATOR"

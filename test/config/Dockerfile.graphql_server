@@ -1,4 +1,8 @@
-FROM node:14.13.1-stretch-slim
+# node:14.13.1-stretch-slim (Debian 9) is EOL - deb.debian.org/
+# security.debian.org no longer serve it, and its baked-in archive signing
+# keys have since expired, so apt can't install anything trustworthy from it
+# anymore. bullseye is still in normal Debian support.
+FROM node:24-bullseye-slim
 
 # Create app directory
 WORKDIR /usr/src/app
