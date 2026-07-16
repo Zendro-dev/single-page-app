@@ -45,7 +45,7 @@ import {
   jsonProcessing,
   bulkDownload,
 } from 'zendro-bulk-create';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@e965/xlsx';
 import inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {

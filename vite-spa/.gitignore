@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Regenerated from ZENDRO_DATA_MODELS by scripts/generate.ts on every
+# predev/prebuild - see that script's own header comment.
+/src/generated
+/src/custom
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

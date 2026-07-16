@@ -1,0 +1,137 @@
+{
+  "associations": {
+    "assoc-select": "{{ modelName }} Assoziaton auswählen",
+    "click-to-associate": "Zum assoziieren klicken",
+    "click-to-disassociate": "Zum disassoziieren klicken",
+    "filter-associated": "Assoziiert",
+    "filter-no-filter": "Keine Filter",
+    "filter-not-associated": "Nicht Assoziiert",
+    "filter-select": "{{ assocName }} Filter auswählen",
+    "filter-to-add": "Für Assoziation markiert",
+    "filter-to-remove": "Für Disassoziation markiert",
+    "mark-to-associate": "Markiert für Assoziation, zum zurücksetzen klicken",
+    "mark-to-disassociate": "Markiert für Disassoziation, zum zurücksetzen klicken",
+    "save": "{{ assocName }} Daten speichern",
+    "new-associated-record": "Neuen {{ modelName }} erstellen und assoziieren"
+  },
+  "dialogs": {
+    "cancel-text": "Nein",
+    "delete-confirm": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+    "delete-info": "Element mit Id {{ recordId }} in Model {{ modelName }}",
+    "leave-confirm": "Trotzdem verlassen?",
+    "modified-info": "Einige Felder wurden modifiziert",
+    "ok-text": "Ja",
+    "reload-confirm": "Trotzdem aktualisieren?",
+    "submit-empty-confirm": "Trotzdem fortfahren?",
+    "submit-empty-info": "Einige Felder sind leer. {{ idMsg }}",
+    "validation-info": "Bitte beseitigen sie die Client-side Validierungs Fehler",
+    "validation-title": "Validierungs Fehler"
+  },
+  "errors": {
+    "csv-import": "Beim Versuch die Datei zu importieren ist ein Fehler aufgetreten. Bitte kontaktieren sie ihren Administrator.",
+    "server-error": "Fehler {{ status }} in Anfrage zum Server"
+  },
+  "home": {
+    "documentation-info": "Detaillierte Informationen über Zendro funktionen und API.",
+    "documentation": "Dokumentation",
+    "github-info": "Hilf mit via pull request, issues und Feedback."
+  },
+  "info": {
+    "not-implemented": "Nicht implementiert"
+  },
+  "login-dialog": {
+    "title": "Login Formular",
+    "content": "Um sich auf der Website anzumelden, geben Sie bitte ihre E-Mail-Adresse und Passwort ein.",
+    "login-expired": "Anmenldung abgelaufen",
+    "login-failed": "Anmeldung fehlgeschlagen",
+    "login-successful": "Anmeldung erfolgreich"
+  },
+  "login-form": {
+    "cancel": "Abbrechen",
+    "hide-password": "Passwort verstecken",
+    "login": "Einloggen",
+    "password": "Passwort",
+    "show-password": "Passwort anzeigen"
+  },
+  "model-table": {
+    "add": "{{ modelName }} hinzufügen",
+    "caption": "Tabelle für {{ modelName }}",
+    "delete": "{{ recordId }} löschen",
+    "download-data": "{{ modelName }} Daten als csv herunterladen",
+    "download-template": "{{ modelName }} csv template herunterladen",
+    "edit": "{{ recordId }} bearbeiten",
+    "header-actions": "Operationen",
+    "header-id-tooltip": "Eindeutige Id",
+    "import": "{{ modelName }} Daten aus csv importieren",
+    "no-data": "Keine Daten verfügbar",
+    "pagination-count": "Anzahl",
+    "pagination-first": "Erste Seite",
+    "pagination-last": "Letzte Seite",
+    "pagination-next": "Nächste Seite",
+    "pagination-previous": "Vorige Seite",
+    "pagination-rows": "Reihen",
+    "reload": "Aktualisiere {{ modelName }} Daten",
+    "search-clear": "Suche löschen",
+    "search-label": "Suche {{ modelName }}",
+    "search-label-default": "Suche eingeben",
+    "search-tooltip": "Suche",
+    "view": "{{ recordId }} anzeigen"
+  },
+  "models-layout": {
+    "admin": "Admin",
+    "details": "Details",
+    "edit": "Bearbeiten",
+    "home": "Home",
+    "models": "Modelle",
+    "new": "Neu"
+  },
+  "record-fields": {
+    "array-add": "Element hinzufügen",
+    "array-delete": "Element löschen",
+    "array-unset": "Element zurücksetzen",
+    "primary-key": "{{ name }} ist der primary key",
+    "read-only": "Dieses Feld kann nicht modifiziert werden",
+    "unset": "Wert zurücksetzen"
+  },
+  "record-form": {
+    "action-delete": "Eintrag löschen",
+    "action-exit": "{{ modelName }} Tabelle anzeigen",
+    "action-read": "Details anzeigen",
+    "action-reload": "Daten aktualisieren",
+    "action-submit": "Änderungen speichern",
+    "action-update": "Eintrag bearbeiten",
+    "completed": "Abgeschlossen",
+    "create": "Anlegen",
+    "read": "Lesen",
+    "read-only": "Das Formular ist schreibgeschützt",
+    "tab-associations": "Assoziationen",
+    "tab-attributes": "Attribute",
+    "update": "Aktualisieren",
+    "change-password": "Passwort ändern",
+    "new-password": "Neues Passwort",
+    "cancel-password": "Abbrechen",
+    "confirm-password": "Bestätigen"
+  },
+  "restricted": {
+    "not-logged-header": "Sie sind nicht eingeloggt",
+    "not-logged-info": "Es scheint sie versuchen eine geschützte Seite zu erreichen und sind nicht eingeloggt. Nutzten sie den Login in der oberen rechten Ecke um ihre Nutzerdaten und Berechtigungen zu verifizieren.",
+    "not-allowed-header": "Zugriff zu dieser Seite ist gepserrt",
+    "not-allowed-info": "Es scheint Sie haben nicht ausreichend Zugriffsrechte für die angefragte Seite. Falls Sie glauben dies ist ein Fehler, wenden Sie sich bitte an ihren Administrator.",
+    "token-exp-header": "Ihre Sitzung ist abgelaufen",
+    "token-exp-info": "Die aktuelle Sitzung ist abgelaufen. Revalidieren Sie ihre Sitzung mittels Login in der oberen rechten Ecke. Um die aktuelle Sitzung zu beenden schließen sie das Fenster."
+  },
+  "success": {
+    "assoc-update": "Assoziation erfolgreich aktualisiert",
+    "csv-import": "Die Daten wurden versendet. Ein Statusreport des Importiervorgangs wird an ihre Email versandt.",
+    "new-associated-record": "Tabelle wurde aktualisiert, um neuen {{ modelName }} in der ersten Zeile zu zeigen (Tabelle wurde enstprechend geladen)."
+  },
+  "toolbar": {
+    "change-language": "Sprache ändern",
+    "login": "Einloggen",
+    "logout": "Abmelden",
+    "models": "Modelle"
+  },
+  "warnings": {
+    "already-associated": "Das aktuelle zu editierende Element ist bereits assoziiert zu {{ modelName }} ({{ recordId }}). {{ recordId }} wird automatisch disassoziiert."
+  }
+}

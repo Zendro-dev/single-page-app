@@ -1,0 +1,138 @@
+{
+  "associations": {
+    "assoc-select": "Elija asociación para {{ modelName }}",
+    "click-to-associate": "Pincha para asociar",
+    "click-to-disassociate": "Pincha para desasociar",
+    "filter-associated": "Asociados",
+    "filter-no-filter": "Sin filtros",
+    "filter-not-associated": "No Asociados",
+    "filter-select": "Elija un filtro para {{ assocName }}",
+    "filter-to-add": "Marcados para asociar",
+    "filter-to-remove": "Marcados para desasociar",
+    "mark-to-associate": "Marcado para asociar, pincha para desmarcar",
+    "mark-to-disassociate": "Marcado para desasociar, pincha para desmarcar",
+    "save": "Guarda asociaciones para {{ assocName }}",
+    "new-associated-record": "Crea y asocia nuevo {{ modelName }}"
+  },
+  "dialogs": {
+    "cancel-text": "No",
+    "delete-confirm": "¿Está seguro de que desea eliminar este registro?",
+    "delete-info": "Registro con identificador {{ recordId }} en el modelo {{ modelName }}",
+    "leave-confirm": "¿Desea salir de todos modos?",
+    "modified-info": "Algunos campos han sido modificados.",
+    "ok-text": "Sí",
+    "reload-confirm": "¿Desea recargar de todos modos?",
+    "submit-empty-confirm": "¿Desea continuar de todos modos?",
+    "submit-empty-info": "Algunos campos están vacíos. {{ idMsg }}",
+    "validation-info": "Por favor, corrija los errores de validación",
+    "validation-title": "Se han encontrado errores de validación"
+  },
+  "errors": {
+    "csv-import": "Se ha encontrado un error al importar el archivo. Por favor, contacte con su administrador.",
+    "server-error": "El servidor ha encontrado un error {{ status }} en la petición"
+  },
+  "home": {
+    "documentation-info": "Más información sobre las características de Zendro y su API.",
+    "documentation": "Documentación",
+    "github-info": "Contribuya aportando código, informando sobre problemas, o escribiendo comentarios."
+  },
+  "info": {
+    "not-implemented": "No implementado"
+  },
+  "login-dialog": {
+    "title": "Formulario de Ingreso",
+    "content": "Para iniciar sesión, por favor escriba su correo electrónico y contraseña a continuación.",
+    "login-expired": "Credenciales caducadas",
+    "login-failed": "Error al iniciar sesión",
+    "login-loading": "Validando credenciales...",
+    "login-successful": "Sesión iniciada"
+  },
+  "login-form": {
+    "cancel": "Cancelar",
+    "hide-password": "Ocultar contraseña",
+    "login": "Inicio",
+    "password": "Contraseña",
+    "show-password": "Mostrar contraseña"
+  },
+  "model-table": {
+    "add": "Añadir nuevo {{ modelName }}",
+    "caption": "tabla de datos para {{ modelName }}",
+    "delete": "Eliminar {{ recordId }}",
+    "download-data": "Descargar {{ modelName }} en formato CSV",
+    "download-template": "Descargar plantilla CSV para {{ modelName }}",
+    "edit": "Editar {{ recordId }}",
+    "header-actions": "Acciones",
+    "header-id-tooltip": "Identificador único",
+    "import": "Importar {{ modelName }} desde archivo CSV",
+    "no-data": "No hay datos que mostrar",
+    "pagination-count": "Total",
+    "pagination-first": "Primera página",
+    "pagination-last": "Última página",
+    "pagination-next": "Siguiente página",
+    "pagination-previous": "Página anterior",
+    "pagination-rows": "Registros",
+    "reload": "Recargar",
+    "search-clear": "Limpiar búsqueda",
+    "search-label": "Buscar en {{ modelName }}",
+    "search-label-default": "Escriba su búsqueda",
+    "search-tooltip": "Buscar",
+    "view": "Ver detalles de {{ recordId }}"
+  },
+  "models-layout": {
+    "admin": "Administración",
+    "edit": "Editar",
+    "details": "Detalles",
+    "home": "Inicio",
+    "models": "Modelos",
+    "new": "Nuevo"
+  },
+  "record-fields": {
+    "array-add": "Añadir nuevo campo",
+    "array-delete": "Eliminar campo",
+    "array-unset": "Limpiar campo",
+    "primary-key": "Identificador",
+    "read-only": "Este campo no puede ser modificado",
+    "unset": "Limpiar campo"
+  },
+  "record-form": {
+    "action-delete": "Eliminar registro",
+    "action-exit": "Ver tabla de {{ modelName }}",
+    "action-read": "Ver detalles del registro",
+    "action-reload": "Recargar registro",
+    "action-submit": "Enviar cambios",
+    "action-update": "Editar registro",
+    "completed": "Completados",
+    "create": "Nuevo",
+    "read": "Detalles",
+    "read-only": "El formulario está en modo de solo lectura",
+    "tab-associations": "Asociaciones",
+    "tab-attributes": "Atributos",
+    "update": "Editar",
+    "change-password": "Cambiar contraseña",
+    "new-password": "Nueva contraseña",
+    "cancel-password": "Cancelar",
+    "confirm-password": "Confirmar"
+  },
+  "restricted": {
+    "not-logged-header": "Usuario no identificado",
+    "not-logged-info": "Parece que está intentando acceder a una página restringida sin haber iniciado sesión. Por favor, para poder verificar su identidad, inicie sesión utilizando el botón en la esquina superior izquierda de la pantalla.",
+    "not-allowed-header": "El acceso a esta página esta restringido",
+    "not-allowed-info": "Parece que no tiene suficientes permisos para acceder a esta página. Si cree que esto es un error, por favor contacte con su administrador.",
+    "token-exp-header": "La sesión ha caducado",
+    "token-exp-info": "Parece que la sesión del usuario actual ha caducado. Esta página no funcionará adecuadamente hasta que haya re-validado su identidad. Puede hacerlo utilizando el botón de inicio en la esquina superior izquierda de la pantalla. También puede abandonar la sesión cerrando esta ventana."
+  },
+  "success": {
+    "assoc-update": "Las asociaciones han sido actualizadas correctamente",
+    "csv-import": "Los datos han sido enviados. En breve le enviaremos un informe con el estado de la importación a su correo electrónico.",
+    "new-associated-record": "Tabla recargada muestra nueva {{ modelName }} en la primera fila (tabla fue recargada respectivamente)."
+  },
+  "toolbar": {
+    "change-language": "Cambiar idioma",
+    "login": "Iniciar sesión",
+    "logout": "Cierre de sesión",
+    "models": "Modelos"
+  },
+  "warnings": {
+    "already-associated": "El registro que está editando ya tiene un {{ modelName }} ({{ recordId }}) asociado. {{ recordId }} se disociará automáticamente."
+  }
+}
