@@ -108,7 +108,7 @@ fi
 # 1. Run the integration tests
 # 2. Perform a full cleanup (optionally disabled)
 if [[ $OPT_RUN_TESTS == "true" ]]; then
-  yarn cy:run
+  npm run cy:run
   # 1. Remove docker containers, images, and volumes
   # 2. Remove the testing environment
   if [[ -z $OPT_KEEP_RUNNING ]]; then
@@ -130,9 +130,9 @@ if [[ $OPT_GENCODE_RUNTESTS == "true" ]]; then
   bash "${TEST_DIR}/testenv_generate_code.sh"
   bash "${TEST_DIR}/testenv_sync.sh"
   bash "${TEST_DIR}/testenv_docker_up.sh"
-  # yarn build
-  # yarn start & wait-on http://localhost:8080
-  yarn cy:run
+  # npm run build
+  # npm run start & wait-on http://localhost:8080
+  npm run cy:run
 
   # 1. Remove docker containers, images, and volumes
   # 2. Remove the testing environment
@@ -158,9 +158,9 @@ if [[ $DEFAULT_RUN == "true" ]]; then
   bash "${TEST_DIR}/testenv_sync.sh"
   bash "${TEST_DIR}/testenv_docker_up.sh"
   export ZENDRO_DATA_MODELS="${GRAPHQL_SERVER_1_MODELS}"
-  yarn build
-  yarn start & "${ROOT_DIR}/node_modules/.bin/wait-on" "http://localhost:${SPA_PORT}"
-  yarn cy:run
+  npm run build
+  npm run start & "${ROOT_DIR}/node_modules/.bin/wait-on" "http://localhost:${SPA_PORT}"
+  npm run cy:run
 
   # 1. Remove docker containers, images, and volumes
   # 2. Remove the testing environment

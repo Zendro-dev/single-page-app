@@ -40,34 +40,33 @@ Cypress.Commands.add('dataCy', (value) => {
 // allows the navigation itself but silently drops those cookies, which
 // breaks the login right after the credentials are submitted.
 Cypress.Commands.add('login', () => {
-  const username = Cypress.env('keycloak-username');
-  const password = Cypress.env('keycloak-password');
+  cy.env(['keycloak-username', 'keycloak-password']).then(env => {
+    cy.visit('/');
+    cy.dataCy('login-button').click({ force: true });
 
-  cy.visit('/');
-  cy.dataCy('login-button').click({ force: true });
+    cy.origin('http://localhost:8082', { args: { kcUsername: env["keycloak-username"], kcPassword: env["keycloak-password"]} }, ({ kcUsername, kcPassword }) => {
+      cy.get('#username', { timeout: 10000 }).type(kcUsername);
+      cy.get('#password').type(kcPassword);
+      cy.get('#kc-login').click();
 
-  cy.origin('http://localhost:8082', { args: { username, password } }, ({ username, password }) => {
-    cy.get('#username', { timeout: 10000 }).type(username);
-    cy.get('#password').type(password);
-    cy.get('#kc-login').click();
-
-    // The seeded zendro-admin user has no email/name set, so a fresh realm
-    // requires a one-time VERIFY_PROFILE step on first login - fill it in
-    // if Keycloak asks for it, otherwise this is a no-op.
-    cy.location('pathname', { timeout: 10000 }).then((pathname) => {
-      if (pathname.includes('required-action')) {
-        cy.get('#email').type(`${username}@example.com`);
-        cy.get('#firstName').type('Zendro');
-        cy.get('#lastName').type('Admin');
-        cy.get('input[type=submit], #kc-login').click();
-      }
+      // The seeded zendro-admin user has no email/name set, so a fresh realm
+      // requires a one-time VERIFY_PROFILE step on first login - fill it in
+      // if Keycloak asks for it, otherwise this is a no-op.
+      cy.location('pathname', { timeout: 10000 }).then((pathname) => {
+        if (pathname.includes('required-action')) {
+          cy.get('#email').type(`${kcUsername}@example.com`);
+          cy.get('#firstName').type('Zendro');
+          cy.get('#lastName').type('Admin');
+          cy.get('input[type=submit], #kc-login').click();
+        }
+      });
     });
-  });
 
-  // Back on the SPA's own origin after the redirect chain completes.
-  cy.location('origin', { timeout: 10000 }).should('eq', 'http://localhost:8080');
-  cy.dataCy('login-button').should('be.visible');
-  cy.wait(500);
+    // Back on the SPA's own origin after the redirect chain completes.
+    cy.location('origin', { timeout: 10000 }).should('eq', 'http://localhost:8080');
+    cy.dataCy('login-button').should('be.visible');
+    cy.wait(500);
+  });
 });
 
 // There's no login endpoint to pre-authenticate against anymore - auth is a
