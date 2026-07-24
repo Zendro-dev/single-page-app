@@ -16,7 +16,7 @@ import {
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
-  AddCircleOutline as AddIcon,
+  AddCircleOutlined as AddIcon,
   FilterAltOutlined as FilterIcon,
   Link as LinkIcon,
   LinkOff as LinkOffIcon,

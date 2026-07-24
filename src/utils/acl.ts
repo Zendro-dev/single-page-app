@@ -1,6 +1,6 @@
+import { AclSet } from 'acl';
 import { ParsedPermissions } from '@/types/acl';
 import { AuthPermissions } from '@/types/auth';
-import Acl from 'acl2';
 
 /**
  * Reduce an array of AclSet objects into an array of unique resources.
@@ -10,7 +10,7 @@ import Acl from 'acl2';
  */
 export function aclSetResourceReducer(
   resources: string[],
-  aclSet: Acl.AclSet
+  aclSet: AclSet
 ): string[] {
   const rawResources = aclSet.allows.reduce<string[]>(
     (setResources, allowed) => [...setResources, ...allowed.resources],

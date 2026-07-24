@@ -64,8 +64,10 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
       {/* Translate.menu */}
       <Menu
         id="language-switcher-menu"
-        MenuListProps={{
-          'aria-labelledby': 'language-switcher-button',
+        slotProps={{
+          list: {
+            'aria-labelledby': 'language-switcher-button',
+          },
         }}
         anchorEl={translationAnchorEl}
         className={classes.translationMenu}
@@ -82,7 +84,7 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
             key={translation.lcode}
             onClick={() => handleTranslationMenuItemClick(index)}
           >
-            <Typography variant="inherit" display="block" noWrap={true}>
+            <Typography variant="inherit" noWrap={true} sx={{ display: 'block' }}>
               {translation.language}
             </Typography>
           </MenuItem>

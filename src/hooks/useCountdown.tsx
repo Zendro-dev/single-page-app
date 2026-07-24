@@ -9,7 +9,7 @@ interface UseCountdown {
 }
 
 export default function useCountdown(count = 0): UseCountdown {
-  const timerId = useRef<number>();
+  const timerId = useRef<number | undefined>(undefined);
   const [timer, setTimer] = useState(count);
   const [toggle, setToggle] = useState(false);
 

@@ -20,7 +20,10 @@ export async function getUserPermissions(
   user: string,
   roles: string[]
 ): Promise<AuthPermissions> {
-  const acl = new Acl(new Acl.memoryBackend());
+  // acl2 v4 types `memoryBackend` as returning void, but at runtime it is a
+  // backend constructor, so cast it to the shape the Acl constructor expects.
+  const MemoryBackend = Acl.memoryBackend as unknown as new () => Acl.Backend;
+  const acl = new Acl(new MemoryBackend());
 
   // Server defined ACL rules
   await acl.allow(aclModels);
@@ -31,11 +34,7 @@ export async function getUserPermissions(
   // Resources for which permissions should be retrieved
   const modelResources = aclModels.reduce(aclSetResourceReducer, []);
 
-  // Parse and return the current user permissions
-  return new Promise<AuthPermissions>((resolve, reject) => {
-    acl.allowedPermissions(user, modelResources, (err, permissions) => {
-      if (err) reject(err.message);
-      resolve(permissions);
-    });
-  });
+  // Parse and return the current user permissions (acl2 v4 is promise-based)
+  const permissions = await acl.allowedPermissions(user, modelResources);
+  return permissions as AuthPermissions;
 }

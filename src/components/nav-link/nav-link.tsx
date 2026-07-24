@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import {
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Typography,
@@ -27,7 +27,7 @@ export default function NavLink({
 }: NavLinkProps): React.ReactElement {
   return (
     <Link href={href} passHref>
-      <ListItem className={className ?? ''} component="a" button>
+      <ListItemButton className={className ?? ''} component="a">
         {Icon && (
           <ListItemIcon>
             <Icon />
@@ -36,7 +36,7 @@ export default function NavLink({
         <ListItemText
           primary={<Typography {...textProps}>{text}</Typography>}
         />
-      </ListItem>
+      </ListItemButton>
     </Link>
   );
 }

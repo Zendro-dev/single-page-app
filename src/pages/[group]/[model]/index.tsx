@@ -8,12 +8,12 @@ import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
-  AddCircleOutline as AddIcon,
+  AddCircleOutlined as AddIcon,
   Replay as ReloadIcon,
   Download as ExportIcon,
   SaveAlt as ImportTemplateIcon,
   Upload as ImportIcon,
-  DeleteOutline as DeleteIcon,
+  DeleteOutlined as DeleteIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailsIcon,
 } from '@mui/icons-material';
@@ -45,7 +45,7 @@ import {
   jsonProcessing,
   bulkDownload,
 } from 'zendro-bulk-create';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@e965/xlsx';
 import inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {
@@ -610,7 +610,9 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             )}
 
             <a
-              ref={(ref) => (csvExportAnchor.current = ref)}
+              ref={(ref) => {
+                csvExportAnchor.current = ref;
+              }}
               download={props.model + '.csv'}
             >
               <IconButton
@@ -626,7 +628,9 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             </a>
 
             <a
-              ref={(ref) => (csvTemplateAnchor.current = ref)}
+              ref={(ref) => {
+                csvTemplateAnchor.current = ref;
+              }}
               download={props.model + '.csv'}
             >
               <IconButton

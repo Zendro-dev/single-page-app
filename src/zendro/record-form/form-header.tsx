@@ -45,7 +45,7 @@ export default function FormHeader({
   );
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles<Theme>((theme: Theme) =>
   createStyles({
     legend: {
       // Layout

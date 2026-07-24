@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { getUserPermissions } from '@/utils/auth';
 import { JWT } from 'next-auth/jwt';
 import { ROLES_URL } from '@/config/globals';
-import { Provider } from 'next-auth/providers';
+import { Provider } from 'next-auth/providers/index';
 
 const OAUTH2_ISSUER = String(process.env.OAUTH2_ISSUER ?? '');
 const OAUTH2_TOKEN_URI = String(process.env.OAUTH2_TOKEN_URI ?? '');

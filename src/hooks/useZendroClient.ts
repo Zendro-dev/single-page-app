@@ -1,10 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { GraphQLClient } from 'graphql-request';
-import {
-  ClientError,
-  GraphQLResponse,
-  Variables,
-} from 'graphql-request/dist/types';
+import { ClientError, GraphQLResponse, Variables } from 'graphql-request';
 import { useCallback, useMemo } from 'react';
 
 import { GRAPHQL_URL, METAQUERY_URL } from '@/config/globals';
@@ -80,8 +76,8 @@ export default function useZendroClient(): UseZendroClient {
     [client, metaClient]
   );
 
-  const legacyRequest: LegacyRequest = useCallback(
-    async (query, requestData) => {
+  const legacyRequest = useCallback(
+    async (query: string, requestData: Record<string, string | Blob>) => {
       const formData = new FormData();
 
       formData.append('query', query);
@@ -109,6 +105,8 @@ export default function useZendroClient(): UseZendroClient {
             errors: undefined,
             extensions: undefined,
             status: 500,
+            headers: new Headers(),
+            body: '',
             error: axiosError,
           },
           {
@@ -129,7 +127,7 @@ export default function useZendroClient(): UseZendroClient {
       return response.data.data;
     },
     [session?.accessToken]
-  );
+  ) as LegacyRequest;
 
   return useMemo(
     () => ({ legacyRequest, queries, request }),

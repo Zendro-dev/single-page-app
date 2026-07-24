@@ -42,7 +42,9 @@ export default function TabMenu({
         disabled={links === undefined || links.length === 0}
         id="tab-menu-button"
         onClick={onButtonClick}
-        ref={(ref) => (buttonRef.current = ref)}
+        ref={(ref) => {
+          buttonRef.current = ref;
+        }}
         endIcon={links && links.length > 0 && <ExpandMoreIcon />}
         {...props.ButtonProps}
       >
@@ -56,9 +58,11 @@ export default function TabMenu({
           id="tab-menu"
           onClose={onMenuClose}
           open={open}
-          PaperProps={{
-            style: {
-              width: buttonRef.current?.clientWidth,
+          slotProps={{
+            paper: {
+              style: {
+                width: buttonRef.current?.clientWidth,
+              },
             },
           }}
           {...props.MenuProps}

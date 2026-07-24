@@ -56,37 +56,39 @@ export default function SearchField({
       variant="outlined"
       className={classes.searchField}
       data-cy="model-table-search-field"
-      InputProps={{
-        onKeyDown: searchInputKeyDown,
-        startAdornment: (
-          <InputAdornment position="start">
-            <IconButton
-              size="small"
-              tooltip={t('model-table.search-tooltip')}
-              onClick={searchIconClick}
-              data-cy="model-table-search-button"
-            >
-              <SearchIcon fontSize="small" />
-            </IconButton>
-          </InputAdornment>
-        ),
-        endAdornment: onReset && (
-          <InputAdornment position="end">
-            <IconButton
-              component="span"
-              size="small"
-              tooltip={t('model-table.search-clear')}
-              disabled={!value}
-              onClick={onReset}
-              data-cy="model-table-search-reset"
-            >
-              <ClearIcon
-                color={!value ? 'disabled' : 'secondary'}
-                fontSize="small"
-              />
-            </IconButton>
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          onKeyDown: searchInputKeyDown,
+          startAdornment: (
+            <InputAdornment position="start">
+              <IconButton
+                size="small"
+                tooltip={t('model-table.search-tooltip')}
+                onClick={searchIconClick}
+                data-cy="model-table-search-button"
+              >
+                <SearchIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+          endAdornment: onReset && (
+            <InputAdornment position="end">
+              <IconButton
+                component="span"
+                size="small"
+                tooltip={t('model-table.search-clear')}
+                disabled={!value}
+                onClick={onReset}
+                data-cy="model-table-search-reset"
+              >
+                <ClearIcon
+                  color={!value ? 'disabled' : 'secondary'}
+                  fontSize="small"
+                />
+              </IconButton>
+            </InputAdornment>
+          ),
+        },
       }}
       onChange={(event) => setText(event.target.value)}
     />

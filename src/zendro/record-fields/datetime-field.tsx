@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 import { enUS as en, es, de } from 'date-fns/locale';
 import { Overwrite } from 'utility-types';
-import { InputBaseComponentProps } from '@mui/material';
+import { InputBaseComponentProps, TextFieldProps } from '@mui/material';
 import {
   MobileDateTimePicker,
   LocalizationProvider,
@@ -31,31 +31,36 @@ export default function DateTimePicker({
   const [showAdornment, toggleAdornment] = useReducer((state) => !state, true);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['en']}>
+    <LocalizationProvider
+      dateAdapter={AdapterDateFns}
+      adapterLocale={localeMap['en']}
+    >
       <MobileDateTimePicker
         ampm={false}
-        mask="____/__/__ __:__:__.___"
-        inputFormat="yyyy/MM/dd HH:mm:ss.SSS" //https://date-fns.org/v2.19.0/docs/format
+        format="yyyy/MM/dd HH:mm:ss.SSS" //https://date-fns.org/docs/format
         onChange={handleOnChange}
         disabled={props.disabled}
         onClose={toggleAdornment}
         onOpen={toggleAdornment}
         readOnly={props.readOnly || !onChange}
-        renderInput={(textFieldProps: {
-          inputProps?: Omit<InputBaseComponentProps, 'color'>;
-        }) => {
-          const inputProps = textFieldProps.inputProps;
-          return (
-            <TextInput
-              {...inputProps}
-              {...props}
-              endAdornment={showAdornment ? props.endAdornment : undefined}
-              // readOnly={textFieldProps.InputProps?.readOnly}
-              fullWidth
-            />
-          );
-        }}
         value={value}
+        slots={{
+          textField: (textFieldProps: TextFieldProps) => {
+            const inputProps = (
+              textFieldProps as {
+                inputProps?: Omit<InputBaseComponentProps, 'color'>;
+              }
+            ).inputProps;
+            return (
+              <TextInput
+                {...inputProps}
+                {...props}
+                endAdornment={showAdornment ? props.endAdornment : undefined}
+                fullWidth
+              />
+            );
+          },
+        }}
       />
     </LocalizationProvider>
   );

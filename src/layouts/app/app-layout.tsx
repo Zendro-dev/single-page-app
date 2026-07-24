@@ -121,7 +121,7 @@ export default function ModelsLayout({
   );
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles<Theme>((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',

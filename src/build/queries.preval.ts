@@ -5,14 +5,14 @@ import { format } from 'prettier';
 import { StaticQueries } from '@/types/static';
 import { getStaticQueries } from './queries';
 
-function formatQuery(
+async function formatQuery(
   name: string,
   query: string,
   resolver: string,
   transform?: string,
   assocResolver?: string
-): string {
-  const graphqlQuery = format(query, { parser: 'graphql' });
+): Promise<string> {
+  const graphqlQuery = await format(query, { parser: 'graphql' });
 
   const data = `
         import { gql } from 'graphql-request';
@@ -48,6 +48,7 @@ function formatQuery(
   });
 }
 
+
 async function buildQueries(): Promise<Record<string, StaticQueries>> {
   const modelQueries = await getStaticQueries();
 
@@ -61,7 +62,7 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
      * Model table queries
      */
     for (const { name, query, resolver, transform } of Object.values(queries)) {
-      const formattedQuery = formatQuery(name, query, resolver, transform);
+      const formattedQuery = await formatQuery(name, query, resolver, transform);
       await writeFile(join(modelQueriesDir, name) + '.ts', formattedQuery);
     }
 
@@ -80,7 +81,7 @@ async function buildQueries(): Promise<Record<string, StaticQueries>> {
         transform,
         assocResolver,
       } of Object.values(assocQueries)) {
-        const formattedQuery = formatQuery(
+        const formattedQuery = await formatQuery(
           name,
           query,
           resolver,

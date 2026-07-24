@@ -4,7 +4,7 @@ import {
   Collapse,
   Divider,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   ListProps,
@@ -33,9 +33,8 @@ export default function NavGroup({
   return (
     <List {...props} disablePadding>
       <Divider />
-      <ListItem
+      <ListItemButton
         component="button"
-        button
         onClick={() => setShowGroup((state) => !state)}
       >
         {Icon && (
@@ -44,10 +43,12 @@ export default function NavGroup({
           </ListItemIcon>
         )}
         <ListItemText
-          primary={<Typography fontWeight="bold">{label}</Typography>}
+          primary={
+            <Typography sx={{ fontWeight: 'bold' }}>{label}</Typography>
+          }
         />
         {children && (showGroup ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
-      </ListItem>
+      </ListItemButton>
       <Collapse in={showGroup} timeout="auto" unmountOnExit>
         <List disablePadding>{children}</List>
       </Collapse>
