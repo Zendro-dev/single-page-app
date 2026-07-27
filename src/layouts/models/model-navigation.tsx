@@ -103,6 +103,12 @@ const useStyles = makeStyles((theme: Theme) => {
     homeLink: {
       display: 'flex',
       alignItems: 'center',
+      // MUI's ListItemButton sets flex-grow: 1 by default (for filling a
+      // horizontal ListItem's width) - unopposed here since this class
+      // never set flexGrow itself, that stretched this item to fill all
+      // free space in the nav's flex-direction: column layout instead,
+      // dwarfing the intended fixed height below.
+      flexGrow: 0,
       height: theme.spacing(14),
       padding: theme.spacing(3, 4),
       '& p': {
