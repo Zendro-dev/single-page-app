@@ -17,6 +17,11 @@ export function hasValues(x: unknown[] | Record<string, unknown>): boolean {
  */
 export function isNullorEmpty(x: unknown): boolean {
   if (isNullorUndefined(x)) return true;
+  // A Date has no enumerable own keys regardless of its value (its time is
+  // stored in an internal slot, not a property) - Object.keys(x).length===0
+  // below would always be true for one, so every valid DateTime field value
+  // would count as "empty". Only an invalid Date should count as empty.
+  if (x instanceof Date) return isNaN(x.getTime());
   if (isObject(x)) return Object.keys(x).length === 0;
   if (Array.isArray(x)) return x.length === 0;
   return false;
