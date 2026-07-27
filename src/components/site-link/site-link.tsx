@@ -26,20 +26,24 @@ const SiteLink = (
   }: SiteLinkProps,
   ref: Ref<LinkRef>
 ): ReactElement => (
-  <NextLink
+  // next/link's Link renders its own <a> directly (no more passHref +
+  // manual-child-<a> pattern) - delegating MuiLink's own root rendering to
+  // it via `component` keeps this to a single <a>, instead of nesting one
+  // inside the other and triggering a hydration error.
+  <MuiLink
+    ref={ref}
+    component={NextLink}
     as={as}
     href={href}
     locale={locale}
-    passHref
     prefetch={prefetch}
     replace={replace}
     scroll={scroll}
     shallow={shallow}
+    {...muiLinkProps}
   >
-    <MuiLink ref={ref} {...muiLinkProps}>
-      {children}
-    </MuiLink>
-  </NextLink>
+    {children}
+  </MuiLink>
 );
 
 export default React.forwardRef<LinkRef, SiteLinkProps>(SiteLink);

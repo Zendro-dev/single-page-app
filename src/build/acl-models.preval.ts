@@ -1,10 +1,13 @@
-import { AclSet } from 'acl';
 import preval from 'next-plugin-preval';
 import { mkdir, stat, writeFile } from 'fs/promises';
 import { parse } from 'path';
 import { getStaticModels } from './models';
+import { AclPermission, AclRuleSet } from '@/types/acl';
 
-const defaultRoles = [
+const defaultRoles: {
+  roles: string;
+  permissions: AclPermission | AclPermission[];
+}[] = [
   {
     roles: 'administrator',
     permissions: '*',
@@ -19,7 +22,7 @@ const defaultRoles = [
   },
 ];
 
-async function buildModelsAclRules(): Promise<AclSet[]> {
+async function buildModelsAclRules(): Promise<AclRuleSet[]> {
   const rulesFile = 'acl-models.json';
   const customPath = process.cwd() + `/src/custom/${rulesFile}`;
   const overridePath = process.cwd() + `/src/${rulesFile}`;
@@ -31,7 +34,7 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
 
   const modelResources = modelPaths.models.map((file) => parse(file).name);
 
-  let aclRules: AclSet[] = defaultRoles.map(({ roles, permissions }) => ({
+  let aclRules: AclRuleSet[] = defaultRoles.map(({ roles, permissions }) => ({
     roles,
     allows: [
       {
@@ -49,7 +52,7 @@ async function buildModelsAclRules(): Promise<AclSet[]> {
    */
   try {
     await stat(overridePath);
-    aclRules = require(overridePath);
+    aclRules = (await import(overridePath, { with: { type: 'json' } })).default;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }

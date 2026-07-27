@@ -16,7 +16,7 @@ import {
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
-  AddCircleOutline as AddIcon,
+  AddCircleOutlined as AddIcon,
   FilterAltOutlined as FilterIcon,
   Link as LinkIcon,
   LinkOff as LinkOffIcon,
@@ -554,8 +554,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
         props.request === 'details'
           ? 'read'
           : props.request === 'edit'
-          ? 'update'
-          : 'create'
+            ? 'update'
+            : 'create'
       }
     >
       <NavTabs
@@ -693,8 +693,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                 sortDirection: !state?.sortDirection
                   ? 'ASC'
                   : state.sortDirection === 'ASC'
-                  ? 'DESC'
-                  : 'ASC',
+                    ? 'DESC'
+                    : 'ASC',
               }))
             }
             activeOrder={order?.sortField ?? targetModel.primaryKey}
@@ -735,8 +735,8 @@ const Association: PageWithLayout<AssociationUrlQuery> = (props) => {
                               ? t('associations.mark-to-disassociate')
                               : t('associations.click-to-disassociate')
                             : isSelected
-                            ? t('associations.mark-to-associate')
-                            : t('associations.click-to-associate')
+                              ? t('associations.mark-to-associate')
+                              : t('associations.click-to-associate')
                         }
                         onClick={() =>
                           handleOnMarkForAssociationClick(

@@ -61,8 +61,8 @@ export default function RecordsTablePagination({
       position === 'next'
         ? endCursor
         : position === 'previous'
-        ? startCursor
-        : null;
+          ? startCursor
+          : null;
 
     props.onPageChange(position, cursor);
   };
@@ -73,7 +73,7 @@ export default function RecordsTablePagination({
   };
 
   return (
-    <Box display="flex" className={classes.pagination}>
+    <Box sx={{ display: 'flex' }} className={classes.pagination}>
       <FormControl className={classes.paginationLimit}>
         <FormHelperText>{t('model-table.pagination-rows')}</FormHelperText>
         <Select

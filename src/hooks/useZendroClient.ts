@@ -1,10 +1,10 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { GraphQLClient } from 'graphql-request';
 import {
   ClientError,
+  GraphQLClient,
   GraphQLResponse,
   Variables,
-} from 'graphql-request/dist/types';
+} from 'graphql-request';
 import { useCallback, useMemo } from 'react';
 
 import { GRAPHQL_URL, METAQUERY_URL } from '@/config/globals';
@@ -81,7 +81,10 @@ export default function useZendroClient(): UseZendroClient {
   );
 
   const legacyRequest: LegacyRequest = useCallback(
-    async (query, requestData) => {
+    async <T = unknown>(
+      query: string,
+      requestData: Record<string, string | Blob>
+    ): Promise<T> => {
       const formData = new FormData();
 
       formData.append('query', query);
@@ -109,6 +112,8 @@ export default function useZendroClient(): UseZendroClient {
             errors: undefined,
             extensions: undefined,
             status: 500,
+            headers: new Headers(),
+            body: '',
             error: axiosError,
           },
           {
@@ -126,9 +131,12 @@ export default function useZendroClient(): UseZendroClient {
         }) as ExtendedClientError;
       }
 
-      return response.data.data;
+      return response.data.data as T;
     },
-    [session?.accessToken]
+    // The compiler can't prove `session?.accessToken` alone is a sufficient
+    // dependency here (its static analysis infers a dependency on all of
+    // `session`), so the array is widened to match what it can verify.
+    [session]
   );
 
   return useMemo(

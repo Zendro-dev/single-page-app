@@ -80,8 +80,8 @@ export default function ConfirmationDialog({
             okColor === 'primary'
               ? classes.titleBackgroundPrimary
               : okColor === 'secondary'
-              ? classes.titleBackgroundSecondary
-              : classes.titleBackgroundPrimary
+                ? classes.titleBackgroundSecondary
+                : classes.titleBackgroundPrimary
           }
         >
           {title}

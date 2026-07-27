@@ -1,5 +1,5 @@
 import { AuthToken } from '@/types/auth';
-import decode from 'jwt-decode';
+import { jwtDecode as decode } from 'jwt-decode';
 
 describe('Login form', () => {
   after('Logout', () => {

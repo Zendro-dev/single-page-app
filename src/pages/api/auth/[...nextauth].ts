@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { getUserPermissions } from '@/utils/auth';
 import { JWT } from 'next-auth/jwt';
 import { ROLES_URL } from '@/config/globals';
-import { Provider } from 'next-auth/providers';
+import { OAuthConfig } from 'next-auth/providers/oauth';
 
 const OAUTH2_ISSUER = String(process.env.OAUTH2_ISSUER ?? '');
 const OAUTH2_TOKEN_URI = String(process.env.OAUTH2_TOKEN_URI ?? '');
@@ -85,7 +85,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 // your provider. See
 // https://next-auth.js.org/configuration/providers/oauth#using-a-custom-provider
 // for more info and in case your provider needs some more configuration.
-const defaultProvider: Provider =
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const defaultProvider: OAuthConfig<any> =
   !OAUTH2_ISSUER && OAUTH2_AUTH_URI
     ? {
         id: 'zendro',

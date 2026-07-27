@@ -9,7 +9,7 @@ interface UseCountdown {
 }
 
 export default function useCountdown(count = 0): UseCountdown {
-  const timerId = useRef<number>();
+  const timerId = useRef<number | undefined>(undefined);
   const [timer, setTimer] = useState(count);
   const [toggle, setToggle] = useState(false);
 
@@ -26,11 +26,12 @@ export default function useCountdown(count = 0): UseCountdown {
     [toggle]
   );
 
+  const clearTimer = (): void => clearInterval(timerId.current);
+
   useEffect(() => {
     if (timer === 0) clearTimer();
   });
 
-  const clearTimer = (): void => clearInterval(timerId.current);
   const startTimer = useCallback((): void => setToggle(true), []);
   const stopTimer = useCallback((): void => setToggle(false), []);
   const resetTimer = useCallback((): void => {

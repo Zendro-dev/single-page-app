@@ -44,22 +44,22 @@ export default function useSearch({
             operator: 'in',
           }
         : associationFilter === 'records-to-remove' && selectedRecords
-        ? {
-            field: primaryKey,
-            value: selectedRecords.toRemove.toString(),
-            valueType: 'Array',
-            operator: 'in',
-          }
-        : undefined;
+          ? {
+              field: primaryKey,
+              value: selectedRecords.toRemove.toString(),
+              valueType: 'Array',
+              operator: 'in',
+            }
+          : undefined;
 
     const newSearch: QueryVariableSearch | undefined =
       fieldSearch && filterSearch
         ? { operator: 'and', search: [fieldSearch, filterSearch] }
         : fieldSearch
-        ? fieldSearch
-        : filterSearch
-        ? filterSearch
-        : undefined;
+          ? fieldSearch
+          : filterSearch
+            ? filterSearch
+            : undefined;
     return newSearch;
   }, [
     associationFilter,

@@ -1,4 +1,4 @@
-import { Color as MuiColor } from '@mui/material';
+import { Color as MuiColor } from '@mui/material/styles';
 
 type Colors = Record<
   'blue' | 'red' | 'yellow',
@@ -22,11 +22,10 @@ declare module '@mui/material/styles' {
     contrastText: string;
   }
 
-  interface PaletteColorOptions {
+  // PaletteColorOptions itself is a type alias (SimplePaletteColorOptions |
+  // ColorPartial) as of MUI v6+, not an interface - declaration merging only
+  // works on the interface it resolves to, so augment that instead.
+  interface SimplePaletteColorOptions {
     background?: string;
-    light?: string;
-    main: string;
-    dark?: string;
-    contrastText?: string;
   }
 }

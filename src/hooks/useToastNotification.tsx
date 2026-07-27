@@ -19,7 +19,7 @@ export default function useToastNotification(): UseToastNotification {
     (message, variant, details): void => {
       enqueueSnackbar(message, {
         preventDuplicate: true,
-        // eslint-disable-next-line react/display-name
+
         content: (key) => (
           <ToastAlert
             id={key}

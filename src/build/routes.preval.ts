@@ -14,7 +14,7 @@ async function buildRoutes(): Promise<AppRoutes> {
 
   try {
     await stat(overridePath);
-    routes = require(overridePath);
+    routes = (await import(overridePath, { with: { type: 'json' } })).default;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }

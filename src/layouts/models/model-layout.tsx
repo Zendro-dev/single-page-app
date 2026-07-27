@@ -37,12 +37,16 @@ export default function ModelLayout(
   const theme = useTheme<Theme>();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  useEffect(
-    function showNavInLargeScreen() {
-      if (isLargeScreen) setShowNav(true);
-    },
-    [isLargeScreen, setShowNav]
-  );
+  // Force the nav open when switching to a large screen, without
+  // resyncing on every render an effect would need to guard against:
+  // React handles a setState call during render (when a tracked value
+  // actually changed since the last render) as a single extra render pass
+  // rather than a commit-then-effect-then-recommit cascade.
+  const [prevIsLargeScreen, setPrevIsLargeScreen] = useState(isLargeScreen);
+  if (isLargeScreen !== prevIsLargeScreen) {
+    setPrevIsLargeScreen(isLargeScreen);
+    if (isLargeScreen) setShowNav(true);
+  }
 
   useEffect(
     function hideNavOnRouteChange() {

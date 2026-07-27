@@ -1,7 +1,6 @@
 import { ErrorObject } from 'ajv';
 import { GraphQLFormattedError } from 'graphql';
-import { ClientError } from 'graphql-request';
-import { GraphQLResponse } from 'graphql-request/dist/types';
+import { ClientError, GraphQLResponse } from 'graphql-request';
 
 type GraphQLRequest = ClientError['request'];
 // type GraphQLResponse = ClientError['response'];

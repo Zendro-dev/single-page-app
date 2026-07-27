@@ -42,8 +42,7 @@ export default function BoolField({
      * Source: https://next.material-ui.com/api/checkbox/
      */
     const indeterminate = event.target.getAttribute('data-indeterminate') as
-      | 'true'
-      | 'false';
+      'true' | 'false';
 
     if (checked && indeterminate === 'false') {
       if (onChange) {

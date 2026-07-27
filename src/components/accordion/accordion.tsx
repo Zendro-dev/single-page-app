@@ -24,13 +24,13 @@ export default function Accordion(
 
   return (
     <Box className={classes.root}>
-      <Box display="flex" alignItems="center">
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton className={classes.iconButton} onClick={handleOnToggle}>
           {open ? <CollapseIcon /> : <ExpandIcon />}
         </IconButton>
 
-        <Box padding={4} width="100%">
-          <Typography component="p" fontSize={15} fontWeight="bold">
+        <Box sx={{ padding: 4, width: '100%' }}>
+          <Typography component="p" sx={{ fontSize: 15, fontWeight: 'bold' }}>
             {props.label.toUpperCase()}
           </Typography>
           {props.text && (

@@ -291,8 +291,8 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
         props.request === 'details'
           ? 'read'
           : props.request === 'edit'
-          ? 'update'
-          : 'create'
+            ? 'update'
+            : 'create'
       }
     >
       <NavTabs
@@ -333,8 +333,8 @@ const Record: PageWithLayout<RecordUrlQuery> = (props) => {
           props.request === 'details'
             ? 'read'
             : props.request === 'edit'
-            ? 'update'
-            : 'create'
+              ? 'update'
+              : 'create'
         }
         modelName={props.model}
         actions={{

@@ -41,10 +41,9 @@ export default function TableHeader({
           >
             <Typography
               color="inherit"
-              display="inline"
+              sx={{ display: 'inline', width: '9rem' }}
               noWrap
               variant="caption"
-              width="9rem"
             >
               {t('model-table.header-actions')}
             </Typography>

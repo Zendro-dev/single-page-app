@@ -8,12 +8,12 @@ import { TableCell as MuiTableCell, TableContainer } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import { createStyles, makeStyles } from '@mui/styles';
 import {
-  AddCircleOutline as AddIcon,
+  AddCircleOutlined as AddIcon,
   Replay as ReloadIcon,
   Download as ExportIcon,
   SaveAlt as ImportTemplateIcon,
   Upload as ImportIcon,
-  DeleteOutline as DeleteIcon,
+  DeleteOutlined as DeleteIcon,
   Edit as EditIcon,
   VisibilityTwoTone as DetailsIcon,
 } from '@mui/icons-material';
@@ -66,6 +66,23 @@ import {
 export interface ModelProps {
   group: string;
   model: string;
+}
+
+// The shape of one per-record entry in a bulk-add/update error response
+// (AJV validation errors nested under GraphQL extensions), as accessed by
+// showErrorTable below - genuinely dynamic server-provided data, so leaf
+// values that are only ever displayed (not further destructured) stay
+// `unknown` rather than a fully-modeled type.
+interface RecordErrorInfo {
+  subquery: string;
+  errors: {
+    message?: string;
+    errors?: unknown;
+    extensions?: {
+      validationErrors?: { instancePath: string }[];
+      input?: Record<string, unknown>;
+    };
+  };
 }
 
 export const getStaticPaths: GetStaticPaths<ModelUrlQuery> = async () => {
@@ -341,10 +358,11 @@ const Model: PageWithLayout<ModelProps> = (props) => {
   };
 
   const showErrorTable = (
-    data_model_definition: Record<string, any>,
-    error: Record<string, Record<string, any>>
+    data_model_definition: Record<string, unknown>,
+    error: Record<string, RecordErrorInfo>
   ): void => {
-    const internalID = data_model_definition['internalId'];
+    const internalID = data_model_definition['internalId'] as
+      string | undefined;
     const header = [
       'record_number',
       ...(internalID ? [internalID] : []),
@@ -357,7 +375,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         ? info.errors.extensions.validationErrors
           ? new Set(
               info.errors.extensions.validationErrors.map(
-                (obj: Record<string, any>) => obj.instancePath.slice(1)
+                (obj: { instancePath: string }) => obj.instancePath.slice(1)
               )
             )
           : undefined
@@ -398,7 +416,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                   message: info.errors.message,
                   extensions: info.errors.extensions,
                 }
-            : info.errors.errors ?? info
+            : (info.errors.errors ?? info)
         ),
       ];
       rows.push(row);
@@ -486,11 +504,12 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     { records: TableRecord[]; pageInfo: PageInfo } | undefined
   >(
     [tableSearch, tableOrder, tablePagination, zendro],
-    async (
-      tableSearch: QueryVariableSearch,
-      tableOrder: QueryVariableOrder,
-      tablePagination: QueryVariablePagination
-    ) => {
+    async ([tableSearch, tableOrder, tablePagination]: [
+      QueryVariableSearch,
+      QueryVariableOrder,
+      QueryVariablePagination,
+      typeof zendro
+    ]) => {
       const { query, transform } = zendro.queries[props.model].readAll;
       const variables: QueryVariables = {
         search: tableSearch,
@@ -533,7 +552,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
     ExtendedClientError<Record<'count', number>> | Error
   >(
     [tableSearch, zendro],
-    (tableSearch: QueryVariableSearch) => {
+    ([tableSearch]: [QueryVariableSearch, typeof zendro]) => {
       const { query, transform } = zendro.queries[props.model].countAll;
       const variables: QueryVariables = { search: tableSearch };
 
@@ -610,7 +629,9 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             )}
 
             <a
-              ref={(ref) => (csvExportAnchor.current = ref)}
+              ref={(ref) => {
+                csvExportAnchor.current = ref;
+              }}
               download={props.model + '.csv'}
             >
               <IconButton
@@ -626,7 +647,9 @@ const Model: PageWithLayout<ModelProps> = (props) => {
             </a>
 
             <a
-              ref={(ref) => (csvTemplateAnchor.current = ref)}
+              ref={(ref) => {
+                csvTemplateAnchor.current = ref;
+              }}
               download={props.model + '.csv'}
             >
               <IconButton
@@ -663,8 +686,8 @@ const Model: PageWithLayout<ModelProps> = (props) => {
                 sortDirection: !state?.sortDirection
                   ? 'ASC'
                   : state.sortDirection === 'ASC'
-                  ? 'DESC'
-                  : 'ASC',
+                    ? 'DESC'
+                    : 'ASC',
               }))
             }
             activeOrder={order?.sortField ?? model.primaryKey}

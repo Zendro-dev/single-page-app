@@ -1,7 +1,7 @@
 import { resources } from '.';
 
 declare module 'react-i18next' {
-  type DefaultResources = typeof resources['en'];
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  type DefaultResources = (typeof resources)['en'];
+
   interface Resources extends DefaultResources {}
 }

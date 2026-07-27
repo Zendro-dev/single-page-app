@@ -49,11 +49,11 @@ export default function TableColumn({
             <Icon fontSize="small" color="disabled" className={classes.icon} />
           </Tooltip>
         )}
-        <Box display="inline">
+        <Box sx={{ display: 'inline' }}>
           <Typography
             color="inherit"
             variant="caption"
-            display="inline"
+            sx={{ display: 'inline' }}
             noWrap={true}
           >
             {label}

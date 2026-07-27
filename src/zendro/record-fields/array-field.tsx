@@ -57,8 +57,13 @@ export default function ArrayField({
     (v: AttributeScalarValue | AttributeArrayValue): void => {
       const scalarValue = v as AttributeScalarValue;
       if (onChange && arrayValue) {
-        arrayValue[index] = scalarValue;
-        onChange(arrayValue);
+        const nextValue = [...arrayValue];
+        nextValue[index] = scalarValue;
+        // Spreading a union of homogeneous array types (AttributeArrayValue)
+        // widens to an array of the union of element types - the value
+        // itself stays homogeneous at runtime, TypeScript just can't prove
+        // it through the spread.
+        onChange(nextValue as AttributeArrayValue);
       }
     };
 
@@ -66,25 +71,29 @@ export default function ArrayField({
     (index: number) =>
     (event: React.MouseEvent<HTMLButtonElement>): void => {
       event.preventDefault();
-      arrayValue
-        ? arrayValue.splice(index + 1, 0, null)
-        : (arrayValue = [null]);
-      if (onChange) {
-        onChange(arrayValue);
+      if (!onChange) return;
+      if (arrayValue) {
+        const nextValue = [...arrayValue];
+        nextValue.splice(index + 1, 0, null);
+        onChange(nextValue as AttributeArrayValue);
+      } else {
+        onChange([null]);
       }
     };
 
   const handleOnClear = (index: number): void => {
     if (arrayValue && onChange && !props.readOnly) {
-      arrayValue[index] = null;
-      onChange(arrayValue);
+      const nextValue = [...arrayValue];
+      nextValue[index] = null;
+      onChange(nextValue as AttributeArrayValue);
     }
   };
 
   const deleteItem = (index: number): void => {
     if (arrayValue && onChange && !props.readOnly) {
-      arrayValue.splice(index, 1);
-      onChange(arrayValue);
+      const nextValue = [...arrayValue];
+      nextValue.splice(index, 1);
+      onChange(nextValue as AttributeArrayValue);
     }
   };
 

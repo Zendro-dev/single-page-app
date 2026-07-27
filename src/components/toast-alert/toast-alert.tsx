@@ -70,7 +70,7 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
       <SnackbarContent ref={ref} className={classes.root}>
         <Card className={backgroundColor}>
           <CardActions classes={{ root: classes.actionRoot }}>
-            <Box display="flex" alignItems="center">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {!!details && (
                 <IconButton
                   aria-label="Show more"
@@ -83,7 +83,7 @@ const toast = forwardRef<HTMLDivElement, AlertToastProps>(
                 </IconButton>
               )}
               <Typography
-                fontWeight="bold"
+                sx={{ fontWeight: 'bold' }}
                 className={textColor}
                 component="span"
               >

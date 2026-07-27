@@ -22,15 +22,22 @@ export default function TabMenu({
   links,
   ...props
 }: TabMenuProps): React.ReactElement {
-  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
-  const [open, setOpen] = React.useState(false);
+  // The anchor element is only ever needed once the button has actually
+  // been clicked, so it's captured from the click event itself (into
+  // state, causing a real re-render) rather than read from a ref during
+  // render - reading ref.current while rendering can be stale/inconsistent
+  // with what's on screen.
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+  const open = Boolean(anchorEl);
 
-  const onButtonClick = (): void => {
-    setOpen(true);
+  const onButtonClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
   const onMenuClose = (): void => {
-    setOpen(false);
+    setAnchorEl(null);
   };
 
   return (
@@ -42,7 +49,6 @@ export default function TabMenu({
         disabled={links === undefined || links.length === 0}
         id="tab-menu-button"
         onClick={onButtonClick}
-        ref={(ref) => (buttonRef.current = ref)}
         endIcon={links && links.length > 0 && <ExpandMoreIcon />}
         {...props.ButtonProps}
       >
@@ -51,14 +57,16 @@ export default function TabMenu({
 
       {links && (
         <Menu
-          anchorEl={buttonRef.current}
+          anchorEl={anchorEl}
           aria-labelledby={props.ButtonProps?.id ?? 'tab-menu-button'}
           id="tab-menu"
           onClose={onMenuClose}
           open={open}
-          PaperProps={{
-            style: {
-              width: buttonRef.current?.clientWidth,
+          slotProps={{
+            paper: {
+              style: {
+                width: anchorEl?.clientWidth,
+              },
             },
           }}
           {...props.MenuProps}

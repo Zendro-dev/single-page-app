@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import React, { PropsWithChildren, ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Divider } from '@mui/material';
@@ -36,6 +36,10 @@ export default function Models({
   const classes = useStyles();
   const router = useRouter();
   const { t } = useTranslation();
+  // Date.now() is impure (its result depends on more than this render's
+  // props/state) and can't be called directly during render - a lazy
+  // initializer runs it once, giving a stable value for this render pass.
+  const [now] = useState(() => Date.now());
 
   const route = parseRoute(router.asPath);
   const crumbs: Breadcrumb[] = route.path
@@ -50,18 +54,18 @@ export default function Models({
           index === 1 // model
             ? `/${chunks[0]}/${chunk}`
             : index === 3 // association
-            ? router.asPath
-            : undefined,
+              ? router.asPath
+              : undefined,
         icon:
           chunk === 'models'
             ? ModelIcon
             : chunk === 'details'
-            ? DetailsIcon
-            : chunk === 'edit'
-            ? EditIcon
-            : chunk === 'new'
-            ? NewIcon
-            : undefined,
+              ? DetailsIcon
+              : chunk === 'edit'
+                ? EditIcon
+                : chunk === 'new'
+                  ? NewIcon
+                  : undefined,
       };
       return crumb;
     });
@@ -115,7 +119,7 @@ export default function Models({
             type="info"
           />
         ) : session.accessTokenExpires !== undefined &&
-          Date.now() > session.accessTokenExpires ? (
+          now > session.accessTokenExpires ? (
           <AlertCard
             title={t('restricted.token-exp-header')}
             body={t('restricted.token-exp-info')}

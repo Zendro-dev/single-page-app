@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -8,16 +8,22 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "downlevelIteration": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    // TypeScript's own compiler doesn't need baseUrl for path mapping
+    // anymore (hence the ignoreDeprecations below), but next-plugin-preval
+    // resolves `@/*` at runtime via the separate `tsconfig-paths` package,
+    // which specifically requires baseUrl to compute its absoluteBaseUrl -
+    // without it, preval's path resolution silently falls back to a
+    // different resolver that doesn't know about this project's aliases.
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [

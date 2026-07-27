@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import {
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Typography,
@@ -25,18 +25,18 @@ export default function NavLink({
   text,
   textProps,
 }: NavLinkProps): React.ReactElement {
+  // next/link's Link renders its own <a> directly (no more passHref +
+  // manual-child-<a> pattern) - delegating ListItemButton's own root
+  // rendering to it via `component` keeps this to a single <a>, instead of
+  // nesting one inside the other and triggering a hydration error.
   return (
-    <Link href={href} passHref>
-      <ListItem className={className ?? ''} component="a" button>
-        {Icon && (
-          <ListItemIcon>
-            <Icon />
-          </ListItemIcon>
-        )}
-        <ListItemText
-          primary={<Typography {...textProps}>{text}</Typography>}
-        />
-      </ListItem>
-    </Link>
+    <ListItemButton className={className ?? ''} component={Link} href={href}>
+      {Icon && (
+        <ListItemIcon>
+          <Icon />
+        </ListItemIcon>
+      )}
+      <ListItemText primary={<Typography {...textProps}>{text}</Typography>} />
+    </ListItemButton>
   );
 }

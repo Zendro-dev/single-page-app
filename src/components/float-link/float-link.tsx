@@ -1,4 +1,4 @@
-import { forwardRef, ReactElement } from 'react';
+import { forwardRef, ReactElement, Ref } from 'react';
 import Link from 'next/link';
 import FloatButton, { FloatButtonProps } from '@/components/float-button';
 
@@ -6,23 +6,20 @@ export interface FloatLinkProps extends Omit<FloatButtonProps, 'ref'> {
   href: string;
 }
 
-const FabLinkRef = forwardRef<HTMLAnchorElement, FloatButtonProps>(
-  function FabLink({ href, ...props }, ref) {
-    return (
-      <a href={href} ref={ref}>
-        <FloatButton {...props} />
-      </a>
-    );
-  }
-);
-
-export default function FabLink({
-  href,
-  ...props
-}: FloatLinkProps): ReactElement {
+// next/link's Link renders its own <a> directly (no more passHref +
+// manual-child-<a> pattern) - delegating FloatButton's own root rendering
+// to it via `component` keeps this to a single <a>, instead of nesting a
+// manually-rendered <a> inside Link's own and triggering a hydration error.
+export default forwardRef<HTMLAnchorElement, FloatLinkProps>(function FabLink(
+  { href, ...props },
+  ref
+): ReactElement {
   return (
-    <Link href={href} passHref>
-      <FabLinkRef {...props} />
-    </Link>
+    <FloatButton
+      ref={ref as Ref<HTMLButtonElement>}
+      component={Link}
+      href={href}
+      {...props}
+    />
   );
-}
+});

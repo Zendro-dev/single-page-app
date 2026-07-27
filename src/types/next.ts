@@ -1,8 +1,9 @@
 import { GetStaticPropsContext, GetStaticPropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 
-export interface NextStaticPropsContext<Q extends ParsedUrlQuery>
-  extends GetStaticPropsContext<Q> {
+export interface NextStaticPropsContext<
+  Q extends ParsedUrlQuery,
+> extends GetStaticPropsContext<Q> {
   params: Q;
 }
 

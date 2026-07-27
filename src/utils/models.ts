@@ -160,23 +160,25 @@ export function parseAttributes(
   }
 
   // Sort or unshift the id attribute
-  model.internalId
-    ? attributes.splice(
-        0,
-        0,
-        attributes.splice(
-          attributes.findIndex((attr) => {
-            return attr.name === model.internalId;
-          }),
-          1
-        )[0]
-      )
-    : attributes.unshift({
-        name: 'id',
-        type: 'Int',
-        primaryKey: true,
-        automaticId: true,
-      });
+  if (model.internalId) {
+    attributes.splice(
+      0,
+      0,
+      attributes.splice(
+        attributes.findIndex((attr) => {
+          return attr.name === model.internalId;
+        }),
+        1
+      )[0]
+    );
+  } else {
+    attributes.unshift({
+      name: 'id',
+      type: 'Int',
+      primaryKey: true,
+      automaticId: true,
+    });
+  }
 
   return attributes;
 }

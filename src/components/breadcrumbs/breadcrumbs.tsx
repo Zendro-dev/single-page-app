@@ -37,16 +37,20 @@ export default function Breadcrumbs(
     >
       {props.crumbs.map(({ href, icon: Icon, text }) =>
         href ? (
-          <NextLink key={text} href={href} passHref>
-            <MuiLink
-              className={clsx(classes.crumb, classes.link)}
-              underline="none"
-              color="inherit"
-            >
-              {Icon && <Icon className={classes.icon} fontSize="inherit" />}
-              <span>{text}</span>
-            </MuiLink>
-          </NextLink>
+          // next/link's Link renders its own <a> directly (no more passHref
+          // + manual-child-<a> pattern) - delegating MuiLink's own root
+          // rendering to it via `component` keeps this to a single <a>.
+          <MuiLink
+            key={text}
+            component={NextLink}
+            href={href}
+            className={clsx(classes.crumb, classes.link)}
+            underline="none"
+            color="inherit"
+          >
+            {Icon && <Icon className={classes.icon} fontSize="inherit" />}
+            <span>{text}</span>
+          </MuiLink>
         ) : (
           <Typography key={text} className={classes.crumb} color="inherit">
             {Icon && <Icon className={classes.icon} fontSize="inherit" />}

@@ -4,19 +4,10 @@ import { Assign } from 'utility-types';
 import { ParsedPermissions } from './acl';
 
 export type AttributeScalarType =
-  | 'Boolean'
-  | 'DateTime'
-  | 'Float'
-  | 'Int'
-  | 'String'
-  | 'Array';
+  'Boolean' | 'DateTime' | 'Float' | 'Int' | 'String' | 'Array';
 
 export type AttributeArrayType =
-  | '[Boolean]'
-  | '[DateTime]'
-  | '[Float]'
-  | '[Int]'
-  | '[String]';
+  '[Boolean]' | '[DateTime]' | '[Float]' | '[Int]' | '[String]';
 
 export type StorageType =
   | 'sql'
@@ -57,12 +48,7 @@ export type AttributeValue = AttributeScalarValue | AttributeArrayValue;
 export type AttributeScalarValue = boolean | Date | number | string | null;
 
 export type AttributeArrayValue =
-  | boolean[]
-  | Date[]
-  | number[]
-  | string[]
-  | null[]
-  | null;
+  boolean[] | Date[] | number[] | string[] | null[] | null;
 
 export type spaSearchOperator = 'like' | 'iLike';
 
@@ -81,10 +67,7 @@ export interface DataRecord {
 /* ASSOCIATIONS */
 
 export type AssociationType =
-  | 'one_to_one'
-  | 'many_to_one'
-  | 'one_to_many'
-  | 'many_to_many';
+  'one_to_one' | 'many_to_one' | 'one_to_many' | 'many_to_many';
 
 export type ImplementationType = 'foreignkeys' | 'generic' | 'sql_cross_table';
 

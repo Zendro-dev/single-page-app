@@ -17,12 +17,12 @@ import { Session } from 'next-auth';
 import { BASEPATH } from '@/config/globals';
 interface ZendroProps extends AppProps {
   Component: PageWithLayout;
-  pageProps: { session?: Session };
+  pageProps: { session?: Session; key?: string };
 }
 
 function Zendro({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps: { session, key, ...pageProps },
 }: ZendroProps): ReactElement {
   const Layout = Component.layout;
   const withLayout = Component.withLayout;
@@ -46,13 +46,13 @@ function Zendro({
         >
           <DialogProvider>
             {withLayout ? (
-              withLayout(<Component {...pageProps} />)
+              withLayout(<Component key={key} {...pageProps} />)
             ) : Layout ? (
               <Layout brand="Zendro">
-                <Component {...pageProps} />
+                <Component key={key} {...pageProps} />
               </Layout>
             ) : (
-              <Component {...pageProps} />
+              <Component key={key} {...pageProps} />
             )}
           </DialogProvider>
         </SnackbarProvider>

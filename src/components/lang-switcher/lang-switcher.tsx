@@ -1,4 +1,4 @@
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IconButton,
@@ -13,15 +13,16 @@ import { createStyles, makeStyles } from '@mui/styles';
 import { TranslateRounded as TranslateIcon } from '@mui/icons-material';
 import ClientOnly from '@/components/client-only';
 
+// Static data, never mutated after this module loads - no need for a ref.
+const translations = [
+  { language: 'Español', lcode: 'es-MX' },
+  { language: 'English', lcode: 'en-US' },
+  { language: 'Deutsch', lcode: 'de-DE' },
+];
+
 export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
   const classes = useStyles();
   const { t, i18n } = useTranslation();
-
-  const translations = useRef([
-    { language: 'Español', lcode: 'es-MX' },
-    { language: 'English', lcode: 'en-US' },
-    { language: 'Deutsch', lcode: 'de-DE' },
-  ]);
 
   const [translationAnchorEl, setTranslationAnchorEl] = useState<
     EventTarget & HTMLButtonElement
@@ -29,7 +30,7 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
 
   const handleTranslationMenuItemClick = (index: number): void => {
     setTranslationAnchorEl(undefined);
-    i18n.changeLanguage(translations.current[index].lcode);
+    i18n.changeLanguage(translations[index].lcode);
   };
 
   const handleTranslationIconClick: React.MouseEventHandler<
@@ -64,8 +65,10 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
       {/* Translate.menu */}
       <Menu
         id="language-switcher-menu"
-        MenuListProps={{
-          'aria-labelledby': 'language-switcher-button',
+        slotProps={{
+          list: {
+            'aria-labelledby': 'language-switcher-button',
+          },
         }}
         anchorEl={translationAnchorEl}
         className={classes.translationMenu}
@@ -75,14 +78,18 @@ export default function LanguageSwitcher(props: IconButtonProps): ReactElement {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
-        {translations.current.map((translation, index) => (
+        {translations.map((translation, index) => (
           <MenuItem
             id={translation.lcode}
             className={classes.translationMenuItem}
             key={translation.lcode}
             onClick={() => handleTranslationMenuItemClick(index)}
           >
-            <Typography variant="inherit" display="block" noWrap={true}>
+            <Typography
+              variant="inherit"
+              sx={{ display: 'block' }}
+              noWrap={true}
+            >
               {translation.language}
             </Typography>
           </MenuItem>

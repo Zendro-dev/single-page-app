@@ -47,10 +47,7 @@ export default function Navigation({
             <NavGroup
               key={route.name}
               icon={route.icon ? getIcon(route.icon) : undefined}
-              label={t(
-                (`models-layout.${route.name.toLowerCase()}` as unknown as TemplateStringsArray) ??
-                  route.name
-              )}
+              label={t(`models-layout.${route.name.toLowerCase()}`)}
             >
               {route.routes.map(({ name, href }) => (
                 <NavLink
