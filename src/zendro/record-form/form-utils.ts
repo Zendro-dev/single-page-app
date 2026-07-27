@@ -1,6 +1,36 @@
-import { AttributeValue, DataRecord, ParsedAttribute } from '@/types/models';
+import {
+  AttributeArrayValue,
+  AttributeType,
+  AttributeValue,
+  AttributeWithDescription,
+  DataRecord,
+  ParsedAttribute,
+} from '@/types/models';
 import { isNullorEmpty } from '@/utils/validation';
 import { FormAttribute, FormView } from './form';
+
+/**
+ * Server responses carry DateTime values as plain ISO strings (JSON has no
+ * Date type) - the record form's fields expect real `Date` instances (e.g.
+ * the DateTimePicker, which silently renders blank for a string value), so
+ * this converts on the way from fetched data into form state. The reverse
+ * direction needs no explicit handling: a `Date` in a GraphQL variable is
+ * implicitly stringified back to ISO by JSON.stringify on submit.
+ */
+function toFieldValue(
+  type: AttributeType | AttributeWithDescription,
+  raw: AttributeValue
+): AttributeValue {
+  const attrType = typeof type === 'string' ? type : type.type;
+  if (raw == null) return raw;
+  if (attrType === 'DateTime') return new Date(raw as string);
+  if (attrType === '[DateTime]' && Array.isArray(raw)) {
+    return raw.map((value) =>
+      value == null ? value : new Date(value as string)
+    ) as AttributeArrayValue;
+  }
+  return raw;
+}
 
 /* STATE MANAGEMENT */
 
@@ -39,7 +69,7 @@ export function initForm({
         type,
         primaryKey,
         readOnly: formView === 'update' && primaryKey,
-        value: (data?.[name] as AttributeValue) ?? null,
+        value: toFieldValue(type, (data?.[name] as AttributeValue) ?? null),
         serverErrors: errors?.[name],
       });
 
@@ -75,7 +105,10 @@ function updateValues(
 ): FormAttribute[] {
   const { data } = payload;
   return state.map((attribute) => {
-    attribute.value = data[attribute.name] as AttributeValue;
+    attribute.value = toFieldValue(
+      attribute.type,
+      data[attribute.name] as AttributeValue
+    );
     return attribute;
   });
 }
