@@ -46,7 +46,12 @@ export default function DateTimePicker({
     >
       <MobileDateTimePicker
         ampm={false}
-        format="yyyy/MM/dd HH:mm:ss.SSS" //https://date-fns.org/v2.19.0/docs/format
+        // No milliseconds section: the new segmented field (unlike the old
+        // masked single-string input) requires every section to have a
+        // value before it reports a complete Date via onChange, and .SSS
+        // isn't independently settable/needed since the backend doesn't
+        // store sub-second precision anyway.
+        format="yyyy/MM/dd HH:mm:ss" //https://date-fns.org/v2.19.0/docs/format
         onChange={handleOnChange}
         disabled={disabled}
         onClose={toggleAdornment}
@@ -79,7 +84,13 @@ export default function DateTimePicker({
             },
           },
         }}
-        value={value}
+        // `value` can genuinely be `undefined` on first render (record data
+        // hasn't loaded yet - the initial state object has no key for this
+        // field at all), then `null`/a real Date once it has. MUI's picker
+        // decides controlled-vs-uncontrolled from whether `value` is
+        // `undefined` on its first render, so that transition needs to be
+        // masked here rather than passed through.
+        value={value ?? null}
       />
     </LocalizationProvider>
   );
