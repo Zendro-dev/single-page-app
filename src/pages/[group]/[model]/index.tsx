@@ -46,7 +46,7 @@ import {
   bulkDownload,
 } from 'zendro-bulk-create';
 import * as XLSX from '@e965/xlsx';
-import inflection from 'inflection';
+import * as inflection from 'inflection';
 import ModelBouncer from '@/zendro/model-bouncer';
 import {
   Table,
@@ -215,7 +215,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      showSnackbar(t('errors.server-error'), 'error', error);
+      parseAndDisplayErrorResponse(error);
     }
   };
 
@@ -241,13 +241,7 @@ const Model: PageWithLayout<ModelProps> = (props) => {
         URL.revokeObjectURL(downloadUrl);
       }
     } catch (error) {
-      const clientError = error as ExtendedClientError;
-
-      if (
-        clientError.response?.errors &&
-        !hasTokenExpiredErrors(clientError.response.errors)
-      )
-        showSnackbar(t('errors.server-error'), 'error', error);
+      parseAndDisplayErrorResponse(error);
     }
   };
 
