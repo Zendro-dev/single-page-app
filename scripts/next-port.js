@@ -2,11 +2,11 @@
 /*
  * Cross-platform launcher for `next <command>` on an env-driven port.
  *
- * The POSIX package.json scripts use `next <command> -p ${PORT:-8080}`, but
- * cmd.exe has no `${PORT:-8080}` default-expansion syntax, so the Windows
- * scripts (`dev:win`, `start:win`) used to hard-code `-p 8080` and ignore the
- * PORT environment variable entirely. This launcher restores the same
- * behaviour on every platform: use process.env.PORT, defaulting to 8080.
+ * A shell form like `next <command> -p ${PORT:-8080}` only works on POSIX
+ * shells - cmd.exe has no `${PORT:-8080}` default-expansion syntax - which used
+ * to force separate `:win` script variants. This launcher expresses the same
+ * "use process.env.PORT, defaulting to 8080" behaviour in plain Node, so the
+ * `dev` and `start` scripts work identically on every platform without a split.
  *
  * Usage: node scripts/next-port.js <dev|start>
  */
