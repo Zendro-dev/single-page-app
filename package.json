@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p ${PORT:-8080}",
-    "dev:win": "next dev -p 8080",
+    "dev:win": "node scripts/next-port.js dev",
     "build": "next build",
     "export": "next export",
     "start": "next start -p ${PORT:-8080}",
-    "start:win": "next start -p 8080",
+    "start:win": "node scripts/next-port.js start",
     "serve": "serve -l ${PORT:-8080} ./out",
     "lint": "eslint --fix .",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
